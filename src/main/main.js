@@ -14,6 +14,7 @@ const { systemProfile } = require('./services/systemService');
 const { checkLauncherUpdate, downloadLauncherUpdate, installLauncherUpdate } = require('./services/updateService');
 const { listMods, addMods, toggleMod, removeMod, toggleFavorite, togglePin, setAllUserModsEnabled, searchModrinth, installModrinth, planModrinthInstall, searchCurseForge, installCurseForge, getModDetails, copyModToRoot, checkModUpdates, updateModrinthUserMod, updateAllUserMods, identifyLocalModrinthMods, auditMods } = require('./services/modService');
 const { DeveloperService } = require('./services/developerService');
+const { AuthService } = require('./services/authService');
 const { listSnapshots, createSnapshot, restoreSnapshot, deleteSnapshot } = require('./services/recoveryService');
 const { prepareSafeMode, restoreSafeMode } = require('./services/safeModeService');
 const { storageSummary, cleanupLogs } = require('./services/storageService');
@@ -36,6 +37,7 @@ let tray;
 let store;
 let activeOperation = '';
 let developerService;
+let authService;
 let isQuitting = false;
 let nativeUpdateNotified = false;
 
@@ -268,6 +270,7 @@ async function statePayload() {
     needsOnboarding: !config.onboarding?.completed || !validMinecraftUsername(username) || username.toLowerCase() === 'player',
     launcherUpdateConfigured: Boolean(config.launcher?.updateFeedUrl),
     developer: developerService ? developerService.status() : { configured:false, unlocked:false, curseforgeConfigured:false },
+    account: authService ? authService.status() : { authenticated:false, name:'', id:'' },
     operation: activeOperation || '', configRecovery: store.recoveryInfo ? store.recoveryInfo() : null
   };
 }
@@ -569,6 +572,11 @@ function registerIpc() {
 
     config = store.save({ launcher: { lastPlayedAt: new Date().toISOString() } });
     const latest = await currentManifest(config);
+    const premium = await authService.getAuthorization().catch((err) => {
+      if (config.minecraft?.accountMode === 'premium') throw new Error(`No pude renovar la sesión premium: ${err.message || err}`);
+      return null;
+    });
+    if (premium) config = { ...config, minecraft: { ...config.minecraft, username: premium.profile.name, accountMode:'premium', authorization:premium.authorization } };
     const launched = await launchGame({
       config, manifest: latest.manifest, resourcesDir: resourcesDir(), managedJavaRoot: managedJavaRoot(), javaInfo: java,
       onLog: (line) => emit('game:log', line), onProgress: (p) => packProgress(p),
@@ -683,6 +691,17 @@ function registerIpc() {
     return config.pack.installDirectory;
   });
 
+  ipcMain.handle('account:status', async () => authService.status());
+  ipcMain.handle('account:login', async () => runExclusive('inicio de sesión Microsoft', async () => {
+    const result = await authService.login();
+    store.save({ minecraft: { username: result.name, accountMode:'premium' } });
+    return result;
+  }));
+  ipcMain.handle('account:logout', async () => {
+    const result = authService.logout();
+    store.save({ minecraft: { accountMode:'offline' } });
+    return result;
+  });
   ipcMain.handle('developer:status', async () => developerService.status());
   ipcMain.handle('developer:preflight', async () => { const cfg=store.load(); return developerService.preflight(cfg.developer?.sourceDirectory, cfg.developer?.testDirectory, cfg.developer?.githubRepo); });
   ipcMain.handle('developer:backup-source', async () => { const cfg=store.load(); return developerService.backupSourceMods(cfg.developer?.sourceDirectory); });
@@ -815,6 +834,7 @@ if (!gotSingleInstanceLock) {
     process.on('unhandledRejection', (reason) => { appendLauncherError('unhandledRejection', reason); });
     if (process.platform === 'linux') { const os=require('os'); const cfg=store.load(); const devPatch={}; if(!cfg.developer?.sourceDirectory)devPatch.sourceDirectory=path.join(os.homedir(),'.sklauncher','instances','siege'); if(!cfg.developer?.testDirectory)devPatch.testDirectory=path.join(os.homedir(),'.sklauncher','instances','test-1'); if(Object.keys(devPatch).length)store.save({developer:devPatch}); }
     developerService = new DeveloperService(app.getPath('userData'), scriptsDir());
+    authService = new AuthService(app.getPath('userData'));
     applyWindowsTasks();
     restoreSafeMode(store.load().pack.installDirectory).catch(()=>null);
     registerIpc(); createTray(); createWindow();

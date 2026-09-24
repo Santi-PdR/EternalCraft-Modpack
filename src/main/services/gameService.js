@@ -20,7 +20,7 @@ async function launchGame({ config, manifest, resourcesDir, managedJavaRoot = ''
   launcher.on('data', (line) => onLog({ stream: 'game', line: String(line) }));
 
   const options = {
-    authorization: Authenticator.getAuth(username),
+    authorization: config.minecraft.authorization || Authenticator.getAuth(username),
     root,
     version: { number: manifest.minecraft || config.minecraft.version || '1.20.1', type: 'release' },
     memory: {

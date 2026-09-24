@@ -12,7 +12,7 @@ const mockConfig = {
   onboarding:{completed:true},links:{}
 };
 const mockManifest = {
-  schema:2,version:'1.0.0',releaseName:'Siege Origin',minecraft:'1.20.1',forge:'47.4.10',minimumLauncher:'0.25.4',files:[],remove:[],
+  schema:2,version:'1.0.0',releaseName:'Siege Origin',minecraft:'1.20.1',forge:'47.4.10',minimumLauncher:'0.25.5',files:[],remove:[],
   releaseNotes:{title:'SIEGE DEV',summary:'Base del launcher renovada y sistema de actualización segura.',addedCount:2,changedCount:4,removedCount:0,highlights:[{type:'changed',path:'mods/siege-menu.jar'},{type:'added',path:'config/eternal-client.toml'}]}
 };
 
@@ -23,7 +23,7 @@ function merge(target, patch){
 }
 
 const previewApi = {
-  getState:async()=>({appVersion:'0.25.4',platform:'preview',packaged:false,config:mockConfig,manifest:mockManifest,manifestConfigured:true,manifestSource:'development',java:{found:true,major:17,version:'17.0.x',path:'java'},needsOnboarding:false,launcherUpdateConfigured:false,minimumLauncher:'0.25.4',launcherCompatible:true,developer:{configured:false,unlocked:false,curseforgeConfigured:false},system:{recommendedRamGb:6,maxRamGb:11,totalMemoryBytes:16*1024**3,gpus:[{vendor:'NVIDIA',name:'NVIDIA GeForce GTX 1050'}],display:{width:1920,height:1080,workWidth:1920,workHeight:1040,scaleFactor:1,label:'Monitor principal'},disk:{available:true,freeBytes:180*1024**3,totalBytes:480*1024**3,requiredBytes:512*1024**2}}}),
+  getState:async()=>({appVersion:'0.25.5',platform:'preview',packaged:false,config:mockConfig,manifest:mockManifest,manifestConfigured:true,manifestSource:'development',java:{found:true,major:17,version:'17.0.x',path:'java'},needsOnboarding:false,launcherUpdateConfigured:false,minimumLauncher:'0.25.5',launcherCompatible:true,developer:{configured:false,unlocked:false,curseforgeConfigured:false},account:{authenticated:false,name:'',id:''},system:{recommendedRamGb:6,maxRamGb:11,totalMemoryBytes:16*1024**3,gpus:[{vendor:'NVIDIA',name:'NVIDIA GeForce GTX 1050'}],display:{width:1920,height:1080,workWidth:1920,workHeight:1040,scaleFactor:1,label:'Monitor principal'},disk:{available:true,freeBytes:180*1024**3,totalBytes:480*1024**3,requiredBytes:512*1024**2}}}),
   completeOnboarding:async(p)=>{mockConfig.minecraft.username=p.username;mockConfig.onboarding.completed=true;return previewApi.getState()},
   pingServer:async()=>({online:true,latency:57,players:{online:12,max:40},version:'Forge 1.20.1',favicon:null}),
   checkPack:async()=>({configured:true,state:{version:'SIEGE-DEV',updatedAt:new Date().toISOString()},expectedVersion:'SIEGE-DEV',versionMatches:true,total:247,ok:247,missing:[],changed:[],remove:[],bytesRequired:0,healthy:true}),
@@ -51,6 +51,9 @@ const previewApi = {
   copyServerAddress:async()=>true,openInstance:async()=>'',openLogs:async()=>'',openExternal:async()=>true,minimize:()=>{},toggleMaximize:()=>{},close:()=>{},
   onPackProgress:()=>()=>{},onGameLog:()=>()=>{},onGameExit:()=>()=>{},onMaximized:()=>()=>{},onLauncherUpdate:()=>()=>{},onDeveloperPublishLog:()=>()=>{},onUiCommand:()=>()=>{}
 };
+previewApi.accountStatus=async()=>({authenticated:false,name:'',id:''});
+previewApi.accountLogin=async()=>({authenticated:true,name:mockConfig.minecraft.username||'Jugador',id:'preview'});
+previewApi.accountLogout=async()=>({authenticated:false,name:'',id:''});
 const api = window.eternal || previewApi;
 
 let appState=null;
@@ -286,6 +289,23 @@ function renderSession(){
   if($('totalPlayTime'))$('totalPlayTime').textContent=stats.totalMs?formatDuration(stats.totalMs):'—';
   const host=$('activityWeek'); if(host){host.innerHTML='';const days=[];for(let i=6;i>=0;i--){const d=new Date();d.setHours(12,0,0,0);d.setDate(d.getDate()-i);const key=d.toISOString().slice(0,10);days.push({key,label:['Dom','Lun','Mar','Mié','Jue','Vie','Sáb'][d.getDay()],ms:Number(stats.days?.[key]||0),today:i===0});}const max=Math.max(1,...days.map(x=>x.ms));for(const day of days){const el=document.createElement('div');el.className=`activity-day ${day.today?'today':''}`;const pct=day.ms?Math.max(8,Math.round(day.ms/max*100)):3;el.innerHTML=`<i style="height:${pct}%" title="${day.ms?formatDuration(day.ms):'Sin sesión'}"></i><span>${day.label}</span>`;host.appendChild(el);}}
 }
+function renderAccount(account={}){
+  const premium=Boolean(account.authenticated);
+  if($('minecraftAccountName'))$('minecraftAccountName').textContent=premium?(account.name||'Cuenta Microsoft'):'Perfil local';
+  if($('minecraftAccountStatus'))$('minecraftAccountStatus').textContent=premium?'Sesión Microsoft guardada de forma segura en este equipo.':'Podés jugar en modo offline o iniciar sesión con Microsoft.';
+  $('minecraftLoginBtn')?.classList.toggle('hidden',premium); $('minecraftLogoutBtn')?.classList.toggle('hidden',!premium);
+  if(premium&&$('usernameInput')&&account.name)$('usernameInput').value=account.name;
+}
+async function loginMicrosoft(){
+  if(busy)return; setBusy(true,'ABRIENDO MICROSOFT');
+  try{const account=await api.accountLogin();renderAccount(account);if(appState){appState.account=account;appState.config.minecraft={...(appState.config.minecraft||{}),username:account.name||appState.config.minecraft.username,accountMode:'premium'};}toast(`Sesión iniciada como ${account.name||'cuenta Microsoft'}.`,'success');}
+  catch(err){toast(err.message||String(err),'error');}
+  finally{setBusy(false);}
+}
+async function logoutMicrosoft(){
+  if(!await askConfirm({title:'Cerrar sesión Microsoft',message:'Minecraft volverá a usar el modo offline de este equipo.',confirmText:'Cerrar sesión'}))return;
+  try{const account=await api.accountLogout();renderAccount(account);if(appState){appState.account=account;appState.config.minecraft={...(appState.config.minecraft||{}),accountMode:'offline'};}toast('Sesión Microsoft cerrada.','success');}catch(err){toast(err.message||String(err),'error');}
+}
 
 function fillBaseState(state){
   appState=state; const {config,manifest,java}=state; const user=config.minecraft.username||'—';
@@ -313,7 +333,7 @@ function fillBaseState(state){
   const disk=state.system?.disk; $('storageReadout').textContent=disk?.available?`Espacio libre: ${formatStorage(disk.freeBytes)} · el launcher reserva margen temporal para actualizar con seguridad.`:'No pude calcular el espacio libre de esta unidad.';
   setHealth('sideJava',javaOk?'OK':config.minecraft.autoInstallJava!==false?'AUTO':'REVISAR',javaOk?'ok':config.minecraft.autoInstallJava!==false?'warn':'bad'); setHealth('sidePack',state.manifestStale?'CACHÉ':state.manifestConfigured?'LINKED':'DEV',state.manifestStale?'warn':state.manifestConfigured?'ok':'warn');
   setHealth('readyJava',javaOk?'LISTO':config.minecraft.autoInstallJava!==false?'AUTOMÁTICO':'REVISAR',javaOk?'ok':config.minecraft.autoInstallJava!==false?'warn':'bad'); setHealth('readyLauncher',state.launcherCompatible?'LISTO':`v${state.minimumLauncher}+`,state.launcherCompatible?'ok':'bad');
-  renderDeveloper(state.developer||{configured:false,unlocked:false,curseforgeConfigured:false}); renderReleaseNotes(); renderDiscordChannels(); renderSession(); updatePlayAvailability(); renderReadiness();
+  renderDeveloper(state.developer||{configured:false,unlocked:false,curseforgeConfigured:false}); renderAccount(state.account||{}); renderReleaseNotes(); renderDiscordChannels(); renderSession(); updatePlayAvailability(); renderReadiness();
 }
 
 function renderPackInfo(){
@@ -900,6 +920,7 @@ function bind(){
   $('ramRange').addEventListener('input',updateRamPicker); $('ramMinus').addEventListener('click',()=>setRam(Number($('ramRange').value)-1)); $('ramPlus').addEventListener('click',()=>setRam(Number($('ramRange').value)+1)); $$('#ramPresets [data-ram]').forEach(btn=>btn.addEventListener('click',()=>setRam(Number(btn.dataset.ram))));
   $('themeSelect').addEventListener('change',()=>{document.body.dataset.theme=$('themeSelect').value}); $('themeSelect').addEventListener('change',()=>{document.body.dataset.theme=$('themeSelect').value;$$('#themeGallery [data-theme-choice]').forEach(b=>b.classList.toggle('active',b.dataset.themeChoice===$('themeSelect').value))});$$('#themeGallery [data-theme-choice]').forEach(btn=>btn.addEventListener('click',()=>{$('themeSelect').value=btn.dataset.themeChoice;document.body.dataset.theme=btn.dataset.themeChoice;$$('#themeGallery [data-theme-choice]').forEach(b=>b.classList.toggle('active',b===btn))}));$('backgroundSelect').addEventListener('change',()=>applyBackground($('backgroundSelect').value));$('densitySelect')?.addEventListener('change',()=>document.body.dataset.density=$('densitySelect').value);$('uiScaleSelect')?.addEventListener('change',()=>document.body.dataset.uiScale=$('uiScaleSelect').value);$('glassEffectsToggle')?.addEventListener('change',()=>document.body.classList.toggle('glass-off',!$('glassEffectsToggle').checked));$('scanlinesToggle').addEventListener('change',()=>document.body.classList.toggle('no-scanlines',!$('scanlinesToggle').checked));$('noiseToggle').addEventListener('change',()=>document.body.classList.toggle('no-noise',!$('noiseToggle').checked));$('reducedMotionToggle').addEventListener('change',()=>document.body.classList.toggle('reduced-motion',$('reducedMotionToggle').checked));
   $('installJavaBtn').addEventListener('click',installJava);$('saveSettingsBtn').addEventListener('click',saveSettings);$('resetPresetBtn').addEventListener('click',async()=>{try{await api.resetGamePreset($('gamePresetSelect').value);toast('Ajustes recomendados restaurados.','success')}catch(err){toast(err.message||String(err),'error')}});
+  $('minecraftLoginBtn')?.addEventListener('click',loginMicrosoft);$('minecraftLogoutBtn')?.addEventListener('click',logoutMicrosoft);
   $('autoConfigureBtn')?.addEventListener('click',autoConfigureRecommended);$('exportSettingsBtn')?.addEventListener('click',exportSettingsAction);$('importSettingsBtn')?.addEventListener('click',importSettingsAction);
   $('vaultChooseBtn')?.addEventListener('click',chooseVault);$('vaultPushBtn')?.addEventListener('click',pushVaultAction);$('vaultPullBtn')?.addEventListener('click',pullVaultAction);
   $('changeInstallBtn').addEventListener('click',async()=>{try{const folder=await api.chooseInstallDirectory();if(folder){appState.config.pack.installDirectory=folder;$('instancePath').textContent=folder;$('settingsInstallPath').textContent=folder;toast('Carpeta actualizada.','success')}}catch(err){toast(err.message||String(err),'error')}});

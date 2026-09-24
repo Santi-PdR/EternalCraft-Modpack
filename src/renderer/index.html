@@ -89,7 +89,7 @@
 
   <div id="whatsNewOverlay" class="whats-new-overlay hidden" role="dialog" aria-modal="true" aria-label="Novedades del launcher">
     <section class="whats-new-card">
-      <div class="whats-new-hero"><img src="assets/logo.svg" alt=""/><div><span class="eyebrow">ETERNAL CRAFT LAUNCHER</span><h2>v0.25.4</h2><p>Avisos de mods controlables, acceso de mantenimiento recuperable y centro de notificaciones más claro.</p></div></div>
+      <div class="whats-new-hero"><img src="assets/logo.svg" alt=""/><div><span class="eyebrow">ETERNAL CRAFT LAUNCHER</span><h2>v0.25.5</h2><p>Inicio premium con Microsoft, instalación limpia y acceso de mantenimiento recuperable.</p></div></div>
       <div class="whats-new-grid">
         <div><i>01</i><b>Perfil de juego inteligente</b><span>RAM, resolución, GPU y preset visibles desde Inicio con configuración recomendada en un toque.</span></div>
         <div><i>02</i><b>Búsqueda de Ajustes</b><span>Encontrá una opción sin recorrer todas las categorías.</span></div>
@@ -115,7 +115,7 @@
         <b id="notificationsBadge" class="hidden">0</b>
       </button>
       <div id="globalStatus" class="global-status" title="Estado de conexión"><i></i><span id="globalStatusText">COMPROBANDO</span></div>
-      <div id="titleBuild" class="title-build">BUILD 0.25.4</div>
+      <div id="titleBuild" class="title-build">BUILD 0.25.5</div>
       <div class="window-controls">
         <button id="minimizeBtn" aria-label="Minimizar">—</button>
         <button id="maximizeBtn" aria-label="Maximizar">□</button>
@@ -447,7 +447,7 @@
         <div class="update-center-grid">
           <article class="panel update-product-card" data-update-kind="pack"><div class="update-product-icon">▦</div><div class="update-product-copy"><span>MODPACK OFICIAL</span><b id="updatesPackTitle">Comprobando…</b><small id="updatesPackText">—</small></div><button id="updatesPackBtn" class="ghost">ABRIR</button></article>
           <article class="panel update-product-card" data-update-kind="mods"><div class="update-product-icon">◇</div><div class="update-product-copy"><span>MODS PERSONALES</span><b id="updatesModsTitle">Comprobando…</b><small id="updatesModsText">—</small></div><button id="updatesModsBtn" class="ghost">ABRIR</button></article>
-          <article class="panel update-product-card" data-update-kind="launcher"><div class="update-product-icon">↻</div><div class="update-product-copy"><span>LAUNCHER</span><b id="updatesLauncherTitle">v0.25.4</b><small id="updatesLauncherText">Comprobando canal…</small></div><button id="updatesLauncherBtn" class="ghost">COMPROBAR</button></article>
+          <article class="panel update-product-card" data-update-kind="launcher"><div class="update-product-icon">↻</div><div class="update-product-copy"><span>LAUNCHER</span><b id="updatesLauncherTitle">v0.25.5</b><small id="updatesLauncherText">Comprobando canal…</small></div><button id="updatesLauncherBtn" class="ghost">COMPROBAR</button></article>
           <article class="panel update-product-card" data-update-kind="runtime"><div class="update-product-icon">J</div><div class="update-product-copy"><span>RUNTIME</span><b id="updatesRuntimeTitle">Java 17</b><small id="updatesRuntimeText">—</small></div><button id="updatesRuntimeBtn" class="ghost">AJUSTES</button></article>
         </div>
         <article class="panel update-policy-card">
@@ -548,6 +548,10 @@
             <div class="panel-head"><span>CUENTA Y JUEGO</span><b>CLIENT</b></div>
             <div class="settings-body">
               <label class="field"><span>NICK DE MINECRAFT</span><input id="usernameInput" maxlength="16" autocomplete="off" spellcheck="false" /></label>
+              <div class="account-card">
+                <div><span class="eyebrow">CUENTA PREMIUM</span><b id="minecraftAccountName">Perfil local</b><small id="minecraftAccountStatus">Podés jugar en modo offline o iniciar sesión con Microsoft.</small></div>
+                <div class="button-row"><button id="minecraftLoginBtn" class="ghost" type="button">INICIAR SESIÓN MICROSOFT</button><button id="minecraftLogoutBtn" class="ghost hidden" type="button">CERRAR SESIÓN</button></div>
+              </div>
               <div class="field ram-field"><span class="field-label">RAM ASIGNADA <b id="ramValue">6 GB</b></span><div class="ram-picker"><button id="ramMinus" type="button">−</button><div id="ramPresets" class="ram-presets"><button type="button" data-ram="4">4 GB</button><button type="button" data-ram="6">6 GB</button><button type="button" data-ram="8">8 GB</button><button type="button" data-ram="10">10 GB</button><button type="button" data-ram="12">12 GB</button></div><button id="ramPlus" type="button">+</button></div><input id="ramRange" type="range" min="3" max="12" step="1" value="6"/><small id="ramRecommendation" class="field-hint">Recomendado: calculando...</small></div>
               <div class="field-row">
                 <label class="field hidden"><span>PRESET</span><select id="gamePresetSelect"><option value="performance">Rendimiento</option><option value="balanced">Equilibrado</option><option value="quality">Calidad</option></select></label>
@@ -678,7 +682,7 @@
     </main>
 
     <footer class="statusbar">
-      <span id="footerStatus">INICIANDO</span><i></i><span id="footerServer" class="hidden">LINK --</span><div></div><span id="footerBuild">ETERNAL CRAFT LAUNCHER // 0.25.4</span>
+      <span id="footerStatus">INICIANDO</span><i></i><span id="footerServer" class="hidden">LINK --</span><div></div><span id="footerBuild">ETERNAL CRAFT LAUNCHER // 0.25.5</span>
     </footer>
   </div>
 

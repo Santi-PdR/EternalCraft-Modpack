@@ -8,6 +8,7 @@ APP_HOME="$HOME/.local/opt/eternal-craft-launcher"
 APPIMAGE="$APP_HOME/Eternal-Craft-Launcher.AppImage"
 WRAPPER="$HOME/.local/bin/eternal-craft-launcher"
 DESKTOP="$HOME/.local/share/applications/$APP_ID.desktop"
+DESKTOP_DIRS=("$HOME/Escritorio" "$HOME/Desktop")
 ICON_DIR="$HOME/.local/share/icons/hicolor/512x512/apps"
 SOURCE="$HOME/.sklauncher/instances/siege"
 VERSION="$(node -p "require('./package.json').version" 2>/dev/null || echo 0.25.0)"
@@ -63,6 +64,12 @@ StartupWMClass=uy.eternalcraft.launcher
 X-GNOME-SingleWindow=true
 DESKTOP
 chmod +x "$DESKTOP"
+for desktop_dir in "${DESKTOP_DIRS[@]}"; do
+  if [[ -d "$desktop_dir" ]]; then
+    cp -f "$DESKTOP" "$desktop_dir/Eternal Craft Launcher.desktop"
+    chmod +x "$desktop_dir/Eternal Craft Launcher.desktop"
+  fi
+done
 command -v update-desktop-database >/dev/null && update-desktop-database "$HOME/.local/share/applications" >/dev/null 2>&1 || true
 command -v kbuildsycoca6 >/dev/null && kbuildsycoca6 >/dev/null 2>&1 || true
 
