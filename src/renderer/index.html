@@ -89,7 +89,7 @@
 
   <div id="whatsNewOverlay" class="whats-new-overlay hidden" role="dialog" aria-modal="true" aria-label="Novedades del launcher">
     <section class="whats-new-card">
-      <div class="whats-new-hero"><img src="assets/logo.svg" alt=""/><div><span class="eyebrow">ETERNAL CRAFT LAUNCHER</span><h2>v0.25.3</h2><p>Interfaz de mods sin solapamientos y estado del servidor oculto para evitar falsos positivos.</p></div></div>
+      <div class="whats-new-hero"><img src="assets/logo.svg" alt=""/><div><span class="eyebrow">ETERNAL CRAFT LAUNCHER</span><h2>v0.25.4</h2><p>Avisos de mods controlables, acceso de mantenimiento recuperable y centro de notificaciones más claro.</p></div></div>
       <div class="whats-new-grid">
         <div><i>01</i><b>Perfil de juego inteligente</b><span>RAM, resolución, GPU y preset visibles desde Inicio con configuración recomendada en un toque.</span></div>
         <div><i>02</i><b>Búsqueda de Ajustes</b><span>Encontrá una opción sin recorrer todas las categorías.</span></div>
@@ -115,7 +115,7 @@
         <b id="notificationsBadge" class="hidden">0</b>
       </button>
       <div id="globalStatus" class="global-status" title="Estado de conexión"><i></i><span id="globalStatusText">COMPROBANDO</span></div>
-      <div id="titleBuild" class="title-build">BUILD 0.25.3</div>
+      <div id="titleBuild" class="title-build">BUILD 0.25.4</div>
       <div class="window-controls">
         <button id="minimizeBtn" aria-label="Minimizar">—</button>
         <button id="maximizeBtn" aria-label="Maximizar">□</button>
@@ -298,13 +298,13 @@
         </div>
 
         <div id="modsUpdateBar" class="mods-update-bar hidden">
-          <div class="mods-update-icon">↻</div><div><b><span id="modsUpdateCount">0</span> actualizaciones</b><span id="modsUpdateText">Comprobando mods personales…</span></div><button id="modsUpdateAllBtn" class="primary">ACTUALIZAR TODO</button>
+          <div class="mods-update-icon">↻</div><div><b><span id="modsUpdateCount">0</span> actualizaciones</b><span id="modsUpdateText">Comprobando mods personales…</span></div><div class="mods-warning-actions"><button id="modsUpdateIgnoreBtn" class="ghost">IGNORAR</button><button id="modsUpdateAllBtn" class="primary">ACTUALIZAR TODO</button></div>
         </div>
 
         <div id="modsAuditBar" class="mods-audit-bar">
           <div class="mods-audit-icon">✓</div>
           <div><b id="modsAuditTitle">Compatibilidad de mods</b><span id="modsAuditText">Revisando duplicados, mods locales y compatibilidad de cliente.</span></div>
-          <button id="modsAuditBtn" class="ghost">REVISAR</button>
+          <div class="mods-warning-actions"><button id="modsAuditIgnoreBtn" class="ghost">IGNORAR</button><button id="modsHideWarningsBtn" class="ghost">NO VOLVER A MOSTRAR</button><button id="modsAuditBtn" class="ghost">REVISAR</button></div>
         </div>
 
         <div class="mods-store-layout">
@@ -447,7 +447,7 @@
         <div class="update-center-grid">
           <article class="panel update-product-card" data-update-kind="pack"><div class="update-product-icon">▦</div><div class="update-product-copy"><span>MODPACK OFICIAL</span><b id="updatesPackTitle">Comprobando…</b><small id="updatesPackText">—</small></div><button id="updatesPackBtn" class="ghost">ABRIR</button></article>
           <article class="panel update-product-card" data-update-kind="mods"><div class="update-product-icon">◇</div><div class="update-product-copy"><span>MODS PERSONALES</span><b id="updatesModsTitle">Comprobando…</b><small id="updatesModsText">—</small></div><button id="updatesModsBtn" class="ghost">ABRIR</button></article>
-          <article class="panel update-product-card" data-update-kind="launcher"><div class="update-product-icon">↻</div><div class="update-product-copy"><span>LAUNCHER</span><b id="updatesLauncherTitle">v0.25.3</b><small id="updatesLauncherText">Comprobando canal…</small></div><button id="updatesLauncherBtn" class="ghost">COMPROBAR</button></article>
+          <article class="panel update-product-card" data-update-kind="launcher"><div class="update-product-icon">↻</div><div class="update-product-copy"><span>LAUNCHER</span><b id="updatesLauncherTitle">v0.25.4</b><small id="updatesLauncherText">Comprobando canal…</small></div><button id="updatesLauncherBtn" class="ghost">COMPROBAR</button></article>
           <article class="panel update-product-card" data-update-kind="runtime"><div class="update-product-icon">J</div><div class="update-product-copy"><span>RUNTIME</span><b id="updatesRuntimeTitle">Java 17</b><small id="updatesRuntimeText">—</small></div><button id="updatesRuntimeBtn" class="ghost">AJUSTES</button></article>
         </div>
         <article class="panel update-policy-card">
@@ -617,6 +617,7 @@
               <label class="field"><span>PÁGINA AL ABRIR</span><select id="startPageSelect"><option value="home">Jugar</option><option value="mods">Mods</option><option value="updates">Actualizaciones</option><option value="modpack">Modpack</option></select><small class="field-hint">Elegí qué sección querés ver al abrir el launcher.</small></label>
               <label class="switch-row"><span><b>Comprobar conectividad al abrir</b><small>Revisa el canal del pack y servicios de mods sin bloquear el inicio.</small></span><input id="autoConnectivityToggle" type="checkbox"/><i></i></label>
               <label class="switch-row"><span><b>Advertencias de compatibilidad</b><small>Avisa por duplicados, mods locales y mods pensados solo para servidor.</small></span><input id="compatibilityWarningsToggle" type="checkbox"/><i></i></label>
+              <label class="switch-row"><span><b>Mostrar avisos de mods</b><small>Controla las barras de actualizaciones y compatibilidad en la sección Mods.</small></span><input id="modWarningsToggle" type="checkbox"/><i></i></label>
               <div class="vault-card">
                 <div class="vault-head"><div><span class="eyebrow">PERSONAL VAULT</span><b>Tus archivos, bajo tu control</b><p>Sin cuenta obligatoria ni nube propietaria. Elegí una carpeta local o sincronizada por OneDrive, Dropbox, Nextcloud o Syncthing.</p></div><span id="vaultBadge" class="vault-badge">SIN CONFIGURAR</span></div>
                 <div class="vault-status-grid"><div><span>CARPETA</span><b id="vaultPath">No elegida</b></div><div><span>ÚLTIMO GUARDADO</span><b id="vaultLastPush">—</b></div><div><span>CONTENIDO</span><b id="vaultSummary">—</b></div></div>
@@ -652,7 +653,7 @@
               <div id="developerLocked" class="developer-gate">
                 <div><b id="developerGateTitle">Acceso protegido</b><p id="developerGateText">La primera vez elegís una contraseña local. Después se pide para publicar o cambiar el pack.</p></div>
                 <input id="developerPassword" type="password" autocomplete="current-password" placeholder="Contraseña de desarrollador" />
-                <button id="developerUnlockBtn" class="primary">ENTRAR</button>
+                <div class="developer-gate-actions"><button id="developerUnlockBtn" class="primary">ENTRAR</button><button id="developerResetBtn" class="ghost hidden">RESTABLECER ACCESO</button></div>
               </div>
               <div id="developerUnlocked" class="developer-tools hidden">
                 <div class="dev-grid">
@@ -677,7 +678,7 @@
     </main>
 
     <footer class="statusbar">
-      <span id="footerStatus">INICIANDO</span><i></i><span id="footerServer" class="hidden">LINK --</span><div></div><span id="footerBuild">ETERNAL CRAFT LAUNCHER // 0.25.3</span>
+      <span id="footerStatus">INICIANDO</span><i></i><span id="footerServer" class="hidden">LINK --</span><div></div><span id="footerBuild">ETERNAL CRAFT LAUNCHER // 0.25.4</span>
     </footer>
   </div>
 

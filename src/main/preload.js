@@ -64,6 +64,7 @@ contextBridge.exposeInMainWorld('eternal', {
   developerBackupSource: () => ipcRenderer.invoke('developer:backup-source'),
   developerSetup: (password) => ipcRenderer.invoke('developer:setup', password),
   developerUnlock: (password) => ipcRenderer.invoke('developer:unlock', password),
+  developerResetAccess: () => ipcRenderer.invoke('developer:reset-access'),
   developerLock: () => ipcRenderer.invoke('developer:lock'),
   developerChangePassword: (payload) => ipcRenderer.invoke('developer:change-password', payload),
   developerSetCurseForgeKey: (key) => ipcRenderer.invoke('developer:set-curseforge-key', key),

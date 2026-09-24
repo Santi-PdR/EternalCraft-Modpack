@@ -79,6 +79,14 @@ class DeveloperService {
     if (!safeEqualHex(hashPassword(password, s.passwordSalt), s.passwordHash)) throw new Error('Contraseña incorrecta.');
     this.unlocked = true; return this.status();
   }
+  resetAccess() {
+    this.requireAvailable();
+    this.unlocked = false;
+    const current = this.load();
+    delete current.passwordSalt; delete current.passwordHash;
+    this.save(current);
+    return this.status();
+  }
   lock() { this.unlocked = false; return this.status(); }
   changePassword(currentPassword, nextPassword) {
     this.unlock(currentPassword); if (String(nextPassword || '').length < 6) throw new Error('La nueva contraseña debe tener al menos 6 caracteres.');

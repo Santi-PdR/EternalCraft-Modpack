@@ -93,6 +93,7 @@
     "autoCheckUpdates": true,
     "autoUpdateUserMods": false,
     "compatibilityWarnings": true,
+    "hideWarnings": false,
     "releaseChannel": "release",
     "protectServerCompatibility": true,
     "autoChangeSnapshots": true
