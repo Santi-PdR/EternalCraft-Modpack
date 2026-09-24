@@ -1,0 +1,25 @@
+{
+  "schema": 2,
+  "pack": "Eternal Craft",
+  "channel": "stable",
+  "version": "1.0.0",
+  "releaseName": "Siege Origin",
+  "minecraft": "1.20.1",
+  "forge": "47.4.10",
+  "minimumLauncher": "0.25.0",
+  "generatedAt": "2026-09-23T00:00:00.000Z",
+  "releaseNotes": {
+    "title": "1.0.0 — Siege Origin",
+    "summary": "Primera versión estable del modpack administrado por Eternal Craft Launcher.",
+    "addedCount": 0,
+    "changedCount": 0,
+    "removedCount": 0,
+    "highlights": []
+  },
+  "forgeInstaller": {
+    "url": "https://maven.minecraftforge.net/net/minecraftforge/forge/1.20.1-47.4.10/forge-1.20.1-47.4.10-installer.jar",
+    "sha256": ""
+  },
+  "files": [],
+  "remove": []
+}

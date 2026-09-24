@@ -1,0 +1,680 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Eternal Craft Launcher</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div id="background" class="background scene-frontline"></div>
+  <div class="grain"></div>
+  <div class="scanlines"></div>
+
+  <div id="onboarding" class="onboarding hidden">
+    <section class="onboarding-card">
+      <div class="onboarding-mark"><img src="assets/logo.svg" alt="" /></div>
+      <div class="onboarding-copy">
+        <span class="eyebrow">ETERNAL CRAFT // CONFIGURACIÓN INICIAL</span>
+        <h1>Prepará Eternal Craft</h1>
+        <p>Solo necesitamos tu nick. El launcher detectó tu equipo y ya eligió una configuración recomendada para empezar.</p>
+      </div>
+      <div class="onboarding-progress"><i class="active"></i><i class="active"></i><i class="active"></i><span>LISTO EN MENOS DE UN MINUTO</span></div>
+      <label class="field onboarding-field">
+        <span>NICK DE MINECRAFT</span>
+        <input id="onboardingUsername" maxlength="16" autocomplete="off" spellcheck="false" placeholder="Santipdr" />
+      </label>
+      <div class="onboarding-auto"><div><span>RAM</span><b id="onboardingRam">AUTO</b></div><div><span>RESOLUCIÓN</span><b id="onboardingResolution">AUTO</b></div><div><span>GPU</span><b id="onboardingGpu">AUTO</b></div><div><span>JAVA</span><b id="onboardingJava">AUTO</b></div></div>
+      <p class="onboarding-auto-note">El launcher configura esto automáticamente. Podés cambiarlo después en Ajustes.</p>
+      <div id="onboardingError" class="inline-error"></div>
+      <button id="onboardingContinue" class="primary wide">GUARDAR Y ENTRAR</button>
+      <small>3–16 caracteres · letras, números y _</small>
+    </section>
+  </div>
+
+  <div id="operationOverlay" class="operation-overlay hidden">
+    <section class="operation-card">
+      <div class="operation-head">
+        <div><span class="eyebrow">PACKAGE MANAGER</span><h3 id="operationTitle">SINCRONIZANDO</h3></div>
+        <div class="operation-head-actions"><button id="operationMinimizeBtn" class="operation-minimize" type="button" title="Seguir en segundo plano">−</button><strong id="operationPercent">0%</strong></div>
+      </div>
+      <div class="operation-track"><i id="operationBar"></i></div>
+      <div class="operation-meta">
+        <span id="operationPhase">PREPARANDO...</span>
+        <span id="operationBytes">—</span>
+        <span id="operationSpeed">—</span>
+        <span id="operationEta">—</span>
+      </div>
+      <div id="operationFile" class="operation-file">—</div>
+      <p>Los archivos se descargan y verifican antes de reemplazar la instalación actual. Si algo falla, el cambio se revierte.</p>
+    </section>
+  </div>
+
+  <div id="modDetailOverlay" class="mod-detail-overlay hidden">
+    <section class="mod-detail-card">
+      <button id="modDetailClose" class="mod-detail-close" aria-label="Cerrar">×</button>
+      <div id="modDetailHero" class="mod-detail-hero">
+        <img id="modDetailIcon" src="assets/logo.svg" alt="" />
+        <div><span id="modDetailProvider" class="eyebrow">MODRINTH</span><h2 id="modDetailName">MOD</h2><p id="modDetailSummary">Cargando información…</p><div id="modDetailTags" class="mod-detail-tags"></div></div>
+      </div>
+      <div class="mod-detail-stats"><div><span>DESCARGAS</span><b id="modDetailDownloads">—</b></div><div><span>ACTUALIZADO</span><b id="modDetailUpdated">—</b></div><div><span>CLIENTE</span><b id="modDetailClient">—</b></div><div><span>SERVIDOR</span><b id="modDetailServer">—</b></div></div>
+      <div id="modDetailGallery" class="mod-detail-gallery"></div>
+      <div id="modDetailBody" class="mod-detail-body">Cargando ficha…</div>
+      <div class="mod-detail-actions"><button id="modDetailWebsite" class="ghost">VER PÁGINA</button><button id="modDetailTest" class="ghost hidden">INSTALAR EN TEST-1</button><button id="modDetailInstall" class="primary">INSTALAR</button></div>
+    </section>
+  </div>
+
+  <div id="bootScreen" class="boot-screen">
+    <div class="boot-brand"><img src="assets/logo.svg" alt=""/><div><span>ETERNAL CRAFT</span><b>SIEGE</b><small>Preparando launcher…</small></div></div>
+    <div class="boot-track"><i></i></div>
+  </div>
+
+  <div id="commandPalette" class="command-palette-overlay hidden" role="dialog" aria-modal="true" aria-label="Acciones rápidas">
+    <section class="command-palette-card">
+      <div class="command-search"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/></svg><input id="commandPaletteInput" autocomplete="off" placeholder="Buscar una página o acción..."/><kbd>Esc</kbd></div>
+      <div class="command-caption">ACCIONES RÁPIDAS</div>
+      <div id="commandPaletteResults" class="command-results"></div>
+      <div class="command-footer"><span><kbd>↑</kbd><kbd>↓</kbd> navegar</span><span><kbd>Enter</kbd> ejecutar</span><span><kbd>Ctrl K</kbd> abrir</span></div>
+    </section>
+  </div>
+
+  <div id="appDialog" class="app-dialog-overlay hidden" role="dialog" aria-modal="true">
+    <section class="app-dialog-card">
+      <div id="appDialogMark" class="app-dialog-mark">!</div>
+      <div class="app-dialog-copy"><span id="appDialogEyebrow" class="eyebrow">ETERNAL CRAFT</span><h3 id="appDialogTitle">Confirmar acción</h3><p id="appDialogMessage">—</p></div>
+      <label id="appDialogInputWrap" class="field app-dialog-input hidden"><span id="appDialogInputLabel">VALOR</span><input id="appDialogInput" autocomplete="off"/></label>
+      <div class="app-dialog-actions"><button id="appDialogCancel" class="ghost">Cancelar</button><button id="appDialogConfirm" class="primary">Confirmar</button></div>
+    </section>
+  </div>
+
+  <div id="whatsNewOverlay" class="whats-new-overlay hidden" role="dialog" aria-modal="true" aria-label="Novedades del launcher">
+    <section class="whats-new-card">
+      <div class="whats-new-hero"><img src="assets/logo.svg" alt=""/><div><span class="eyebrow">ETERNAL CRAFT LAUNCHER</span><h2>v0.25.0</h2><p>Crash Guard, Personal Vault y un flujo de mods mucho más seguro.</p></div></div>
+      <div class="whats-new-grid">
+        <div><i>01</i><b>Perfil de juego inteligente</b><span>RAM, resolución, GPU y preset visibles desde Inicio con configuración recomendada en un toque.</span></div>
+        <div><i>02</i><b>Búsqueda de Ajustes</b><span>Encontrá una opción sin recorrer todas las categorías.</span></div>
+        <div><i>03</i><b>Paquete de soporte</b><span>Exporta un informe estructurado sin contraseñas, API keys ni mundos.</span></div>
+        <div><i>04</i><b>Configuración resistente</b><span>Guardado atómico y copia de recuperación si config.json se corrompe.</span></div>
+      </div>
+      <button id="whatsNewClose" class="primary wide">ENTENDIDO</button>
+    </section>
+  </div>
+
+  <aside id="notificationDrawer" class="notification-drawer hidden" aria-label="Notificaciones">
+    <div class="notification-drawer-head"><div><span class="eyebrow">ACTIVITY CENTER</span><b>Notificaciones</b></div><button id="notificationsClearBtn" class="ghost">LIMPIAR</button></div>
+    <div id="notificationList" class="notification-list"><div class="empty-state">Todavía no hay notificaciones.</div></div>
+  </aside>
+
+  <div class="app-shell">
+    <header class="titlebar">
+      <div class="titlebar-brand"><img src="assets/logo.svg" alt=""/><b>ETERNAL CRAFT</b><span>// LAUNCHER</span></div>
+      <button id="commandPaletteBtn" class="titlebar-command" type="button" title="Abrir acciones rápidas"><span>Buscar o ejecutar acción</span><kbd>Ctrl K</kbd></button>
+      <button id="operationTaskPill" class="operation-task-pill hidden" type="button" title="Ver operación en curso"><i></i><span id="operationTaskText">PREPARANDO</span><b id="operationTaskPercent">0%</b></button>
+      <button id="notificationsBtn" class="titlebar-notifications" type="button" title="Notificaciones" aria-label="Abrir notificaciones">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9M10 21h4"/></svg>
+        <b id="notificationsBadge" class="hidden">0</b>
+      </button>
+      <div id="globalStatus" class="global-status" title="Estado de conexión"><i></i><span id="globalStatusText">COMPROBANDO</span></div>
+      <div id="titleBuild" class="title-build">BUILD 0.25.0</div>
+      <div class="window-controls">
+        <button id="minimizeBtn" aria-label="Minimizar">—</button>
+        <button id="maximizeBtn" aria-label="Maximizar">□</button>
+        <button id="closeBtn" class="close" aria-label="Cerrar">×</button>
+      </div>
+    </header>
+
+    <aside class="sidebar">
+      <div class="brand-block">
+        <img src="assets/logo.svg" alt="Eternal Craft" />
+        <div><span>ETERNAL CRAFT</span><strong>SIEGE</strong><small>FORGE 1.20.1</small></div>
+      </div>
+      <button id="sidebarCollapseBtn" class="sidebar-collapse" type="button" title="Contraer barra lateral" aria-label="Contraer barra lateral"><svg viewBox="0 0 24 24"><path d="m14 7-5 5 5 5"/></svg></button>
+
+      <nav class="nav-list" aria-label="Navegación">
+        <span class="nav-section-label">JUEGO</span>
+        <button class="nav-item active" data-page="home"><i class="nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></i><span>Jugar</span></button>
+        <span class="nav-section-label">CONTENIDO</span>
+        <button class="nav-item" data-page="mods"><i class="nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M4 4h7v7H4zM13 4h7v7h-7zM4 13h7v7H4zM13 13h7v7h-7z"/></svg></i><span>Mods</span><b id="navModsBadge" class="nav-badge hidden">!</b></button>
+        <button class="nav-item" data-page="modpack"><i class="nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M4 7.5 12 3l8 4.5v9L12 21l-8-4.5zM4 7.5 12 12m8-4.5L12 12m0 9v-9"/></svg></i><span>Modpack</span><b id="navPackBadge" class="nav-badge hidden">!</b></button>
+        <button class="nav-item" data-page="updates"><i class="nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M20 7h-7V3M4 17h7v4M19 11a7 7 0 0 0-12-4l-3 3M5 13a7 7 0 0 0 12 4l3-3"/></svg></i><span>Actualizaciones</span><b id="navUpdatesBadge" class="nav-badge hidden">0</b></button>
+        <span class="nav-section-label">SISTEMA</span>
+        <button class="nav-item" data-page="support"><i class="nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M9.7 9a2.5 2.5 0 0 1 4.8.8c0 1.8-2.5 2-2.5 3.7M12 17h.01"/></svg></i><span>Soporte</span></button>
+        <button class="nav-item" data-page="settings"><i class="nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.9l.1.1-2.8 2.8-.1-.1a1.7 1.7 0 0 0-1.9-.3 1.7 1.7 0 0 0-1 1.6v.2H10V21a1.7 1.7 0 0 0-1-1.6 1.7 1.7 0 0 0-1.9.3l-.1.1L4.2 17l.1-.1A1.7 1.7 0 0 0 4.6 15 1.7 1.7 0 0 0 3 14H2.8v-4H3a1.7 1.7 0 0 0 1.6-1 1.7 1.7 0 0 0-.3-1.9L4.2 7 7 4.2l.1.1A1.7 1.7 0 0 0 9 4.6 1.7 1.7 0 0 0 10 3V2.8h4V3a1.7 1.7 0 0 0 1 1.6 1.7 1.7 0 0 0 1.9-.3l.1-.1L19.8 7l-.1.1a1.7 1.7 0 0 0-.3 1.9 1.7 1.7 0 0 0 1.6 1h.2v4H21a1.7 1.7 0 0 0-1.6 1z"/></svg></i><span>Ajustes</span></button>
+      </nav>
+
+      <div class="sidebar-spacer"></div>
+      <button id="profileCard" class="profile-card" data-page-jump="settings">
+        <div id="profileAvatar" class="profile-avatar">S</div>
+        <div class="profile-copy"><span id="sideUsername">—</span><small id="sideProfileState">PERFIL LOCAL</small></div>
+        <b>›</b>
+      </button>
+      <div class="side-health">
+        <div><span>JAVA</span><b id="sideJava">—</b></div>
+        <div><span>PACK</span><b id="sidePack">—</b></div>
+        <div><span>LINK</span><b id="sideLink">—</b></div>
+      </div>
+    </aside>
+
+    <main class="content">
+      <section id="page-home" class="page active">
+        <div id="sessionAlert" class="session-alert hidden">
+          <div><b id="sessionAlertTitle">Minecraft se cerró</b><span id="sessionAlertText">Podés abrir Soporte para revisar los logs.</span></div>
+          <button id="sessionAlertSafe" class="hidden">INICIAR SEGURO</button><button id="sessionAlertSupport">ABRIR SOPORTE</button>
+          <button id="sessionAlertClose" aria-label="Cerrar">×</button>
+        </div>
+
+        <div id="launcherUpdateBanner" class="launcher-update-banner hidden">
+          <div><span class="eyebrow">LAUNCHER UPDATE</span><b id="launcherUpdateBannerTitle">Nueva versión disponible</b><small id="launcherUpdateBannerText">Podés actualizar sin volver a descargar el modpack.</small></div>
+          <button id="launcherUpdateBtn" class="primary">DESCARGAR</button>
+        </div>
+
+        <div id="healthRibbon" class="health-ribbon">
+          <div class="health-ribbon-main"><span id="healthIcon">✓</span><div><b id="healthTitle">REVISANDO SISTEMA</b><small id="healthText">Comprobando Java, pack, servidor y mods personales.</small></div></div>
+          <div class="health-ribbon-pills"><span id="healthJava">JAVA · …</span><span id="healthPack">PACK · …</span><span id="healthServer">SERVER · …</span><span id="healthMods">MODS · …</span></div>
+          <button id="healthRefreshBtn" class="ghost">REVISAR</button>
+        </div>
+
+        <div class="command-center-grid">
+          <button id="homeUpdateCard" class="command-center-card" data-page-jump="updates"><span class="cc-icon">↻</span><div><small>ACTUALIZACIONES</small><b id="homeQuickUpdate">COMPROBANDO</b><em id="homeQuickUpdateMeta">Pack, mods y launcher</em></div><i>›</i></button>
+          <button id="homeModsCard" class="command-center-card" data-page-jump="mods"><span class="cc-icon">◇</span><div><small>BIBLIOTECA</small><b id="homeQuickMods">— MODS</b><em id="homeQuickModsMeta">Sin datos todavía</em></div><i>›</i></button>
+          <button id="homeConnectionCard" class="command-center-card" type="button"><span class="cc-icon">⌁</span><div><small>CONEXIÓN</small><b id="homeQuickConnection">COMPROBANDO</b><em id="homeQuickConnectionMeta">Midiendo latencia</em></div><i>•</i></button>
+        </div>
+
+        <div class="play-layout">
+          <article class="play-card">
+            <div class="play-card-bg"></div>
+            <div class="play-card-overlay"></div>
+            <div class="play-card-content">
+              <div class="play-topline">
+                <span class="eyebrow">ETERNAL CRAFT // SIEGE</span>
+                <span id="homePackStatus" class="status-chip">COMPROBANDO</span>
+              </div>
+              <div class="play-identity">
+                <img id="heroServerIcon" class="hero-server-icon" src="assets/logo.svg" alt="Icono del servidor" />
+                <div>
+                  <h1>ETERNAL CRAFT</h1>
+                  <strong>SIEGE</strong>
+                  <p>Servidor moddeado · instalación administrada por el launcher</p>
+                </div>
+              </div>
+              <div class="play-meta">
+                <div><span>MODPACK</span><b id="homePackVersion">—</b></div>
+                <div><span>MINECRAFT</span><b id="homeMcVersion">1.20.1</b></div>
+                <div><span>FORGE</span><b id="homeForgeVersion">47.4.10</b></div>
+                <div><span>RAM</span><b id="homeRam">6 GB</b></div>
+              </div>
+              <div class="play-actions">
+                <button id="playBtn" class="play-button">
+                  <span class="play-icon">▶</span>
+                  <span><small id="playCaption">PREPARANDO</small><b>JUGAR</b></span>
+                </button>
+                <button id="repairQuickBtn" class="secondary square-action"><span>↻</span><small>REPARAR</small></button>
+                <button id="quickFolder" class="secondary square-action"><span>▣</span><small>CARPETA</small></button>
+              </div>
+            </div>
+          </article>
+
+          <aside class="play-side">
+            <article class="panel server-card">
+              <div class="panel-head"><span>SERVIDOR</span><b id="serverStateBadge">...</b></div>
+              <div class="server-row">
+                <img id="serverIcon" src="assets/logo.svg" alt="" />
+                <div><strong id="serverOnline">COMPROBANDO</strong><span id="serverAddress">—</span></div>
+              </div>
+              <div class="server-stats">
+                <div><span>JUGADORES</span><b id="serverPlayers">—</b></div>
+                <div><span>PING</span><b id="serverPing">—</b></div>
+              </div>
+              <div class="server-trend"><span>LATENCIA RECIENTE</span><div id="serverPingTrend" class="server-ping-trend" aria-label="Historial reciente de ping"></div></div>
+              <div class="server-actions">
+                <button id="copyServerBtn" class="ghost">COPIAR IP</button>
+                <button id="refreshServerBtn" class="ghost">ACTUALIZAR</button>
+              </div>
+            </article>
+
+            <article class="panel readiness-card">
+              <div class="panel-head"><span>LISTO PARA JUGAR</span><b id="readinessPercent">—</b></div>
+              <div class="readiness-list">
+                <div><span>Java 17</span><b id="readyJava">...</b></div>
+                <div><span>Modpack</span><b id="readyPack">...</b></div>
+                <div><span>Servidor</span><b id="readyServer">...</b></div>
+                <div><span>Launcher</span><b id="readyLauncher">...</b></div>
+              </div>
+            </article>
+
+            <article class="panel play-profile-card">
+              <div class="panel-head"><span>PERFIL DE JUEGO</span><b id="homePresetBadge">EQUILIBRADO</b></div>
+              <div class="play-profile-grid">
+                <div><span>RAM</span><b id="homeProfileRam">6 GB</b></div>
+                <div><span>RESOLUCIÓN</span><b id="homeProfileResolution">AUTO</b></div>
+                <div><span>GPU</span><b id="homeProfileGpu">AUTO</b></div>
+                <div><span>JAVA</span><b id="homeProfileJava">AUTO</b></div>
+              </div>
+              <button id="homeRecommendedBtn" class="ghost full-width">APLICAR CONFIGURACIÓN RECOMENDADA</button>
+            </article>
+          </aside>
+        </div>
+
+        <div class="home-lower">
+          <article class="panel release-card">
+            <div class="panel-head"><span>NOVEDADES DEL PACK</span><b id="releaseVersion">—</b></div>
+            <div class="release-body">
+              <h3 id="releaseTitle">Eternal Craft</h3>
+              <p id="releaseSummary">Las novedades de la versión aparecerán acá.</p>
+              <div id="releaseHighlights" class="release-highlights"></div>
+            </div>
+          </article>
+
+          <article class="panel activity-card">
+            <div class="panel-head"><span>TU SESIÓN</span><b>LOCAL</b></div>
+            <div class="activity-user">
+              <div id="activityAvatar" class="activity-avatar">S</div>
+              <div><strong id="sessionUsername">—</strong><span id="lastPlayedText">Todavía no jugaste desde este launcher.</span></div>
+            </div>
+            <div class="activity-stats activity-stats-3">
+              <div><span>TIEMPO TOTAL</span><b id="totalPlayTime">—</b></div>
+              <div><span>ÚLTIMA SESIÓN</span><b id="lastSessionDuration">—</b></div>
+              <div><span>ÚLTIMO CIERRE</span><b id="lastSessionExit">—</b></div>
+            </div>
+            <div id="activityWeek" class="activity-week" aria-label="Actividad de los últimos 7 días"></div>
+            <button id="quickSupport" class="ghost full-width">DIAGNÓSTICO Y SOPORTE</button>
+          </article>
+        </div>
+      </section>
+
+
+      <section id="page-mods" class="page">
+        <div class="page-heading content-heading">
+          <div><span class="eyebrow">MOD LIBRARY</span><h2>MODS</h2><p>Instalá mods Forge 1.20.1 desde el launcher. El contenido oficial del pack queda protegido.</p></div>
+          <div class="heading-actions"><button id="identifyModsBtn" class="ghost" title="Reconoce mods .jar agregados manualmente usando Modrinth">Identificar</button><button id="modsUpdateBtn" class="ghost">Buscar updates</button><button id="modsEnableAllBtn" class="ghost" title="Activa todos tus mods personales">ACTIVAR PERSONALES</button><button id="modsDisableAllBtn" class="ghost" title="Desactiva todos tus mods personales">DESACTIVAR PERSONALES</button><button id="openModsFolderBtn" class="ghost">Abrir carpeta</button><button id="addModBtn" class="ghost">+ Archivo .jar</button></div>
+        </div>
+
+        <div class="mods-summary-grid">
+          <article class="summary-tile accent-blue"><span>INSTALADOS</span><b id="modsTotal">—</b><small>mods en esta instancia</small></article>
+          <article class="summary-tile accent-green"><span>OFICIALES</span><b id="modsOfficial">—</b><small>administrados por Eternal Craft</small></article>
+          <article class="summary-tile accent-violet"><span>AGREGADOS</span><b id="modsUser">—</b><small>mods personales</small></article>
+          <article class="summary-tile accent-orange"><span>DESACTIVADOS</span><b id="modsDisabled">—</b><small>sin cargar al iniciar</small></article>
+          <article class="summary-tile accent-cyan"><span>FIJADOS</span><b id="modsPinned">—</b><small>no se actualizan automáticamente</small></article>
+        </div>
+
+        <div id="modsUpdateBar" class="mods-update-bar hidden">
+          <div class="mods-update-icon">↻</div><div><b><span id="modsUpdateCount">0</span> actualizaciones</b><span id="modsUpdateText">Comprobando mods personales…</span></div><button id="modsUpdateAllBtn" class="primary">ACTUALIZAR TODO</button>
+        </div>
+
+        <div id="modsAuditBar" class="mods-audit-bar">
+          <div class="mods-audit-icon">✓</div>
+          <div><b id="modsAuditTitle">Compatibilidad de mods</b><span id="modsAuditText">Revisando duplicados, mods locales y compatibilidad de cliente.</span></div>
+          <button id="modsAuditBtn" class="ghost">REVISAR</button>
+        </div>
+
+        <div class="mods-store-layout">
+          <article class="panel mods-manager-card">
+            <div class="panel-head"><span>INSTALADOS</span><b>LOCAL</b></div>
+            <div class="mods-toolbar">
+              <div class="search-box"><span>⌕</span><input id="modsSearch" placeholder="Buscar mods instalados..." autocomplete="off" /></div>
+              <div class="filter-pills" role="group" aria-label="Filtro de mods"><button class="filter-pill active" data-mod-filter="all">Todos</button><button class="filter-pill" data-mod-filter="official">Oficiales</button><button class="filter-pill" data-mod-filter="user">Agregados</button><button class="filter-pill" data-mod-filter="disabled">Desactivados</button><button class="filter-pill" data-mod-filter="updates">Actualizables</button><button class="filter-pill" data-mod-filter="favorites">Favoritos</button><button class="filter-pill" data-mod-filter="pinned">Fijados</button><button class="filter-pill" data-mod-filter="local">Locales</button></div>
+              <select id="modsSort" class="compact-select" aria-label="Ordenar mods"><option value="recent">Más recientes</option><option value="oldest">Más antiguos</option><option value="az">A–Z</option><option value="size">Más pesados</option><option value="updated">Actualizados recientemente</option></select>
+            </div>
+            <div id="modsList" class="mods-list"><div class="empty-state">Cargando mods…</div></div>
+          </article>
+
+          <article class="panel mod-browser-card">
+            <div class="panel-head"><span>EXPLORAR MODS</span><b>FORGE 1.20.1</b></div>
+            <div class="mod-browser-controls">
+              <select id="modProvider"><option value="modrinth">Modrinth</option><option value="curseforge">CurseForge</option></select>
+              <div class="search-box"><span>⌕</span><input id="catalogSearch" placeholder="Buscar mods o explorar por categoría..." autocomplete="off" /></div>
+              <button id="catalogSearchBtn" class="primary">Buscar</button>
+            </div>
+            <div class="catalog-filters">
+              <div class="catalog-categories" id="catalogCategories">
+                <button class="catalog-category active" data-category="all">Todos</button>
+                <button class="catalog-category" data-category="optimization">Optimización</button>
+                <button class="catalog-category" data-category="client">Cliente</button>
+                <button class="catalog-category" data-category="qol">QoL</button>
+                <button class="catalog-category" data-category="technology">Tecnología</button>
+                <button class="catalog-category" data-category="adventure">Aventura</button>
+                <button class="catalog-category" data-category="worldgen">Mundo</button>
+                <button class="catalog-category" data-category="mobs">Mobs</button>
+                <button class="catalog-category" data-category="magic">Magia</button>
+                <button class="catalog-category" data-category="equipment">Equipo</button>
+                <button class="catalog-category" data-category="decoration">Decoración</button>
+                <button class="catalog-category" data-category="library">Librerías</button>
+              </div>
+              <div class="catalog-filter-row">
+                <label>ENTORNO <select id="catalogEnvironment"><option value="all">Cualquiera</option><option value="client">Solo cliente</option><option value="both">Cliente + servidor</option><option value="server">Solo servidor</option></select></label>
+                <label>CANAL <select id="catalogReleaseChannel"><option value="release">Estable</option><option value="beta">Estable + beta</option><option value="alpha">Todos</option></select></label>
+                <label>ORDEN <select id="catalogSort"><option value="updated">Actualizados recientemente</option><option value="newest">Más nuevos</option><option value="downloads">Más descargados</option><option value="relevance">Relevancia</option></select></label>
+              </div>
+            </div>
+            <div id="catalogNotice" class="catalog-notice"><b>Modrinth</b> funciona directamente y sin cuenta. CurseForge usa su API oficial y necesita una API key del desarrollador.</div>
+            <div id="modQueueBar" class="mod-queue-bar hidden"><div><span>COLA DE INSTALACIÓN</span><b><span id="modQueueCount">0</span> mods listos</b></div><div><button id="modQueueClearBtn" class="ghost">LIMPIAR</button><button id="modQueueInstallBtn" class="primary">INSTALAR COLA</button></div></div>
+            <div id="catalogResults" class="catalog-grid"><div class="empty-state">Explorá mods compatibles con Forge 1.20.1.</div></div><button id="catalogLoadMoreBtn" class="ghost catalog-load-more hidden">CARGAR MÁS</button>
+          </article>
+        </div>
+      </section>
+
+      <section id="page-modpack" class="page">
+        <div class="page-heading">
+          <div><span class="eyebrow">PACKAGE CONTROL</span><h2>MODPACK</h2><p>Actualizaciones por archivos: conserva lo correcto y descarga solamente lo necesario.</p></div>
+          <div class="heading-actions"><button id="checkPackBtn" class="ghost">Comprobar</button><button id="updatePackBtn" class="primary">Actualizar / reparar</button></div>
+        </div>
+
+        <div class="modpack-overview">
+          <article class="panel modpack-state-card">
+            <div class="panel-head"><span>ESTADO</span><b id="packSource">—</b></div>
+            <div class="pack-state-main">
+              <div><span id="packStateKicker">INSTALACIÓN</span><strong id="packStateTitle">COMPROBANDO</strong><p id="packStateText">Analizando la instalación...</p></div>
+              <div class="ring" id="packRing"><span id="packRingValue">0%</span></div>
+            </div>
+            <div class="pack-version-grid">
+              <div><span>INSTALADO</span><b id="installedVersion">—</b></div>
+              <div><span>DISPONIBLE</span><b id="targetVersion">—</b></div>
+              <div><span>DESCARGA</span><b id="packBytes">—</b></div>
+            </div>
+          </article>
+
+          <article class="panel pending-card">
+            <div class="panel-head"><span>CAMBIOS PENDIENTES</span><b id="pendingCount">0</b></div>
+            <div class="pending-summary">
+              <div><b id="packMissing">0</b><span>FALTANTES</span></div>
+              <div><b id="packChanged">0</b><span>CAMBIADOS</span></div>
+              <div><b id="packRemoved">0</b><span>A ELIMINAR</span></div>
+            </div>
+            <div id="pendingList" class="pending-list"><div class="empty-state">No hay cambios pendientes.</div></div>
+          </article>
+        </div>
+
+        <article class="panel pack-info-card">
+          <div class="panel-head"><span>INFORMACIÓN DEL PACK</span><b id="packReleaseName">SIEGE ORIGIN</b></div>
+          <div class="pack-info-grid">
+            <div><span>VERSIÓN</span><b id="packInfoVersion">1.0.0</b></div>
+            <div><span>MODS OFICIALES</span><b id="packInfoOfficialMods">—</b></div>
+            <div><span>MODS PERSONALES</span><b id="packInfoUserMods">—</b></div>
+            <div><span>TAMAÑO OFICIAL</span><b id="packInfoSize">—</b></div>
+            <div><span>GENERADO</span><b id="packInfoGenerated">—</b></div>
+          </div>
+          <div class="pack-info-note"><b id="packInfoTitle">Eternal Craft // SIEGE</b><span id="packInfoSummary">El launcher conserva tus mods personales y solo reemplaza archivos administrados por el pack.</span></div>
+        </article>
+
+        <div class="modpack-lower">
+          <article class="panel instance-card">
+            <div class="panel-head"><span>INSTANCIA</span><b>LOCAL</b></div>
+            <div id="instancePath" class="path-box">—</div>
+            <div class="spec-grid">
+              <div><span>MINECRAFT</span><b id="packMc">—</b></div>
+              <div><span>FORGE</span><b id="packForge">—</b></div>
+              <div><span>CANAL</span><b id="packChannel">—</b></div>
+              <div><span>AUTO UPDATE</span><b id="packAutoUpdate">—</b></div>
+              <div><span>ESPACIO LIBRE</span><b id="packStorage">—</b></div>
+              <div><span>CACHÉ LOCAL</span><b id="packCache">—</b></div>
+            </div>
+            <div class="disk-safety" id="packDiskSafety">
+              <div class="disk-safety-head"><span>ESPACIO PARA ACTUALIZAR</span><b id="packDiskStatus">CALCULANDO</b></div>
+              <div class="disk-safety-track"><i id="packDiskBar"></i></div>
+              <small id="packDiskText">El launcher reserva margen extra para staging y rollback.</small>
+            </div>
+            <div class="instance-actions"><button id="openInstanceBtn" class="ghost">ABRIR CARPETA</button><button id="clearCacheBtn" class="ghost">LIMPIAR CACHÉ</button></div>
+          </article>
+
+          <article class="panel safety-card">
+            <div class="panel-head"><span>ACTUALIZACIÓN SEGURA</span><b>SHA-256</b></div>
+            <div class="safety-steps">
+              <div><i>1</i><span><b>DESCARGA</b><small>Solo archivos nuevos o cambiados.</small></span></div>
+              <div><i>2</i><span><b>VERIFICA</b><small>Cada archivo se valida antes de usarlo.</small></span></div>
+              <div><i>3</i><span><b>APLICA</b><small>Los cambios entran después de completar la descarga.</small></span></div>
+              <div><i>4</i><span><b>RECUPERA</b><small>Si falla, restaura la instalación anterior.</small></span></div>
+            </div>
+          </article>
+        </div>
+
+        <article class="panel recovery-card">
+          <div class="panel-head"><span>PUNTOS DE RESTAURACIÓN</span><b>AUTOMÁTICO + MANUAL</b></div>
+          <div class="recovery-top"><div><b>Volvé atrás sin reinstalar el pack</b><p>Antes de una actualización importante el launcher guarda tus mods personales, config y opciones. También podés crear un punto manual.</p></div><button id="createRecoveryBtn" class="ghost">+ CREAR PUNTO</button></div>
+          <div id="recoveryList" class="recovery-list"><div class="empty-state">Cargando puntos de restauración…</div></div>
+        </article>
+      </section>
+
+      <section id="page-updates" class="page">
+        <div class="page-heading updates-heading">
+          <div><span class="eyebrow">UPDATE CENTER</span><h2>ACTUALIZACIONES</h2><p>Un solo lugar para revisar el launcher, el modpack y tus mods personales.</p></div>
+          <div class="heading-actions"><button id="updatesCheckAllBtn" class="ghost">COMPROBAR TODO</button><button id="updatesApplyAllBtn" class="primary">ACTUALIZAR TODO</button></div>
+        </div>
+        <article id="updatesHero" class="updates-hero panel">
+          <div class="updates-hero-mark" id="updatesHeroMark">✓</div>
+          <div><span class="eyebrow">ESTADO GENERAL</span><h3 id="updatesHeroTitle">Comprobando actualizaciones…</h3><p id="updatesHeroText">Revisando modpack, mods personales y launcher.</p></div>
+          <div class="updates-hero-meta"><span>ÚLTIMA COMPROBACIÓN</span><b id="updatesLastCheck">—</b></div>
+        </article>
+        <div class="update-center-grid">
+          <article class="panel update-product-card" data-update-kind="pack"><div class="update-product-icon">▦</div><div class="update-product-copy"><span>MODPACK OFICIAL</span><b id="updatesPackTitle">Comprobando…</b><small id="updatesPackText">—</small></div><button id="updatesPackBtn" class="ghost">ABRIR</button></article>
+          <article class="panel update-product-card" data-update-kind="mods"><div class="update-product-icon">◇</div><div class="update-product-copy"><span>MODS PERSONALES</span><b id="updatesModsTitle">Comprobando…</b><small id="updatesModsText">—</small></div><button id="updatesModsBtn" class="ghost">ABRIR</button></article>
+          <article class="panel update-product-card" data-update-kind="launcher"><div class="update-product-icon">↻</div><div class="update-product-copy"><span>LAUNCHER</span><b id="updatesLauncherTitle">v0.25.0</b><small id="updatesLauncherText">Comprobando canal…</small></div><button id="updatesLauncherBtn" class="ghost">COMPROBAR</button></article>
+          <article class="panel update-product-card" data-update-kind="runtime"><div class="update-product-icon">J</div><div class="update-product-copy"><span>RUNTIME</span><b id="updatesRuntimeTitle">Java 17</b><small id="updatesRuntimeText">—</small></div><button id="updatesRuntimeBtn" class="ghost">AJUSTES</button></article>
+        </div>
+        <article class="panel update-policy-card">
+          <div class="panel-head"><span>POLÍTICA DE ACTUALIZACIÓN</span><b>SEGURO</b></div>
+          <div class="update-policy-grid"><div><i>01</i><b>COMPARA</b><span>Solo detecta archivos que realmente cambiaron.</span></div><div><i>02</i><b>DESCARGA</b><span>Reutiliza caché y baja únicamente lo necesario.</span></div><div><i>03</i><b>VERIFICA</b><span>Valida hashes antes de tocar tu instalación actual.</span></div><div><i>04</i><b>RECUPERA</b><span>Puede volver atrás si una actualización falla.</span></div></div>
+        </article>
+      </section>
+
+      <section id="page-support" class="page">
+        <div class="page-heading">
+          <div><span class="eyebrow">TECHNICAL SUPPORT</span><h2>SOPORTE</h2><p>Encontrá problemas comunes y generá un diagnóstico listo para compartir.</p></div>
+          <div class="heading-actions"><button id="openLogsBtn" class="ghost">ABRIR LOGS</button><button id="buildDiagnosticBtn" class="primary">GENERAR DIAGNÓSTICO</button></div>
+        </div>
+
+        <div class="support-layout">
+          <article class="panel support-scan-card">
+            <div class="panel-head"><span>ANÁLISIS RÁPIDO</span><b id="quickDiagBadge">LISTO</b></div>
+            <div class="support-scan-body">
+              <div id="quickDiagIcon" class="support-scan-icon">✓</div>
+              <div><strong id="quickDiagTitle">Podemos revisar el último cierre</strong><p id="quickDiagText">El launcher busca causas comunes en latest.log y crash-reports sin subir ningún archivo.</p></div>
+              <button id="quickDiagnoseBtn" class="ghost">ANALIZAR AHORA</button>
+            </div>
+          </article>
+
+          <article class="panel problem-panel">
+            <div class="panel-head"><span>¿QUÉ ESTÁ PASANDO?</span><b>AYUDA RÁPIDA</b></div>
+            <button class="problem-card" data-problem="start"><i>01</i><div><b>MINECRAFT NO INICIA</b><span>Revisa Java, Forge, RAM y archivos.</span></div></button>
+            <button class="problem-card" data-problem="crash"><i>02</i><div><b>CRASH / CIERRE INESPERADO</b><span>Busca crash report y latest.log.</span></div></button>
+            <button class="problem-card" data-problem="server"><i>03</i><div><b>NO PUEDO ENTRAR</b><span>Comprueba server, versión y modpack.</span></div></button>
+            <button class="problem-card" data-problem="fps"><i>04</i><div><b>FPS / RENDIMIENTO</b><span>Ajusta RAM y preset recomendado.</span></div></button>
+            <div id="helpStrip" class="help-strip hidden"><b id="helpTitle">—</b><span id="helpText">—</span></div>
+          </article>
+
+          <article class="panel safe-mode-card">
+            <div class="panel-head"><span>INICIO SEGURO</span><b>RECUPERACIÓN</b></div>
+            <div class="safe-mode-body">
+              <div class="safe-mode-mark">◇</div>
+              <div><strong>Probar sin mods personales</strong><p>Inicia Eternal Craft desactivando temporalmente solo los mods que agregaste. Al cerrar Minecraft los vuelve a activar automáticamente.</p></div>
+              <button id="safeLaunchBtn" class="ghost">INICIAR SEGURO</button>
+            </div>
+          </article>
+
+          <article class="panel connectivity-card">
+            <div class="panel-head"><span>CONECTIVIDAD</span><b id="connectivityBadge">SIN COMPROBAR</b></div>
+            <div id="connectivityList" class="connectivity-list"><div class="empty-state">Comprobá GitHub, Modrinth y el canal del pack.</div></div>
+            <button id="connectivityBtn" class="ghost full-width">COMPROBAR CONECTIVIDAD</button>
+          </article>
+
+          <article class="panel crash-guard-card">
+            <div class="panel-head"><span>CRASH GUARD</span><b id="crashGuardBadge">MONITOREO LOCAL</b></div>
+            <div class="crash-guard-main"><div id="crashGuardIcon" class="crash-guard-icon">◇</div><div><strong id="crashGuardTitle">Protección después de un crash</strong><p id="crashGuardText">Relaciona cierres inesperados con cambios recientes de mods sin subir tus archivos.</p></div></div>
+            <div id="crashGuardSuspects" class="crash-guard-suspects"><div class="empty-state">Todavía no hay mods sospechosos.</div></div>
+            <div class="button-row"><button id="crashGuardRefreshBtn" class="ghost">ANALIZAR</button><button id="crashGuardDisableBtn" class="ghost" disabled>PONER SOSPECHOSOS EN CUARENTENA</button></div>
+          </article>
+
+          <article class="panel change-history-card">
+            <div class="panel-head"><span>HISTORIAL DE CAMBIOS</span><b>LOCAL</b></div>
+            <div id="changeHistoryList" class="change-history-list"><div class="empty-state">El historial aparecerá cuando instales, actualices o cambies mods.</div></div>
+          </article>
+
+          <article class="panel diagnostic-panel">
+            <div class="panel-head"><span>DIAGNÓSTICO</span><b>AUTO</b></div>
+            <p>Incluye versión del launcher, Java, pack, sistema y las últimas líneas del log. No incluye mundos ni archivos personales.</p>
+            <div class="diagnostic-actions"><button id="copyDiagnosticBtn" class="ghost">COPIAR</button><button id="saveDiagnosticBtn" class="ghost">GUARDAR INFORME</button><button id="supportBundleBtn" class="ghost">PAQUETE DE SOPORTE</button><button id="quickCheck" class="ghost">COMPROBAR PACK</button></div>
+            <pre id="diagnosticOutput" class="diagnostic-output">Todavía no se generó un diagnóstico.</pre>
+          </article>
+        </div>
+      </section>
+
+      <section id="page-settings" class="page">
+        <div class="page-heading">
+          <div><span class="eyebrow">LOCAL SETTINGS</span><h2>AJUSTES</h2><p>Configuración simple para jugar sin tocar archivos a mano.</p></div>
+          <div class="heading-actions"><span id="settingsSaved" class="saved-label"></span><button id="saveSettingsBtn" class="primary">Guardar</button></div>
+        </div>
+
+        <div class="settings-searchbar">
+          <div class="search-box settings-search-box"><span>⌕</span><input id="settingsSearch" autocomplete="off" placeholder="Buscar un ajuste: RAM, resolución, tema, caché..." /></div>
+          <span id="settingsSearchCount">Todas las opciones</span>
+        </div>
+
+        <div class="settings-tabs" role="tablist" aria-label="Categorías de ajustes">
+          <button class="settings-tab active" data-settings-tab="game">Juego</button>
+          <button class="settings-tab" data-settings-tab="behavior">Inicio</button>
+          <button class="settings-tab" data-settings-tab="desktop">Aplicación</button>
+          <button class="settings-tab" data-settings-tab="appearance">Apariencia</button>
+          <button class="settings-tab" data-settings-tab="maintenance">Mantenimiento</button><button class="settings-tab" data-settings-tab="about">Información</button>
+          <button id="settingsDeveloperTab" class="settings-tab" data-settings-tab="developer">Developer</button>
+        </div>
+
+        <div class="settings-layout">
+          <article class="panel settings-section" data-settings-group="game">
+            <div class="panel-head"><span>CUENTA Y JUEGO</span><b>CLIENT</b></div>
+            <div class="settings-body">
+              <label class="field"><span>NICK DE MINECRAFT</span><input id="usernameInput" maxlength="16" autocomplete="off" spellcheck="false" /></label>
+              <div class="field ram-field"><span class="field-label">RAM ASIGNADA <b id="ramValue">6 GB</b></span><div class="ram-picker"><button id="ramMinus" type="button">−</button><div id="ramPresets" class="ram-presets"><button type="button" data-ram="4">4 GB</button><button type="button" data-ram="6">6 GB</button><button type="button" data-ram="8">8 GB</button><button type="button" data-ram="10">10 GB</button><button type="button" data-ram="12">12 GB</button></div><button id="ramPlus" type="button">+</button></div><input id="ramRange" type="range" min="3" max="12" step="1" value="6"/><small id="ramRecommendation" class="field-hint">Recomendado: calculando...</small></div>
+              <div class="field-row">
+                <label class="field"><span>PRESET</span><select id="gamePresetSelect"><option value="performance">Rendimiento</option><option value="balanced">Equilibrado</option><option value="quality">Calidad</option></select></label>
+                <label class="field"><span>RESOLUCIÓN</span><select id="resolutionSelect"><option value="system">Predeterminada del sistema</option><option value="1280x720">1280 × 720</option><option value="1600x900">1600 × 900</option><option value="1920x1080">1920 × 1080</option><option value="2560x1440">2560 × 1440</option><option value="3440x1440">3440 × 1440</option><option value="3840x2160">3840 × 2160</option></select><small id="resolutionDefault" class="field-hint">Detectando resolución predeterminada…</small></label>
+              </div>
+              <label class="switch-row"><span><b>Pantalla completa</b><small>Inicia Minecraft directamente en fullscreen.</small></span><input id="fullscreenToggle" type="checkbox"/><i></i></label>
+              <label class="switch-row"><span><b>Preferir GPU dedicada</b><small>Usa la gráfica de mayor rendimiento cuando el sistema lo permite. Activado por defecto.</small></span><input id="dedicatedGpuToggle" type="checkbox"/><i></i></label>
+              <div id="javaReadout" class="info-box">Detectando Java 17...</div>
+              <label class="switch-row compact-switch"><span><b>Java 17 automático</b><small>Si falta, el launcher descarga su propio runtime sin permisos de administrador.</small></span><input id="autoJavaToggle" type="checkbox"/><i></i></label>
+              <div class="button-row"><button id="installJavaBtn" class="ghost">PREPARAR JAVA 17</button><button id="resetPresetBtn" class="ghost">RESTAURAR AJUSTES</button></div>
+            </div>
+          </article>
+
+          <article class="panel settings-section" data-settings-group="behavior">
+            <div class="panel-head"><span>COMPORTAMIENTO</span><b>LAUNCH</b></div>
+            <div class="settings-body">
+              <label class="switch-row"><span><b>Actualizar antes de jugar</b><small>Recomendado. Solo descarga archivos que cambiaron.</small></span><input id="autoUpdateToggle" type="checkbox"/><i></i></label>
+              <label class="switch-row"><span><b>Reparar antes de cada inicio</b><small>Más lento; útil si tenés problemas frecuentes.</small></span><input id="repairBeforeToggle" type="checkbox"/><i></i></label><label class="switch-row"><span><b>Crear punto de restauración antes de actualizar</b><small>Guarda mods personales, config y opciones. Recomendado.</small></span><input id="autoSnapshotToggle" type="checkbox"/><i></i></label><label class="switch-row"><span><b>Buscar updates de mods personales al abrir</b><small>Consulta Modrinth en segundo plano al iniciar el launcher.</small></span><input id="autoModUpdateToggle" type="checkbox"/><i></i></label><label class="switch-row"><span><b>Actualizar mods personales automáticamente</b><small>Opcional. Actualiza mods de Modrinth antes de jugar. Viene apagado por seguridad.</small></span><input id="autoUpdateUserModsToggle" type="checkbox"/><i></i></label><label class="field"><span>CANAL DE MODS PERSONALES</span><select id="modReleaseChannelSelect"><option value="release">Solo versiones estables</option><option value="beta">Estables + beta</option><option value="alpha">Estables + beta + alpha</option></select><small class="field-hint">Afecta instalaciones y actualizaciones desde Modrinth. Estable es lo recomendado.</small></label><label class="switch-row"><span><b>Protección de compatibilidad con el servidor</b><small>Antes de instalar, avisa o bloquea mods que no son de cliente o que requieren cambios del servidor.</small></span><input id="protectServerCompatibilityToggle" type="checkbox"/><i></i></label><label class="switch-row"><span><b>Punto de restauración antes de cambios riesgosos</b><small>Crea una copia de seguridad antes de quitar o actualizar mods personales.</small></span><input id="autoChangeSnapshotsToggle" type="checkbox"/><i></i></label>
+              <label class="switch-row"><span><b>Ocultar launcher al abrir Minecraft</b><small>Vuelve a aparecer cuando el juego se cierra.</small></span><input id="hideOnStartToggle" type="checkbox"/><i></i></label>
+              <label class="switch-row"><span><b>Volver al launcher al cerrar Minecraft</b><small>Trae esta ventana al frente al terminar la sesión.</small></span><input id="refocusOnExitToggle" type="checkbox"/><i></i></label>
+              <label class="field"><span>CARPETA DEL JUEGO</span><div id="settingsInstallPath" class="path-box compact">—</div></label>
+              <div id="storageReadout" class="info-box">Comprobando espacio disponible...</div>
+              <button id="changeInstallBtn" class="ghost full-width">CAMBIAR CARPETA</button>
+            </div>
+          </article>
+
+          <article class="panel settings-section wide-section system-integration-section" data-settings-group="desktop">
+            <div class="panel-head"><span>APLICACIÓN Y SISTEMA</span><b>DESKTOP</b></div>
+            <div class="settings-body system-integration-grid">
+              <label class="switch-row"><span><b>Cerrar a la bandeja</b><small>La X oculta el launcher en vez de cerrarlo. Podés salir desde el icono de Eternal Craft.</small></span><input id="closeToTrayToggle" type="checkbox"/><i></i></label>
+              <label class="switch-row"><span><b>Iniciar con el sistema</b><small>Abre Eternal Craft Launcher al iniciar sesión en Windows o Fedora.</small></span><input id="startWithSystemToggle" type="checkbox"/><i></i></label>
+              <label class="switch-row"><span><b>Iniciar minimizado</b><small>Si inicia con el sistema, queda en segundo plano hasta que lo necesites.</small></span><input id="startMinimizedToggle" type="checkbox"/><i></i></label>
+              <label class="switch-row"><span><b>Notificaciones del sistema</b><small>Avisa cuando termina una reparación o hay una actualización del launcher.</small></span><input id="nativeNotificationsToggle" type="checkbox"/><i></i></label>
+              <label class="switch-row"><span><b>Recordar la última sección</b><small>Al abrir de nuevo vuelve a la página que estabas usando en vez de la página inicial fija.</small></span><input id="rememberLastPageToggle" type="checkbox"/><i></i></label>
+            </div>
+          </article>
+
+          <article class="panel settings-section wide-section" data-settings-group="appearance">
+            <div class="panel-head"><span>INTERFAZ</span><b>SIEGE</b></div>
+            <div class="settings-body interface-grid">
+              <label class="field"><span>TEMA</span><select id="themeSelect"><option value="aurora">Aurora Command</option><option value="tactical">Tactical Field</option><option value="crimson">Crimson Alert</option><option value="frost">Frostline</option><option value="obsidian">Obsidian</option><option value="dvn">DVN Pulse</option><option value="classic">SIEGE Classic</option><option value="dominion">Dominion Gold</option><option value="nusia">Nusia Signal</option><option value="ember">Ember Protocol</option><option value="clean">Command White</option></select></label>
+              <label class="field"><span>FONDO</span><select id="backgroundSelect"><option value="frontline">Frontline</option><option value="night">Night Battle</option><option value="canyon">Canyon Engagement</option><option value="anniversary">Anniversary</option><option value="cyborg">Cyborg</option><option value="dummies">Dummies Assault</option><option value="orbit">Earth Orbit</option><option value="laststand">Last Stand</option><option value="vought">Vought Siege</option><option value="nightop">Night Operation</option><option value="rooftop">Rooftop Squad</option><option value="tempest">Tempest</option><option value="urban">Urban Rendezvous</option></select></label>
+              <label class="field"><span>CAMBIO DE FONDO</span><select id="backgroundModeSelect"><option value="fixed">Fijo</option><option value="randomStartup">Aleatorio al abrir</option><option value="rotate5">Rotar cada 5 min</option><option value="rotate15">Rotar cada 15 min</option></select></label><label class="field"><span>DENSIDAD</span><select id="densitySelect"><option value="comfortable">Cómoda</option><option value="compact">Compacta</option></select><small class="field-hint">Compacta muestra más información sin achicar el texto principal.</small></label><label class="field"><span>ESCALA DE INTERFAZ</span><select id="uiScaleSelect"><option value="normal">100% · Recomendada</option><option value="large">110% · Más grande</option><option value="small">92% · Más contenido</option></select><small class="field-hint">Ajusta lectura y espacio sin cambiar la resolución de Minecraft.</small></label>
+              <label class="switch-row"><span><b>Líneas de monitor</b><small>Textura visual sutil sobre la interfaz.</small></span><input id="scanlinesToggle" type="checkbox"/><i></i></label>
+              <label class="switch-row"><span><b>Interferencia</b><small>Ruido visual muy leve. Desactivado por defecto.</small></span><input id="noiseToggle" type="checkbox"/><i></i></label>
+              <label class="switch-row"><span><b>Reducir movimiento</b><small>Desactiva transiciones no esenciales.</small></span><input id="reducedMotionToggle" type="checkbox"/><i></i></label><label class="switch-row"><span><b>Profundidad visual</b><small>Desenfoque y transparencias suaves en tarjetas y navegación.</small></span><input id="glassEffectsToggle" type="checkbox"/><i></i></label>
+              <div class="theme-gallery" id="themeGallery">
+                <button type="button" data-theme-choice="aurora"><i></i><b>Aurora</b><small>luminoso</small></button>
+                <button type="button" data-theme-choice="tactical"><i></i><b>Tactical</b><small>militar</small></button>
+                <button type="button" data-theme-choice="crimson"><i></i><b>Crimson</b><small>alerta</small></button>
+                <button type="button" data-theme-choice="frost"><i></i><b>Frostline</b><small>frío</small></button>
+                <button type="button" data-theme-choice="obsidian"><i></i><b>Obsidian</b><small>oscuro</small></button>
+                <button type="button" data-theme-choice="dvn"><i></i><b>DVN Pulse</b><small>neón</small></button>
+                <button type="button" data-theme-choice="classic"><i></i><b>SIEGE</b><small>clásico</small></button><button type="button" data-theme-choice="dominion"><i></i><b>Dominion</b><small>dorado táctico</small></button><button type="button" data-theme-choice="nusia"><i></i><b>Nusia</b><small>azul de señal</small></button><button type="button" data-theme-choice="ember"><i></i><b>Ember</b><small>cobre y calor</small></button><button type="button" data-theme-choice="clean"><i></i><b>Command White</b><small>claro profesional</small></button>
+              </div>
+              <div class="background-gallery-wrap"><div class="background-gallery-title"><span>VISTA PREVIA DE FONDOS</span><small>Elegí uno sin abrir listas.</small></div><div id="backgroundGallery" class="background-gallery"></div></div>
+            </div>
+          </article>
+
+          <article class="panel settings-section wide-section maintenance-section" data-settings-group="maintenance">
+            <div class="panel-head"><span>MANTENIMIENTO</span><b>LOCAL</b></div>
+            <div class="settings-body maintenance-body">
+              <div class="storage-overview">
+                <div><span>MODS</span><b id="storageMods">—</b></div><div><span>CONFIG</span><b id="storageConfig">—</b></div><div><span>CACHÉ</span><b id="storageCacheDetail">—</b></div><div><span>BACKUPS</span><b id="storageRecovery">—</b></div><div><span>LOGS</span><b id="storageLogs">—</b></div>
+              </div>
+              <div class="maintenance-actions"><button id="refreshStorageBtn" class="ghost">ACTUALIZAR TAMAÑOS</button><button id="cleanupLogsBtn" class="ghost">LIMPIAR LOGS ANTIGUOS</button><button id="maintenanceClearCacheBtn" class="ghost">LIMPIAR CACHÉ</button></div>
+              <label class="field"><span>PÁGINA AL ABRIR</span><select id="startPageSelect"><option value="home">Jugar</option><option value="mods">Mods</option><option value="updates">Actualizaciones</option><option value="modpack">Modpack</option></select><small class="field-hint">Elegí qué sección querés ver al abrir el launcher.</small></label>
+              <label class="switch-row"><span><b>Comprobar conectividad al abrir</b><small>Revisa el canal del pack y servicios de mods sin bloquear el inicio.</small></span><input id="autoConnectivityToggle" type="checkbox"/><i></i></label>
+              <label class="switch-row"><span><b>Advertencias de compatibilidad</b><small>Avisa por duplicados, mods locales y mods pensados solo para servidor.</small></span><input id="compatibilityWarningsToggle" type="checkbox"/><i></i></label>
+              <div class="vault-card">
+                <div class="vault-head"><div><span class="eyebrow">PERSONAL VAULT</span><b>Tus archivos, bajo tu control</b><p>Sin cuenta obligatoria ni nube propietaria. Elegí una carpeta local o sincronizada por OneDrive, Dropbox, Nextcloud o Syncthing.</p></div><span id="vaultBadge" class="vault-badge">SIN CONFIGURAR</span></div>
+                <div class="vault-status-grid"><div><span>CARPETA</span><b id="vaultPath">No elegida</b></div><div><span>ÚLTIMO GUARDADO</span><b id="vaultLastPush">—</b></div><div><span>CONTENIDO</span><b id="vaultSummary">—</b></div></div>
+                <div class="vault-options">
+                  <label class="switch-row compact"><span><b>Capturas</b><small>Sincroniza la carpeta screenshots.</small></span><input id="vaultScreenshotsToggle" type="checkbox"/><i></i></label>
+                  <label class="switch-row compact"><span><b>Mundos / saves</b><small>Apagado por defecto para evitar copias enormes.</small></span><input id="vaultSavesToggle" type="checkbox"/><i></i></label>
+                </div>
+                <label class="field"><span>RUTAS ADICIONALES</span><input id="vaultExtraPaths" autocomplete="off" placeholder="figura, resourcepacks, config/mi-mod"/><small class="field-hint">Separalas con comas. No se permite sincronizar <b>mods</b> ni archivos internos del launcher.</small></label>
+                <div id="vaultConflictNote" class="vault-conflict hidden"></div>
+                <div class="vault-actions"><button id="vaultChooseBtn" class="ghost">ELEGIR CARPETA</button><button id="vaultPushBtn" class="ghost">GUARDAR EN VAULT</button><button id="vaultPullBtn" class="primary">RESTAURAR DESDE VAULT</button></div>
+              </div>
+              <div class="maintenance-note"><b>Datos locales</b><span>Eternal Craft Launcher no necesita telemetría para estas funciones. Estadísticas de sesión, favoritos y diagnósticos permanecen en tu equipo.</span></div>
+            </div>
+          </article>
+
+          <article class="panel settings-section wide-section about-section" data-settings-group="about">
+            <div class="panel-head"><span>APLICACIÓN</span><b>ETERNAL CRAFT</b></div>
+            <div class="about-grid">
+              <div><span>LAUNCHER</span><b id="aboutVersion">—</b><small>Versión instalada</small></div>
+              <div><span>SISTEMA</span><b id="aboutPlatform">—</b><small>Plataforma actual</small></div>
+              <div><span>CANAL DEL PACK</span><b id="aboutChannel">—</b><small>Fuente de actualizaciones</small></div>
+              <div><span>JAVA</span><b id="aboutJava">—</b><small>Runtime seleccionado</small></div>
+            </div>
+            <div class="settings-portability">
+              <div><b>Migración y recuperación</b><span>Guardá tus preferencias para mover el launcher a otra PC. No exporta contraseñas, API keys ni rutas de desarrollador.</span></div>
+              <div class="settings-portability-actions"><button id="autoConfigureBtn" class="ghost">CONFIGURAR RECOMENDADO</button><button id="exportSettingsBtn" class="ghost">EXPORTAR AJUSTES</button><button id="importSettingsBtn" class="ghost">IMPORTAR AJUSTES</button></div>
+            </div>
+          </article>
+
+          <article id="developerSection" class="panel settings-section wide-section developer-section" data-settings-group="developer">
+            <div class="panel-head"><span>MODO DESARROLLADOR</span><b id="developerStateBadge">BLOQUEADO</b></div>
+            <div class="settings-body developer-body">
+              <div id="developerLocked" class="developer-gate">
+                <div><b id="developerGateTitle">Acceso protegido</b><p id="developerGateText">La primera vez elegís una contraseña local. Después se pide para publicar o cambiar el pack.</p></div>
+                <input id="developerPassword" type="password" autocomplete="current-password" placeholder="Contraseña de desarrollador" />
+                <button id="developerUnlockBtn" class="primary">ENTRAR</button>
+              </div>
+              <div id="developerUnlocked" class="developer-tools hidden">
+                <div class="dev-grid">
+                  <label class="field"><span>INSTANCIA MAESTRA <b>PUBLICACIÓN</b></span><div class="inline-path"><div id="developerSourcePath" class="path-box compact">~/.sklauncher/instances/siege</div><button id="developerChooseSource" class="ghost">ELEGIR</button></div></label>
+                  <label class="field"><span>INSTANCIA TEST-1 <b>PRUEBAS</b></span><div class="inline-path"><div id="developerTestPath" class="path-box compact">~/.sklauncher/instances/test-1</div><button id="developerChooseTest" class="ghost">ELEGIR</button></div></label>
+                  <label class="field"><span>REPOSITORIO GITHUB</span><input id="developerRepo" placeholder="Santi-PdR/EternalCraft-Modpack" /></label>
+                  <label class="field"><span>VERSIÓN</span><input id="developerVersion" placeholder="Automática: 1.0.0, 1.0.1..." /></label><label class="field dev-notes-field"><span>RESUMEN DE LA ACTUALIZACIÓN <b>OPCIONAL</b></span><textarea id="developerNotes" rows="3" placeholder="Ej: optimización, nuevos mods y correcciones de compatibilidad"></textarea></label>
+                  <label class="field"><span>CURSEFORGE API KEY <b>SOLO TU FEDORA</b></span><input id="developerCurseKey" type="password" placeholder="Clave oficial para pruebas locales" /></label><label class="field"><span>CURSEFORGE PROXY <b>WINDOWS</b></span><input id="developerCurseProxy" placeholder="https://tu-worker.workers.dev" /></label>
+                </div>
+                <div class="developer-preflight"><div class="developer-preflight-head"><div><span class="eyebrow">PREFLIGHT</span><b>Antes de publicar</b></div><button id="developerPreflightBtn" class="ghost">REVISAR REAL</button></div><div id="developerPreflightList" class="developer-preflight-list"><span>Desbloqueá el modo desarrollador para revisar el estado.</span></div></div>
+                <div class="dev-publish-card"><div><span class="eyebrow">GITHUB PUBLISH</span><b>Publicar actualización</b><p>Primero podés previsualizar la versión, el nombre y exactamente qué archivos van a cambiar. Publicar sube solamente blobs nuevos.</p><small id="developerGithubStatus" class="dev-github-status">Comprobando GitHub…</small></div><div class="dev-publish-actions"><button id="developerPreviewBtn" class="ghost">PREVISUALIZAR</button><button id="developerPublishBtn" class="primary">PUBLICAR MODPACK</button></div></div>
+                <div id="developerPreviewCard" class="developer-preview hidden"><div><span>PRÓXIMA VERSIÓN</span><b id="developerPreviewVersion">—</b></div><div><span>NOMBRE</span><b id="developerPreviewName">—</b></div><div><span>AÑADIDOS</span><b id="developerPreviewAdded">0</b></div><div><span>CAMBIADOS</span><b id="developerPreviewChanged">0</b></div><div><span>ELIMINADOS</span><b id="developerPreviewRemoved">0</b></div></div><div id="developerPreviewFiles" class="developer-preview-files"></div>
+                <pre id="developerPublishLog" class="developer-log">Esperando publicación...</pre>
+                <div class="test-pipeline"><div class="test-pipeline-head"><div><span class="eyebrow">TEST PIPELINE</span><b>test-1 → SIEGE</b><p>Compara los mods de pruebas contra la instancia maestra y permite promover únicamente los que aprobaste.</p></div><div class="test-pipeline-actions"><button id="developerCompareTestBtn" class="ghost">COMPARAR</button><button id="developerPromoteAllBtn" class="ghost">PROMOVER TODOS</button></div></div><div id="developerTestDiff" class="test-diff"><div class="empty-state">Compará test-1 para ver mods nuevos o modificados.</div></div></div>
+                <div class="developer-actions"><button id="developerLaunchTestBtn" class="primary">JUGAR TEST-1</button><button id="developerBackupSourceBtn" class="ghost">BACKUP SIEGE</button><button id="developerOpenRepoBtn" class="ghost">ABRIR GITHUB</button><button id="developerSyncTestBtn" class="ghost">SINCRONIZAR MODS → TEST-1</button><button id="developerOpenTestBtn" class="ghost">ABRIR TEST-1</button><button id="developerSaveCurseBtn" class="ghost">GUARDAR CURSEFORGE</button><button id="developerChangePasswordBtn" class="ghost">CAMBIAR CONTRASEÑA</button><button id="developerLockBtn" class="ghost">BLOQUEAR</button></div>
+              </div>
+            </div>
+          </article>
+        </div>
+      </section>
+    </main>
+
+    <footer class="statusbar">
+      <span id="footerStatus">INICIANDO</span><i></i><span id="footerServer">LINK --</span><div></div><span id="footerBuild">ETERNAL CRAFT LAUNCHER // 0.25.0</span>
+    </footer>
+  </div>
+
+  <div id="toastArea" class="toast-area"></div>
+  <script src="renderer.js"></script>
+</body>
+</html>

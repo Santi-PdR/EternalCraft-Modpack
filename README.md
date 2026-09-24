@@ -74,16 +74,6 @@ Developer Mode is hidden from player Windows builds and protected by a local pas
 - Source fingerprint protection: publishing is rejected if SIEGE changed after preview
 - Differential GitHub release publishing
 
-## Repository / distribution
-
-This repository is the official source for both the **Eternal Craft Launcher** and the **Eternal Craft // SIEGE pack update channel**.
-
-- Launcher source and GitHub Actions live on `main`.
-- Pushes to `main` build Windows and Linux artifacts for validation.
-- Tags matching `launcher-v*` build and publish launcher releases.
-- Pack releases use `pack-v*` tags and `channel/stable.json`.
-- Launcher auto-update feed: `https://github.com/Santi-PdR/EternalCraft-Modpack/releases/latest/download/`.
-
 ## Build / install on Fedora
 
 ```bash

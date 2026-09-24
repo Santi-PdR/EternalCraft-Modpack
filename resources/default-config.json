@@ -1,0 +1,105 @@
+{
+  "server": {
+    "host": "SiegeLacontinuacion.exaroton.me",
+    "port": 18736,
+    "label": "ETERNAL CRAFT // SIEGE"
+  },
+  "minecraft": {
+    "version": "1.20.1",
+    "forgeVersion": "47.4.10",
+    "username": "",
+    "minMemoryMb": 2048,
+    "maxMemoryMb": 6144,
+    "width": 0,
+    "height": 0,
+    "fullscreen": false,
+    "javaPath": "",
+    "preset": "balanced",
+    "autoInstallJava": true,
+    "preferDedicatedGpu": true,
+    "useSystemResolution": true
+  },
+  "pack": {
+    "manifestUrl": "https://raw.githubusercontent.com/Santi-PdR/EternalCraft-Modpack/main/channel/stable.json",
+    "channel": "stable",
+    "installDirectory": "",
+    "autoUpdate": true,
+    "repairBeforeLaunch": false,
+    "version": "1.0.0",
+    "autoSnapshot": true
+  },
+  "launcher": {
+    "hideOnGameStart": false,
+    "refocusOnGameExit": true,
+    "background": "frontline",
+    "scanlines": false,
+    "noise": false,
+    "reducedMotion": false,
+    "autoUpdate": true,
+    "updateFeedUrl": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/latest/download/",
+    "lastPlayedAt": "",
+    "lastSession": null,
+    "theme": "aurora",
+    "backgroundMode": "fixed",
+    "density": "comfortable",
+    "glassEffects": true,
+    "windowBounds": null,
+    "windowMaximized": false,
+    "playStats": {
+      "totalMs": 0,
+      "sessions": 0,
+      "days": {}
+    },
+    "uiScale": "normal",
+    "startPage": "home",
+    "notifications": true,
+    "closeToTray": true,
+    "startWithSystem": false,
+    "startMinimized": false,
+    "nativeNotifications": true,
+    "trayHintShown": false,
+    "compactStatusBar": true,
+    "autoHealthCheck": true,
+    "showOnboardingRecommendations": true,
+    "sidebarCollapsed": false,
+    "lastSeenVersion": "",
+    "crashStreak": 0,
+    "autoConnectivityCheck": true,
+    "rememberLastPage": false,
+    "lastPage": "home"
+  },
+  "onboarding": {
+    "completed": false
+  },
+  "links": {
+    "discord": "",
+    "website": ""
+  },
+  "mods": {
+    "allowUserMods": true,
+    "sort": "recent",
+    "provider": "modrinth",
+    "category": "all",
+    "environment": "all",
+    "curseforgeProxyUrl": "",
+    "autoCheckUpdates": true,
+    "autoUpdateUserMods": false,
+    "compatibilityWarnings": true,
+    "releaseChannel": "release",
+    "protectServerCompatibility": true,
+    "autoChangeSnapshots": true
+  },
+  "developer": {
+    "sourceDirectory": "",
+    "githubRepo": "Santi-PdR/EternalCraft-Modpack",
+    "githubBranch": "main",
+    "testDirectory": "",
+    "autoInstallTestMods": true
+  },
+  "sync": {
+    "vaultDirectory": "",
+    "includeScreenshots": true,
+    "includeSaves": false,
+    "extraPaths": []
+  }
+}

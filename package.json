@@ -1,0 +1,121 @@
+{
+  "name": "eternal-craft-launcher",
+  "version": "0.25.0",
+  "description": "Launcher oficial de Eternal Craft // SIEGE: experiencia premium, actualización segura, catálogo inteligente de mods, Crash Guard y herramientas de desarrollo.",
+  "main": "src/main/main.js",
+  "author": "Eternal Craft",
+  "license": "UNLICENSED",
+  "private": true,
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Santi-PdR/EternalCraft-Modpack.git"
+  },
+  "bugs": {
+    "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/issues"
+  },
+  "homepage": "https://github.com/Santi-PdR/EternalCraft-Modpack",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "start": "electron .",
+    "preview": "python3 -m http.server 4173 -d src/renderer",
+    "check": "node scripts/check-project.js",
+    "pack:build": "node scripts/build-pack.js",
+    "pack:serve": "node scripts/serve-pack.js",
+    "dev:pack": "node scripts/dev-pack.js",
+    "pack:publish:github": "node scripts/publish-pack-github.js",
+    "dist": "electron-builder --publish never",
+    "dist:linux": "electron-builder --linux AppImage --publish never",
+    "dist:win": "electron-builder --win nsis portable --publish never",
+    "distribution:configure": "node scripts/configure-distribution.js",
+    "visuals:sync": "node scripts/sync-siege-visuals.js",
+    "visuals:fetch": "node scripts/fetch-siege-visuals-github.js"
+  },
+  "dependencies": {
+    "electron-updater": "6.6.2",
+    "minecraft-launcher-core": "3.18.2"
+  },
+  "devDependencies": {
+    "electron": "44.4.3",
+    "electron-builder": "26.15.3"
+  },
+  "build": {
+    "appId": "uy.eternalcraft.launcher",
+    "productName": "Eternal Craft Launcher",
+    "asar": true,
+    "directories": {
+      "output": "dist"
+    },
+    "files": [
+      "src/**/*",
+      "resources/**/*",
+      "package.json",
+      "scripts/**/*"
+    ],
+    "extraResources": [
+      {
+        "from": "resources",
+        "to": "resources"
+      },
+      {
+        "from": "scripts",
+        "to": "scripts"
+      }
+    ],
+    "linux": {
+      "target": [
+        "AppImage"
+      ],
+      "category": "Game",
+      "icon": "build/icons",
+      "synopsis": "Launcher oficial de Eternal Craft SIEGE",
+      "description": "Instala, actualiza y ejecuta Eternal Craft SIEGE.",
+      "desktop": {
+        "entry": {
+          "Name": "Eternal Craft Launcher",
+          "Comment": "Launcher oficial de Eternal Craft // SIEGE",
+          "Categories": "Game;",
+          "Keywords": "minecraft;eternal craft;siege;mods;launcher;",
+          "StartupWMClass": "uy.eternalcraft.launcher",
+          "Terminal": "false",
+          "Type": "Application"
+        }
+      },
+      "syncDesktopName": true
+    },
+    "win": {
+      "target": [
+        "nsis",
+        "portable"
+      ],
+      "icon": "resources/icons/icon.ico",
+      "legalTrademarks": "Eternal Craft"
+    },
+    "nsis": {
+      "artifactName": "Eternal-Craft-Launcher-${version}-Setup-${arch}.${ext}",
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "shortcutName": "Eternal Craft Launcher",
+      "createStartMenuShortcut": true,
+      "deleteAppDataOnUninstall": false,
+      "perMachine": false,
+      "allowElevation": false,
+      "runAfterFinish": true
+    },
+    "portable": {
+      "artifactName": "Eternal-Craft-Launcher-${version}-Portable-${arch}.${ext}"
+    },
+    "publish": [
+      {
+        "provider": "generic",
+        "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/latest/download/"
+      }
+    ],
+    "executableName": "EternalCraftLauncher",
+    "artifactName": "Eternal-Craft-Launcher-${version}-${os}-${arch}.${ext}",
+    "copyright": "Eternal Craft"
+  },
+  "desktopName": "uy.eternalcraft.launcher.desktop"
+}
