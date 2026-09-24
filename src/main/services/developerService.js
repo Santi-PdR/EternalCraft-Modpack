@@ -9,11 +9,19 @@ function hashPassword(password, saltHex) {
 }
 
 function resolveMinecraftRoot(candidate) {
-  const roots = [candidate, path.join(candidate || '', '.minecraft'), path.join(candidate || '', 'minecraft')];
+  const raw = String(candidate || '').trim();
+  const expanded = raw === '~' ? os.homedir() : raw.startsWith(`~${path.sep}`) || raw.startsWith('~/') ? path.join(os.homedir(), raw.slice(2)) : raw;
+  const roots = [expanded, path.join(expanded || '', '.minecraft'), path.join(expanded || '', 'minecraft')];
   for (const root of roots) {
     try { if (root && fs.statSync(path.join(root, 'mods')).isDirectory()) return root; } catch (_) {}
   }
-  return candidate || '';
+    return expanded || '';
+}
+function normalizePathInput(candidate, fallback) {
+  const raw = String(candidate || '').trim() || fallback;
+  if (raw === '~') return os.homedir();
+  if (raw.startsWith('~/')) return path.join(os.homedir(), raw.slice(2));
+  return raw;
 }
 function sha256Sync(file) {
   const h = crypto.createHash('sha256'); h.update(fs.readFileSync(file)); return h.digest('hex');
@@ -167,7 +175,7 @@ class DeveloperService {
     if (!repo || !repo.includes('/')) return Promise.reject(new Error('Configurá el repositorio como USUARIO/REPO.'));
     const script = path.join(this.scriptRoot, 'publish-pack-github.js');
     fs.mkdirSync(this.publishWorkDir, { recursive: true });
-    const args = [script, '--preview', '--repo', repo, '--source', source || path.join(os.homedir(), '.sklauncher', 'instances', 'siege'), '--out', this.publishWorkDir];
+    const args = [script, '--preview', '--repo', repo, '--source', normalizePathInput(source, path.join(os.homedir(), '.sklauncher', 'instances', 'siege')), '--out', this.publishWorkDir];
     if (version) args.push('--version', version); if (notes) args.push('--notes', notes);
     return new Promise((resolve, reject) => {
       const child = spawn(process.execPath, args, { cwd: this.publishWorkDir, env: { ...process.env, ELECTRON_RUN_AS_NODE: '1' }, stdio: ['ignore','pipe','pipe'] });
@@ -187,7 +195,7 @@ class DeveloperService {
     if (!repo || !repo.includes('/')) return Promise.reject(new Error('Configurá el repositorio como USUARIO/REPO.'));
     const script = path.join(this.scriptRoot, 'publish-pack-github.js'); if (!fs.existsSync(script)) return Promise.reject(new Error('No encontré el publicador del modpack.'));
     fs.mkdirSync(this.publishWorkDir, { recursive: true });
-    const args = [script, '--repo', repo, '--source', source || path.join(os.homedir(), '.sklauncher', 'instances', 'siege'), '--out', this.publishWorkDir];
+    const args = [script, '--repo', repo, '--source', normalizePathInput(source, path.join(os.homedir(), '.sklauncher', 'instances', 'siege')), '--out', this.publishWorkDir];
     if (version) args.push('--version', version); if (notes) args.push('--notes', notes); if(expectedFingerprint) args.push('--expected-fingerprint', expectedFingerprint);
     return new Promise((resolve, reject) => {
       const child = spawn(process.execPath, args, { cwd: this.publishWorkDir, env: { ...process.env, ELECTRON_RUN_AS_NODE: '1' }, stdio: ['ignore', 'pipe', 'pipe'] });

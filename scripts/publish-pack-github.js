@@ -8,7 +8,10 @@ const { buildPack, parseArgs } = require('./build-pack');
 const { twoWordReleaseName, nextVersion } = require('./release-name');
 
 function gh(args, opts = {}) {
-  return execFileSync('gh', args, { encoding: 'utf8', stdio: opts.stdio || ['ignore', 'pipe', 'pipe'] }).trim();
+  // `stdio: inherit` makes execFileSync return null. Normalise both modes so
+  // release uploads and API writes cannot crash while trimming their output.
+  const output = execFileSync('gh', args, { encoding: 'utf8', stdio: opts.stdio || ['ignore', 'pipe', 'pipe'] });
+  return String(output || '').trim();
 }
 function requireGh() {
   try { gh(['--version']); gh(['auth', 'status']); }

@@ -106,6 +106,10 @@ body[data-theme="obsidian"] .catalog-category,body[data-theme="obsidian"] .compa
 body[data-theme="dvn"] .titlebar{background:linear-gradient(90deg,#161128,#26153a)}body[data-theme="dvn"] .sidebar{background:linear-gradient(180deg,#171328,#221738)}body[data-theme="dvn"] .play-card{box-shadow:0 25px 75px rgba(83,47,156,.28)}
 body[data-theme="tactical"] .titlebar{background:#17231f}body[data-theme="crimson"] .titlebar{background:#2a141b}body[data-theme="frost"] .titlebar{background:#132431}body[data-theme="classic"] .titlebar{background:#0e171c}
 
+/* Keep the narrow installed-mods panel from letting filters overlap search. */
+.mods-manager-card{container-type:inline-size}
+@container (max-width:760px){.mods-toolbar{grid-template-columns:1fr}.mods-toolbar .filter-pills{grid-column:auto;justify-content:flex-start}.mods-toolbar .compact-select{width:100%}}
+
 @media(max-width:1320px){.theme-gallery{grid-template-columns:repeat(4,1fr)}.developer-tools .dev-grid{grid-template-columns:1fr 1fr}.mods-toolbar{grid-template-columns:1fr 1fr}.mods-toolbar .filter-pills{grid-column:1/-1}}
 @media(max-width:1080px){.theme-gallery{grid-template-columns:repeat(3,1fr)}.catalog-filter-row{grid-template-columns:1fr}.developer-tools .dev-grid{grid-template-columns:1fr}.mods-toolbar{grid-template-columns:1fr}.mods-toolbar .filter-pills{grid-column:auto}}
 @media(max-width:760px){.app-shell{min-width:0}.page{padding:18px 14px 28px}.play-actions{grid-template-columns:1fr 1fr}.play-button{grid-column:1/-1}.play-meta{grid-template-columns:1fr 1fr}.play-meta>div:nth-child(2){border-right:0}.play-meta>div:nth-child(-n+2){border-bottom:1px solid rgba(255,255,255,.12)}.mods-toolbar,.catalog-filter-row,.field-row,.button-row{grid-template-columns:1fr}.mods-toolbar .filter-pills{justify-content:flex-start}.catalog-actions{grid-template-columns:1fr}.catalog-actions .primary{grid-column:1}.toast{min-width:0;width:min(430px,calc(100vw - 28px))}.toast-area{right:14px;left:14px}.toast-area .toast{max-width:none}.developer-gate{gap:8px}}
@@ -283,6 +287,9 @@ body:not([data-theme="obsidian"]) .statusbar{background:color-mix(in srgb,var(--
 
 @media(max-width:1180px){.command-center-grid{grid-template-columns:1fr}.command-center-card{min-height:66px}.system-integration-grid{grid-template-columns:1fr}.system-integration-grid .switch-row{border-bottom:1px solid var(--line)}}
 @media(max-height:760px){.command-center-grid{grid-template-columns:repeat(3,minmax(0,1fr));margin-bottom:10px}.command-center-card{min-height:58px;padding:8px 10px}.command-center-card .cc-icon{width:34px;height:34px}.command-center-card em{display:none}}
+
+/* Container rule comes last so viewport media rules cannot reintroduce overlap. */
+@container (max-width:760px){.mods-manager-card .mods-toolbar{grid-template-columns:1fr}.mods-manager-card .mods-toolbar .filter-pills{grid-column:auto;justify-content:flex-start}.mods-manager-card .mods-toolbar .compact-select{width:100%}}
 
 /* v0.16 — professional systems pass */
 :root{
