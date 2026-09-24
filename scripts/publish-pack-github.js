@@ -97,12 +97,12 @@ async function main() {
     return;
   }
   const oldHashes = new Set((previous?.files || []).map((f) => f.sha256));
-  const newHashes = [...new Set(result.manifest.files.map((f) => f.sha256).filter((h) => !oldHashes.has(h)))];
+  const newHashes = [...new Set(result.manifest.files.filter((f) => !f.empty).map((f) => f.sha256).filter((h) => !oldHashes.has(h)))];
 
   // Reassign URLs only for truly new blobs; unchanged hashes preserve their older asset URLs.
   const oldUrlByHash = new Map((previous?.files || []).filter((f) => f.sha256 && f.url).map((f) => [f.sha256, f.url]));
   for (const file of result.manifest.files) {
-    file.url = oldUrlByHash.get(file.sha256) || releaseUrl(repo, tag, file.sha256);
+    file.url = file.empty ? '' : (oldUrlByHash.get(file.sha256) || releaseUrl(repo, tag, file.sha256));
   }
   await fsp.writeFile(path.join(out, 'channel', 'stable.json'), JSON.stringify(result.manifest, null, 2));
 

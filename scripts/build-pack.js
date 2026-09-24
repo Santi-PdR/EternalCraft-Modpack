@@ -126,13 +126,14 @@ async function buildPack(options = {}) {
     const stat = await fsp.stat(file.full);
     const sha256 = await sha256File(file.full);
     const oldUrl = previousByHash.get(sha256);
-    const url = oldUrl || `${baseUrl}/blobs/${sha256}`;
+    const empty = stat.size === 0;
+    const url = empty ? '' : (oldUrl || `${baseUrl}/blobs/${sha256}`);
     const blobPath = path.join(blobsDir, sha256);
-    if (!oldUrl && !fs.existsSync(blobPath)) {
+    if (!empty && !oldUrl && !fs.existsSync(blobPath)) {
       await fsp.copyFile(file.full, blobPath);
       uniqueNew.add(sha256);
     }
-    manifestFiles.push({ path: file.relative, size: stat.size, sha256, url });
+    manifestFiles.push({ path: file.relative, size: stat.size, sha256, url, ...(empty ? { empty: true } : {}) });
     done++;
     if (options.onProgress) options.onProgress({ current: done, total: files.length, file: file.relative });
   }

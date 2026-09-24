@@ -34,12 +34,16 @@ function validateManifest(manifest) {
     const p=validatePath(entry?.path);
     if(seen.has(p)) throw new Error(`Ruta duplicada en manifest: ${p}`); seen.add(p);
     if(!/^[a-f0-9]{64}$/i.test(String(entry?.sha256||''))) throw new Error(`SHA-256 inválido: ${p}`);
+    const size=Number(entry.size||0);
+    if(size<0||size>8*1024*1024*1024) throw new Error(`Tamaño inválido: ${p}`);
+    const empty=Boolean(entry?.empty) && size===0;
     const u=String(entry?.url||'');
-    if(!u) throw new Error(`URL faltante: ${p}`);
-    let parsed; try{parsed=new URL(u);}catch(_){throw new Error(`URL inválida: ${p}`);}
-    const localHttp=parsed.protocol==='http:'&&['127.0.0.1','localhost','::1'].includes(parsed.hostname);
-    if(!['https:','file:'].includes(parsed.protocol)&&!localHttp) throw new Error(`URL no segura en manifest: ${p}`);
-    if(Number(entry.size||0)<0||Number(entry.size||0)>8*1024*1024*1024) throw new Error(`Tamaño inválido: ${p}`);
+    if(!empty&&!u) throw new Error(`URL faltante: ${p}`);
+    if(u){
+      let parsed; try{parsed=new URL(u);}catch(_){throw new Error(`URL inválida: ${p}`);}
+      const localHttp=parsed.protocol==='http:'&&['127.0.0.1','localhost','::1'].includes(parsed.hostname);
+      if(!['https:','file:'].includes(parsed.protocol)&&!localHttp) throw new Error(`URL no segura en manifest: ${p}`);
+    }
   }
   if(Array.isArray(manifest.remove)) manifest.remove.forEach(validatePath);
   return manifest;

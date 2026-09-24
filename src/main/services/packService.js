@@ -185,6 +185,11 @@ async function ensureCachedBlob(root, entry, onChunk = () => {}) {
   await fsp.mkdir(cacheRoot, { recursive: true });
   const blob = path.join(cacheRoot, String(entry.sha256).toLowerCase());
   if (await validCachedBlob(blob, entry)) return { path: blob, fromCache: true };
+  if (entry.empty && Number(entry.size || 0) === 0) {
+    await fsp.writeFile(blob, '');
+    onChunk(0, 0);
+    return { path: blob, fromCache: false };
+  }
   await downloadFile(entry.url, blob, entry.sha256, onChunk);
   return { path: blob, fromCache: false };
 }
