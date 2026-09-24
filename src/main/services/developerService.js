@@ -61,7 +61,7 @@ class DeveloperService {
     } catch (_) {}
     return {
       configured: developerAllowed && Boolean(s.passwordSalt && s.passwordHash), unlocked: developerAllowed && this.unlocked,
-      curseforgeConfigured: Boolean(s.curseforgeApiKey), githubReady, githubLogin,
+      curseforgeConfigured: developerAllowed && Boolean(s.curseforgeApiKey), githubReady, githubLogin,
       canSetup: developerAllowed, developerAllowed, maintenancePlatform: process.platform
     };
   }
@@ -85,7 +85,7 @@ class DeveloperService {
     const s = this.load(); const salt = crypto.randomBytes(16).toString('hex'); this.save({ ...s, passwordSalt: salt, passwordHash: hashPassword(nextPassword, salt) }); this.unlocked = true; return this.status();
   }
   setCurseForgeApiKey(key) { this.requireUnlocked(); const s = this.load(); this.save({ ...s, curseforgeApiKey: String(key || '').trim() }); return this.status(); }
-  getCurseForgeApiKey() { return String(this.load().curseforgeApiKey || ''); }
+  getCurseForgeApiKey() { return this.isMaintenanceBuild() ? String(this.load().curseforgeApiKey || '') : ''; }
   requireUnlocked() { this.requireAvailable(); if (!this.unlocked) throw new Error('Modo desarrollador bloqueado.'); }
   preflight(source, test, repo) {
     this.requireUnlocked();
