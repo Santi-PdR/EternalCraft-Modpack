@@ -12,7 +12,7 @@ const mockConfig = {
   onboarding:{completed:true},links:{}
 };
 const mockManifest = {
-  schema:2,version:'1.0.0',releaseName:'Siege Origin',minecraft:'1.20.1',forge:'47.4.10',minimumLauncher:'0.25.0',files:[],remove:[],
+  schema:2,version:'1.0.0',releaseName:'Siege Origin',minecraft:'1.20.1',forge:'47.4.10',minimumLauncher:'0.25.1',files:[],remove:[],
   releaseNotes:{title:'SIEGE DEV',summary:'Base del launcher renovada y sistema de actualización segura.',addedCount:2,changedCount:4,removedCount:0,highlights:[{type:'changed',path:'mods/siege-menu.jar'},{type:'added',path:'config/eternal-client.toml'}]}
 };
 
@@ -23,7 +23,7 @@ function merge(target, patch){
 }
 
 const previewApi = {
-  getState:async()=>({appVersion:'0.25.0',platform:'preview',packaged:false,config:mockConfig,manifest:mockManifest,manifestConfigured:true,manifestSource:'development',java:{found:true,major:17,version:'17.0.x',path:'java'},needsOnboarding:false,launcherUpdateConfigured:false,minimumLauncher:'0.25.0',launcherCompatible:true,developer:{configured:false,unlocked:false,curseforgeConfigured:false},system:{recommendedRamGb:6,maxRamGb:11,totalMemoryBytes:16*1024**3,gpus:[{vendor:'NVIDIA',name:'NVIDIA GeForce GTX 1050'}],display:{width:1920,height:1080,workWidth:1920,workHeight:1040,scaleFactor:1,label:'Monitor principal'},disk:{available:true,freeBytes:180*1024**3,totalBytes:480*1024**3,requiredBytes:512*1024**2}}}),
+  getState:async()=>({appVersion:'0.25.1',platform:'preview',packaged:false,config:mockConfig,manifest:mockManifest,manifestConfigured:true,manifestSource:'development',java:{found:true,major:17,version:'17.0.x',path:'java'},needsOnboarding:false,launcherUpdateConfigured:false,minimumLauncher:'0.25.1',launcherCompatible:true,developer:{configured:false,unlocked:false,curseforgeConfigured:false},system:{recommendedRamGb:6,maxRamGb:11,totalMemoryBytes:16*1024**3,gpus:[{vendor:'NVIDIA',name:'NVIDIA GeForce GTX 1050'}],display:{width:1920,height:1080,workWidth:1920,workHeight:1040,scaleFactor:1,label:'Monitor principal'},disk:{available:true,freeBytes:180*1024**3,totalBytes:480*1024**3,requiredBytes:512*1024**2}}}),
   completeOnboarding:async(p)=>{mockConfig.minecraft.username=p.username;mockConfig.onboarding.completed=true;return previewApi.getState()},
   pingServer:async()=>({online:true,latency:57,players:{online:12,max:40},version:'Forge 1.20.1',favicon:null}),
   checkPack:async()=>({configured:true,state:{version:'SIEGE-DEV',updatedAt:new Date().toISOString()},expectedVersion:'SIEGE-DEV',versionMatches:true,total:247,ok:247,missing:[],changed:[],remove:[],bytesRequired:0,healthy:true}),
@@ -268,6 +268,12 @@ function renderReleaseNotes(){
   if(!items.length){const el=document.createElement('span');el.className='release-item changed';el.textContent='Pack listo para jugar';host.appendChild(el);return;}
   for(const item of items){const el=document.createElement('span');el.className=`release-item ${item.type||'changed'}`;const label=item.type==='added'?'+':item.type==='removed'?'−':'↻';el.textContent=`${label} ${item.path||''}`;host.appendChild(el);}
 }
+function renderDiscordChannels(){
+  const host=$('discordChannels'); if(!host)return;
+  const channels=appState?.config?.links?.discordChannels||[]; host.innerHTML='';
+  if(!channels.length){host.innerHTML='<div class="empty-state">No hay canales configurados.</div>';return;}
+  for(const channel of channels){const row=document.createElement('button');row.className='connectivity-row';row.type='button';row.innerHTML=`<span><b>${escapeHtml(channel.name||'Discord')}</b><small>Canal oficial</small></span><strong>ABRIR ↗</strong>`;row.addEventListener('click',()=>api.openExternal(channel.url));host.appendChild(row);}
+}
 function renderSession(){
   const cfg=appState?.config?.launcher||{}; const last=cfg.lastSession; const user=appState?.config?.minecraft?.username||'—'; const stats=cfg.playStats||{totalMs:0,sessions:0,days:{}};
   $('sessionUsername').textContent=user; $('profileAvatar').textContent=initial(user); $('activityAvatar').textContent=initial(user);
@@ -281,7 +287,7 @@ function renderSession(){
 function fillBaseState(state){
   appState=state; const {config,manifest,java}=state; const user=config.minecraft.username||'—';
   $('titleBuild').textContent=`BUILD ${state.appVersion}`; $('footerBuild').textContent=`ETERNAL CRAFT LAUNCHER // ${state.appVersion}`;
-  if($('aboutVersion'))$('aboutVersion').textContent=`v${state.appVersion}`; if($('settingsDeveloperTab'))$('settingsDeveloperTab').classList.toggle('hidden',state.platform!=='linux'&&!developerState.configured);
+  if($('aboutVersion'))$('aboutVersion').textContent=`v${state.appVersion}`; if($('settingsDeveloperTab'))$('settingsDeveloperTab').classList.toggle('hidden',state.developer?.developerAllowed!==true);
   if($('aboutPlatform'))$('aboutPlatform').textContent=state.platform==='win32'?'Windows':state.platform==='linux'?'Linux / Fedora':String(state.platform||'—');
   if($('aboutChannel'))$('aboutChannel').textContent=state.manifestStale?'Caché offline':state.manifestSource==='remote'?'Stable / GitHub':state.manifestSource==='development'?'Desarrollo local':'Sin publicar';
   if($('aboutJava'))$('aboutJava').textContent=java?.found?`Java ${java.major||17}${java.managed?' · administrado':''}`:'Automático';
@@ -304,7 +310,7 @@ function fillBaseState(state){
   const disk=state.system?.disk; $('storageReadout').textContent=disk?.available?`Espacio libre: ${formatStorage(disk.freeBytes)} · el launcher reserva margen temporal para actualizar con seguridad.`:'No pude calcular el espacio libre de esta unidad.';
   setHealth('sideJava',javaOk?'OK':config.minecraft.autoInstallJava!==false?'AUTO':'REVISAR',javaOk?'ok':config.minecraft.autoInstallJava!==false?'warn':'bad'); setHealth('sidePack',state.manifestStale?'CACHÉ':state.manifestConfigured?'LINKED':'DEV',state.manifestStale?'warn':state.manifestConfigured?'ok':'warn');
   setHealth('readyJava',javaOk?'LISTO':config.minecraft.autoInstallJava!==false?'AUTOMÁTICO':'REVISAR',javaOk?'ok':config.minecraft.autoInstallJava!==false?'warn':'bad'); setHealth('readyLauncher',state.launcherCompatible?'LISTO':`v${state.minimumLauncher}+`,state.launcherCompatible?'ok':'bad');
-  renderDeveloper(state.developer||{configured:false,unlocked:false,curseforgeConfigured:false}); renderReleaseNotes(); renderSession(); updatePlayAvailability(); renderReadiness();
+  renderDeveloper(state.developer||{configured:false,unlocked:false,curseforgeConfigured:false}); renderReleaseNotes(); renderDiscordChannels(); renderSession(); updatePlayAvailability(); renderReadiness();
 }
 
 function renderPackInfo(){
@@ -622,7 +628,7 @@ async function promoteAllTestMods(){if(!await askConfirm({title:'Promover todos 
 
 function renderDeveloper(status={}){
   developerState={...developerState,...status};const unlocked=Boolean(developerState.unlocked),configured=Boolean(developerState.configured);
-  if($('developerSection'))$('developerSection').classList.toggle('hidden',appState?.platform==='win32');
+  if($('developerSection'))$('developerSection').classList.toggle('hidden',developerState.developerAllowed!==true);
   if($('developerLocked'))$('developerLocked').classList.toggle('hidden',unlocked);if($('developerUnlocked'))$('developerUnlocked').classList.toggle('hidden',!unlocked);
   if($('developerStateBadge')){$('developerStateBadge').textContent=unlocked?'ACTIVO':configured?'BLOQUEADO':'SIN CONFIGURAR';$('developerStateBadge').classList.toggle('developer-state-on',unlocked);}
   const canSetup=developerState.canSetup!==false;

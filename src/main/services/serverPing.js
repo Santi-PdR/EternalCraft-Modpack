@@ -85,17 +85,24 @@ function pingMinecraftServer(host, port, timeout = 3500) {
 
         const json = incoming.subarray(cursor, cursor + strLen.value).toString('utf8');
         const data = JSON.parse(json);
+        const description = typeof data.description === 'string' ? data.description : data.description?.text || '';
+        const version = data.version?.name || 'Desconocida';
+        const lobbyText = `${description} ${version}`.toLowerCase();
+        // Exaroton can answer with its lobby while the configured instance is stopped.
+        // Treat the provider's generic lobby/offline responses as offline to avoid a false positive.
+        const exarotonLobby = /exaroton|server\s*(is\s*)?(offline|stopped)|start\s*(your|the)\s*server|lobby/.test(lobbyText);
         done({
-          online: true,
+          online: !exarotonLobby,
           latency: Date.now() - started,
           players: {
             online: data.players?.online ?? 0,
             max: data.players?.max ?? 0,
             sample: data.players?.sample || []
           },
-          version: data.version?.name || 'Desconocida',
+          version,
           protocol: data.version?.protocol ?? null,
-          description: typeof data.description === 'string' ? data.description : data.description?.text || '',
+          description,
+          providerLobby: exarotonLobby,
           favicon: typeof data.favicon === 'string' && data.favicon.startsWith('data:image/') ? data.favicon : null
         });
       } catch (err) {

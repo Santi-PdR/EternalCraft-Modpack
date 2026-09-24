@@ -43,12 +43,15 @@ class DeveloperService {
   constructor(userDataDir, scriptRoot) {
     this.file = path.join(userDataDir, 'developer-secrets.json');
     this.scriptRoot = scriptRoot;
+    this.publishWorkDir = path.join(userDataDir, 'pack-dist-publish');
     this.unlocked = false;
   }
+  isMaintenanceBuild() { return process.env.ETERNAL_DEVELOPER_BUILD === '1' && process.platform === 'linux'; }
   load() { try { return JSON.parse(fs.readFileSync(this.file, 'utf8')); } catch (_) { return {}; } }
   save(data) { fs.mkdirSync(path.dirname(this.file), { recursive: true }); fs.writeFileSync(this.file, JSON.stringify(data, null, 2), { mode: 0o600 }); }
   status() {
     const s = this.load(); let githubReady = false, githubLogin = '';
+    const developerAllowed = this.isMaintenanceBuild();
     try {
       const v = spawnSync('gh', ['--version'], { encoding: 'utf8' });
       if (v.status === 0) {
@@ -57,19 +60,21 @@ class DeveloperService {
       }
     } catch (_) {}
     return {
-      configured: Boolean(s.passwordSalt && s.passwordHash), unlocked: this.unlocked,
+      configured: developerAllowed && Boolean(s.passwordSalt && s.passwordHash), unlocked: developerAllowed && this.unlocked,
       curseforgeConfigured: Boolean(s.curseforgeApiKey), githubReady, githubLogin,
-      canSetup: process.platform === 'linux', maintenancePlatform: process.platform
+      canSetup: developerAllowed, developerAllowed, maintenancePlatform: process.platform
     };
   }
+  requireAvailable() { if (!this.isMaintenanceBuild()) throw new Error('El modo desarrollador solo está disponible en la build privada de mantenimiento.'); }
   setup(password) {
-    if (process.platform !== 'linux') throw new Error('El modo desarrollador solo se puede configurar desde la build de mantenimiento en Linux.');
+    this.requireAvailable();
     if (this.status().configured) throw new Error('El modo desarrollador ya tiene contraseña.');
     if (String(password || '').length < 6) throw new Error('Usá una contraseña de al menos 6 caracteres.');
     const salt = crypto.randomBytes(16).toString('hex'); const s = this.load();
     this.save({ ...s, passwordSalt: salt, passwordHash: hashPassword(password, salt) }); this.unlocked = true; return this.status();
   }
   unlock(password) {
+    this.requireAvailable();
     const s = this.load(); if (!s.passwordSalt || !s.passwordHash) throw new Error('Primero configurá una contraseña de desarrollador.');
     if (!safeEqualHex(hashPassword(password, s.passwordSalt), s.passwordHash)) throw new Error('Contraseña incorrecta.');
     this.unlocked = true; return this.status();
@@ -79,9 +84,9 @@ class DeveloperService {
     this.unlock(currentPassword); if (String(nextPassword || '').length < 6) throw new Error('La nueva contraseña debe tener al menos 6 caracteres.');
     const s = this.load(); const salt = crypto.randomBytes(16).toString('hex'); this.save({ ...s, passwordSalt: salt, passwordHash: hashPassword(nextPassword, salt) }); this.unlocked = true; return this.status();
   }
-  setCurseForgeApiKey(key) { if (!this.unlocked) throw new Error('Modo desarrollador bloqueado.'); const s = this.load(); this.save({ ...s, curseforgeApiKey: String(key || '').trim() }); return this.status(); }
+  setCurseForgeApiKey(key) { this.requireUnlocked(); const s = this.load(); this.save({ ...s, curseforgeApiKey: String(key || '').trim() }); return this.status(); }
   getCurseForgeApiKey() { return String(this.load().curseforgeApiKey || ''); }
-  requireUnlocked() { if (!this.unlocked) throw new Error('Modo desarrollador bloqueado.'); }
+  requireUnlocked() { this.requireAvailable(); if (!this.unlocked) throw new Error('Modo desarrollador bloqueado.'); }
   preflight(source, test, repo) {
     this.requireUnlocked();
     const status = this.status();
@@ -153,10 +158,11 @@ class DeveloperService {
     this.requireUnlocked();
     if (!repo || !repo.includes('/')) return Promise.reject(new Error('Configurá el repositorio como USUARIO/REPO.'));
     const script = path.join(this.scriptRoot, 'publish-pack-github.js');
-    const args = [script, '--preview', '--repo', repo, '--source', source || path.join(os.homedir(), '.sklauncher', 'instances', 'siege')];
+    fs.mkdirSync(this.publishWorkDir, { recursive: true });
+    const args = [script, '--preview', '--repo', repo, '--source', source || path.join(os.homedir(), '.sklauncher', 'instances', 'siege'), '--out', this.publishWorkDir];
     if (version) args.push('--version', version); if (notes) args.push('--notes', notes);
     return new Promise((resolve, reject) => {
-      const child = spawn(process.execPath, args, { cwd: path.dirname(this.scriptRoot), env: { ...process.env, ELECTRON_RUN_AS_NODE: '1' }, stdio: ['ignore','pipe','pipe'] });
+      const child = spawn(process.execPath, args, { cwd: this.publishWorkDir, env: { ...process.env, ELECTRON_RUN_AS_NODE: '1' }, stdio: ['ignore','pipe','pipe'] });
       let output=''; const collect=(buf)=>{const text=String(buf);output+=text;text.split(/\r?\n/).filter(Boolean).forEach(onLine);};
       child.stdout.on('data',collect); child.stderr.on('data',collect); child.on('error',reject);
       child.on('close',code=>{
@@ -172,10 +178,11 @@ class DeveloperService {
     this.requireUnlocked();
     if (!repo || !repo.includes('/')) return Promise.reject(new Error('Configurá el repositorio como USUARIO/REPO.'));
     const script = path.join(this.scriptRoot, 'publish-pack-github.js'); if (!fs.existsSync(script)) return Promise.reject(new Error('No encontré el publicador del modpack.'));
-    const args = [script, '--repo', repo, '--source', source || path.join(os.homedir(), '.sklauncher', 'instances', 'siege')];
+    fs.mkdirSync(this.publishWorkDir, { recursive: true });
+    const args = [script, '--repo', repo, '--source', source || path.join(os.homedir(), '.sklauncher', 'instances', 'siege'), '--out', this.publishWorkDir];
     if (version) args.push('--version', version); if (notes) args.push('--notes', notes); if(expectedFingerprint) args.push('--expected-fingerprint', expectedFingerprint);
     return new Promise((resolve, reject) => {
-      const child = spawn(process.execPath, args, { cwd: path.dirname(this.scriptRoot), env: { ...process.env, ELECTRON_RUN_AS_NODE: '1' }, stdio: ['ignore', 'pipe', 'pipe'] });
+      const child = spawn(process.execPath, args, { cwd: this.publishWorkDir, env: { ...process.env, ELECTRON_RUN_AS_NODE: '1' }, stdio: ['ignore', 'pipe', 'pipe'] });
       let output = ''; const collect = (buf) => { const text = String(buf); output += text; text.split(/\r?\n/).filter(Boolean).forEach(onLine); };
       child.stdout.on('data', collect); child.stderr.on('data', collect); child.on('error', reject);
       child.on('close', code => code === 0 ? resolve({ ok: true, output }) : reject(new Error(output.trim() || `Publicación falló (${code})`)));

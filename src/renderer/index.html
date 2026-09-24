@@ -89,7 +89,7 @@
 
   <div id="whatsNewOverlay" class="whats-new-overlay hidden" role="dialog" aria-modal="true" aria-label="Novedades del launcher">
     <section class="whats-new-card">
-      <div class="whats-new-hero"><img src="assets/logo.svg" alt=""/><div><span class="eyebrow">ETERNAL CRAFT LAUNCHER</span><h2>v0.25.0</h2><p>Crash Guard, Personal Vault y un flujo de mods mucho más seguro.</p></div></div>
+      <div class="whats-new-hero"><img src="assets/logo.svg" alt=""/><div><span class="eyebrow">ETERNAL CRAFT LAUNCHER</span><h2>v0.25.1</h2><p>Correcciones de publicación, estado Exaroton y modo de mantenimiento privado.</p></div></div>
       <div class="whats-new-grid">
         <div><i>01</i><b>Perfil de juego inteligente</b><span>RAM, resolución, GPU y preset visibles desde Inicio con configuración recomendada en un toque.</span></div>
         <div><i>02</i><b>Búsqueda de Ajustes</b><span>Encontrá una opción sin recorrer todas las categorías.</span></div>
@@ -115,7 +115,7 @@
         <b id="notificationsBadge" class="hidden">0</b>
       </button>
       <div id="globalStatus" class="global-status" title="Estado de conexión"><i></i><span id="globalStatusText">COMPROBANDO</span></div>
-      <div id="titleBuild" class="title-build">BUILD 0.25.0</div>
+      <div id="titleBuild" class="title-build">BUILD 0.25.1</div>
       <div class="window-controls">
         <button id="minimizeBtn" aria-label="Minimizar">—</button>
         <button id="maximizeBtn" aria-label="Maximizar">□</button>
@@ -494,6 +494,12 @@
             <div class="panel-head"><span>CONECTIVIDAD</span><b id="connectivityBadge">SIN COMPROBAR</b></div>
             <div id="connectivityList" class="connectivity-list"><div class="empty-state">Comprobá GitHub, Modrinth y el canal del pack.</div></div>
             <button id="connectivityBtn" class="ghost full-width">COMPROBAR CONECTIVIDAD</button>
+          </article>
+
+          <article class="panel connectivity-card discord-card">
+            <div class="panel-head"><span>DISCORD EN VIVO</span><b>COMUNIDAD</b></div>
+            <p>Los canales oficiales se abren en Discord. El launcher no guarda tokens ni credenciales; si más adelante configurás un feed público, puede agregarse sin publicar secretos.</p>
+            <div id="discordChannels" class="connectivity-list"><div class="empty-state">Cargando canales…</div></div>
           </article>
 
           <article class="panel crash-guard-card">

@@ -39,6 +39,7 @@ cp -f resources/icons/icon.png "$ICON_DIR/$APP_ID.png"
 
 cat > "$WRAPPER" <<WRAPPER
 #!/usr/bin/env bash
+export ETERNAL_DEVELOPER_BUILD=1
 exec "$APPIMAGE" "\$@"
 WRAPPER
 chmod +x "$WRAPPER"
