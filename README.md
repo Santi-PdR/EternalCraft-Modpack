@@ -1,4 +1,4 @@
-# Eternal Craft Launcher 0.25.5
+# Eternal Craft Launcher 0.25.6
 
 Official launcher for **Eternal Craft // SIEGE**.
 
@@ -93,5 +93,10 @@ The project includes Electron Builder configuration and GitHub Actions for Windo
 - Exported settings exclude Developer password and CurseForge API key.
 - Personal Vault is opt-in and points to a folder chosen by the user.
 - GitHub authentication uses the maintainer's existing local `gh` session instead of storing a GitHub password in the launcher.
+
+## Microsoft account and Discord
+
+- The player can sign in from **Ajustes → Juego → Cuenta premium**. Microsoft authentication opens in a separate account window; only the refresh token is kept in the local user-data folder with restrictive file permissions. No Microsoft password, token or CurseForge key is committed to GitHub.
+- Discord channels are presented as official links from the launcher. Reading messages in real time would require a Discord bot or a public feed hosted by the server; the launcher does not embed user credentials or scrape private channels. The configured channel links remain available without that extra service.
 
 See `docs/CHANGELOG-v0.25.0.md` and `docs/LAUNCHER-LANDSCAPE-v0.25.0.md` for this release's design notes.
