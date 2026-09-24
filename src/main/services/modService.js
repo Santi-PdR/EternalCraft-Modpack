@@ -99,6 +99,7 @@ async function addMods(root, filePaths, manifest) {
     meta.mods[name] = { provider: 'local', projectName: displayName(name), installedAt: new Date().toISOString() };
     added.push(name);
   }
+  if (!added.length) throw new Error('No se seleccionaron archivos .jar válidos. Elegí uno o más mods con extensión .jar.');
   await writeMeta(root, meta);
   return { added, ...await listMods(root, manifest, 'recent') };
 }
@@ -141,7 +142,7 @@ function modrinthFacets({ category = 'all', environment = 'all' } = {}) {
 }
 
 async function searchModrinth(query, options = {}) {
-  const index = ['relevance', 'downloads', 'newest', 'updated'].includes(options.sort) ? options.sort : 'updated';
+  const index = ['relevance', 'downloads', 'newest', 'updated'].includes(options.sort) ? options.sort : 'relevance';
   const params = new URLSearchParams({
     query: String(query || ''), facets: JSON.stringify(modrinthFacets(options)), index, limit: String(Math.max(1, Math.min(48, Number(options.limit || 30)))), offset: String(Math.max(0, Number(options.offset || 0)))
   });
@@ -205,7 +206,7 @@ async function searchCurseForge(query, apiKey, options = {}, proxyUrl = '') {
     return { configured:true, viaProxy:true, results:Array.isArray(data.results)?data.results:[] };
   }
   if (!apiKey) return { configured: false, requiresApiKey: true, reason: 'CurseForge requiere una API key oficial o un proxy configurado por el desarrollador.', results: [] };
-  const qs = new URLSearchParams({ gameId: '432', classId: '6', gameVersion: '1.20.1', modLoaderType: '1', searchFilter: String(query || ''), sortField: options.sort === 'downloads' ? '6' : '3', sortOrder: 'desc', pageSize: '30', index: String(Math.max(0,Number(options.offset||0))) });
+  const qs = new URLSearchParams({ gameId: '432', classId: '6', gameVersion: '1.20.1', modLoaderType: '1', searchFilter: String(query || ''), sortField: options.sort === 'downloads' ? '6' : '1', sortOrder: 'desc', pageSize: '30', index: String(Math.max(0,Number(options.offset||0))) });
   const categoryId = await curseForgeCategoryId(apiKey, options.category); if (categoryId) qs.set('categoryId', categoryId);
   const data = await fetchJson(`${CURSEFORGE}/mods/search?${qs}`, { headers: { 'x-api-key': apiKey } });
   return { configured: true, results: (data.data || []).map(x => ({ provider: 'curseforge', id: String(x.id), name: x.name, summary: x.summary || '', author: (x.authors || [])[0]?.name || '', iconUrl: x.logo?.thumbnailUrl || '', downloads: x.downloadCount || 0, updatedAt: x.dateModified || '', websiteUrl:x.links?.websiteUrl||'', categories:(x.categories||[]).map(c=>c.name) })) };
@@ -516,9 +517,6 @@ async function auditMods(root, manifest) {
     }
     if (!mod.official && mod.enabled && mod.environment?.client === 'unsupported') {
       issues.push({ severity:'bad', type:'server-only', mod:mod.displayName, filename:mod.filename, text:'Este proyecto marca el cliente como no compatible.' });
-    }
-    if (!mod.official && mod.enabled && mod.provider === 'local') {
-      issues.push({ severity:'info', type:'unidentified', mod:mod.displayName, filename:mod.filename, text:'Mod local sin identificar; no puede actualizarse automáticamente.' });
     }
   }
   const fileKeys = new Map();

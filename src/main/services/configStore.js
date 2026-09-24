@@ -11,6 +11,18 @@ function deepMerge(base, patch) {
   return out;
 }
 function timestamp() { return new Date().toISOString().replace(/[:.]/g, '-'); }
+function defaultInstallDirectory(userDataDir) {
+  const home = require('os').homedir();
+  const candidates = [
+    path.join(home, '.sklauncher', 'instances', 'siege'),
+    path.join(home, '.sklauncher', 'instances', 'SIEGE'),
+    path.join(userDataDir, 'EternalCraft')
+  ];
+  for (const candidate of candidates) {
+    try { if (fs.statSync(path.join(candidate, 'mods')).isDirectory()) return candidate; } catch (_) {}
+  }
+  return path.join(userDataDir, 'EternalCraft');
+}
 
 class ConfigStore {
   constructor({ defaultsPath, userDataDir }) {
@@ -45,7 +57,7 @@ class ConfigStore {
   }
   load() {
     const merged = deepMerge(this.readDefaults(), this.readUser());
-    if (!merged.pack.installDirectory) merged.pack.installDirectory = path.join(this.userDataDir, 'EternalCraft');
+    if (!merged.pack.installDirectory) merged.pack.installDirectory = defaultInstallDirectory(this.userDataDir);
     return merged;
   }
   save(patch) {

@@ -6,7 +6,7 @@ const { ConfigStore } = require('./services/configStore');
 const { pingMinecraftServer } = require('./services/serverPing');
 const { getManifest } = require('./services/manifestService');
 const { checkInstallation, repairInstallation, cacheStats, clearCache } = require('./services/packService');
-const { resolveJava17, ensureJava17 } = require('./services/javaService');
+const { resolveJava17, ensureJava17, supportedJava } = require('./services/javaService');
 const { buildDiagnostic, quickDiagnostic } = require('./services/diagnostics');
 const { launchGame } = require('./services/gameService');
 const { ensurePreset } = require('./services/gamePresetService');
@@ -304,7 +304,6 @@ async function updatePack(config, force = false) {
     await createSnapshot(config.pack.installDirectory, info.manifest, `Antes de actualizar a ${info.manifest.version || 'nueva versión'}`).catch(() => null);
   }
   const repaired = await repairInstallation(config.pack.installDirectory, info.manifest, (p) => packProgress(p));
-  await ensurePreset(config.pack.installDirectory, resourcesDir(), config.minecraft.preset || 'balanced', false);
   const system = await systemProfile(config.pack.installDirectory, 0).catch(() => null);
   const cache = await cacheStats(config.pack.installDirectory).catch(() => ({ files: 0, bytes: 0 }));
   return { configured: true, updated: true, ...repaired, system, cache };
@@ -312,9 +311,9 @@ async function updatePack(config, force = false) {
 
 async function ensurePlayableJava(config) {
   let java = await resolveJava17(config.minecraft.javaPath || '', managedJavaRoot());
-  if (java.found && java.major === 17) return java;
+  if (java.found && supportedJava(java.major)) return java;
   if (config.minecraft.autoInstallJava === false) {
-    throw new Error(`Eternal Craft necesita Java 17. Detectado: ${java.version || 'ninguno'}. Activá Java automático o instalá Java 17.`);
+    throw new Error(`Eternal Craft necesita Java 17 o superior. Detectado: ${java.version || 'ninguno'}. Elegí un Java compatible en Ajustes.`);
   }
   java = await ensureJava17(config.minecraft.javaPath || '', managedJavaRoot(), (p) => packProgress(p));
   store.save({ minecraft: { javaPath: java.path, autoInstallJava: true } });
@@ -408,7 +407,7 @@ function registerIpc() {
 
   ipcMain.handle('mods:search', async (_event, payload = {}) => {
     const provider = String(payload.provider || 'modrinth'); const query = String(payload.query || '').trim();
-    const options = { category:String(payload.category||'all'), environment:String(payload.environment||'all'), sort:String(payload.sort||'updated'), limit:36 };
+    const options = { category:String(payload.category||'all'), environment:String(payload.environment||'all'), sort:String(payload.sort||'relevance'), limit:36 };
     if (provider === 'curseforge') { const cfg=store.load(); return searchCurseForge(query, developerService.getCurseForgeApiKey(), options, cfg.mods?.curseforgeProxyUrl || ''); }
     return { provider: 'modrinth', configured: true, results: await searchModrinth(query, options) };
   });
@@ -521,7 +520,7 @@ function registerIpc() {
     const userMods=(mods.mods||[]).filter(m=>m.userAdded);
     const disabled=userMods.filter(m=>!m.enabled).length;
     const issues=[];
-    if(!(java.found&&java.major===17) && cfg.minecraft.autoInstallJava===false) issues.push({type:'java',severity:'bad',text:'Falta Java 17'});
+    if(!supportedJava(java.major) && cfg.minecraft.autoInstallJava===false) issues.push({type:'java',severity:'bad',text:'Falta Java 17 o superior'});
     if(pack && !pack.healthy) issues.push({type:'pack',severity:'warn',text:'El modpack necesita sincronización'});
     if(!server.online) issues.push({type:'server',severity:'warn',text:'El servidor está offline'});
     const freeBytes=Number(system?.disk?.freeBytes||0);
@@ -531,7 +530,7 @@ function registerIpc() {
     if(info.stale) issues.push({type:'network',severity:'warn',text:'Usando el último manifest guardado en caché'});
     if(diagnostic?.severity && diagnostic.severity!=='ok') issues.push({type:'log',severity:'warn',text:diagnostic.title||'Revisar último log'});
     const latency=Number(server.latency||0); const connectionQuality=!server.online?'offline':latency<=70?'excellent':latency<=130?'good':latency<=220?'fair':'poor';
-    return { ok:issues.length===0, issues, javaOk:Boolean(java.found&&java.major===17), packOk:Boolean(pack?.healthy), serverOnline:Boolean(server.online), userMods:userMods.length, disabledMods:disabled, favorites:Number(mods.counts?.favorites||0), diagnostic, system, connectionQuality, latency };
+    return { ok:issues.length===0, issues, javaOk:Boolean(java.found&&supportedJava(java.major)), packOk:Boolean(pack?.healthy), serverOnline:Boolean(server.online), userMods:userMods.length, disabledMods:disabled, favorites:Number(mods.counts?.favorites||0), diagnostic, system, connectionQuality, latency };
   });
 
   ipcMain.handle('java:install', async () => runExclusive('instalación de Java 17', async () => {

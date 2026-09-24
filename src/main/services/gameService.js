@@ -12,8 +12,7 @@ async function launchGame({ config, manifest, resourcesDir, managedJavaRoot = ''
   if (!/^[A-Za-z0-9_]{3,16}$/.test(username)) throw new Error('Configurá un nick válido antes de jugar.');
 
   const java = javaInfo && javaInfo.found ? javaInfo : await resolveJava17(config.minecraft.javaPath || '', managedJavaRoot);
-  if (!java.found || java.major !== 17) throw new Error(`Eternal Craft necesita Java 17. Detectado: ${java.version || 'ninguno'}.`);
-  await ensurePreset(root, resourcesDir, config.minecraft.preset || 'balanced', false);
+  if (!java.found || Number(java.major) < 17) throw new Error(`Eternal Craft necesita Java 17 o superior. Detectado: ${java.version || 'ninguno'}.`);
   const forgeInstaller = await ensureForgeInstaller(root, manifest, onProgress);
 
   const launcher = new Client();

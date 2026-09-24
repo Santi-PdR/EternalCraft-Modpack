@@ -15,7 +15,7 @@
     "fullscreen": false,
     "javaPath": "",
     "preset": "balanced",
-    "autoInstallJava": true,
+    "autoInstallJava": false,
     "preferDedicatedGpu": true,
     "useSystemResolution": true
   },

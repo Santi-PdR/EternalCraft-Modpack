@@ -89,7 +89,7 @@
 
   <div id="whatsNewOverlay" class="whats-new-overlay hidden" role="dialog" aria-modal="true" aria-label="Novedades del launcher">
     <section class="whats-new-card">
-      <div class="whats-new-hero"><img src="assets/logo.svg" alt=""/><div><span class="eyebrow">ETERNAL CRAFT LAUNCHER</span><h2>v0.25.1</h2><p>Correcciones de publicación, estado Exaroton y modo de mantenimiento privado.</p></div></div>
+      <div class="whats-new-hero"><img src="assets/logo.svg" alt=""/><div><span class="eyebrow">ETERNAL CRAFT LAUNCHER</span><h2>v0.25.2</h2><p>Mods más claros, promoción selectiva de test-1, guardado automático y Java compatible.</p></div></div>
       <div class="whats-new-grid">
         <div><i>01</i><b>Perfil de juego inteligente</b><span>RAM, resolución, GPU y preset visibles desde Inicio con configuración recomendada en un toque.</span></div>
         <div><i>02</i><b>Búsqueda de Ajustes</b><span>Encontrá una opción sin recorrer todas las categorías.</span></div>
@@ -115,7 +115,7 @@
         <b id="notificationsBadge" class="hidden">0</b>
       </button>
       <div id="globalStatus" class="global-status" title="Estado de conexión"><i></i><span id="globalStatusText">COMPROBANDO</span></div>
-      <div id="titleBuild" class="title-build">BUILD 0.25.1</div>
+      <div id="titleBuild" class="title-build">BUILD 0.25.2</div>
       <div class="window-controls">
         <button id="minimizeBtn" aria-label="Minimizar">—</button>
         <button id="maximizeBtn" aria-label="Maximizar">□</button>
@@ -235,7 +235,7 @@
             <article class="panel readiness-card">
               <div class="panel-head"><span>LISTO PARA JUGAR</span><b id="readinessPercent">—</b></div>
               <div class="readiness-list">
-                <div><span>Java 17</span><b id="readyJava">...</b></div>
+                <div><span>Java 17+</span><b id="readyJava">...</b></div>
                 <div><span>Modpack</span><b id="readyPack">...</b></div>
                 <div><span>Servidor</span><b id="readyServer">...</b></div>
                 <div><span>Launcher</span><b id="readyLauncher">...</b></div>
@@ -243,14 +243,14 @@
             </article>
 
             <article class="panel play-profile-card">
-              <div class="panel-head"><span>PERFIL DE JUEGO</span><b id="homePresetBadge">EQUILIBRADO</b></div>
+              <div class="panel-head"><span>PERFIL DE JUEGO</span><b id="homePresetBadge">MANUAL</b></div>
               <div class="play-profile-grid">
                 <div><span>RAM</span><b id="homeProfileRam">6 GB</b></div>
                 <div><span>RESOLUCIÓN</span><b id="homeProfileResolution">AUTO</b></div>
                 <div><span>GPU</span><b id="homeProfileGpu">AUTO</b></div>
                 <div><span>JAVA</span><b id="homeProfileJava">AUTO</b></div>
               </div>
-              <button id="homeRecommendedBtn" class="ghost full-width">APLICAR CONFIGURACIÓN RECOMENDADA</button>
+              <button id="homeRecommendedBtn" class="ghost full-width hidden">APLICAR CONFIGURACIÓN RECOMENDADA</button>
             </article>
           </aside>
         </div>
@@ -342,8 +342,8 @@
               </div>
               <div class="catalog-filter-row">
                 <label>ENTORNO <select id="catalogEnvironment"><option value="all">Cualquiera</option><option value="client">Solo cliente</option><option value="both">Cliente + servidor</option><option value="server">Solo servidor</option></select></label>
-                <label>CANAL <select id="catalogReleaseChannel"><option value="release">Estable</option><option value="beta">Estable + beta</option><option value="alpha">Todos</option></select></label>
-                <label>ORDEN <select id="catalogSort"><option value="updated">Actualizados recientemente</option><option value="newest">Más nuevos</option><option value="downloads">Más descargados</option><option value="relevance">Relevancia</option></select></label>
+                <label class="hidden">CANAL <select id="catalogReleaseChannel"><option value="release">Estable</option><option value="beta">Estable + beta</option><option value="alpha">Todos</option></select></label>
+                <label>ORDEN <select id="catalogSort"><option value="relevance">Relevancia</option><option value="updated">Actualizados recientemente</option><option value="newest">Más nuevos</option><option value="downloads">Más descargados</option></select></label>
               </div>
             </div>
             <div id="catalogNotice" class="catalog-notice"><b>Modrinth</b> funciona directamente y sin cuenta. CurseForge usa su API oficial y necesita una API key del desarrollador.</div>
@@ -447,7 +447,7 @@
         <div class="update-center-grid">
           <article class="panel update-product-card" data-update-kind="pack"><div class="update-product-icon">▦</div><div class="update-product-copy"><span>MODPACK OFICIAL</span><b id="updatesPackTitle">Comprobando…</b><small id="updatesPackText">—</small></div><button id="updatesPackBtn" class="ghost">ABRIR</button></article>
           <article class="panel update-product-card" data-update-kind="mods"><div class="update-product-icon">◇</div><div class="update-product-copy"><span>MODS PERSONALES</span><b id="updatesModsTitle">Comprobando…</b><small id="updatesModsText">—</small></div><button id="updatesModsBtn" class="ghost">ABRIR</button></article>
-          <article class="panel update-product-card" data-update-kind="launcher"><div class="update-product-icon">↻</div><div class="update-product-copy"><span>LAUNCHER</span><b id="updatesLauncherTitle">v0.25.0</b><small id="updatesLauncherText">Comprobando canal…</small></div><button id="updatesLauncherBtn" class="ghost">COMPROBAR</button></article>
+          <article class="panel update-product-card" data-update-kind="launcher"><div class="update-product-icon">↻</div><div class="update-product-copy"><span>LAUNCHER</span><b id="updatesLauncherTitle">v0.25.2</b><small id="updatesLauncherText">Comprobando canal…</small></div><button id="updatesLauncherBtn" class="ghost">COMPROBAR</button></article>
           <article class="panel update-product-card" data-update-kind="runtime"><div class="update-product-icon">J</div><div class="update-product-copy"><span>RUNTIME</span><b id="updatesRuntimeTitle">Java 17</b><small id="updatesRuntimeText">—</small></div><button id="updatesRuntimeBtn" class="ghost">AJUSTES</button></article>
         </div>
         <article class="panel update-policy-card">
@@ -550,14 +550,14 @@
               <label class="field"><span>NICK DE MINECRAFT</span><input id="usernameInput" maxlength="16" autocomplete="off" spellcheck="false" /></label>
               <div class="field ram-field"><span class="field-label">RAM ASIGNADA <b id="ramValue">6 GB</b></span><div class="ram-picker"><button id="ramMinus" type="button">−</button><div id="ramPresets" class="ram-presets"><button type="button" data-ram="4">4 GB</button><button type="button" data-ram="6">6 GB</button><button type="button" data-ram="8">8 GB</button><button type="button" data-ram="10">10 GB</button><button type="button" data-ram="12">12 GB</button></div><button id="ramPlus" type="button">+</button></div><input id="ramRange" type="range" min="3" max="12" step="1" value="6"/><small id="ramRecommendation" class="field-hint">Recomendado: calculando...</small></div>
               <div class="field-row">
-                <label class="field"><span>PRESET</span><select id="gamePresetSelect"><option value="performance">Rendimiento</option><option value="balanced">Equilibrado</option><option value="quality">Calidad</option></select></label>
+                <label class="field hidden"><span>PRESET</span><select id="gamePresetSelect"><option value="performance">Rendimiento</option><option value="balanced">Equilibrado</option><option value="quality">Calidad</option></select></label>
                 <label class="field"><span>RESOLUCIÓN</span><select id="resolutionSelect"><option value="system">Predeterminada del sistema</option><option value="1280x720">1280 × 720</option><option value="1600x900">1600 × 900</option><option value="1920x1080">1920 × 1080</option><option value="2560x1440">2560 × 1440</option><option value="3440x1440">3440 × 1440</option><option value="3840x2160">3840 × 2160</option></select><small id="resolutionDefault" class="field-hint">Detectando resolución predeterminada…</small></label>
               </div>
               <label class="switch-row"><span><b>Pantalla completa</b><small>Inicia Minecraft directamente en fullscreen.</small></span><input id="fullscreenToggle" type="checkbox"/><i></i></label>
               <label class="switch-row"><span><b>Preferir GPU dedicada</b><small>Usa la gráfica de mayor rendimiento cuando el sistema lo permite. Activado por defecto.</small></span><input id="dedicatedGpuToggle" type="checkbox"/><i></i></label>
-              <div id="javaReadout" class="info-box">Detectando Java 17...</div>
-              <label class="switch-row compact-switch"><span><b>Java 17 automático</b><small>Si falta, el launcher descarga su propio runtime sin permisos de administrador.</small></span><input id="autoJavaToggle" type="checkbox"/><i></i></label>
-              <div class="button-row"><button id="installJavaBtn" class="ghost">PREPARAR JAVA 17</button><button id="resetPresetBtn" class="ghost">RESTAURAR AJUSTES</button></div>
+              <div id="javaReadout" class="info-box">Detectando Java compatible...</div>
+              <label class="switch-row compact-switch hidden"><span><b>Java automático</b><small>Usa un runtime administrado solo si lo activás manualmente.</small></span><input id="autoJavaToggle" type="checkbox"/><i></i></label>
+              <div class="button-row"><button id="installJavaBtn" class="ghost hidden">PREPARAR JAVA</button><button id="resetPresetBtn" class="ghost hidden">RESTAURAR AJUSTES</button></div>
             </div>
           </article>
 
@@ -613,7 +613,7 @@
               <div class="storage-overview">
                 <div><span>MODS</span><b id="storageMods">—</b></div><div><span>CONFIG</span><b id="storageConfig">—</b></div><div><span>CACHÉ</span><b id="storageCacheDetail">—</b></div><div><span>BACKUPS</span><b id="storageRecovery">—</b></div><div><span>LOGS</span><b id="storageLogs">—</b></div>
               </div>
-              <div class="maintenance-actions"><button id="refreshStorageBtn" class="ghost">ACTUALIZAR TAMAÑOS</button><button id="cleanupLogsBtn" class="ghost">LIMPIAR LOGS ANTIGUOS</button><button id="maintenanceClearCacheBtn" class="ghost">LIMPIAR CACHÉ</button></div>
+              <div class="maintenance-actions"><button id="refreshStorageBtn" class="ghost">ACTUALIZAR TAMAÑOS</button><button id="cleanupLogsBtn" class="ghost">LIMPIAR LOGS ANTIGUOS</button><button id="openLastLogMaintenanceBtn" class="ghost">ABRIR ÚLTIMO LOG</button><button id="maintenanceClearCacheBtn" class="ghost">LIMPIAR CACHÉ</button></div>
               <label class="field"><span>PÁGINA AL ABRIR</span><select id="startPageSelect"><option value="home">Jugar</option><option value="mods">Mods</option><option value="updates">Actualizaciones</option><option value="modpack">Modpack</option></select><small class="field-hint">Elegí qué sección querés ver al abrir el launcher.</small></label>
               <label class="switch-row"><span><b>Comprobar conectividad al abrir</b><small>Revisa el canal del pack y servicios de mods sin bloquear el inicio.</small></span><input id="autoConnectivityToggle" type="checkbox"/><i></i></label>
               <label class="switch-row"><span><b>Advertencias de compatibilidad</b><small>Avisa por duplicados, mods locales y mods pensados solo para servidor.</small></span><input id="compatibilityWarningsToggle" type="checkbox"/><i></i></label>
@@ -662,12 +662,13 @@
                   <label class="field"><span>VERSIÓN</span><input id="developerVersion" placeholder="Automática: 1.0.0, 1.0.1..." /></label><label class="field dev-notes-field"><span>RESUMEN DE LA ACTUALIZACIÓN <b>OPCIONAL</b></span><textarea id="developerNotes" rows="3" placeholder="Ej: optimización, nuevos mods y correcciones de compatibilidad"></textarea></label>
                   <label class="field"><span>CURSEFORGE API KEY <b>SOLO TU FEDORA</b></span><input id="developerCurseKey" type="password" placeholder="Clave oficial para pruebas locales" /></label><label class="field"><span>CURSEFORGE PROXY <b>WINDOWS</b></span><input id="developerCurseProxy" placeholder="https://tu-worker.workers.dev" /></label>
                 </div>
+                <div class="developer-actions"><button id="developerSaveCurseBtn" class="ghost">GUARDAR CREDENCIAL LOCAL</button><small>La clave queda fuera del repositorio y solo se usa en tu build de mantenimiento.</small></div>
                 <div class="developer-preflight"><div class="developer-preflight-head"><div><span class="eyebrow">PREFLIGHT</span><b>Antes de publicar</b></div><button id="developerPreflightBtn" class="ghost">REVISAR REAL</button></div><div id="developerPreflightList" class="developer-preflight-list"><span>Desbloqueá el modo desarrollador para revisar el estado.</span></div></div>
                 <div class="dev-publish-card"><div><span class="eyebrow">GITHUB PUBLISH</span><b>Publicar actualización</b><p>Primero podés previsualizar la versión, el nombre y exactamente qué archivos van a cambiar. Publicar sube solamente blobs nuevos.</p><small id="developerGithubStatus" class="dev-github-status">Comprobando GitHub…</small></div><div class="dev-publish-actions"><button id="developerPreviewBtn" class="ghost">PREVISUALIZAR</button><button id="developerPublishBtn" class="primary">PUBLICAR MODPACK</button></div></div>
                 <div id="developerPreviewCard" class="developer-preview hidden"><div><span>PRÓXIMA VERSIÓN</span><b id="developerPreviewVersion">—</b></div><div><span>NOMBRE</span><b id="developerPreviewName">—</b></div><div><span>AÑADIDOS</span><b id="developerPreviewAdded">0</b></div><div><span>CAMBIADOS</span><b id="developerPreviewChanged">0</b></div><div><span>ELIMINADOS</span><b id="developerPreviewRemoved">0</b></div></div><div id="developerPreviewFiles" class="developer-preview-files"></div>
                 <pre id="developerPublishLog" class="developer-log">Esperando publicación...</pre>
-                <div class="test-pipeline"><div class="test-pipeline-head"><div><span class="eyebrow">TEST PIPELINE</span><b>test-1 → SIEGE</b><p>Compara los mods de pruebas contra la instancia maestra y permite promover únicamente los que aprobaste.</p></div><div class="test-pipeline-actions"><button id="developerCompareTestBtn" class="ghost">COMPARAR</button><button id="developerPromoteAllBtn" class="ghost">PROMOVER TODOS</button></div></div><div id="developerTestDiff" class="test-diff"><div class="empty-state">Compará test-1 para ver mods nuevos o modificados.</div></div></div>
-                <div class="developer-actions"><button id="developerLaunchTestBtn" class="primary">JUGAR TEST-1</button><button id="developerBackupSourceBtn" class="ghost">BACKUP SIEGE</button><button id="developerOpenRepoBtn" class="ghost">ABRIR GITHUB</button><button id="developerSyncTestBtn" class="ghost">SINCRONIZAR MODS → TEST-1</button><button id="developerOpenTestBtn" class="ghost">ABRIR TEST-1</button><button id="developerSaveCurseBtn" class="ghost">GUARDAR CURSEFORGE</button><button id="developerChangePasswordBtn" class="ghost">CAMBIAR CONTRASEÑA</button><button id="developerLockBtn" class="ghost">BLOQUEAR</button></div>
+                <div class="test-pipeline"><div class="test-pipeline-head"><div><span class="eyebrow">TEST PIPELINE</span><b>test-1 → SIEGE</b><p>Revisá los mods de test-1, buscá por nombre y elegí cuáles querés copiar a la instancia oficial.</p></div><div class="test-pipeline-actions"><button id="developerCompareTestBtn" class="ghost">REVISAR TEST-1</button><button id="developerPromoteSelectedBtn" class="primary">PROMOVER SELECCIONADOS</button></div></div><div id="developerTestDiff" class="test-diff"><div class="empty-state">Revisá test-1 para ver mods nuevos o modificados.</div></div></div>
+                <div class="developer-actions"><button id="developerLaunchTestBtn" class="primary">JUGAR TEST-1</button><button id="developerOpenRepoBtn" class="ghost">ABRIR GITHUB</button><button id="developerOpenTestBtn" class="ghost">ABRIR TEST-1</button></div>
               </div>
             </div>
           </article>
@@ -676,7 +677,7 @@
     </main>
 
     <footer class="statusbar">
-      <span id="footerStatus">INICIANDO</span><i></i><span id="footerServer">LINK --</span><div></div><span id="footerBuild">ETERNAL CRAFT LAUNCHER // 0.25.0</span>
+      <span id="footerStatus">INICIANDO</span><i></i><span id="footerServer">LINK --</span><div></div><span id="footerBuild">ETERNAL CRAFT LAUNCHER // 0.25.2</span>
     </footer>
   </div>
 

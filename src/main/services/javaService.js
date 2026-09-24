@@ -36,13 +36,14 @@ function inspectJava(javaPath = 'java') {
     });
   });
 }
+function supportedJava(major) { return Number.isFinite(Number(major)) && Number(major) >= 17; }
 
 async function linuxJavaCandidates() {
   const out = [];
   try {
     const entries = await fsp.readdir('/usr/lib/jvm');
     for (const name of entries) {
-      if (!/17/.test(name)) continue;
+      if (!/(17|18|19|20|21|22|23|24|25)/.test(name)) continue;
       const candidate = path.join('/usr/lib/jvm', name, 'bin', 'java');
       try { await fsp.access(candidate, fs.constants.X_OK); out.push(candidate); } catch (_) {}
     }
@@ -53,7 +54,7 @@ async function linuxJavaCandidates() {
     try {
       const entries = await fsp.readdir(root);
       for (const name of entries) {
-        if (!/17/.test(name)) continue;
+        if (!/(17|18|19|20|21|22|23|24|25)/.test(name)) continue;
         const candidate = path.join(root, name, 'bin', 'java');
         try { await fsp.access(candidate, fs.constants.X_OK); out.push(candidate); } catch (_) {}
       }
@@ -77,7 +78,7 @@ async function windowsJavaCandidates() {
         const direct = path.join(root, 'bin', 'java.exe');
         try { await fsp.access(direct, fs.constants.X_OK); out.push(direct); } catch (_) {}
         for (const name of await fsp.readdir(root)) {
-          if (!/17|jdk|jre/i.test(name)) continue;
+          if (!/1[7-9]|2[0-5]|jdk|jre/i.test(name)) continue;
           const candidate = path.join(root, name, 'bin', 'java.exe');
           try { await fsp.access(candidate, fs.constants.X_OK); out.push(candidate); } catch (_) {}
         }
@@ -93,7 +94,7 @@ async function managedJavaPath(managedRoot) {
     const meta = JSON.parse(await fsp.readFile(path.join(managedRoot, 'runtime.json'), 'utf8'));
     if (meta?.javaPath) {
       const inspected = await inspectJava(meta.javaPath);
-      if (inspected.found && inspected.major === 17) return meta.javaPath;
+      if (inspected.found && supportedJava(inspected.major)) return meta.javaPath;
     }
   } catch (_) {}
   return '';
@@ -103,19 +104,19 @@ async function resolveJava17(explicitPath = '', managedRoot = '') {
   const preferred = String(explicitPath || '').trim();
   if (preferred) {
     const inspected = await inspectJava(preferred);
-    if (inspected.found && inspected.major === 17) return { ...inspected, managed: false };
+    if (inspected.found && supportedJava(inspected.major)) return { ...inspected, managed: false };
   }
 
   const managed = await managedJavaPath(managedRoot);
   if (managed) {
     const inspected = await inspectJava(managed);
-    if (inspected.found && inspected.major === 17) return { ...inspected, managed: true };
+    if (inspected.found && supportedJava(inspected.major)) return { ...inspected, managed: true };
   }
 
   const candidates = process.platform === 'linux' ? await linuxJavaCandidates() : process.platform === 'win32' ? await windowsJavaCandidates() : [];
   for (const candidate of candidates) {
     const inspected = await inspectJava(candidate);
-    if (inspected.found && inspected.major === 17) return { ...inspected, managed: false };
+    if (inspected.found && supportedJava(inspected.major)) return { ...inspected, managed: false };
   }
 
   const fallback = await inspectJava(preferred || 'java');
@@ -221,7 +222,7 @@ async function installManagedJava17(managedRoot, onProgress = () => {}) {
   if (!javaPath) throw new Error('Java 17 se descargó, pero no pude encontrar su ejecutable.');
   if (process.platform !== 'win32') await fsp.chmod(javaPath, 0o755).catch(() => {});
   const inspected = await inspectJava(javaPath);
-  if (!inspected.found || inspected.major !== 17) throw new Error('El runtime descargado no es Java 17.');
+  if (!inspected.found || !supportedJava(inspected.major)) throw new Error('El runtime descargado no es compatible con Minecraft 1.20.1.');
   await fsp.writeFile(path.join(managedRoot, 'runtime.json'), JSON.stringify({ javaPath, version: inspected.version, installedAt: new Date().toISOString(), vendor: 'Eclipse Temurin' }, null, 2));
   onProgress({ phase: 'java-ready', current: 1, total: 1, file: 'Java 17' });
   return { ...inspected, path: javaPath, managed: true };
@@ -229,8 +230,8 @@ async function installManagedJava17(managedRoot, onProgress = () => {}) {
 
 async function ensureJava17(explicitPath = '', managedRoot = '', onProgress = () => {}) {
   const existing = await resolveJava17(explicitPath, managedRoot);
-  if (existing.found && existing.major === 17) return existing;
+  if (existing.found && supportedJava(existing.major)) return existing;
   return installManagedJava17(managedRoot, onProgress);
 }
 
-module.exports = { inspectJava, resolveJava17, installManagedJava17, ensureJava17 };
+module.exports = { inspectJava, resolveJava17, installManagedJava17, ensureJava17, supportedJava };
