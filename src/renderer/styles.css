@@ -367,6 +367,14 @@ body.sidebar-collapsed{--sidebar:76px}body.sidebar-collapsed .brand-block{justif
 @media(max-width:1180px){.mods-summary-grid{grid-template-columns:repeat(3,1fr)}.catalog-filter-row{grid-template-columns:1fr}.change-history-list{grid-template-columns:1fr}}
 @media(max-width:760px){.mods-summary-grid{grid-template-columns:1fr 1fr}.crash-guard-main{grid-template-columns:40px minmax(0,1fr)}.crash-guard-card>.button-row{display:grid;grid-template-columns:1fr}.crash-guard-card>.button-row button{width:100%}}
 
+/* v0.25.3 — keep installed-mod controls readable at desktop widths */
+.mod-tags{flex-wrap:wrap}
+@media(min-width:1181px){
+  .mods-manager-card .mod-row{grid-template-columns:36px minmax(0,1fr) 190px;gap:8px;align-items:start;padding:8px 0}
+  .mods-manager-card .mod-actions{display:flex;flex-wrap:wrap;justify-content:flex-end;gap:5px;max-width:190px}
+  .mods-manager-card .mod-actions button{height:28px;padding:0 7px;font-size:6.5px}
+}
+
 /* v0.25.0 — Personal Vault + professional trust/safety surfaces */
 .vault-card{margin-top:10px;padding:18px;border:1px solid color-mix(in srgb,var(--accent) 18%,var(--line));border-radius:18px;background:linear-gradient(145deg,color-mix(in srgb,var(--panel) 94%,var(--accent) 6%),var(--panel));box-shadow:0 16px 38px rgba(4,13,25,.08)}
 .vault-head{display:flex;align-items:flex-start;justify-content:space-between;gap:18px;margin-bottom:15px}.vault-head>div{min-width:0}.vault-head b{display:block;font-size:15px;margin:2px 0 5px}.vault-head p{margin:0;max-width:720px;color:var(--muted);font-size:12px;line-height:1.55}

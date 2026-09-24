@@ -12,7 +12,7 @@ const mockConfig = {
   onboarding:{completed:true},links:{}
 };
 const mockManifest = {
-  schema:2,version:'1.0.0',releaseName:'Siege Origin',minecraft:'1.20.1',forge:'47.4.10',minimumLauncher:'0.25.2',files:[],remove:[],
+  schema:2,version:'1.0.0',releaseName:'Siege Origin',minecraft:'1.20.1',forge:'47.4.10',minimumLauncher:'0.25.3',files:[],remove:[],
   releaseNotes:{title:'SIEGE DEV',summary:'Base del launcher renovada y sistema de actualización segura.',addedCount:2,changedCount:4,removedCount:0,highlights:[{type:'changed',path:'mods/siege-menu.jar'},{type:'added',path:'config/eternal-client.toml'}]}
 };
 
@@ -23,7 +23,7 @@ function merge(target, patch){
 }
 
 const previewApi = {
-  getState:async()=>({appVersion:'0.25.2',platform:'preview',packaged:false,config:mockConfig,manifest:mockManifest,manifestConfigured:true,manifestSource:'development',java:{found:true,major:17,version:'17.0.x',path:'java'},needsOnboarding:false,launcherUpdateConfigured:false,minimumLauncher:'0.25.2',launcherCompatible:true,developer:{configured:false,unlocked:false,curseforgeConfigured:false},system:{recommendedRamGb:6,maxRamGb:11,totalMemoryBytes:16*1024**3,gpus:[{vendor:'NVIDIA',name:'NVIDIA GeForce GTX 1050'}],display:{width:1920,height:1080,workWidth:1920,workHeight:1040,scaleFactor:1,label:'Monitor principal'},disk:{available:true,freeBytes:180*1024**3,totalBytes:480*1024**3,requiredBytes:512*1024**2}}}),
+  getState:async()=>({appVersion:'0.25.3',platform:'preview',packaged:false,config:mockConfig,manifest:mockManifest,manifestConfigured:true,manifestSource:'development',java:{found:true,major:17,version:'17.0.x',path:'java'},needsOnboarding:false,launcherUpdateConfigured:false,minimumLauncher:'0.25.3',launcherCompatible:true,developer:{configured:false,unlocked:false,curseforgeConfigured:false},system:{recommendedRamGb:6,maxRamGb:11,totalMemoryBytes:16*1024**3,gpus:[{vendor:'NVIDIA',name:'NVIDIA GeForce GTX 1050'}],display:{width:1920,height:1080,workWidth:1920,workHeight:1040,scaleFactor:1,label:'Monitor principal'},disk:{available:true,freeBytes:180*1024**3,totalBytes:480*1024**3,requiredBytes:512*1024**2}}}),
   completeOnboarding:async(p)=>{mockConfig.minecraft.username=p.username;mockConfig.onboarding.completed=true;return previewApi.getState()},
   pingServer:async()=>({online:true,latency:57,players:{online:12,max:40},version:'Forge 1.20.1',favicon:null}),
   checkPack:async()=>({configured:true,state:{version:'SIEGE-DEV',updatedAt:new Date().toISOString()},expectedVersion:'SIEGE-DEV',versionMatches:true,total:247,ok:247,missing:[],changed:[],remove:[],bytesRequired:0,healthy:true}),
@@ -380,8 +380,8 @@ function renderServer(status){
   $('footerServer').textContent=online?`LINK ONLINE // ${status.players?.online??0} PLAYERS`:'LINK OFFLINE'; renderReadiness();
 }
 function renderReadiness(){
-  if(!appState)return; const javaOk=Boolean(appState.java?.found&&Number(appState.java?.major)>=17)||appState.config.minecraft.autoInstallJava!==false,packOk=Boolean(packState?.healthy),serverOk=Boolean(serverState?.online),launcherOk=appState.launcherCompatible!==false;
-  const count=[javaOk,packOk,serverOk,launcherOk].filter(Boolean).length; $('readinessPercent').textContent=`${count}/4`;
+  if(!appState)return; const javaOk=Boolean(appState.java?.found&&Number(appState.java?.major)>=17)||appState.config.minecraft.autoInstallJava!==false,packOk=Boolean(packState?.healthy),launcherOk=appState.launcherCompatible!==false;
+  const count=[javaOk,packOk,launcherOk].filter(Boolean).length; $('readinessPercent').textContent=`${count}/3`;
 }
 function renderMods(state=modsState){
   modsState=state||{mods:[],counts:{total:0,official:0,user:0,disabled:0}};
@@ -504,8 +504,7 @@ async function installQueuedMods(){
   const unique=new Map();let warnings=[];
   for(const {plan} of plans){for(const item of plan?.needed||[])unique.set(`${item.id||''}:${item.filename||item.name||''}`,item);warnings=warnings.concat(plan?.warnings||[]);}
   const totalBytes=[...unique.values()].reduce((n,x)=>n+Number(x.size||0),0);const deps=plans.reduce((n,x)=>n+Number(x.plan?.dependencies?.filter(d=>!d.installed).length||0),0);
-  const channel=appState?.config?.mods?.releaseChannel||'release';const channelLabel=channel==='release'?'estable':channel==='beta'?'estable + beta':'estable + beta + alpha';
-  const lines=[`${queue.length} mod${queue.length===1?'':'s'} en cola`,`${unique.size||queue.length} archivo(s) a descargar${totalBytes?` · ${formatBytes(totalBytes)}`:''}`,deps?`${deps} dependencia(s) se resolverán automáticamente`:'Sin dependencias adicionales detectadas',`Canal: ${channelLabel}`];
+  const lines=[`${queue.length} mod${queue.length===1?'':'s'} en cola`,`${unique.size||queue.length} archivo(s) a descargar${totalBytes?` · ${formatBytes(totalBytes)}`:''}`,deps?`${deps} dependencia(s) se resolverán automáticamente`:'Sin dependencias adicionales detectadas','Se comprobará el entorno cliente/servidor antes de instalar'];
   if(warnings.length)lines.push(`Advertencias: ${warnings.slice(0,2).map(x=>x.text||x.message||String(x)).join(' · ')}`);if(planningErrors.length)lines.push(`${planningErrors.length} elemento(s) no pudieron preanalizarse y se comprobarán al instalar.`);
   if(!await askConfirm({title:'Revisar cola de instalación',message:lines.join('\n'),confirmText:'Instalar cola'}))return;
   setBusy(true,'INSTALANDO COLA');showOperation('INSTALANDO MODS');let done=0;const failed=[];
@@ -689,7 +688,7 @@ function renderUpdateCenter(){
 
   if($('updatesModsTitle'))$('updatesModsTitle').textContent=modCount?`${modCount} actualización${modCount===1?'':'es'}`:'Al día';
   if($('updatesModsText'))$('updatesModsText').textContent=modCount?'Mods personales de Modrinth listos para actualizar.':'No hay updates pendientes de mods personales.';
-  if($('updatesLauncherTitle'))$('updatesLauncherTitle').textContent=launcherNeeds?'Nueva versión disponible':`v${appState?.appVersion||'0.25.2'}`;
+  if($('updatesLauncherTitle'))$('updatesLauncherTitle').textContent=launcherNeeds?'Nueva versión disponible':`v${appState?.appVersion||'0.25.3'}`;
   if($('updatesLauncherText'))$('updatesLauncherText').textContent=launcherNeeds?'Podés descargarla sin tocar el modpack.':appState?.packaged?'Canal del launcher comprobado.':'Modo desarrollo · updater desactivado.';
   const javaOk=Boolean(appState?.java?.found&&Number(appState?.java?.major)>=17);if($('updatesRuntimeTitle'))$('updatesRuntimeTitle').textContent=javaOk?`Java ${appState.java.version||17}`:'Java compatible pendiente';if($('updatesRuntimeText'))$('updatesRuntimeText').textContent=javaOk?(appState.java.managed?'Runtime administrado por Eternal Craft.':'Runtime detectado en el sistema.'):'Elegí un Java 17 o superior en tu sistema.';
   if($('updatesHeroMark'))$('updatesHeroMark').textContent=total?'!':'✓';if($('updatesHero'))$('updatesHero').classList.toggle('has-updates',total>0);if($('updatesHeroTitle'))$('updatesHeroTitle').textContent=total?`${total} actualización${total===1?'':'es'} pendiente${total===1?'':'s'}`:'Todo está actualizado';if($('updatesHeroText'))$('updatesHeroText').textContent=total?'Podés revisar cada componente o aplicar las actualizaciones disponibles.':'Launcher, modpack y mods personales están listos.';
@@ -740,8 +739,8 @@ function updatePlayAvailability(){
 }
 
 async function refreshServer(showToast=false){
-  try{const status=await api.pingServer();renderServer(status);setGlobalStatus(status.online?'ONLINE':'SERVER OFFLINE',status.online?'ok':'warn');if(showToast)toast(status.online?'Servidor online.':'El servidor está offline.',status.online?'success':'warn');}
-  catch(err){renderServer({online:false});setGlobalStatus(appState?.manifestStale?'OFFLINE · CACHÉ':'SIN CONEXIÓN','warn');if(showToast)toast(err.message||String(err),'error');}
+  try{const status=await api.pingServer();renderServer(status);if(showToast)toast('El estado del servidor está oculto para evitar falsos positivos.','info');}
+  catch(err){renderServer({online:false});if(showToast)toast('El estado del servidor está oculto para evitar falsos positivos.','info');}
 }
 async function refreshPack(showOverlay=false){
   try{if(showOverlay)showOperation('COMPROBANDO MODPACK');const status=await api.checkPack();renderPack(status);return status;}
@@ -759,7 +758,6 @@ async function launch(){
     const health=await api.healthCheck().catch(()=>null);
     const critical=health?.issues?.find(x=>x.severity==='bad');
     if(critical){toast(`No conviene iniciar todavía: ${critical.text}.`,'error');setPage('support');return;}
-    if(health && health.serverOnline===false){const go=await askConfirm({title:'Servidor offline',message:'El servidor de Eternal Craft no responde ahora mismo. Podés abrir Minecraft igual para revisar ajustes o esperar a que vuelva.',confirmText:'Abrir igual'});if(!go)return;}
   }catch(_){}
   setBusy(true,'PREPARANDO JUEGO');showOperation(packState?.healthy===false?'ACTUALIZANDO ANTES DE JUGAR':'INICIANDO MINECRAFT');
   try{await api.launchGame();hideOperation();toast('Minecraft iniciado.','success');appState.config.launcher.lastPlayedAt=new Date().toISOString();renderSession();}
@@ -781,7 +779,7 @@ async function saveSettings(silent=false){
   const patch={
     minecraft:{username,maxMemoryMb:Number($('ramRange').value)*1024,preset:$('gamePresetSelect').value,width,height,useSystemResolution:systemResolution,fullscreen:$('fullscreenToggle').checked,autoInstallJava:$('autoJavaToggle').checked,preferDedicatedGpu:$('dedicatedGpuToggle').checked},
     pack:{autoUpdate:$('autoUpdateToggle').checked,repairBeforeLaunch:$('repairBeforeToggle').checked,autoSnapshot:$('autoSnapshotToggle')?.checked!==false},
-    mods:{...(appState?.config?.mods||{}),sort:$('modsSort')?.value||appState?.config?.mods?.sort||'recent',releaseChannel:$('modReleaseChannelSelect')?.value||'release',autoCheckUpdates:$('autoModUpdateToggle')?.checked!==false,autoUpdateUserMods:Boolean($('autoUpdateUserModsToggle')?.checked),compatibilityWarnings:$('compatibilityWarningsToggle')?.checked!==false,protectServerCompatibility:$('protectServerCompatibilityToggle')?.checked!==false,autoChangeSnapshots:$('autoChangeSnapshotsToggle')?.checked!==false},
+    mods:{...(appState?.config?.mods||{}),sort:$('modsSort')?.value||appState?.config?.mods?.sort||'recent',autoCheckUpdates:$('autoModUpdateToggle')?.checked!==false,autoUpdateUserMods:Boolean($('autoUpdateUserModsToggle')?.checked),compatibilityWarnings:$('compatibilityWarningsToggle')?.checked!==false,protectServerCompatibility:$('protectServerCompatibilityToggle')?.checked!==false,autoChangeSnapshots:$('autoChangeSnapshotsToggle')?.checked!==false},
     sync:{...(appState?.config?.sync||{}),includeScreenshots:$('vaultScreenshotsToggle')?.checked!==false,includeSaves:Boolean($('vaultSavesToggle')?.checked),extraPaths:String($('vaultExtraPaths')?.value||'').split(/[,;\n]+/).map(x=>x.trim()).filter(Boolean).slice(0,20)},
     launcher:{hideOnGameStart:$('hideOnStartToggle').checked,refocusOnGameExit:$('refocusOnExitToggle').checked,startPage:$('startPageSelect')?.value||'home',rememberLastPage:Boolean($('rememberLastPageToggle')?.checked),autoConnectivityCheck:$('autoConnectivityToggle')?.checked!==false,closeToTray:$('closeToTrayToggle')?.checked!==false,startWithSystem:Boolean($('startWithSystemToggle')?.checked),startMinimized:Boolean($('startMinimizedToggle')?.checked),nativeNotifications:$('nativeNotificationsToggle')?.checked!==false,sidebarCollapsed:document.body.classList.contains('sidebar-collapsed'),theme:$('themeSelect').value,background:$('backgroundSelect').value,backgroundMode:$('backgroundModeSelect')?.value||'fixed',density:$('densitySelect')?.value||'comfortable',uiScale:$('uiScaleSelect')?.value||'normal',glassEffects:$('glassEffectsToggle')?.checked!==false,scanlines:$('scanlinesToggle').checked,noise:$('noiseToggle').checked,reducedMotion:$('reducedMotionToggle').checked}
   };
@@ -913,8 +911,7 @@ async function init(){
   try{
     const state=await api.getState();fillBaseState(state);if(state.configRecovery)toast('La configuración local estaba dañada. El launcher inició con valores seguros y guardó una copia para recuperación.','warn');if(state.manifestStale)toast('Sin conexión al canal del pack: usando la última versión conocida en caché.','warn');
     if(state.needsOnboarding){$('onboardingUsername').value='';$('onboarding').classList.remove('hidden');setTimeout(()=>$('onboardingUsername').focus(),50)}
-    await Promise.all([refreshServer(false),refreshPack(false),refreshMods(false),refreshHealth(false),refreshRecovery(),refreshModAudit(false),refreshCrashGuard(false),refreshChangeHistory(),refreshVault(false)]);renderBackgroundGallery(state.config.launcher?.background||'frontline');renderNotifications();setSettingsGroup('game');const remembered=state.config.launcher?.rememberLastPage?state.config.launcher?.lastPage:'';const preferred=remembered||state.config.launcher?.startPage;const firstPage=['home','mods','updates','modpack','support','settings'].includes(preferred)?preferred:'home';setPage(firstPage);refreshStorage(false).catch(()=>{});if(state.config.launcher?.autoConnectivityCheck!==false)setTimeout(()=>refreshConnectivity(false).catch(()=>{}),700);setTimeout(()=>maybeShowWhatsNew(),420);setTimeout(()=>refreshUpdateCenter(false).catch(()=>{}),1200);runQuickDiagnostic().catch(()=>{});if(state.config.mods?.autoCheckUpdates!==false)setTimeout(()=>checkPersonalModUpdates(false),900);footer('LISTO');
-    serverTimer=setInterval(()=>refreshServer(false),30000);
+    await Promise.all([refreshPack(false),refreshMods(false),refreshHealth(false),refreshRecovery(),refreshModAudit(false),refreshCrashGuard(false),refreshChangeHistory(),refreshVault(false)]);renderBackgroundGallery(state.config.launcher?.background||'frontline');renderNotifications();setSettingsGroup('game');const remembered=state.config.launcher?.rememberLastPage?state.config.launcher?.lastPage:'';const preferred=remembered||state.config.launcher?.startPage;const firstPage=['home','mods','updates','modpack','support','settings'].includes(preferred)?preferred:'home';setPage(firstPage);refreshStorage(false).catch(()=>{});if(state.config.launcher?.autoConnectivityCheck!==false)setTimeout(()=>refreshConnectivity(false).catch(()=>{}),700);setTimeout(()=>maybeShowWhatsNew(),420);setTimeout(()=>refreshUpdateCenter(false).catch(()=>{}),1200);runQuickDiagnostic().catch(()=>{});if(state.config.mods?.autoCheckUpdates!==false)setTimeout(()=>checkPersonalModUpdates(false),900);footer('LISTO');
     if(state.packaged&&state.config.launcher.autoUpdate&&state.launcherUpdateConfigured)api.checkLauncherUpdate().catch(()=>{});
   }catch(err){toast(err.message||String(err),'error');footer('ERROR DE INICIO')}
   finally{setTimeout(()=>$('bootScreen')?.classList.add('done'),160)}

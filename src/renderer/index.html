@@ -89,7 +89,7 @@
 
   <div id="whatsNewOverlay" class="whats-new-overlay hidden" role="dialog" aria-modal="true" aria-label="Novedades del launcher">
     <section class="whats-new-card">
-      <div class="whats-new-hero"><img src="assets/logo.svg" alt=""/><div><span class="eyebrow">ETERNAL CRAFT LAUNCHER</span><h2>v0.25.2</h2><p>Mods más claros, promoción selectiva de test-1, guardado automático y Java compatible.</p></div></div>
+      <div class="whats-new-hero"><img src="assets/logo.svg" alt=""/><div><span class="eyebrow">ETERNAL CRAFT LAUNCHER</span><h2>v0.25.3</h2><p>Interfaz de mods sin solapamientos y estado del servidor oculto para evitar falsos positivos.</p></div></div>
       <div class="whats-new-grid">
         <div><i>01</i><b>Perfil de juego inteligente</b><span>RAM, resolución, GPU y preset visibles desde Inicio con configuración recomendada en un toque.</span></div>
         <div><i>02</i><b>Búsqueda de Ajustes</b><span>Encontrá una opción sin recorrer todas las categorías.</span></div>
@@ -115,7 +115,7 @@
         <b id="notificationsBadge" class="hidden">0</b>
       </button>
       <div id="globalStatus" class="global-status" title="Estado de conexión"><i></i><span id="globalStatusText">COMPROBANDO</span></div>
-      <div id="titleBuild" class="title-build">BUILD 0.25.2</div>
+      <div id="titleBuild" class="title-build">BUILD 0.25.3</div>
       <div class="window-controls">
         <button id="minimizeBtn" aria-label="Minimizar">—</button>
         <button id="maximizeBtn" aria-label="Maximizar">□</button>
@@ -151,7 +151,7 @@
       <div class="side-health">
         <div><span>JAVA</span><b id="sideJava">—</b></div>
         <div><span>PACK</span><b id="sidePack">—</b></div>
-        <div><span>LINK</span><b id="sideLink">—</b></div>
+        <div class="hidden"><span>LINK</span><b id="sideLink">—</b></div>
       </div>
     </aside>
 
@@ -169,15 +169,15 @@
         </div>
 
         <div id="healthRibbon" class="health-ribbon">
-          <div class="health-ribbon-main"><span id="healthIcon">✓</span><div><b id="healthTitle">REVISANDO SISTEMA</b><small id="healthText">Comprobando Java, pack, servidor y mods personales.</small></div></div>
-          <div class="health-ribbon-pills"><span id="healthJava">JAVA · …</span><span id="healthPack">PACK · …</span><span id="healthServer">SERVER · …</span><span id="healthMods">MODS · …</span></div>
+          <div class="health-ribbon-main"><span id="healthIcon">✓</span><div><b id="healthTitle">REVISANDO SISTEMA</b><small id="healthText">Comprobando Java, pack y mods personales.</small></div></div>
+          <div class="health-ribbon-pills"><span id="healthJava">JAVA · …</span><span id="healthPack">PACK · …</span><span id="healthServer" class="hidden">SERVER · …</span><span id="healthMods">MODS · …</span></div>
           <button id="healthRefreshBtn" class="ghost">REVISAR</button>
         </div>
 
         <div class="command-center-grid">
           <button id="homeUpdateCard" class="command-center-card" data-page-jump="updates"><span class="cc-icon">↻</span><div><small>ACTUALIZACIONES</small><b id="homeQuickUpdate">COMPROBANDO</b><em id="homeQuickUpdateMeta">Pack, mods y launcher</em></div><i>›</i></button>
           <button id="homeModsCard" class="command-center-card" data-page-jump="mods"><span class="cc-icon">◇</span><div><small>BIBLIOTECA</small><b id="homeQuickMods">— MODS</b><em id="homeQuickModsMeta">Sin datos todavía</em></div><i>›</i></button>
-          <button id="homeConnectionCard" class="command-center-card" type="button"><span class="cc-icon">⌁</span><div><small>CONEXIÓN</small><b id="homeQuickConnection">COMPROBANDO</b><em id="homeQuickConnectionMeta">Midiendo latencia</em></div><i>•</i></button>
+          <button id="homeConnectionCard" class="command-center-card hidden" type="button"><span class="cc-icon">⌁</span><div><small>CONEXIÓN</small><b id="homeQuickConnection">NO DISPONIBLE</b><em id="homeQuickConnectionMeta">Estado oculto</em></div><i>•</i></button>
         </div>
 
         <div class="play-layout">
@@ -215,7 +215,7 @@
           </article>
 
           <aside class="play-side">
-            <article class="panel server-card">
+            <article class="panel server-card hidden">
               <div class="panel-head"><span>SERVIDOR</span><b id="serverStateBadge">...</b></div>
               <div class="server-row">
                 <img id="serverIcon" src="assets/logo.svg" alt="" />
@@ -237,7 +237,7 @@
               <div class="readiness-list">
                 <div><span>Java 17+</span><b id="readyJava">...</b></div>
                 <div><span>Modpack</span><b id="readyPack">...</b></div>
-                <div><span>Servidor</span><b id="readyServer">...</b></div>
+                <div class="hidden"><span>Servidor</span><b id="readyServer">...</b></div>
                 <div><span>Launcher</span><b id="readyLauncher">...</b></div>
               </div>
             </article>
@@ -447,7 +447,7 @@
         <div class="update-center-grid">
           <article class="panel update-product-card" data-update-kind="pack"><div class="update-product-icon">▦</div><div class="update-product-copy"><span>MODPACK OFICIAL</span><b id="updatesPackTitle">Comprobando…</b><small id="updatesPackText">—</small></div><button id="updatesPackBtn" class="ghost">ABRIR</button></article>
           <article class="panel update-product-card" data-update-kind="mods"><div class="update-product-icon">◇</div><div class="update-product-copy"><span>MODS PERSONALES</span><b id="updatesModsTitle">Comprobando…</b><small id="updatesModsText">—</small></div><button id="updatesModsBtn" class="ghost">ABRIR</button></article>
-          <article class="panel update-product-card" data-update-kind="launcher"><div class="update-product-icon">↻</div><div class="update-product-copy"><span>LAUNCHER</span><b id="updatesLauncherTitle">v0.25.2</b><small id="updatesLauncherText">Comprobando canal…</small></div><button id="updatesLauncherBtn" class="ghost">COMPROBAR</button></article>
+          <article class="panel update-product-card" data-update-kind="launcher"><div class="update-product-icon">↻</div><div class="update-product-copy"><span>LAUNCHER</span><b id="updatesLauncherTitle">v0.25.3</b><small id="updatesLauncherText">Comprobando canal…</small></div><button id="updatesLauncherBtn" class="ghost">COMPROBAR</button></article>
           <article class="panel update-product-card" data-update-kind="runtime"><div class="update-product-icon">J</div><div class="update-product-copy"><span>RUNTIME</span><b id="updatesRuntimeTitle">Java 17</b><small id="updatesRuntimeText">—</small></div><button id="updatesRuntimeBtn" class="ghost">AJUSTES</button></article>
         </div>
         <article class="panel update-policy-card">
@@ -677,7 +677,7 @@
     </main>
 
     <footer class="statusbar">
-      <span id="footerStatus">INICIANDO</span><i></i><span id="footerServer">LINK --</span><div></div><span id="footerBuild">ETERNAL CRAFT LAUNCHER // 0.25.2</span>
+      <span id="footerStatus">INICIANDO</span><i></i><span id="footerServer" class="hidden">LINK --</span><div></div><span id="footerBuild">ETERNAL CRAFT LAUNCHER // 0.25.3</span>
     </footer>
   </div>
 

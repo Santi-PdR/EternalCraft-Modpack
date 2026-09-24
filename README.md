@@ -1,10 +1,10 @@
-# Eternal Craft Launcher 0.25.0
+# Eternal Craft Launcher 0.25.3
 
 Official launcher for **Eternal Craft // SIEGE**.
 
 - Minecraft **1.20.1**
 - Forge **47.4.10**
-- Server **SiegeLacontinuacion.exaroton.me:18736**
+- Server connection is managed by the modpack configuration; the launcher does not display a potentially stale online/offline status.
 - Player builds: **Windows**
 - Maintainer build: **Fedora/Linux** with Developer Mode
 

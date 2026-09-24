@@ -2,6 +2,8 @@
 
 CurseForge exige una API key oficial. No conviene incluirla dentro del EXE porque cualquiera podría extraerla.
 
+Para que los jugadores puedan buscar e instalar desde CurseForge, en la build pública se configura **la URL del proxy**, no la API key. La key solo se guarda como secreto del proxy o en tu build privada de Fedora.
+
 La carpeta `extras/curseforge-worker/` contiene un proxy mínimo para Cloudflare Workers. El plan gratuito es suficiente para un launcher pequeño.
 
 1. Crear un Worker.
