@@ -28,8 +28,13 @@ node scripts/fetch-siege-visuals-github.js || true
 echo "→ Compilando AppImage propia..."
 npm run check
 npm run dist:linux
-BUILT="$(find dist -maxdepth 1 -type f -name '*.AppImage' | head -n1)"
-[[ -n "$BUILT" ]] || { echo "No se generó la AppImage."; exit 1; }
+BUILT="$(find dist -maxdepth 1 -type f -name "Eternal-Craft-Launcher-${VERSION}-*.AppImage" -print -quit)"
+if [[ -z "$BUILT" ]]; then
+  echo "No se encontró una AppImage que coincida con la versión ${VERSION}."
+  echo "Artefactos disponibles:"
+  find dist -maxdepth 1 -type f -name '*.AppImage' -print | sort -V
+  exit 1
+fi
 
 mkdir -p "$APP_HOME" "$(dirname "$DESKTOP")" "$ICON_DIR" "$HOME/.local/bin"
 if [[ -f "$APPIMAGE" ]]; then cp -f "$APPIMAGE" "$APPIMAGE.previous" || true; fi
