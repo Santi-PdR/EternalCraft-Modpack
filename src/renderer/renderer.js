@@ -12,7 +12,7 @@ const mockConfig = {
   onboarding:{completed:true},links:{}
 };
 const mockManifest = {
-  schema:2,version:'1.0.0',releaseName:'Siege Origin',minecraft:'1.20.1',forge:'47.4.10',minimumLauncher:'0.25.11',files:[],remove:[],
+  schema:2,version:'1.0.0',releaseName:'Siege Origin',minecraft:'1.20.1',forge:'47.4.10',minimumLauncher:'0.25.12',files:[],remove:[],
   releaseNotes:{title:'SIEGE DEV',summary:'Base del launcher renovada y sistema de actualización segura.',addedCount:2,changedCount:4,removedCount:0,highlights:[{type:'changed',path:'mods/siege-menu.jar'},{type:'added',path:'config/eternal-client.toml'}]}
 };
 
@@ -23,7 +23,7 @@ function merge(target, patch){
 }
 
 const previewApi = {
-  getState:async()=>({appVersion:'0.25.11',platform:'preview',packaged:false,config:mockConfig,manifest:mockManifest,manifestConfigured:true,manifestSource:'development',java:{found:true,major:17,version:'17.0.x',path:'java'},needsOnboarding:false,launcherUpdateConfigured:false,minimumLauncher:'0.25.11',launcherCompatible:true,developer:{configured:false,unlocked:false,curseforgeConfigured:false},account:{authenticated:false,name:'',id:''},system:{recommendedRamGb:6,maxRamGb:11,totalMemoryBytes:16*1024**3,gpus:[{vendor:'NVIDIA',name:'NVIDIA GeForce GTX 1050'}],display:{width:1920,height:1080,workWidth:1920,workHeight:1040,scaleFactor:1,label:'Monitor principal'},disk:{available:true,freeBytes:180*1024**3,totalBytes:480*1024**3,requiredBytes:512*1024**2}}}),
+  getState:async()=>({appVersion:'0.25.12',platform:'preview',packaged:false,config:mockConfig,manifest:mockManifest,manifestConfigured:true,manifestSource:'development',java:{found:true,major:17,version:'17.0.x',path:'java'},needsOnboarding:false,launcherUpdateConfigured:false,minimumLauncher:'0.25.12',launcherCompatible:true,developer:{configured:false,unlocked:false,curseforgeConfigured:false,developerAllowed:false},account:{authenticated:false,name:'',id:''},system:{recommendedRamGb:6,maxRamGb:11,totalMemoryBytes:16*1024**3,gpus:[{vendor:'NVIDIA',name:'NVIDIA GeForce GTX 1050'}],display:{width:1920,height:1080,workWidth:1920,workHeight:1040,scaleFactor:1,label:'Monitor principal'},disk:{available:true,freeBytes:180*1024**3,totalBytes:480*1024**3,requiredBytes:512*1024**2}}}),
   completeOnboarding:async(p)=>{mockConfig.minecraft.username=p.username;mockConfig.onboarding.completed=true;return previewApi.getState()},
   pingServer:async()=>({online:true,latency:57,players:{online:12,max:40},version:'Forge 1.20.1',favicon:null}),
   checkPack:async()=>({configured:true,state:{version:'SIEGE-DEV',updatedAt:new Date().toISOString()},expectedVersion:'SIEGE-DEV',versionMatches:true,total:247,ok:247,missing:[],changed:[],remove:[],bytesRequired:0,healthy:true}),
@@ -571,7 +571,20 @@ async function searchCatalog(append=false,showBusy=true){
   if(busy&&showBusy)return;const query=$('catalogSearch').value.trim();const provider=$('modProvider').value;const category=catalogCategory;const environment=$('catalogEnvironment')?.value||'all';const releaseChannel=$('catalogReleaseChannel')?.value||appState?.config?.mods?.releaseChannel||'release';const sort=$('catalogSort')?.value||'relevance';
   if(!append)catalogOffset=0;if(showBusy)setBusy(true,'BUSCANDO MODS');if(!append)$('catalogResults').innerHTML='<div class="catalog-empty">Buscando mods compatibles…</div>';
   try{const result=await api.searchMods({provider,query,category,environment,releaseChannel,sort,offset:catalogOffset,limit:30});const raw=result.results||[];const results=raw.filter(item=>{if(provider==='curseforge'||environment==='all')return true;const client=String(item.clientSide||'').toLowerCase();const server=String(item.serverSide||'').toLowerCase();if(environment==='client')return server==='unsupported';if(environment==='server')return client==='unsupported';return client!=='unsupported'&&server!=='unsupported';});if(append){const merged=[...catalogState];const ids=new Set(merged.map(x=>`${x.provider}:${x.id}`));for(const item of results)if(!ids.has(`${item.provider}:${item.id}`))merged.push(item);renderCatalog(merged,result.configured!==false,provider,result.reason||'');}else renderCatalog(results,result.configured!==false,provider,result.reason||'');catalogOffset+=raw.length;catalogHasMore=raw.length>=30;$('catalogLoadMoreBtn')?.classList.toggle('hidden',!catalogHasMore);$('catalogNotice').innerHTML=provider==='modrinth'?'<b>Modrinth</b> · Forge 1.20.1 · filtrado estricto por entorno.':'<b>CurseForge</b> · usa la API oficial cuando el desarrollador configura su acceso.';}
-  catch(err){if(!append)renderCatalog([],true,provider);toast(err.message||String(err),'error');}finally{if(showBusy)setBusy(false)}
+  catch(err){
+    if(!append){
+      const message=String(err?.message||err||'Error desconocido');
+      const isCurse=provider==='curseforge';
+      renderCatalog([],true,provider);
+      if($('catalogNotice')){
+        $('catalogNotice').classList.add('provider-unavailable');
+        $('catalogNotice').innerHTML=isCurse
+          ? `<b>CurseForge</b> · Worker no disponible (${escapeHtml(message)}). Revisá la URL y que el Worker responda en /search.`
+          : `<b>Modrinth</b> · No se pudo consultar el catálogo (${escapeHtml(message)}).`;
+      }
+    }
+    toast(err.message||String(err),'error');
+  }finally{if(showBusy)setBusy(false)}
 }
 async function installCatalogMod(project){
   if(busy)return;

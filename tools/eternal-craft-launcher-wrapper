@@ -6,7 +6,7 @@ BASE="/home/Santipdr/.local/opt/eternal-craft-launcher"
 
 # Fedora installations without /dev/fuse run the extracted AppImage payload.
 if [[ -x "$BASE/app/AppRun" ]]; then
-  exec "$BASE/app/AppRun" "$@"
+  exec "$BASE/app/AppRun" --developer-build "$@"
 fi
 
-exec "$BASE/Eternal-Craft-Launcher.AppImage" --appimage-extract-and-run "$@"
+exec "$BASE/Eternal-Craft-Launcher.AppImage" --appimage-extract-and-run --developer-build "$@"

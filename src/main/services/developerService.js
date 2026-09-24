@@ -54,7 +54,14 @@ class DeveloperService {
     this.publishWorkDir = path.join(userDataDir, 'pack-dist-publish');
     this.unlocked = false;
   }
-  isMaintenanceBuild() { return process.env.ETERNAL_DEVELOPER_BUILD === '1' && process.platform === 'linux'; }
+  // The public Windows/Linux artifacts never pass this flag. The local Fedora
+  // wrapper sets both the environment marker and the explicit argument so the
+  // private maintenance build remains available even when Electron is launched
+  // through a desktop entry/AppImage wrapper.
+  isMaintenanceBuild() {
+    if (process.platform !== 'linux') return false;
+    return process.env.ETERNAL_DEVELOPER_BUILD === '1' || process.argv.includes('--developer-build');
+  }
   load() { try { return JSON.parse(fs.readFileSync(this.file, 'utf8')); } catch (_) { return {}; } }
   save(data) { fs.mkdirSync(path.dirname(this.file), { recursive: true }); fs.writeFileSync(this.file, JSON.stringify(data, null, 2), { mode: 0o600 }); }
   status() {

@@ -27,6 +27,17 @@ const MODRINTH_CATEGORY_MAP = {
 
 function safeName(name) { return String(name || '').replace(/[^A-Za-z0-9._+()\-\[\] ]/g, '_').trim(); }
 function displayName(filename) { return filename.replace(/\.jar\.disabled$/i, '').replace(/\.jar$/i, '').replace(/[_-]+/g, ' ').replace(/\s+/g, ' ').trim(); }
+function normalizeProxyUrl(value) {
+  const raw = String(value || '').trim();
+  if (!raw) return '';
+  try {
+    const url = new URL(raw);
+    if (!/^https?:$/.test(url.protocol)) return '';
+    url.hash = ''; url.search = '';
+    url.pathname = url.pathname.replace(/\/(?:search|project|file|categories)\/?$/i, '').replace(/\/+$/, '');
+    return url.toString().replace(/\/$/, '');
+  } catch (_) { return raw.replace(/\/+$/, ''); }
+}
 function officialSet(manifest) {
   return new Set((manifest?.files || []).map(e => String(e.path || '').replace(/\\/g, '/')).filter(p => p.toLowerCase().startsWith('mods/') && p.toLowerCase().endsWith('.jar')));
 }
@@ -122,7 +133,19 @@ async function removeMod(root, filename, manifest) {
 
 async function fetchJson(url, options = {}) {
   const res = await fetch(url, { ...options, headers: { 'User-Agent': 'EternalCraftLauncher/0.25.0', Accept: 'application/json', ...(options.headers || {}) } });
-  if (!res.ok) throw new Error(`HTTP ${res.status}`); return res.json();
+  if (!res.ok) {
+    let detail = '';
+    try {
+      const body = await res.text();
+      if (body) {
+        try { detail = String(JSON.parse(body).error || JSON.parse(body).message || ''); }
+        catch (_) { detail = body.replace(/\s+/g, ' ').slice(0, 180); }
+      }
+    } catch (_) {}
+    const suffix = detail ? `: ${detail}` : '';
+    throw new Error(`HTTP ${res.status}${suffix}`);
+  }
+  return res.json();
 }
 async function download(url, target) {
   const res = await fetch(url, { headers: { 'User-Agent': 'EternalCraftLauncher/0.25.0' }, redirect: 'follow' });
@@ -199,7 +222,7 @@ async function curseForgeCategoryId(apiKey, category) {
 }
 
 async function searchCurseForge(query, apiKey, options = {}, proxyUrl = '') {
-  const proxy = String(proxyUrl || '').replace(/\/+$/, '');
+  const proxy = normalizeProxyUrl(proxyUrl);
   if (proxy) {
     const qs = new URLSearchParams({ q:String(query||''), gameVersion:'1.20.1', loader:'forge', sort:String(options.sort||'updated'), category:String(options.category||'all'), offset:String(Math.max(0,Number(options.offset||0))) });
     const data = await fetchJson(`${proxy}/search?${qs}`);
@@ -214,7 +237,7 @@ async function searchCurseForge(query, apiKey, options = {}, proxyUrl = '') {
 async function installCurseForge(root, manifest, project, apiKey, proxyUrl = '') {
   const existingProject = await installedProject(root, 'curseforge', project.id);
   if (existingProject) throw new Error(`${project.name || 'Este mod'} ya está instalado.`);
-  const proxy = String(proxyUrl || '').replace(/\/+$/, '');
+  const proxy = normalizeProxyUrl(proxyUrl);
   let file;
   if (proxy) {
     const data = await fetchJson(`${proxy}/file?projectId=${encodeURIComponent(project.id)}&gameVersion=1.20.1&loader=forge`);
@@ -377,7 +400,7 @@ async function getModDetails(project, apiKey = '', proxyUrl = '') {
       latest: version ? { id:version.id, name:version.name || version.version_number || '', publishedAt:version.date_published || '', changelog:version.changelog || '' } : null
     };
   }
-  const proxy = String(proxyUrl || '').replace(/\/+$/, '');
+  const proxy = normalizeProxyUrl(proxyUrl);
   if (proxy) {
     try {
       const data = await fetchJson(`${proxy}/project?projectId=${encodeURIComponent(project.id)}`);
