@@ -1,0 +1,12 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+export ETERNAL_DEVELOPER_BUILD=1
+BASE="/home/Santipdr/.local/opt/eternal-craft-launcher"
+
+# Fedora installations without /dev/fuse run the extracted AppImage payload.
+if [[ -x "$BASE/app/AppRun" ]]; then
+  exec "$BASE/app/AppRun" "$@"
+fi
+
+exec "$BASE/Eternal-Craft-Launcher.AppImage" --appimage-extract-and-run "$@"

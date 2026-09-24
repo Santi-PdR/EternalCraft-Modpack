@@ -37,6 +37,9 @@ function validateManifest(manifest) {
     const size=Number(entry.size||0);
     if(size<0||size>8*1024*1024*1024) throw new Error(`Tamaño inválido: ${p}`);
     const empty=Boolean(entry?.empty) && size===0;
+    if (empty && String(entry.sha256).toLowerCase() !== 'e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855') {
+      throw new Error(`SHA-256 incorrecto para archivo vacío: ${p}`);
+    }
     const u=String(entry?.url||'');
     if(!empty&&!u) throw new Error(`URL faltante: ${p}`);
     if(u){

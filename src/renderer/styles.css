@@ -396,3 +396,16 @@ body.sidebar-collapsed .brand-block{display:grid;place-items:center;padding:8px 
 @media(max-width:1120px){.mods-audit-bar .mods-warning-actions{grid-column:1/-1;width:100%}.mods-audit-bar .mods-warning-actions button{flex:1 1 110px}.mods-update-bar .mods-warning-actions{grid-column:1/-1;justify-content:stretch}.mods-update-bar .mods-warning-actions button{flex:1 1 120px}}
 .account-card{display:flex;align-items:center;justify-content:space-between;gap:14px;margin:12px 0;padding:13px 14px;border:1px solid var(--line);border-radius:14px;background:color-mix(in srgb,var(--panel-2) 88%,transparent)}.account-card b,.account-card small{display:block}.account-card b{margin:3px 0;font-size:13px}.account-card small{color:var(--muted);font-size:10px;line-height:1.4}.account-card .button-row{margin:0;flex:0 0 auto}.account-card .button-row button{white-space:nowrap}.eyebrow{font-size:8px;font-weight:900;letter-spacing:.11em;color:var(--accent)}
 @media(max-width:760px){.account-card{align-items:stretch;flex-direction:column}.account-card .button-row button{width:100%}}
+
+/* v0.25.11 — layout hardening without changing the visual language. These
+   constraints keep long labels, translated text and narrow cards from
+   forcing sibling controls over each other. */
+.page,.page>*,.panel,.summary-tile,.mods-store-layout,.settings-layout,.dev-grid,.developer-gate,.dev-publish-card,.test-pipeline,.pack-info-card{min-width:0}
+.panel-head,.panel-body,.card-head,.card-body,.settings-body,.developer-body{min-width:0;overflow-wrap:anywhere}
+.button-row,.developer-actions,.dev-publish-actions,.maintenance-actions,.vault-actions{min-width:0;flex-wrap:wrap}
+.button-row>button,.developer-actions>button,.dev-publish-actions>button,.maintenance-actions>button,.vault-actions>button{max-width:100%;white-space:nowrap}
+.mods-toolbar,.catalog-filter-row,.catalog-actions,.test-pipeline-head,.pack-info-note,.mods-update-bar{min-width:0}
+.mods-toolbar>*,.catalog-filter-row>*,.catalog-actions>*,.test-pipeline-head>*,.pack-info-note>*,.mods-update-bar>*{min-width:0}
+.catalog-card,.catalog-copy,.mod-row,.mod-info,.mod-actions{min-width:0}
+@media(max-width:980px){.pack-info-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.pack-info-grid>div:nth-child(2n){border-right:0}.developer-preview{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media(max-width:620px){.pack-info-grid,.developer-preview{grid-template-columns:1fr}.pack-info-grid>div{border-right:0}.pack-info-note{align-items:flex-start;flex-direction:column}.pack-info-note span{text-align:left}.button-row>button,.developer-actions>button,.dev-publish-actions>button{flex:1 1 150px}}

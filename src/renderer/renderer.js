@@ -12,7 +12,7 @@ const mockConfig = {
   onboarding:{completed:true},links:{}
 };
 const mockManifest = {
-  schema:2,version:'1.0.0',releaseName:'Siege Origin',minecraft:'1.20.1',forge:'47.4.10',minimumLauncher:'0.25.10',files:[],remove:[],
+  schema:2,version:'1.0.0',releaseName:'Siege Origin',minecraft:'1.20.1',forge:'47.4.10',minimumLauncher:'0.25.11',files:[],remove:[],
   releaseNotes:{title:'SIEGE DEV',summary:'Base del launcher renovada y sistema de actualización segura.',addedCount:2,changedCount:4,removedCount:0,highlights:[{type:'changed',path:'mods/siege-menu.jar'},{type:'added',path:'config/eternal-client.toml'}]}
 };
 
@@ -23,7 +23,7 @@ function merge(target, patch){
 }
 
 const previewApi = {
-  getState:async()=>({appVersion:'0.25.10',platform:'preview',packaged:false,config:mockConfig,manifest:mockManifest,manifestConfigured:true,manifestSource:'development',java:{found:true,major:17,version:'17.0.x',path:'java'},needsOnboarding:false,launcherUpdateConfigured:false,minimumLauncher:'0.25.10',launcherCompatible:true,developer:{configured:false,unlocked:false,curseforgeConfigured:false},account:{authenticated:false,name:'',id:''},system:{recommendedRamGb:6,maxRamGb:11,totalMemoryBytes:16*1024**3,gpus:[{vendor:'NVIDIA',name:'NVIDIA GeForce GTX 1050'}],display:{width:1920,height:1080,workWidth:1920,workHeight:1040,scaleFactor:1,label:'Monitor principal'},disk:{available:true,freeBytes:180*1024**3,totalBytes:480*1024**3,requiredBytes:512*1024**2}}}),
+  getState:async()=>({appVersion:'0.25.11',platform:'preview',packaged:false,config:mockConfig,manifest:mockManifest,manifestConfigured:true,manifestSource:'development',java:{found:true,major:17,version:'17.0.x',path:'java'},needsOnboarding:false,launcherUpdateConfigured:false,minimumLauncher:'0.25.11',launcherCompatible:true,developer:{configured:false,unlocked:false,curseforgeConfigured:false},account:{authenticated:false,name:'',id:''},system:{recommendedRamGb:6,maxRamGb:11,totalMemoryBytes:16*1024**3,gpus:[{vendor:'NVIDIA',name:'NVIDIA GeForce GTX 1050'}],display:{width:1920,height:1080,workWidth:1920,workHeight:1040,scaleFactor:1,label:'Monitor principal'},disk:{available:true,freeBytes:180*1024**3,totalBytes:480*1024**3,requiredBytes:512*1024**2}}}),
   completeOnboarding:async(p)=>{mockConfig.minecraft.username=p.username;mockConfig.onboarding.completed=true;return previewApi.getState()},
   pingServer:async()=>({online:true,latency:57,players:{online:12,max:40},version:'Forge 1.20.1',favicon:null}),
   checkPack:async()=>({configured:true,state:{version:'SIEGE-DEV',updatedAt:new Date().toISOString()},expectedVersion:'SIEGE-DEV',versionMatches:true,total:247,ok:247,missing:[],changed:[],remove:[],bytesRequired:0,healthy:true}),
@@ -778,8 +778,10 @@ async function refreshServer(showToast=false){
   catch(err){renderServer({online:false});if(showToast)toast('El estado del servidor está oculto para evitar falsos positivos.','info');}
 }
 async function refreshPack(showOverlay=false){
-  try{if(showOverlay)showOperation('COMPROBANDO MODPACK');const status=await api.checkPack();renderPack(status);if(showOverlay){if(status?.configured===false)toast('El modpack todavía no está publicado: no hay un canal remoto que comprobar. Configuralo desde Modo desarrollador.','info');else if(status?.healthy)toast(`Modpack verificado: ${status.ok||0}/${status.total||0} archivos correctos.`,'success');else toast(`Hay ${Number(status?.missing?.length||0)+Number(status?.changed?.length||0)} archivo(s) del modpack para actualizar o reparar.`,'warn');}return status;}
-  catch(err){toast(err.message||String(err),'error');throw err;}finally{if(showOverlay)hideOperation()}
+  if(showOverlay && busy)return null;
+  const ownsBusy=Boolean(showOverlay);
+  try{if(ownsBusy){setBusy(true,'COMPROBANDO MODPACK');showOperation('COMPROBANDO MODPACK');}const status=await api.checkPack();renderPack(status);if(ownsBusy){if(status?.configured===false)toast('El modpack todavía no está publicado: no hay un canal remoto que comprobar. Configuralo desde Modo desarrollador.','info');else if(status?.healthy)toast(`Modpack verificado: ${status.ok||0}/${status.total||0} archivos correctos.`,'success');else toast(`Hay ${Number(status?.missing?.length||0)+Number(status?.changed?.length||0)} archivo(s) del modpack para actualizar o reparar.`,'warn');}return status;}
+  catch(err){toast(err.message||String(err),'error');throw err;}finally{if(ownsBusy){hideOperation();setBusy(false)}}
 }
 async function runPackAction(mode='update'){
   if(busy)return;setBusy(true,mode==='repair'?'REPARANDO':'ACTUALIZANDO');showOperation(mode==='repair'?'REPARANDO MODPACK':'ACTUALIZANDO MODPACK');

@@ -41,6 +41,15 @@ let authService;
 let isQuitting = false;
 let nativeUpdateNotified = false;
 
+// Several renderer panels ask for the same data during boot. Keep a very
+// short-lived cache and share in-flight requests so those panels do not race
+// each other or repeat expensive disk/network work.
+const manifestCache = new Map();
+const manifestInFlight = new Map();
+const systemProfileCache = new Map();
+const systemProfileInFlight = new Map();
+const RUNTIME_CACHE_TTL_MS = 2500;
+
 let launcherErrorLog = '';
 function serializeError(value) {
   if (value instanceof Error) return `${value.name}: ${value.message}
@@ -205,8 +214,38 @@ function versionAtLeast(current, required) {
 }
 
 async function currentManifest(config) {
-  const info = await getManifest(config, path.join(resourcesDir(), 'manifest.example.json'), path.join(app.getPath('userData'), 'cache', 'stable-manifest.json'));
-  return { ...info, source: info.configured ? (process.env.ETERNAL_PACK_MANIFEST ? 'development' : 'remote') : 'fallback' };
+  const key = `${String(process.env.ETERNAL_PACK_MANIFEST || '').trim()}|${String(config.pack?.manifestUrl || '').trim()}`;
+  const now = Date.now();
+  const cached = manifestCache.get(key);
+  if (cached && cached.expiresAt > now) return cached.value;
+  if (manifestInFlight.has(key)) return manifestInFlight.get(key);
+  const request = (async () => {
+    const info = await getManifest(config, path.join(resourcesDir(), 'manifest.example.json'), path.join(app.getPath('userData'), 'cache', 'stable-manifest.json'));
+    const value = { ...info, source: info.configured ? (process.env.ETERNAL_PACK_MANIFEST ? 'development' : 'remote') : 'fallback' };
+    manifestCache.set(key, { value, expiresAt: Date.now() + RUNTIME_CACHE_TTL_MS });
+    return value;
+  })();
+  manifestInFlight.set(key, request);
+  try { return await request; }
+  finally { manifestInFlight.delete(key); }
+}
+function invalidateRuntimeCaches() {
+  manifestCache.clear();
+  systemProfileCache.clear();
+}
+async function cachedSystemProfile(installDirectory, bytesRequired = 0) {
+  const key = `${path.resolve(String(installDirectory || app.getPath('userData')))}|${Number(bytesRequired || 0)}`;
+  const now = Date.now();
+  const cached = systemProfileCache.get(key);
+  if (cached && cached.expiresAt > now) return cached.value;
+  if (systemProfileInFlight.has(key)) return systemProfileInFlight.get(key);
+  const request = systemProfile(installDirectory, bytesRequired).then((value) => {
+    systemProfileCache.set(key, { value, expiresAt: Date.now() + RUNTIME_CACHE_TTL_MS });
+    return value;
+  });
+  systemProfileInFlight.set(key, request);
+  try { return await request; }
+  finally { systemProfileInFlight.delete(key); }
 }
 function validMinecraftUsername(value) { return /^[A-Za-z0-9_]{3,16}$/.test(String(value || '').trim()); }
 function primaryDisplayInfo() {
@@ -259,7 +298,7 @@ async function statePayload() {
   const java = await resolveJava17(config.minecraft.javaPath || '', managedJavaRoot());
   const username = String(config.minecraft.username || '').trim();
   const minimumLauncher = String(manifestInfo.manifest?.minimumLauncher || '0.0.0');
-  const system = await systemProfile(config.pack.installDirectory).catch(() => null);
+  const system = await cachedSystemProfile(config.pack.installDirectory).catch(() => null);
   if (system) system.display = primaryDisplayInfo();
   const effectiveConfig = configWithDisplay(config);
   return {
@@ -277,7 +316,7 @@ async function statePayload() {
 
 async function checkPack(config, info) {
   if (!info.configured) {
-    const system = await systemProfile(config.pack.installDirectory, 0).catch(() => null);
+    const system = await cachedSystemProfile(config.pack.installDirectory, 0).catch(() => null);
     return {
       configured: false, state: { version: null }, expectedVersion: info.manifest?.version || 'DEV',
       versionMatches: false, total: 0, ok: 0, missing: [], changed: [], remove: [], healthy: false,
@@ -285,7 +324,7 @@ async function checkPack(config, info) {
     };
   }
   const status = await checkInstallation(config.pack.installDirectory, info.manifest, (p) => packProgress(p));
-  const system = await systemProfile(config.pack.installDirectory, status.bytesRequired).catch(() => null);
+  const system = await cachedSystemProfile(config.pack.installDirectory, status.bytesRequired).catch(() => null);
   const cache = await cacheStats(config.pack.installDirectory).catch(() => ({ files: 0, bytes: 0 }));
   return { configured: true, ...status, system, cache };
 }
@@ -298,7 +337,7 @@ async function updatePack(config, force = false) {
   }
   const before = await checkInstallation(config.pack.installDirectory, info.manifest, (p) => packProgress(p));
   if (!force && before.healthy) {
-    const system = await systemProfile(config.pack.installDirectory, 0).catch(() => null);
+    const system = await cachedSystemProfile(config.pack.installDirectory, 0).catch(() => null);
     const cache = await cacheStats(config.pack.installDirectory).catch(() => ({ files: 0, bytes: 0 }));
     return { configured: true, updated: false, ...before, system, cache };
   }
@@ -307,7 +346,7 @@ async function updatePack(config, force = false) {
     await createSnapshot(config.pack.installDirectory, info.manifest, `Antes de actualizar a ${info.manifest.version || 'nueva versión'}`).catch(() => null);
   }
   const repaired = await repairInstallation(config.pack.installDirectory, info.manifest, (p) => packProgress(p));
-  const system = await systemProfile(config.pack.installDirectory, 0).catch(() => null);
+  const system = await cachedSystemProfile(config.pack.installDirectory, 0).catch(() => null);
   const cache = await cacheStats(config.pack.installDirectory).catch(() => ({ files: 0, bytes: 0 }));
   return { configured: true, updated: true, ...repaired, system, cache };
 }
@@ -338,7 +377,7 @@ function registerIpc() {
     const username = String(payload.username || '').trim();
     if (!validMinecraftUsername(username)) throw new Error('El nick debe tener entre 3 y 16 caracteres y usar solo letras, números o _.');
     const current = store.load();
-    const system = await systemProfile(current.pack.installDirectory).catch(() => null);
+    const system = await cachedSystemProfile(current.pack.installDirectory).catch(() => null);
     const recommendedMb = Number(system?.recommendedRamGb || 6) * 1024;
     const display = primaryDisplayInfo();
     store.save({ minecraft: { username, maxMemoryMb: recommendedMb, width: display.width, height: display.height, useSystemResolution: true }, onboarding: { completed: true } });
@@ -358,8 +397,8 @@ function registerIpc() {
   ipcMain.handle('pack:check', async () => {
     const config = store.load(); const info = await currentManifest(config); return checkPack(config, info);
   });
-  ipcMain.handle('pack:update', async (_event, force = false) => runExclusive('actualización del modpack', async () => { const result = await updatePack(store.load(), Boolean(force)); if (result.updated !== false) notifyNative('Eternal Craft actualizado', 'El modpack quedó listo para jugar.'); return result; }));
-  ipcMain.handle('pack:repair', async () => runExclusive('reparación del modpack', async () => { const result = await updatePack(store.load(), true); notifyNative('Reparación completa', 'La instalación de Eternal Craft fue verificada.'); return result; }));
+  ipcMain.handle('pack:update', async (_event, force = false) => runExclusive('actualización del modpack', async () => { const result = await updatePack(store.load(), Boolean(force)); invalidateRuntimeCaches(); if (result.updated !== false) notifyNative('Eternal Craft actualizado', 'El modpack quedó listo para jugar.'); return result; }));
+  ipcMain.handle('pack:repair', async () => runExclusive('reparación del modpack', async () => { const result = await updatePack(store.load(), true); invalidateRuntimeCaches(); notifyNative('Reparación completa', 'La instalación de Eternal Craft fue verificada.'); return result; }));
 
   ipcMain.handle('mods:list', async () => {
     const config = store.load(); const info = await currentManifest(config);
@@ -518,7 +557,7 @@ function registerIpc() {
       pingMinecraftServer(cfg.server.host,cfg.server.port).catch(()=>({online:false})),
       quickDiagnostic(cfg).catch(()=>({severity:'warn',title:'No se pudo revisar el último log',summary:''})),
       listMods(cfg.pack.installDirectory, info.manifest, cfg.mods?.sort || 'recent').catch(()=>({mods:[],counts:{}})),
-      systemProfile(cfg.pack.installDirectory, 0).catch(()=>null)
+      cachedSystemProfile(cfg.pack.installDirectory, 0).catch(()=>null)
     ]);
     const userMods=(mods.mods||[]).filter(m=>m.userAdded);
     const disabled=userMods.filter(m=>!m.enabled).length;
@@ -655,7 +694,7 @@ function registerIpc() {
       storageSummary(config.pack.installDirectory).catch(()=>null),
       listMods(config.pack.installDirectory, info.manifest, config.mods?.sort || 'recent').catch(()=>null),
       auditMods(config.pack.installDirectory, info.manifest).catch(()=>null),
-      systemProfile(config.pack.installDirectory, 0).catch(()=>null),
+      cachedSystemProfile(config.pack.installDirectory, 0).catch(()=>null),
       listChanges(config.pack.installDirectory, 30).catch(()=>[]),
       vaultStatus(config.pack.installDirectory, config.sync||{}).catch(()=>null)
     ]);
@@ -678,6 +717,7 @@ function registerIpc() {
   ipcMain.handle('settings:save', async (_event, patch = {}) => {
     if (patch.minecraft?.useSystemResolution === true) { const d=primaryDisplayInfo(); patch={...patch,minecraft:{...patch.minecraft,width:d.width,height:d.height}}; }
     const next = store.save(patch);
+    if (patch.pack?.manifestUrl || patch.developer?.githubRepo || patch.developer?.githubBranch) invalidateRuntimeCaches();
     if (patch.launcher && Object.prototype.hasOwnProperty.call(patch.launcher, 'startWithSystem')) await applyStartupPreference(Boolean(next.launcher?.startWithSystem));
     if (next.launcher?.closeToTray !== false) createTray();
     return next;
@@ -788,6 +828,7 @@ function registerIpc() {
       const branch = cfg.developer?.githubBranch || 'main';
       store.save({ pack: { manifestUrl: `https://raw.githubusercontent.com/${repo}/${branch}/channel/stable.json` } });
     }
+    invalidateRuntimeCaches();
     return { ...result, state: await statePayload() };
   }));
 
