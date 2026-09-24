@@ -1,4 +1,4 @@
-# Eternal Craft Launcher 0.25.13
+# Eternal Craft Launcher 0.25.14
 
 Official launcher for **Eternal Craft // SIEGE**.
 

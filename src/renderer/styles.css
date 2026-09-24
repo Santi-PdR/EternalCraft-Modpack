@@ -397,7 +397,7 @@ body.sidebar-collapsed .brand-block{display:grid;place-items:center;padding:8px 
 .account-card{display:flex;align-items:center;justify-content:space-between;gap:14px;margin:12px 0;padding:13px 14px;border:1px solid var(--line);border-radius:14px;background:color-mix(in srgb,var(--panel-2) 88%,transparent)}.account-card b,.account-card small{display:block}.account-card b{margin:3px 0;font-size:13px}.account-card small{color:var(--muted);font-size:10px;line-height:1.4}.account-card .button-row{margin:0;flex:0 0 auto}.account-card .button-row button{white-space:nowrap}.eyebrow{font-size:8px;font-weight:900;letter-spacing:.11em;color:var(--accent)}
 @media(max-width:760px){.account-card{align-items:stretch;flex-direction:column}.account-card .button-row button{width:100%}}
 
-/* v0.25.13 — layout hardening without changing the visual language. These
+/* v0.25.14 — layout hardening without changing the visual language. These
    constraints keep long labels, translated text and narrow cards from
    forcing sibling controls over each other. */
 .page,.page>*,.panel,.summary-tile,.mods-store-layout,.settings-layout,.dev-grid,.developer-gate,.dev-publish-card,.test-pipeline,.pack-info-card{min-width:0}

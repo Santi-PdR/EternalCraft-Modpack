@@ -20,6 +20,22 @@ function requireGh() {
 function releaseUrl(repo, tag, sha) {
   return `https://github.com/${repo}/releases/download/${tag}/${sha}`;
 }
+async function uploadAssetWithRetry(tag, repo, file, label, maxAttempts = 3) {
+  let lastError;
+  for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+    try {
+      gh(['release', 'upload', tag, '--repo', repo, '--clobber', `${file}${label ? `#${label}` : ''}`], { stdio: 'inherit' });
+      return;
+    } catch (error) {
+      lastError = error;
+      if (attempt < maxAttempts) {
+        console.log(`Reintentando ${path.basename(file)} (${attempt + 1}/${maxAttempts})...`);
+        await new Promise((resolve) => setTimeout(resolve, 1200 * attempt));
+      }
+    }
+  }
+  throw lastError || new Error(`No se pudo subir ${path.basename(file)}.`);
+}
 function manifestFingerprint(manifest){
   const crypto=require('crypto');
   const rows=(manifest?.files||[]).map(f=>`${f.path}:${f.sha256}`).sort().join('\n');
@@ -113,13 +129,14 @@ async function main() {
   try { gh(['release', 'view', tag, '--repo', repo]); }
   catch (_) { gh(['release', 'create', tag, '--repo', repo, '--title', `${version} — ${result.manifest.releaseName}`, '--notes-file', notes]); }
 
-  console.log(`Subiendo ${newHashes.length} blobs nuevos...`);
-  for (let i = 0; i < newHashes.length; i += 25) {
-    const batch = newHashes.slice(i, i + 25).map((sha) => path.join(out, 'blobs', sha));
-    if (batch.length) gh(['release', 'upload', tag, '--repo', repo, '--clobber', ...batch], { stdio: 'inherit' });
+  console.log(`Subiendo ${newHashes.length} blobs nuevos (carga segura individual)...`);
+  for (let i = 0; i < newHashes.length; i++) {
+    const sha = newHashes[i];
+    await uploadAssetWithRetry(tag, repo, path.join(out, 'blobs', sha));
+    if ((i + 1) % 10 === 0 || i + 1 === newHashes.length) console.log(`Blobs subidos: ${i + 1}/${newHashes.length}`);
   }
   const manifestAsset = path.join(out, 'channel', 'stable.json');
-  gh(['release', 'upload', tag, '--repo', repo, '--clobber', `${manifestAsset}#manifest.json`], { stdio: 'inherit' });
+  await uploadAssetWithRetry(tag, repo, manifestAsset, 'manifest.json');
   await updateChannel(repo, branch, result.manifest);
 
   console.log('\nPUBLICACIÓN COMPLETA');
