@@ -10,8 +10,9 @@ export default{async fetch(req,env){try{
   const u=new URL(req.url);
   if(u.pathname==='/search'){
     const q=u.searchParams.get('q')||'';const sort=u.searchParams.get('sort')||'updated';const category=u.searchParams.get('category')||'all';
-    const sortField=sort==='downloads'?'6':sort==='newest'?'11':'3';
-    const qs=new URLSearchParams({gameId:'432',classId:'6',gameVersion:'1.20.1',modLoaderType:'1',searchFilter:q,sortField,sortOrder:'desc',pageSize:'30'});
+    const sortField=sort==='downloads'?'6':sort==='relevance'?'2':sort==='newest'?'11':'3';
+    const offset=Math.max(0,Number(u.searchParams.get('offset')||0));
+    const qs=new URLSearchParams({gameId:'432',classId:'6',gameVersion:'1.20.1',modLoaderType:'1',searchFilter:q,sortField,sortOrder:'desc',pageSize:'30',index:String(offset)});
     const cid=await categoryId(env.CF_API_KEY,category);if(cid)qs.set('categoryId',cid);
     const data=await cf(`/mods/search?${qs}`,env.CF_API_KEY);return json({results:(data.data||[]).map(project)});
   }
@@ -30,5 +31,5 @@ export default{async fetch(req,env){try{
   if(u.pathname==='/categories'){
     const data=await cf('/categories?gameId=432&classId=6',env.CF_API_KEY);return json({categories:(data.data||[]).map(x=>({id:x.id,name:x.name,slug:x.slug||'',iconUrl:x.iconUrl||''}))},200,3600);
   }
-  return json({ok:true,service:'Eternal Craft CurseForge proxy',version:'0.25.12'},200);
+  return json({ok:true,service:'Eternal Craft CurseForge proxy',version:'0.25.13'},200);
 }catch(e){return json({error:e.message||String(e)},500)}}}

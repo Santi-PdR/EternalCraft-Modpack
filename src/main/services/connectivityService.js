@@ -8,11 +8,13 @@ async function probe(url, timeoutMs=5500) {
 }
 async function connectivityReport(config) {
   const packUrl=String(config.pack?.manifestUrl||'');
+  const curseforgeProxy=String(config.mods?.curseforgeProxyUrl||'').trim();
   const targets=[
     ['Modrinth','https://api.modrinth.com/v2/tag/loader'],
     ['GitHub','https://api.github.com/'],
   ];
   if(/^https?:\/\//i.test(packUrl)) targets.unshift(['Canal del pack',packUrl]);
-  const results=[]; for(const [name,url] of targets){results.push({name,url,...await probe(url)});} return {checkedAt:new Date().toISOString(),results,online:results.some(r=>r.ok)};
+  if(/^https?:\/\//i.test(curseforgeProxy)) targets.push(['Worker CurseForge',curseforgeProxy]);
+  const results=[]; for(const [name,url] of targets){results.push({name,url,...await probe(url)});} return {checkedAt:new Date().toISOString(),results,online:results.length>0&&results.every(r=>r.ok)};
 }
 module.exports={probe,connectivityReport};

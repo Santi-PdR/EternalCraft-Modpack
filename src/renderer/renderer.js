@@ -12,7 +12,7 @@ const mockConfig = {
   onboarding:{completed:true},links:{}
 };
 const mockManifest = {
-  schema:2,version:'1.0.0',releaseName:'Siege Origin',minecraft:'1.20.1',forge:'47.4.10',minimumLauncher:'0.25.12',files:[],remove:[],
+  schema:2,version:'1.0.0',releaseName:'Siege Origin',minecraft:'1.20.1',forge:'47.4.10',minimumLauncher:'0.25.13',files:[],remove:[],
   releaseNotes:{title:'SIEGE DEV',summary:'Base del launcher renovada y sistema de actualización segura.',addedCount:2,changedCount:4,removedCount:0,highlights:[{type:'changed',path:'mods/siege-menu.jar'},{type:'added',path:'config/eternal-client.toml'}]}
 };
 
@@ -23,7 +23,7 @@ function merge(target, patch){
 }
 
 const previewApi = {
-  getState:async()=>({appVersion:'0.25.12',platform:'preview',packaged:false,config:mockConfig,manifest:mockManifest,manifestConfigured:true,manifestSource:'development',java:{found:true,major:17,version:'17.0.x',path:'java'},needsOnboarding:false,launcherUpdateConfigured:false,minimumLauncher:'0.25.12',launcherCompatible:true,developer:{configured:false,unlocked:false,curseforgeConfigured:false,developerAllowed:false},account:{authenticated:false,name:'',id:''},system:{recommendedRamGb:6,maxRamGb:11,totalMemoryBytes:16*1024**3,gpus:[{vendor:'NVIDIA',name:'NVIDIA GeForce GTX 1050'}],display:{width:1920,height:1080,workWidth:1920,workHeight:1040,scaleFactor:1,label:'Monitor principal'},disk:{available:true,freeBytes:180*1024**3,totalBytes:480*1024**3,requiredBytes:512*1024**2}}}),
+  getState:async()=>({appVersion:'0.25.13',platform:'preview',packaged:false,config:mockConfig,manifest:mockManifest,manifestConfigured:true,manifestSource:'development',java:{found:true,major:17,version:'17.0.x',path:'java'},needsOnboarding:false,launcherUpdateConfigured:false,minimumLauncher:'0.25.13',launcherCompatible:true,developer:{configured:false,unlocked:false,curseforgeConfigured:false,developerAllowed:false},account:{authenticated:false,name:'',id:''},system:{recommendedRamGb:6,maxRamGb:11,totalMemoryBytes:16*1024**3,gpus:[{vendor:'NVIDIA',name:'NVIDIA GeForce GTX 1050'}],display:{width:1920,height:1080,workWidth:1920,workHeight:1040,scaleFactor:1,label:'Monitor principal'},disk:{available:true,freeBytes:180*1024**3,totalBytes:480*1024**3,requiredBytes:512*1024**2}}}),
   completeOnboarding:async(p)=>{mockConfig.minecraft.username=p.username;mockConfig.onboarding.completed=true;return previewApi.getState()},
   pingServer:async()=>({online:true,latency:57,players:{online:12,max:40},version:'Forge 1.20.1',favicon:null}),
   checkPack:async()=>({configured:true,state:{version:'SIEGE-DEV',updatedAt:new Date().toISOString()},expectedVersion:'SIEGE-DEV',versionMatches:true,total:247,ok:247,missing:[],changed:[],remove:[],bytesRequired:0,healthy:true}),
@@ -892,7 +892,7 @@ async function launcherUpdateAction(){
 async function refreshConnectivity(showToast=false){
   const host=$('connectivityList'),badge=$('connectivityBadge'); if(!host||!api.connectivityCheck)return;
   host.innerHTML='<div class="empty-state">Comprobando servicios…</div>'; badge.textContent='COMPROBANDO'; badge.className='warn';
-  try{const r=await api.connectivityCheck();host.innerHTML='';for(const item of r.results||[]){const row=document.createElement('div');row.className='connectivity-row';row.innerHTML=`<span><i class="${item.ok?'ok':'bad'}"></i>${escapeHtml(item.name)}</span><b class="${item.ok?'ok':'bad'}">${item.ok?`${item.latency} ms`:'SIN CONEXIÓN'}</b>`;host.appendChild(row);}const ok=(r.results||[]).every(x=>x.ok);badge.textContent=ok?'TODO ONLINE':'REVISAR';badge.className=ok?'ok':'warn';if(showToast)toast(ok?'Conectividad correcta.':'Hay servicios sin conexión.',ok?'success':'warn');return r;}catch(err){host.innerHTML=`<div class="empty-state">${escapeHtml(err.message||String(err))}</div>`;badge.textContent='ERROR';badge.className='bad';}
+  try{const r=await api.connectivityCheck();host.innerHTML='';for(const item of r.results||[]){const row=document.createElement('div');row.className='connectivity-row';const detail=item.ok?`${item.latency} ms`:item.status?`HTTP ${item.status}`:'SIN CONEXIÓN';row.innerHTML=`<span><i class="${item.ok?'ok':'bad'}"></i>${escapeHtml(item.name)}</span><b class="${item.ok?'ok':'bad'}">${detail}</b>`;host.appendChild(row);}const ok=(r.results||[]).length>0&&(r.results||[]).every(x=>x.ok);badge.textContent=ok?'TODO ONLINE':'REVISAR';badge.className=ok?'ok':'warn';if(showToast)toast(ok?'Conectividad correcta.':'Hay servicios sin conexión.',ok?'success':'warn');return r;}catch(err){host.innerHTML=`<div class="empty-state">${escapeHtml(err.message||String(err))}</div>`;badge.textContent='ERROR';badge.className='bad';}
 }
 async function refreshStorage(showToast=false){
   if(!api.getStorageSummary)return;try{const r=await api.getStorageSummary();const set=(id,v)=>{if($(id))$(id).textContent=`${formatBytes(v?.bytes||0)} · ${v?.files||0}`};set('storageMods',r.mods);set('storageConfig',r.config);set('storageCacheDetail',r.cache);set('storageRecovery',r.recovery);set('storageLogs',r.logs);if(showToast)toast('Uso de almacenamiento actualizado.','success');return r;}catch(err){if(showToast)toast(err.message||String(err),'error')}
