@@ -12,7 +12,7 @@ const mockConfig = {
   onboarding:{completed:true},links:{}
 };
 const mockManifest = {
-  schema:2,version:'1.0.0',releaseName:'Siege Origin',minecraft:'1.20.1',forge:'47.4.10',minimumLauncher:'0.30.0',files:[],remove:[],
+  schema:2,version:'1.0.0',releaseName:'Siege Origin',minecraft:'1.20.1',forge:'47.4.10',minimumLauncher:'0.40.0',files:[],remove:[],
   releaseNotes:{title:'SIEGE DEV',summary:'Base del launcher renovada y sistema de actualización segura.',addedCount:2,changedCount:4,removedCount:0,highlights:[{type:'changed',path:'mods/siege-menu.jar'},{type:'added',path:'config/eternal-client.toml'}]}
 };
 
@@ -23,7 +23,7 @@ function merge(target, patch){
 }
 
 const previewApi = {
-  getState:async()=>({appVersion:'0.30.0',platform:'preview',packaged:false,config:mockConfig,manifest:mockManifest,manifestConfigured:true,manifestSource:'development',java:{found:true,major:17,version:'17.0.x',path:'java'},needsOnboarding:false,launcherUpdateConfigured:false,minimumLauncher:'0.30.0',launcherCompatible:true,developer:{configured:false,unlocked:false,curseforgeConfigured:false,developerAllowed:false},account:{authenticated:false,name:'',id:''},system:{recommendedRamGb:6,maxRamGb:11,totalMemoryBytes:16*1024**3,gpus:[{vendor:'NVIDIA',name:'NVIDIA GeForce GTX 1050'}],display:{width:1920,height:1080,workWidth:1920,workHeight:1040,scaleFactor:1,label:'Monitor principal'},disk:{available:true,freeBytes:180*1024**3,totalBytes:480*1024**3,requiredBytes:512*1024**2}}}),
+  getState:async()=>({appVersion:'0.40.0',platform:'preview',packaged:false,config:mockConfig,manifest:mockManifest,manifestConfigured:true,manifestSource:'development',java:{found:true,major:17,version:'17.0.x',path:'java'},needsOnboarding:false,launcherUpdateConfigured:false,minimumLauncher:'0.40.0',launcherCompatible:true,developer:{configured:false,unlocked:false,curseforgeConfigured:false,developerAllowed:false},account:{authenticated:false,name:'',id:''},system:{recommendedRamGb:6,maxRamGb:11,totalMemoryBytes:16*1024**3,gpus:[{vendor:'NVIDIA',name:'NVIDIA GeForce GTX 1050'}],display:{width:1920,height:1080,workWidth:1920,workHeight:1040,scaleFactor:1,label:'Monitor principal'},disk:{available:true,freeBytes:180*1024**3,totalBytes:480*1024**3,requiredBytes:512*1024**2}}}),
   completeOnboarding:async(p)=>{mockConfig.minecraft.username=p.username;mockConfig.onboarding.completed=true;return previewApi.getState()},
   pingServer:async()=>({online:true,latency:57,players:{online:12,max:40},version:'Forge 1.20.1',favicon:null}),
   checkPack:async()=>({configured:true,state:{version:'SIEGE-DEV',updatedAt:new Date().toISOString()},expectedVersion:'SIEGE-DEV',versionMatches:true,total:247,ok:247,missing:[],changed:[],remove:[],bytesRequired:0,healthy:true}),
@@ -195,11 +195,12 @@ function setBusy(value,label='PROCESANDO'){
   footer(value?label:'LISTO'); updatePlayAvailability();
 }
 function applyBackground(name){
-  const names=['frontline','night','canyon','anniversary','cyborg','dummies','orbit','laststand','vought','nightop','rooftop','tempest','urban'];
+  const names=['frontline','night','canyon','anniversary','cyborg','dummies','orbit','laststand','vought','nightop','rooftop','tempest','urban','aurora-sky','deep-space','emberfield'];
   const safe=names.includes(name)?name:'frontline'; const bg=$('background');
   names.forEach(n=>bg.classList.remove(`scene-${n}`)); bg.classList.add(`scene-${safe}`);
+  document.body.dataset.background=safe;
   const hero=document.querySelector('.play-card-bg'); if(hero){
-    const fallback=['night','orbit','cyborg'].includes(safe)?'night':['canyon','laststand'].includes(safe)?'canyon':'frontline';
+    const fallback=['night','orbit','cyborg','deep-space'].includes(safe)?'night':['canyon','laststand','emberfield'].includes(safe)?'canyon':'frontline';
     hero.style.backgroundImage=`url('assets/siege/${safe}.png'), url('assets/${fallback}.svg')`;
   }
 }
@@ -211,7 +212,7 @@ function applyVisuals(config={}){
   document.body.classList.toggle('reduced-motion',Boolean(config.reducedMotion));
   document.body.classList.toggle('no-scanlines',config.scanlines===false);
   document.body.classList.toggle('no-noise',config.noise===false);
-  const names=['frontline','night','canyon','anniversary','cyborg','dummies','orbit','laststand','vought','nightop','rooftop','tempest','urban'];
+  const names=['frontline','night','canyon','anniversary','cyborg','dummies','orbit','laststand','vought','nightop','rooftop','tempest','urban','aurora-sky','deep-space','emberfield'];
   let selected=config.background||'frontline';
   if(config.backgroundMode==='randomStartup'&&!startupBackgroundApplied){selected=names[Math.floor(Math.random()*names.length)];startupBackgroundApplied=true;}
   applyBackground(selected);
@@ -225,9 +226,9 @@ function applyVisuals(config={}){
 }
 function renderBackgroundGallery(selected='frontline'){
   const host=$('backgroundGallery');if(!host)return;
-  const items=[['frontline','Frontline'],['night','Night Battle'],['canyon','Canyon'],['anniversary','Anniversary'],['cyborg','Cyborg'],['dummies','Dummies'],['orbit','Earth Orbit'],['laststand','Last Stand'],['vought','Vought'],['nightop','Night Operation'],['rooftop','Rooftop'],['tempest','Tempest'],['urban','Urban']];
+  const items=[['frontline','Frontline'],['night','Night Battle'],['canyon','Canyon'],['anniversary','Anniversary'],['cyborg','Cyborg'],['dummies','Dummies'],['orbit','Earth Orbit'],['laststand','Last Stand'],['vought','Vought'],['nightop','Night Operation'],['rooftop','Rooftop'],['tempest','Tempest'],['urban','Urban'],['aurora-sky','Aurora Sky'],['deep-space','Deep Space'],['emberfield','Emberfield']];
   host.innerHTML='';
-  for(const [id,label] of items){const b=document.createElement('button');b.type='button';b.className=`background-thumb ${id===selected?'active':''}`;b.innerHTML=`<img src="assets/siege/${id}.png" alt=""><span>${label}</span>`;const img=b.querySelector('img');if(img)img.addEventListener('error',()=>{img.src=`assets/${['night','orbit','cyborg'].includes(id)?'night':['canyon','laststand'].includes(id)?'canyon':'frontline'}.svg`;},{once:true});b.addEventListener('click',()=>{if($('backgroundSelect'))$('backgroundSelect').value=id;applyBackground(id);$$('.background-thumb').forEach(x=>x.classList.toggle('active',x===b));});host.appendChild(b);}
+  for(const [id,label] of items){const b=document.createElement('button');b.type='button';b.className=`background-thumb ${id===selected?'active':''}`;b.innerHTML=`<img src="assets/siege/${id}.png" alt=""><span>${label}</span>`;const img=b.querySelector('img');if(img)img.addEventListener('error',()=>{img.src=`assets/${['night','orbit','cyborg','deep-space'].includes(id)?'night':['canyon','laststand','emberfield'].includes(id)?'canyon':'frontline'}.svg`;},{once:true});b.addEventListener('click',()=>{if($('backgroundSelect'))$('backgroundSelect').value=id;applyBackground(id);$$('.background-thumb').forEach(x=>x.classList.toggle('active',x===b));queueSettingsSave();});host.appendChild(b);}
 }
 
 function showOperation(title='SINCRONIZANDO'){
@@ -832,7 +833,7 @@ function bind(){
   $('copyDiagnosticBtn').addEventListener('click',async()=>{try{await api.copyDiagnostic();toast('Diagnóstico copiado.','success')}catch(err){toast(err.message||String(err),'error')}});
   $('saveDiagnosticBtn')?.addEventListener('click',async()=>{try{const file=await api.saveDiagnostic();if(file)toast('Informe de soporte guardado.','success')}catch(err){toast(err.message||String(err),'error')}});$('supportBundleBtn')?.addEventListener('click',async()=>{try{const file=await api.exportSupportBundle();if(file)toast('Paquete de soporte guardado. No incluye contraseñas, API keys ni mundos.','success')}catch(err){toast(err.message||String(err),'error')}});$('openLogsBtn').addEventListener('click',()=>api.openLogs());
   $('ramRange').addEventListener('input',updateRamPicker); $('ramMinus').addEventListener('click',()=>setRam(Number($('ramRange').value)-1)); $('ramPlus').addEventListener('click',()=>setRam(Number($('ramRange').value)+1)); $$('#ramPresets [data-ram]').forEach(btn=>btn.addEventListener('click',()=>setRam(Number(btn.dataset.ram))));
-  $('themeSelect').addEventListener('change',()=>{document.body.dataset.theme=$('themeSelect').value}); $('themeSelect').addEventListener('change',()=>{document.body.dataset.theme=$('themeSelect').value;$$('#themeGallery [data-theme-choice]').forEach(b=>b.classList.toggle('active',b.dataset.themeChoice===$('themeSelect').value))});$$('#themeGallery [data-theme-choice]').forEach(btn=>btn.addEventListener('click',()=>{$('themeSelect').value=btn.dataset.themeChoice;document.body.dataset.theme=btn.dataset.themeChoice;$$('#themeGallery [data-theme-choice]').forEach(b=>b.classList.toggle('active',b===btn))}));$('backgroundSelect').addEventListener('change',()=>applyBackground($('backgroundSelect').value));$('densitySelect')?.addEventListener('change',()=>document.body.dataset.density=$('densitySelect').value);$('uiScaleSelect')?.addEventListener('change',()=>document.body.dataset.uiScale=$('uiScaleSelect').value);$('glassEffectsToggle')?.addEventListener('change',()=>document.body.classList.toggle('glass-off',!$('glassEffectsToggle').checked));$('scanlinesToggle').addEventListener('change',()=>document.body.classList.toggle('no-scanlines',!$('scanlinesToggle').checked));$('noiseToggle').addEventListener('change',()=>document.body.classList.toggle('no-noise',!$('noiseToggle').checked));$('reducedMotionToggle').addEventListener('change',()=>document.body.classList.toggle('reduced-motion',$('reducedMotionToggle').checked));
+  $('themeSelect').addEventListener('change',()=>{document.body.dataset.theme=$('themeSelect').value;$$('#themeGallery [data-theme-choice]').forEach(b=>b.classList.toggle('active',b.dataset.themeChoice===$('themeSelect').value));queueSettingsSave()});$$('#themeGallery [data-theme-choice]').forEach(btn=>btn.addEventListener('click',()=>{$('themeSelect').value=btn.dataset.themeChoice;document.body.dataset.theme=btn.dataset.themeChoice;$$('#themeGallery [data-theme-choice]').forEach(b=>b.classList.toggle('active',b===btn));queueSettingsSave()}));$('backgroundSelect').addEventListener('change',()=>{applyBackground($('backgroundSelect').value);queueSettingsSave()});$('densitySelect')?.addEventListener('change',()=>document.body.dataset.density=$('densitySelect').value);$('uiScaleSelect')?.addEventListener('change',()=>document.body.dataset.uiScale=$('uiScaleSelect').value);$('glassEffectsToggle')?.addEventListener('change',()=>document.body.classList.toggle('glass-off',!$('glassEffectsToggle').checked));$('scanlinesToggle').addEventListener('change',()=>document.body.classList.toggle('no-scanlines',!$('scanlinesToggle').checked));$('noiseToggle').addEventListener('change',()=>document.body.classList.toggle('no-noise',!$('noiseToggle').checked));$('reducedMotionToggle').addEventListener('change',()=>document.body.classList.toggle('reduced-motion',$('reducedMotionToggle').checked));
   $('installJavaBtn').addEventListener('click',installJava);$('saveSettingsBtn').addEventListener('click',saveSettings);$('resetPresetBtn').addEventListener('click',async()=>{try{await api.resetGamePreset($('gamePresetSelect').value);toast('Ajustes recomendados restaurados.','success')}catch(err){toast(err.message||String(err),'error')}});
   $('minecraftLoginBtn')?.addEventListener('click',loginMicrosoft);$('minecraftLogoutBtn')?.addEventListener('click',logoutMicrosoft);
   $('autoConfigureBtn')?.addEventListener('click',autoConfigureRecommended);$('exportSettingsBtn')?.addEventListener('click',exportSettingsAction);$('importSettingsBtn')?.addEventListener('click',importSettingsAction);
