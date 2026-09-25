@@ -73,19 +73,21 @@ class DeveloperService {
   status() {
     const s = this.load(); let githubReady = false, githubLogin = '';
     const developerAllowed = this.isMaintenanceBuild();
-    const cacheFresh = Date.now() - this.githubStatusCache.at < 5000;
-    if (cacheFresh) {
-      githubReady = this.githubStatusCache.ready;
-      githubLogin = this.githubStatusCache.login;
-    } else {
-      try {
-        const v = spawnSync('gh', ['--version'], { encoding: 'utf8' });
-        if (v.status === 0) {
-          const auth = spawnSync('gh', ['auth', 'status'], { encoding: 'utf8' }); githubReady = auth.status === 0;
-          if (githubReady) { const me = spawnSync('gh', ['api', 'user', '--jq', '.login'], { encoding: 'utf8' }); if (me.status === 0) githubLogin = String(me.stdout || '').trim(); }
-        }
-      } catch (_) {}
-      this.githubStatusCache = { at: Date.now(), ready: githubReady, login: githubLogin };
+    if (developerAllowed) {
+      const cacheFresh = Date.now() - this.githubStatusCache.at < 5000;
+      if (cacheFresh) {
+        githubReady = this.githubStatusCache.ready;
+        githubLogin = this.githubStatusCache.login;
+      } else {
+        try {
+          const v = spawnSync('gh', ['--version'], { encoding: 'utf8' });
+          if (v.status === 0) {
+            const auth = spawnSync('gh', ['auth', 'status'], { encoding: 'utf8' }); githubReady = auth.status === 0;
+            if (githubReady) { const me = spawnSync('gh', ['api', 'user', '--jq', '.login'], { encoding: 'utf8' }); if (me.status === 0) githubLogin = String(me.stdout || '').trim(); }
+          }
+        } catch (_) {}
+        this.githubStatusCache = { at: Date.now(), ready: githubReady, login: githubLogin };
+      }
     }
     return {
       configured: developerAllowed && Boolean(s.passwordSalt && s.passwordHash), unlocked: developerAllowed && this.unlocked,
