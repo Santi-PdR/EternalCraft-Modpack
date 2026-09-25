@@ -46,6 +46,15 @@ async function uploadAssetBatch(tag, repo, files, completed, total) {
     return files.length;
   }
 }
+async function existingReleaseAssetNames(repo, tag) {
+  try {
+    const raw = gh(['release', 'view', tag, '--repo', repo, '--json', 'assets']);
+    const data = JSON.parse(raw || '{}');
+    return new Set((data.assets || []).map((asset) => String(asset.name || '')).filter(Boolean));
+  } catch (_) {
+    return new Set();
+  }
+}
 function manifestFingerprint(manifest){
   const crypto=require('crypto');
   const rows=(manifest?.files||[]).map(f=>`${f.path}:${f.sha256}`).sort().join('\n');
@@ -141,13 +150,17 @@ async function main() {
 
   const uploadStarted = Date.now();
   const batchSize = 8;
-  console.log(`Subiendo ${newHashes.length} blobs nuevos (lotes de ${batchSize}, con reintento individual si falla un lote)...`);
-  for (let i = 0; i < newHashes.length; i += batchSize) {
-    const batch = newHashes.slice(i, i + batchSize).map((sha) => path.join(out, 'blobs', sha));
-    await uploadAssetBatch(tag, repo, batch, i, newHashes.length);
-    const uploaded = Math.min(i + batch.length, newHashes.length);
-    if (uploaded % 10 < batch.length || uploaded === newHashes.length) {
-      console.log(`Blobs subidos: ${uploaded}/${newHashes.length} · ${Math.round((Date.now() - uploadStarted) / 1000)} s`);
+  const releaseAssets = await existingReleaseAssetNames(repo, tag);
+  const pendingHashes = newHashes.filter((sha) => !releaseAssets.has(sha));
+  const alreadyUploaded = newHashes.length - pendingHashes.length;
+  console.log(`Subiendo ${pendingHashes.length} blobs pendientes de ${newHashes.length} nuevos (lotes de ${batchSize}, reanudable si ya existen assets)...`);
+  if (alreadyUploaded) console.log(`Se conservan ${alreadyUploaded} blobs que ya estaban en la release ${tag}.`);
+  for (let i = 0; i < pendingHashes.length; i += batchSize) {
+    const batch = pendingHashes.slice(i, i + batchSize).map((sha) => path.join(out, 'blobs', sha));
+    await uploadAssetBatch(tag, repo, batch, i, pendingHashes.length);
+    const uploaded = Math.min(i + batch.length, pendingHashes.length);
+    if (uploaded % 10 < batch.length || uploaded === pendingHashes.length) {
+      console.log(`Blobs subidos en esta ejecución: ${uploaded}/${pendingHashes.length} · ${Math.round((Date.now() - uploadStarted) / 1000)} s`);
     }
   }
   const manifestAsset = path.join(out, 'channel', 'stable.json');
@@ -157,7 +170,7 @@ async function main() {
   console.log('\nPUBLICACIÓN COMPLETA');
   console.log(`Manifest estable: https://raw.githubusercontent.com/${repo}/${branch}/channel/stable.json`);
   console.log(`Versión: ${version} — ${result.manifest.releaseName}`);
-  console.log(`Blobs nuevos subidos: ${newHashes.length}`);
+  console.log(`Blobs nuevos verificados: ${newHashes.length} (${alreadyUploaded} ya estaban publicados, ${pendingHashes.length} subidos ahora)`);
   console.log(`Tiempo de carga: ${Math.round((Date.now() - uploadStarted) / 1000)} s`);
   console.log('Los jugadores solo descargarán archivos nuevos, cambiados o faltantes.');
 }

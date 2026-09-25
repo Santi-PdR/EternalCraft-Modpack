@@ -1,4 +1,4 @@
-# Eternal Craft Launcher 0.25.17
+# Eternal Craft Launcher 0.30.0
 
 Official launcher for **Eternal Craft // SIEGE**.
 
@@ -10,15 +10,13 @@ Official launcher for **Eternal Craft // SIEGE**.
 
 Eternal Craft Launcher is intentionally not a generic multi-instance launcher. It manages one official SIEGE installation and aims to make installing, repairing, updating and launching that pack safe and simple.
 
-## 0.25.0 — Safety & continuity pass
+## 0.30.0 — Installed mods and resumable publishing
 
 ### Mods
 
-- Modrinth browser locked to Forge 1.20.1 with categories, environment and sorting.
-- Optional CurseForge integration through the official API/proxy architecture.
-- Install Plan before Modrinth changes: required dependencies, estimated download size, release channel and compatibility warnings.
-- Queue preflight before installing several mods.
-- Personal mod release channels: **stable**, **stable + beta**, or **all**.
+- Installed-mods workspace focused on the local SIEGE instance, with search, filters, sorting and update actions.
+- Official pack files stay protected; personal mods can be enabled, disabled, updated or removed from the installed list.
+- Modrinth metadata is used for update checks without exposing a public add/explore catalog to players.
 - **Pinned versions** opt out of automatic/bulk updates.
 - Source provenance labels: official pack, Modrinth, CurseForge or local/unverified.
 - Official files stay protected from player mod management.
@@ -74,7 +72,7 @@ Developer Mode is hidden from player Windows builds and protected by a local pas
 - Source fingerprint protection: publishing is rejected if SIEGE changed after preview
 - Differential GitHub release publishing
 
-La primera publicación puede tardar varios minutos si la instancia tiene cientos de archivos: cada hash nuevo se conserva como asset reutilizable para que las siguientes versiones suban únicamente los cambios. El publicador usa lotes pequeños y, si GitHub rechaza un lote, reintenta esos archivos de forma individual sin perder el progreso.
+La primera publicación puede tardar varios minutos si la instancia tiene cientos de archivos: cada hash nuevo se conserva como asset reutilizable para que las siguientes versiones suban únicamente los cambios. El publicador usa lotes pequeños, reintenta los archivos individualmente si GitHub rechaza un lote y salta automáticamente los assets que ya existen si una publicación se reanuda.
 
 ## Build / install on Fedora
 

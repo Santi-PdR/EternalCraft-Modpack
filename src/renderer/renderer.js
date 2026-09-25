@@ -12,7 +12,7 @@ const mockConfig = {
   onboarding:{completed:true},links:{}
 };
 const mockManifest = {
-  schema:2,version:'1.0.0',releaseName:'Siege Origin',minecraft:'1.20.1',forge:'47.4.10',minimumLauncher:'0.25.17',files:[],remove:[],
+  schema:2,version:'1.0.0',releaseName:'Siege Origin',minecraft:'1.20.1',forge:'47.4.10',minimumLauncher:'0.30.0',files:[],remove:[],
   releaseNotes:{title:'SIEGE DEV',summary:'Base del launcher renovada y sistema de actualización segura.',addedCount:2,changedCount:4,removedCount:0,highlights:[{type:'changed',path:'mods/siege-menu.jar'},{type:'added',path:'config/eternal-client.toml'}]}
 };
 
@@ -23,7 +23,7 @@ function merge(target, patch){
 }
 
 const previewApi = {
-  getState:async()=>({appVersion:'0.25.17',platform:'preview',packaged:false,config:mockConfig,manifest:mockManifest,manifestConfigured:true,manifestSource:'development',java:{found:true,major:17,version:'17.0.x',path:'java'},needsOnboarding:false,launcherUpdateConfigured:false,minimumLauncher:'0.25.17',launcherCompatible:true,developer:{configured:false,unlocked:false,curseforgeConfigured:false,developerAllowed:false},account:{authenticated:false,name:'',id:''},system:{recommendedRamGb:6,maxRamGb:11,totalMemoryBytes:16*1024**3,gpus:[{vendor:'NVIDIA',name:'NVIDIA GeForce GTX 1050'}],display:{width:1920,height:1080,workWidth:1920,workHeight:1040,scaleFactor:1,label:'Monitor principal'},disk:{available:true,freeBytes:180*1024**3,totalBytes:480*1024**3,requiredBytes:512*1024**2}}}),
+  getState:async()=>({appVersion:'0.30.0',platform:'preview',packaged:false,config:mockConfig,manifest:mockManifest,manifestConfigured:true,manifestSource:'development',java:{found:true,major:17,version:'17.0.x',path:'java'},needsOnboarding:false,launcherUpdateConfigured:false,minimumLauncher:'0.30.0',launcherCompatible:true,developer:{configured:false,unlocked:false,curseforgeConfigured:false,developerAllowed:false},account:{authenticated:false,name:'',id:''},system:{recommendedRamGb:6,maxRamGb:11,totalMemoryBytes:16*1024**3,gpus:[{vendor:'NVIDIA',name:'NVIDIA GeForce GTX 1050'}],display:{width:1920,height:1080,workWidth:1920,workHeight:1040,scaleFactor:1,label:'Monitor principal'},disk:{available:true,freeBytes:180*1024**3,totalBytes:480*1024**3,requiredBytes:512*1024**2}}}),
   completeOnboarding:async(p)=>{mockConfig.minecraft.username=p.username;mockConfig.onboarding.completed=true;return previewApi.getState()},
   pingServer:async()=>({online:true,latency:57,players:{online:12,max:40},version:'Forge 1.20.1',favicon:null}),
   checkPack:async()=>({configured:true,state:{version:'SIEGE-DEV',updatedAt:new Date().toISOString()},expectedVersion:'SIEGE-DEV',versionMatches:true,total:247,ok:247,missing:[],changed:[],remove:[],bytesRequired:0,healthy:true}),
@@ -65,33 +65,25 @@ let serverTimer=null;
 let opStats=null;
 let modsState={mods:[],counts:{total:0,official:0,user:0,disabled:0}};
 let modFilter='all';
-let catalogState=[];
 let developerState={configured:false,unlocked:false,curseforgeConfigured:false};
-let catalogCategory='all';
 let modUpdates=new Map();
 let testDiffState=null;
 let publishPreview=null;
 let startupBackgroundApplied=false;
 let backgroundRotationTimer=null;
-let activeModDetailProject=null;
 let recoveryState=[];
 let notificationHistory=[];
 let notificationUnread=false;
 const ignoredModWarnings=new Set();
 let updateCenterState={pack:null,mods:null,launcher:'unknown',lastChecked:null};
 let launcherUpdateAvailable=false;
-let catalogOffset=0;
-let catalogHasMore=false;
-let catalogLoadedOnce=false;
 let autoSaveTimer=null;
 let operationMinimized=false;
 let pingHistory=[];
 let settingsGroup='game';
-let modInstallQueue=[];
 
 function clamp(v,a,b){return Math.max(a,Math.min(b,v))}
 function escapeHtml(value){return String(value??'').replace(/[&<>"']/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));}
-function safeHttpsUrl(value){try{const u=new URL(String(value||''));return u.protocol==='https:'?u.href:''}catch(_){return''}}
 function formatBytes(bytes){
   const n=Number(bytes||0); if(!n) return '0 MB';
   const units=['B','KB','MB','GB']; let value=n,i=0; while(value>=1024&&i<units.length-1){value/=1024;i++}
@@ -148,7 +140,7 @@ async function askPrompt(options={}){const r=await appDialog({...options,input:t
 
 const commandActions=[
   {id:'play',label:'Jugar Eternal Craft',hint:'Iniciar el modpack',icon:'▶',keys:'Ctrl 1',run:()=>launch()},
-  {id:'mods',label:'Abrir Mods',hint:'Biblioteca y catálogo',icon:'◇',keys:'Ctrl 2',run:()=>setPage('mods')},
+  {id:'mods',label:'Abrir Mods instalados',hint:'Administrar la instancia local',icon:'◇',keys:'Ctrl 2',run:()=>setPage('mods')},
   {id:'pack',label:'Abrir Modpack',hint:'Estado, actualizaciones y reparación',icon:'▦',keys:'Ctrl 3',run:()=>setPage('modpack')},
   {id:'updates',label:'Abrir Actualizaciones',hint:'Launcher, modpack y mods personales',icon:'↻',keys:'Ctrl 4',run:()=>setPage('updates')},
   {id:'support',label:'Abrir Soporte',hint:'Diagnóstico e inicio seguro',icon:'?',keys:'Ctrl 5',run:()=>setPage('support')},
@@ -167,7 +159,6 @@ function visibleCommands(){
   if(q){
     const matches=(modsState.mods||[]).filter(mod=>`${mod.displayName||''} ${mod.filename||''} ${mod.provider||''}`.toLowerCase().includes(q)).slice(0,6);
     for(const mod of matches){items.push({id:`installed-mod:${mod.filename}`,label:mod.displayName||mod.filename,hint:`Mod instalado · ${mod.official?'oficial':mod.provider||'local'}${mod.enabled===false?' · desactivado':''}`,icon:'◇',keys:'',run:()=>{setPage('mods');modFilter='all';$$('[data-mod-filter]').forEach(x=>x.classList.toggle('active',x.dataset.modFilter==='all'));if($('modsSearch'))$('modsSearch').value=mod.displayName||mod.filename;renderMods(modsState);setTimeout(()=>$('modsSearch')?.focus(),80)}});}
-    if(raw.length>=2){items.push({id:`catalog-search:${q}`,label:`Buscar “${raw}” en Modrinth`,hint:'Forge 1.20.1 · abrir catálogo compatible',icon:'⌕',keys:'',run:()=>{setPage('mods');if($('modProvider'))$('modProvider').value='modrinth';if($('catalogSearch'))$('catalogSearch').value=raw;setTimeout(()=>searchCatalog(false,true),80)}});}
   }
   return items.slice(0,18);
 }
@@ -193,7 +184,6 @@ function setPage(page){
   document.querySelector('.content')?.scrollTo({top:0,behavior:document.body.classList.contains('reduced-motion')?'auto':'smooth'});
   if(appState?.config?.launcher?.rememberLastPage && ['home','mods','modpack','updates','support','settings'].includes(page)){appState.config.launcher.lastPage=page;api.saveSettings({launcher:{lastPage:page}}).catch(()=>{});}
   if(page==='updates')refreshUpdateCenter(false).catch(()=>{});
-  if(page==='mods'&&!catalogLoadedOnce){catalogLoadedOnce=true;setTimeout(()=>searchCatalog(false,false).catch(()=>{}),80);}
   if(page==='settings'){if(String($('settingsSearch')?.value||'').trim())applySettingsSearch();else setSettingsGroup(settingsGroup);}
 }
 function statusClass(el,state){if(!el)return;el.classList.remove('ok','warn','bad');if(state)el.classList.add(state)}
@@ -325,7 +315,7 @@ function fillBaseState(state){
   $('packSource').textContent=state.manifestStale?'CACHÉ OFFLINE':state.manifestSource==='remote'?'OFICIAL':state.manifestSource==='development'?'DEV LOCAL':'NO PUBLICADO'; $('targetVersion').textContent=state.manifestConfigured?(manifest.version||'—'):'—';
   $('usernameInput').value=config.minecraft.username||''; $('ramRange').value=Math.max(3,Math.min(16,Math.round((config.minecraft.maxMemoryMb||6144)/1024))); $('ramValue').textContent=`${$('ramRange').value} GB`;
   $('gamePresetSelect').value=config.minecraft.preset||'balanced'; const display=state.system?.display||{width:config.minecraft.width||1920,height:config.minecraft.height||1080}; const res=`${config.minecraft.width||display.width}x${config.minecraft.height||display.height}`; $('resolutionSelect').value=config.minecraft.useSystemResolution!==false?'system':([...$('resolutionSelect').options].some(o=>o.value===res)?res:'1920x1080'); if($('resolutionDefault'))$('resolutionDefault').textContent=`Predeterminada detectada: ${display.width} × ${display.height}${display.scaleFactor&&display.scaleFactor!==1?` · escala ${Math.round(display.scaleFactor*100)}%`:''}`;
-  $('fullscreenToggle').checked=Boolean(config.minecraft.fullscreen); $('dedicatedGpuToggle').checked=config.minecraft.preferDedicatedGpu!==false; $('autoJavaToggle').checked=config.minecraft.autoInstallJava!==false; $('autoUpdateToggle').checked=Boolean(config.pack.autoUpdate); $('repairBeforeToggle').checked=Boolean(config.pack.repairBeforeLaunch); if($('autoSnapshotToggle'))$('autoSnapshotToggle').checked=config.pack.autoSnapshot!==false; if($('autoModUpdateToggle'))$('autoModUpdateToggle').checked=config.mods?.autoCheckUpdates!==false;if($('autoUpdateUserModsToggle'))$('autoUpdateUserModsToggle').checked=Boolean(config.mods?.autoUpdateUserMods);if($('modReleaseChannelSelect'))$('modReleaseChannelSelect').value=config.mods?.releaseChannel||'release';if($('catalogReleaseChannel'))$('catalogReleaseChannel').value=config.mods?.releaseChannel||'release';if($('protectServerCompatibilityToggle'))$('protectServerCompatibilityToggle').checked=config.mods?.protectServerCompatibility!==false;if($('autoChangeSnapshotsToggle'))$('autoChangeSnapshotsToggle').checked=config.mods?.autoChangeSnapshots!==false;if($('startPageSelect'))$('startPageSelect').value=config.launcher?.startPage||'home';if($('autoConnectivityToggle'))$('autoConnectivityToggle').checked=config.launcher?.autoConnectivityCheck!==false;if($('compatibilityWarningsToggle'))$('compatibilityWarningsToggle').checked=config.mods?.compatibilityWarnings!==false;if($('modWarningsToggle'))$('modWarningsToggle').checked=config.mods?.hideWarnings!==true;if($('vaultScreenshotsToggle'))$('vaultScreenshotsToggle').checked=config.sync?.includeScreenshots!==false;if($('vaultSavesToggle'))$('vaultSavesToggle').checked=Boolean(config.sync?.includeSaves);if($('vaultExtraPaths'))$('vaultExtraPaths').value=(config.sync?.extraPaths||[]).join(', '); $('hideOnStartToggle').checked=Boolean(config.launcher.hideOnGameStart); $('refocusOnExitToggle').checked=config.launcher.refocusOnGameExit!==false;
+  $('fullscreenToggle').checked=Boolean(config.minecraft.fullscreen); $('dedicatedGpuToggle').checked=config.minecraft.preferDedicatedGpu!==false; $('autoJavaToggle').checked=config.minecraft.autoInstallJava!==false; $('autoUpdateToggle').checked=Boolean(config.pack.autoUpdate); $('repairBeforeToggle').checked=Boolean(config.pack.repairBeforeLaunch); if($('autoSnapshotToggle'))$('autoSnapshotToggle').checked=config.pack.autoSnapshot!==false; if($('autoModUpdateToggle'))$('autoModUpdateToggle').checked=config.mods?.autoCheckUpdates!==false;if($('autoUpdateUserModsToggle'))$('autoUpdateUserModsToggle').checked=Boolean(config.mods?.autoUpdateUserMods);if($('protectServerCompatibilityToggle'))$('protectServerCompatibilityToggle').checked=config.mods?.protectServerCompatibility!==false;if($('autoChangeSnapshotsToggle'))$('autoChangeSnapshotsToggle').checked=config.mods?.autoChangeSnapshots!==false;if($('startPageSelect'))$('startPageSelect').value=config.launcher?.startPage||'home';if($('autoConnectivityToggle'))$('autoConnectivityToggle').checked=config.launcher?.autoConnectivityCheck!==false;if($('compatibilityWarningsToggle'))$('compatibilityWarningsToggle').checked=config.mods?.compatibilityWarnings!==false;if($('modWarningsToggle'))$('modWarningsToggle').checked=config.mods?.hideWarnings!==true;if($('vaultScreenshotsToggle'))$('vaultScreenshotsToggle').checked=config.sync?.includeScreenshots!==false;if($('vaultSavesToggle'))$('vaultSavesToggle').checked=Boolean(config.sync?.includeSaves);if($('vaultExtraPaths'))$('vaultExtraPaths').value=(config.sync?.extraPaths||[]).join(', '); $('hideOnStartToggle').checked=Boolean(config.launcher.hideOnGameStart); $('refocusOnExitToggle').checked=config.launcher.refocusOnGameExit!==false;
   if($('closeToTrayToggle'))$('closeToTrayToggle').checked=config.launcher.closeToTray!==false; if($('startWithSystemToggle'))$('startWithSystemToggle').checked=Boolean(config.launcher.startWithSystem); if($('startMinimizedToggle'))$('startMinimizedToggle').checked=Boolean(config.launcher.startMinimized); if($('nativeNotificationsToggle'))$('nativeNotificationsToggle').checked=config.launcher.nativeNotifications!==false; if($('rememberLastPageToggle'))$('rememberLastPageToggle').checked=Boolean(config.launcher.rememberLastPage);
   $('themeSelect').value=config.launcher.theme||'aurora'; $('backgroundSelect').value=config.launcher.background||'frontline'; if($('backgroundModeSelect'))$('backgroundModeSelect').value=config.launcher.backgroundMode||'fixed'; if($('densitySelect'))$('densitySelect').value=config.launcher.density||'comfortable'; if($('glassEffectsToggle'))$('glassEffectsToggle').checked=config.launcher.glassEffects!==false;if($('uiScaleSelect'))$('uiScaleSelect').value=config.launcher.uiScale||'normal'; $('scanlinesToggle').checked=config.launcher.scanlines!==false; $('noiseToggle').checked=Boolean(config.launcher.noise); $('reducedMotionToggle').checked=Boolean(config.launcher.reducedMotion); if($('modsSort'))$('modsSort').value=config.mods?.sort||'recent'; applyVisuals(config.launcher);
   const javaOk=Boolean(java?.found&&Number(java?.major)>=17); const javaManaged=Boolean(java?.managed); $('javaReadout').textContent=javaOk?`Java ${java.version} · ${javaManaged?'administrado por Eternal Craft':'detectado en el sistema'}`:'Java 17 o superior no encontrado'; $('installJavaBtn').textContent=javaOk?'JAVA COMPATIBLE':'PREPARAR JAVA'; $('installJavaBtn').disabled=javaOk;
@@ -433,7 +423,7 @@ function renderMods(state=modsState){
     const actions=mod.official?`${favoriteBtn}<span class="locked">ADMINISTRADO POR EL PACK</span>`:`${favoriteBtn}${pinBtn}${updateBtn}${testBtn}<button data-mod-toggle="${encodeURIComponent(mod.filename)}">${mod.enabled?'DESACTIVAR':'ACTIVAR'}</button><button class="danger" data-mod-remove="${encodeURIComponent(mod.filename)}">QUITAR</button>`;
     const icon=mod.iconUrl?`<img class="mod-row-icon" src="${mod.iconUrl}" alt="">`:`<div class="mod-icon">${mod.official?'EC':'+'}</div>`;
     row.innerHTML=`${icon}<div class="mod-info"><b></b><small></small><div class="mod-tags">${tagOfficial}${tagDisabled}${provider}${envTag}${updateTag}${favoriteTag}${pinnedTag}${trustTag}</div></div><div class="mod-actions">${actions}</div>`;
-    row.querySelector('.mod-info b').textContent=mod.displayName||mod.filename; row.querySelector('.mod-info small').textContent=`${mod.versionName?mod.versionName+' · ':''}${formatBytes(mod.size||0)}${date} · ${mod.filename}`; if(mod.projectId){row.querySelector('.mod-info').classList.add('clickable');row.querySelector('.mod-info').addEventListener('click',()=>openModDetail({provider:mod.provider,id:mod.projectId,name:mod.displayName,summary:'',iconUrl:mod.iconUrl,updatedAt:mod.modifiedAt}));} const localTag=row.querySelector('.mod-tag.untrusted');if(localTag){localTag.className='mod-tag';localTag.textContent='LOCAL · MANUAL';} host.appendChild(row);
+    row.querySelector('.mod-info b').textContent=mod.displayName||mod.filename; row.querySelector('.mod-info small').textContent=`${mod.versionName?mod.versionName+' · ':''}${formatBytes(mod.size||0)}${date} · ${mod.filename}`; const localTag=row.querySelector('.mod-tag.untrusted');if(localTag){localTag.className='mod-tag';localTag.textContent='LOCAL · MANUAL';} host.appendChild(row);
   }
   $$('[data-mod-toggle]').forEach(btn=>btn.addEventListener('click',()=>toggleUserMod(decodeURIComponent(btn.dataset.modToggle))));
   $$('[data-mod-remove]').forEach(btn=>btn.addEventListener('click',()=>removeUserMod(decodeURIComponent(btn.dataset.modRemove))));
@@ -520,115 +510,6 @@ function updateRamPicker(){
   const input=$('ramRange'); if(!input)return; const value=Number(input.value||6); if($('ramValue'))$('ramValue').textContent=`${value} GB`;
   $$('#ramPresets [data-ram]').forEach(btn=>btn.classList.toggle('active',Number(btn.dataset.ram)===value));
 }
-function formatDownloads(value){const n=Number(value||0);if(n>=1e6)return`${(n/1e6).toFixed(n>=1e7?0:1)}M`;if(n>=1e3)return`${(n/1e3).toFixed(n>=1e4?0:1)}K`;return String(n);}
-function queueKey(project){return `${project?.provider||'modrinth'}:${project?.id||project?.slug||project?.name||''}`;}
-function renderModQueue(){const bar=$('modQueueBar');if(!bar)return;bar.classList.toggle('hidden',modInstallQueue.length===0);if($('modQueueCount'))$('modQueueCount').textContent=String(modInstallQueue.length);}
-function toggleModQueue(project){const key=queueKey(project);const i=modInstallQueue.findIndex(x=>queueKey(x)===key);if(i>=0)modInstallQueue.splice(i,1);else modInstallQueue.push(project);renderModQueue();renderCatalog(catalogState,true,$('modProvider')?.value||'modrinth');}
-async function installQueuedMods(){
-  if(busy||!modInstallQueue.length)return;
-  const queue=[...modInstallQueue];const plans=[];const blocked=[];const planningErrors=[];
-  for(const project of queue){
-    try{const plan=await api.planModInstall(project);plans.push({project,plan});if(plan?.blocked)blocked.push(project.name||'Mod');}
-    catch(err){planningErrors.push(`${project.name||'Mod'}: ${err.message||String(err)}`);}
-  }
-  if(blocked.length&&appState?.config?.mods?.protectServerCompatibility!==false){toast(`No agregué ${blocked.length} mod(s) incompatibles con el cliente: ${blocked.slice(0,3).join(', ')}${blocked.length>3?'…':''}`,'error');return;}
-  const unique=new Map();let warnings=[];
-  for(const {plan} of plans){for(const item of plan?.needed||[])unique.set(`${item.id||''}:${item.filename||item.name||''}`,item);warnings=warnings.concat(plan?.warnings||[]);}
-  const totalBytes=[...unique.values()].reduce((n,x)=>n+Number(x.size||0),0);const deps=plans.reduce((n,x)=>n+Number(x.plan?.dependencies?.filter(d=>!d.installed).length||0),0);
-  const lines=[`${queue.length} mod${queue.length===1?'':'s'} en cola`,`${unique.size||queue.length} archivo(s) a descargar${totalBytes?` · ${formatBytes(totalBytes)}`:''}`,deps?`${deps} dependencia(s) se resolverán automáticamente`:'Sin dependencias adicionales detectadas','Se comprobará el entorno cliente/servidor antes de instalar'];
-  if(warnings.length)lines.push(`Advertencias: ${warnings.slice(0,2).map(x=>x.text||x.message||String(x)).join(' · ')}`);if(planningErrors.length)lines.push(`${planningErrors.length} elemento(s) no pudieron preanalizarse y se comprobarán al instalar.`);
-  if(!await askConfirm({title:'Revisar cola de instalación',message:lines.join('\n'),confirmText:'Instalar cola'}))return;
-  setBusy(true,'INSTALANDO COLA');showOperation('INSTALANDO MODS');let done=0;const failed=[];
-  try{
-    for(const project of queue){
-      if($('operationFile'))$('operationFile').textContent=project.name||'Mod';if($('operationPhase'))$('operationPhase').textContent=`INSTALANDO ${done+1} / ${queue.length}`;if($('operationPercent'))$('operationPercent').textContent=`${Math.round(done/queue.length*100)}%`;if($('operationBar'))$('operationBar').style.width=`${done/queue.length*100}%`;
-      try{await api.installMod(project);done++;modInstallQueue=modInstallQueue.filter(x=>queueKey(x)!==queueKey(project));}catch(err){failed.push(`${project.name||'Mod'}: ${err.message||err}`);done++;}
-    }
-    if($('operationPercent'))$('operationPercent').textContent='100%';if($('operationBar'))$('operationBar').style.width='100%';await refreshMods(false);await refreshChangeHistory();renderModQueue();renderCatalog(catalogState,true,$('modProvider')?.value||'modrinth');
-    if(failed.length)toast(`${queue.length-failed.length} instalados · ${failed.length} con error. Los fallidos quedan en la cola para reintentar.`,'warn');else toast(`${queue.length} mod${queue.length===1?'':'s'} instalado${queue.length===1?'':'s'} correctamente.`,'success');
-  }finally{hideOperation();setBusy(false)}
-}
-
-function renderCatalog(results=[],configured=true,provider='modrinth',reason=''){
-  catalogState=results||[];const host=$('catalogResults');if(!host)return;host.innerHTML='';
-  if(!configured){const gate=document.createElement('div');gate.className='catalog-empty provider-gate';const title=document.createElement('b');title.textContent='CurseForge requiere acceso oficial';const msg=document.createElement('span');msg.textContent=reason||'Configurá una API key en Modo desarrollador. Modrinth sigue disponible sin cuenta.';gate.append(title,msg);host.appendChild(gate);$('catalogNotice')?.classList.add('provider-unavailable');return;}
-  $('catalogNotice')?.classList.remove('provider-unavailable');
-  if(!catalogState.length){host.innerHTML='<div class="catalog-empty">No encontré mods compatibles con Forge 1.20.1 con estos filtros.</div>';return;}
-  for(const project of catalogState){
-    const card=document.createElement('article');card.className='catalog-card';
-    const iconUrl=safeHttpsUrl(project.iconUrl);const icon=iconUrl?'<span class="catalog-icon-slot"></span>':'<div class="catalog-icon-fallback">◇</div>';
-    const updated=project.updatedAt?timeAgo(project.updatedAt):'';
-    const alreadyInstalled=(modsState.mods||[]).some(m=>m.projectId&&String(m.projectId)===String(project.id));
-    const client=String(project.clientSide||project.environment?.client||'').toLowerCase();const server=String(project.serverSide||project.environment?.server||'').toLowerCase();const clientLabel=client.includes('required')||client.includes('client_only')?'CLIENTE':client.includes('unsupported')?'NO CLIENTE':'CLIENTE OPC.';const serverLabel=server.includes('required')||server.includes('server_only')?'SERVIDOR':server.includes('unsupported')?'NO SERVER':'SERVER OPC.';
-    const queued=modInstallQueue.some(x=>queueKey(x)===queueKey(project));
-    card.innerHTML=`${icon}<div class="catalog-copy"><h4></h4><p></p><div class="catalog-meta"><span></span><span></span><span></span></div><div class="catalog-compat"><span class="${client.includes('unsupported')?'warn':'good'}">${clientLabel}</span><span class="${server.includes('unsupported')?'warn':'good'}">${serverLabel}</span></div></div><div class="catalog-actions"><button class="ghost detail-mod">DETALLES</button><button class="ghost queue-mod ${queued?'queued':''}" ${alreadyInstalled?'disabled':''}>${queued?'EN COLA':'+ COLA'}</button><button class="primary install-mod" ${alreadyInstalled?'disabled':''}>${alreadyInstalled?'INSTALADO':'INSTALAR'}</button>${developerState.unlocked?'<button class="ghost test-mod">TEST-1</button>':''}</div>`;
-    if(iconUrl){const slot=card.querySelector('.catalog-icon-slot');const img=document.createElement('img');img.alt='';img.loading='lazy';img.referrerPolicy='no-referrer';img.src=iconUrl;img.addEventListener('error',()=>{slot.className='catalog-icon-fallback';slot.textContent='◇';},{once:true});slot.replaceWith(img);}
-    card.querySelector('h4').textContent=project.name||'Mod';card.querySelector('p').textContent=project.summary||'Sin descripción.';
-    const meta=card.querySelectorAll('.catalog-meta span');meta[0].textContent=project.author||project.provider;meta[1].textContent=`↓ ${formatDownloads(project.downloads)}`;meta[2].textContent=updated;
-    card.querySelector('.detail-mod')?.addEventListener('click',()=>openModDetail(project));if(!alreadyInstalled){card.querySelector('.queue-mod')?.addEventListener('click',()=>toggleModQueue(project));card.querySelector('.install-mod').addEventListener('click',()=>installCatalogMod(project));}card.querySelector('.test-mod')?.addEventListener('click',()=>installCatalogModTest(project));host.appendChild(card);
-  }
-}
-async function searchCatalog(append=false,showBusy=true){
-  if(busy&&showBusy)return;const query=$('catalogSearch').value.trim();const provider=$('modProvider').value;const category=catalogCategory;const environment=$('catalogEnvironment')?.value||'all';const releaseChannel=$('catalogReleaseChannel')?.value||appState?.config?.mods?.releaseChannel||'release';const sort=$('catalogSort')?.value||'relevance';
-  if(!append)catalogOffset=0;if(showBusy)setBusy(true,'BUSCANDO MODS');if(!append)$('catalogResults').innerHTML='<div class="catalog-empty">Buscando mods compatibles…</div>';
-  try{const result=await api.searchMods({provider,query,category,environment,releaseChannel,sort,offset:catalogOffset,limit:30});const raw=result.results||[];const results=raw.filter(item=>{if(provider==='curseforge'||environment==='all')return true;const client=String(item.clientSide||'').toLowerCase();const server=String(item.serverSide||'').toLowerCase();if(environment==='client')return server==='unsupported';if(environment==='server')return client==='unsupported';return client!=='unsupported'&&server!=='unsupported';});if(append){const merged=[...catalogState];const ids=new Set(merged.map(x=>`${x.provider}:${x.id}`));for(const item of results)if(!ids.has(`${item.provider}:${item.id}`))merged.push(item);renderCatalog(merged,result.configured!==false,provider,result.reason||'');}else renderCatalog(results,result.configured!==false,provider,result.reason||'');catalogOffset+=raw.length;catalogHasMore=raw.length>=30;$('catalogLoadMoreBtn')?.classList.toggle('hidden',!catalogHasMore);$('catalogNotice').innerHTML=provider==='modrinth'?'<b>Modrinth</b> · Forge 1.20.1 · filtrado estricto por entorno.':'<b>CurseForge</b> · usa la API oficial cuando el desarrollador configura su acceso.';}
-  catch(err){
-    if(!append){
-      const message=String(err?.message||err||'Error desconocido');
-      const isCurse=provider==='curseforge';
-      renderCatalog([],true,provider);
-      if($('catalogNotice')){
-        $('catalogNotice').classList.add('provider-unavailable');
-        $('catalogNotice').innerHTML=isCurse
-          ? `<b>CurseForge</b> · Worker no disponible (${escapeHtml(message)}). Revisá la URL y que el Worker responda en /search.`
-          : `<b>Modrinth</b> · No se pudo consultar el catálogo (${escapeHtml(message)}).`;
-      }
-    }
-    toast(err.message||String(err),'error');
-  }finally{if(showBusy)setBusy(false)}
-}
-async function installCatalogMod(project){
-  if(busy)return;
-  try{
-    let plan=null;
-    if(project.provider==='modrinth'&&api.planModInstall){plan=await api.planModInstall(project);if(plan.blocked&&appState?.config?.mods?.protectServerCompatibility!==false){toast(plan.warnings?.[0]?.text||'Este mod no es compatible con el cliente.','error');return;}const deps=plan.dependencies?.filter(x=>!x.installed)||[];const depNames=deps.map(x=>x.name||x.id).slice(0,6);const warn=(plan.warnings||[]).map(x=>`• ${x.text}`).join('\n');const compatibility=warn||'No detecté conflictos con el entorno del cliente ni con los mods instalados.';const msg=[`${project.name||'Este mod'} agregará ${plan.needed?.length||1} archivo(s).`,deps.length?`Dependencias requeridas: ${depNames.join(', ')}${deps.length>depNames.length?'…':''}.`:'No requiere dependencias nuevas.',`Descarga aproximada: ${formatBytes(plan.totalSize||0)}.`,`Compatibilidad: ${compatibility}`].join('\n\n');if(!await askConfirm({title:'REVISAR MOD Y DEPENDENCIAS',message:msg,confirmText:'Instalar'}))return;}
-    setBusy(true,`INSTALANDO ${String(project.name||'MOD').toUpperCase()}`);showOperation(`INSTALANDO ${String(project.name||'MOD').toUpperCase()}`);
-    const state=await api.installMod(project);modInstallQueue=modInstallQueue.filter(x=>queueKey(x)!==queueKey(project));renderModQueue();hideOperation();renderMods(state);renderCatalog(catalogState,true,$('modProvider')?.value||'modrinth');toast(`${project.name} instalado${plan?.dependencies?.length?` con ${plan.dependencies.length} dependencia${plan.dependencies.length===1?'':'s'}`:''}.`, 'success');refreshChangeHistory().catch(()=>{});
-  }catch(err){hideOperation();toast(err.message||String(err),'error');}finally{setBusy(false)}
-}
-async function installCatalogModTest(project){if(busy)return;setBusy(true,'INSTALANDO EN TEST-1');showOperation(`TEST-1 // ${String(project.name||'MOD').toUpperCase()}`);try{const result=await api.developerInstallModTest(project);hideOperation();toast(`${project.name} instalado en test-1.`, 'success');}catch(err){hideOperation();toast(err.message||String(err),'error');}finally{setBusy(false)}}
-
-
-function normalizeEnvironment(value){
-  const v=String(value||'').replace(/_/g,' ');
-  if(!v)return '—';
-  return v.split(' ').map(x=>x?x[0].toUpperCase()+x.slice(1):x).join(' ');
-}
-async function openModDetail(project){
-  activeModDetailProject=project;
-  const overlay=$('modDetailOverlay'); if(!overlay)return;
-  overlay.classList.remove('hidden');
-  $('modDetailName').textContent=project.name||'Mod'; $('modDetailSummary').textContent=project.summary||'Cargando información…';
-  $('modDetailProvider').textContent=String(project.provider||'modrinth').toUpperCase(); $('modDetailIcon').src=project.iconUrl||'assets/logo.svg';
-  $('modDetailDownloads').textContent=formatDownloads(project.downloads||0); $('modDetailUpdated').textContent=project.updatedAt?timeAgo(project.updatedAt):'—';
-  $('modDetailClient').textContent=normalizeEnvironment(project.clientSide); $('modDetailServer').textContent=normalizeEnvironment(project.serverSide);
-  $('modDetailTags').innerHTML=''; for(const tag of (project.categories||[]).slice(0,8)){const el=document.createElement('span');el.textContent=tag; $('modDetailTags').appendChild(el);}
-  $('modDetailGallery').innerHTML=''; $('modDetailBody').textContent='Cargando ficha completa…';
-  const installed=(modsState.mods||[]).some(m=>m.projectId&&String(m.projectId)===String(project.id));
-  $('modDetailInstall').disabled=installed; $('modDetailInstall').textContent=installed?'INSTALADO':'INSTALAR'; $('modDetailTest').classList.toggle('hidden',!developerState.unlocked);
-  try{
-    const d=await api.getModDetails(project); activeModDetailProject={...project,...d};
-    $('modDetailName').textContent=d.name||project.name||'Mod'; $('modDetailSummary').textContent=d.summary||project.summary||'Sin descripción.'; $('modDetailIcon').src=d.iconUrl||project.iconUrl||'assets/logo.svg';
-    $('modDetailDownloads').textContent=formatDownloads(d.downloads||project.downloads||0); $('modDetailUpdated').textContent=d.updatedAt?timeAgo(d.updatedAt):'—';
-    $('modDetailClient').textContent=normalizeEnvironment(d.clientSide); $('modDetailServer').textContent=normalizeEnvironment(d.serverSide);
-    $('modDetailTags').innerHTML=''; const tags=[...(d.categories||[])]; if(d.license)tags.push(d.license); if(d.latest?.name)tags.push(`v ${d.latest.name}`); for(const tag of tags.slice(0,10)){const el=document.createElement('span');el.textContent=tag;$('modDetailTags').appendChild(el);}
-    $('modDetailBody').textContent=(d.body||d.summary||'Sin información adicional.').replace(/[#*_`>\[\]]/g,'').slice(0,1800);
-    const gal=$('modDetailGallery');gal.innerHTML='';for(const g of (d.gallery||[]).slice(0,4)){const img=document.createElement('img');img.src=g.url;img.alt=g.title||'';gal.appendChild(img);}
-    $('modDetailWebsite').disabled=!d.sourceUrl;
-  }catch(err){$('modDetailBody').textContent=`No pude cargar la ficha completa: ${err.message||String(err)}`;}
-}
-function closeModDetail(){$('modDetailOverlay')?.classList.add('hidden');activeModDetailProject=null;}
-
 function renderRecovery(items=[]){
   recoveryState=items||[]; const host=$('recoveryList'); if(!host)return; host.innerHTML='';
   if(!recoveryState.length){host.innerHTML='<div class="empty-state">Todavía no hay puntos de restauración. El launcher crea uno automáticamente antes de aplicar cambios importantes.</div>';return;}
@@ -941,9 +822,8 @@ function bind(){
   $('playBtn').addEventListener('click',launch);$('safeLaunchBtn')?.addEventListener('click',launchSafeGameAction);$('repairQuickBtn').addEventListener('click',()=>runPackAction('repair'));$('quickFolder').addEventListener('click',()=>api.openInstance());
   $('homeRecommendedBtn')?.addEventListener('click',autoConfigureRecommended);$('settingsSearch')?.addEventListener('input',applySettingsSearch);$('settingsSearch')?.addEventListener('keydown',e=>{if(e.key==='Escape'){e.currentTarget.value='';applySettingsSearch();e.currentTarget.blur();}});
   $('homeConnectionCard')?.addEventListener('click',()=>refreshServer(true));$('refreshServerBtn').addEventListener('click',()=>refreshServer(true));$('copyServerBtn').addEventListener('click',async()=>{try{await api.copyServerAddress();toast('IP del servidor copiada.','success')}catch(err){toast(err.message||String(err),'error')}});$('quickSupport').addEventListener('click',()=>setPage('support'));$('sessionAlertSupport').addEventListener('click',()=>setPage('support'));$('sessionAlertClose').addEventListener('click',()=>$('sessionAlert').classList.add('hidden'));$('sessionAlertSafe')?.addEventListener('click',()=>{ $('sessionAlert').classList.add('hidden'); launchSafeGameAction(); });
-  $('addModBtn').addEventListener('click',addUserMods);$('modsEnableAllBtn')?.addEventListener('click',()=>setAllPersonalModsEnabled(true));$('modsDisableAllBtn')?.addEventListener('click',()=>setAllPersonalModsEnabled(false));$('identifyModsBtn')?.addEventListener('click',async()=>{if(busy)return;setBusy(true,'IDENTIFICANDO MODS');try{const r=await api.identifyLocalMods();await refreshMods(false);const n=r.recognized?.length||0;toast(n?`${n} mod${n===1?'':'s'} reconocido${n===1?'':'s'} desde Modrinth.`:'No encontré mods locales reconocibles en Modrinth.',n?'success':'warn');if(n&&appState?.config?.mods?.autoCheckUpdates!==false)await checkPersonalModUpdates(false)}catch(err){toast(err.message||String(err),'error')}finally{setBusy(false)}});$('modsUpdateBtn')?.addEventListener('click',()=>checkPersonalModUpdates(true));$('modsUpdateAllBtn')?.addEventListener('click',updateAllPersonalMods);$('openModsFolderBtn').addEventListener('click',()=>api.openInstance());$('modsSearch').addEventListener('input',()=>renderMods(modsState));$$('[data-mod-filter]').forEach(btn=>btn.addEventListener('click',()=>{modFilter=btn.dataset.modFilter;$$('[data-mod-filter]').forEach(x=>x.classList.toggle('active',x===btn));renderMods(modsState)}));
-  $('catalogSearchBtn').addEventListener('click',()=>searchCatalog(false,true));$('catalogLoadMoreBtn')?.addEventListener('click',()=>searchCatalog(true,true));$('modQueueInstallBtn')?.addEventListener('click',installQueuedMods);$('modQueueClearBtn')?.addEventListener('click',()=>{modInstallQueue=[];renderModQueue();renderCatalog(catalogState,true,$('modProvider')?.value||'modrinth')});$('catalogSearch').addEventListener('keydown',e=>{if(e.key==='Enter')searchCatalog(false,true)});$$('[data-category]').forEach(btn=>btn.addEventListener('click',()=>{catalogCategory=btn.dataset.category;$$('[data-category]').forEach(x=>x.classList.toggle('active',x===btn));searchCatalog(false,true)}));$('catalogEnvironment')?.addEventListener('change',()=>searchCatalog(false,true));$('catalogReleaseChannel')?.addEventListener('change',async()=>{const value=$('catalogReleaseChannel').value;if($('modReleaseChannelSelect'))$('modReleaseChannelSelect').value=value;try{const cfg=await api.saveSettings({mods:{releaseChannel:value}});if(appState)appState.config=cfg}catch(_){}searchCatalog(false,true)});$('catalogSort')?.addEventListener('change',()=>searchCatalog(false,true));$('modsSort')?.addEventListener('change',async()=>{await api.saveSettings({mods:{sort:$('modsSort').value}});if(appState)appState.config.mods={...(appState.config.mods||{}),sort:$('modsSort').value};refreshMods(false)});$('modProvider').addEventListener('change',()=>{searchCatalog(false,true)});
-  $('modDetailClose')?.addEventListener('click',closeModDetail);$('modDetailOverlay')?.addEventListener('click',e=>{if(e.target===$('modDetailOverlay'))closeModDetail()});$('modDetailInstall')?.addEventListener('click',()=>{if(activeModDetailProject){const p=activeModDetailProject;closeModDetail();installCatalogMod(p)}});$('modDetailTest')?.addEventListener('click',()=>{if(activeModDetailProject){const p=activeModDetailProject;closeModDetail();installCatalogModTest(p)}});$('modDetailWebsite')?.addEventListener('click',()=>{if(activeModDetailProject?.sourceUrl)api.openExternal(activeModDetailProject.sourceUrl)});
+  $('modsEnableAllBtn')?.addEventListener('click',()=>setAllPersonalModsEnabled(true));$('modsDisableAllBtn')?.addEventListener('click',()=>setAllPersonalModsEnabled(false));$('modsUpdateBtn')?.addEventListener('click',()=>checkPersonalModUpdates(true));$('modsUpdateAllBtn')?.addEventListener('click',updateAllPersonalMods);$('openModsFolderBtn')?.addEventListener('click',()=>api.openInstance());$('modsSearch')?.addEventListener('input',()=>renderMods(modsState));$$('[data-mod-filter]').forEach(btn=>btn.addEventListener('click',()=>{modFilter=btn.dataset.modFilter;$$('[data-mod-filter]').forEach(x=>x.classList.toggle('active',x===btn));renderMods(modsState)}));
+  $('modsSort')?.addEventListener('change',async()=>{await api.saveSettings({mods:{sort:$('modsSort').value}});if(appState)appState.config.mods={...(appState.config.mods||{}),sort:$('modsSort').value};refreshMods(false)});
   $('checkPackBtn').addEventListener('click',()=>refreshPack(true));$('quickCheck').addEventListener('click',()=>refreshPack(true));$('updatePackBtn').addEventListener('click',()=>runPackAction('update'));$('openInstanceBtn').addEventListener('click',()=>api.openInstance());
   $('clearCacheBtn')?.addEventListener('click',clearPackCacheAction);$('modsAuditBtn')?.addEventListener('click',()=>refreshModAudit(true));$('modsAuditIgnoreBtn')?.addEventListener('click',()=>ignoreModWarning('audit'));$('modsUpdateIgnoreBtn')?.addEventListener('click',()=>ignoreModWarning('updates'));$('modsHideWarningsBtn')?.addEventListener('click',hideAllModWarnings);$('modWarningsToggle')?.addEventListener('change',async()=>{ignoredModWarnings.clear();await saveSettings(true);if($('modWarningsToggle').checked){refreshModAudit(false).catch(()=>{});checkPersonalModUpdates(false).catch(()=>{});}});$('openLastLogMaintenanceBtn')?.addEventListener('click',()=>api.openLogs());
   $('createRecoveryBtn')?.addEventListener('click',createRecovery);$('healthRefreshBtn')?.addEventListener('click',()=>refreshHealth(true));

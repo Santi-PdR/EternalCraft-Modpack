@@ -50,20 +50,6 @@
     </section>
   </div>
 
-  <div id="modDetailOverlay" class="mod-detail-overlay hidden">
-    <section class="mod-detail-card">
-      <button id="modDetailClose" class="mod-detail-close" aria-label="Cerrar">×</button>
-      <div id="modDetailHero" class="mod-detail-hero">
-        <img id="modDetailIcon" src="assets/logo.svg" alt="" />
-        <div><span id="modDetailProvider" class="eyebrow">MODRINTH</span><h2 id="modDetailName">MOD</h2><p id="modDetailSummary">Cargando información…</p><div id="modDetailTags" class="mod-detail-tags"></div></div>
-      </div>
-      <div class="mod-detail-stats"><div><span>DESCARGAS</span><b id="modDetailDownloads">—</b></div><div><span>ACTUALIZADO</span><b id="modDetailUpdated">—</b></div><div><span>CLIENTE</span><b id="modDetailClient">—</b></div><div><span>SERVIDOR</span><b id="modDetailServer">—</b></div></div>
-      <div id="modDetailGallery" class="mod-detail-gallery"></div>
-      <div id="modDetailBody" class="mod-detail-body">Cargando ficha…</div>
-      <div class="mod-detail-actions"><button id="modDetailWebsite" class="ghost">VER PÁGINA</button><button id="modDetailTest" class="ghost hidden">INSTALAR EN TEST-1</button><button id="modDetailInstall" class="primary">INSTALAR</button></div>
-    </section>
-  </div>
-
   <div id="bootScreen" class="boot-screen">
     <div class="boot-brand"><img src="assets/logo.svg" alt=""/><div><span>ETERNAL CRAFT</span><b>SIEGE</b><small>Preparando launcher…</small></div></div>
     <div class="boot-track"><i></i></div>
@@ -89,9 +75,9 @@
 
   <div id="whatsNewOverlay" class="whats-new-overlay hidden" role="dialog" aria-modal="true" aria-label="Novedades del launcher">
     <section class="whats-new-card">
-      <div class="whats-new-hero"><img src="assets/logo.svg" alt=""/><div><span class="eyebrow">ETERNAL CRAFT LAUNCHER</span><h2>v0.25.17</h2><p>Conectividad real para servicios y paginación estable del catálogo de CurseForge.</p></div></div>
+      <div class="whats-new-hero"><img src="assets/logo.svg" alt=""/><div><span class="eyebrow">ETERNAL CRAFT LAUNCHER</span><h2>v0.30.0</h2><p>Mods instalados en primer plano y publicaciones del modpack reanudables.</p></div></div>
       <div class="whats-new-grid">
-        <div><i>01</i><b>Perfil de juego inteligente</b><span>RAM, resolución, GPU y preset visibles desde Inicio con configuración recomendada en un toque.</span></div>
+        <div><i>01</i><b>Mods instalados</b><span>La vista de mods se centra en tu instancia local, con búsqueda, filtros y actualizaciones.</span></div>
         <div><i>02</i><b>Búsqueda de Ajustes</b><span>Encontrá una opción sin recorrer todas las categorías.</span></div>
         <div><i>03</i><b>Paquete de soporte</b><span>Exporta un informe estructurado sin contraseñas, API keys ni mundos.</span></div>
         <div><i>04</i><b>Configuración resistente</b><span>Guardado atómico y copia de recuperación si config.json se corrompe.</span></div>
@@ -115,7 +101,7 @@
         <b id="notificationsBadge" class="hidden">0</b>
       </button>
       <div id="globalStatus" class="global-status" title="Estado de conexión"><i></i><span id="globalStatusText">COMPROBANDO</span></div>
-      <div id="titleBuild" class="title-build">BUILD 0.25.17</div>
+      <div id="titleBuild" class="title-build">BUILD 0.30.0</div>
       <div class="window-controls">
         <button id="minimizeBtn" aria-label="Minimizar">—</button>
         <button id="maximizeBtn" aria-label="Maximizar">□</button>
@@ -285,8 +271,8 @@
 
       <section id="page-mods" class="page">
         <div class="page-heading content-heading">
-          <div><span class="eyebrow">MOD LIBRARY</span><h2>MODS</h2><p>Instalá mods Forge 1.20.1 desde el launcher. El contenido oficial del pack queda protegido.</p></div>
-          <div class="heading-actions"><button id="identifyModsBtn" class="ghost" title="Reconoce mods .jar agregados manualmente usando Modrinth">Identificar</button><button id="modsUpdateBtn" class="ghost">Buscar updates</button><button id="modsEnableAllBtn" class="ghost" title="Activa todos tus mods personales">ACTIVAR PERSONALES</button><button id="modsDisableAllBtn" class="ghost" title="Desactiva todos tus mods personales">DESACTIVAR PERSONALES</button><button id="openModsFolderBtn" class="ghost">Abrir carpeta</button><button id="addModBtn" class="ghost">+ Archivo .jar</button></div>
+          <div><span class="eyebrow">MOD LIBRARY</span><h2>MODS INSTALADOS</h2><p>Revisá, ordená y administrá los mods que ya están en tu instancia. El contenido oficial del pack queda protegido.</p></div>
+          <div class="heading-actions"><button id="modsUpdateBtn" class="ghost">Buscar updates</button><button id="modsEnableAllBtn" class="ghost" title="Activa todos tus mods personales">ACTIVAR PERSONALES</button><button id="modsDisableAllBtn" class="ghost" title="Desactiva todos tus mods personales">DESACTIVAR PERSONALES</button><button id="openModsFolderBtn" class="ghost">Abrir carpeta</button></div>
         </div>
 
         <div class="mods-summary-grid">
@@ -307,7 +293,7 @@
           <div class="mods-warning-actions"><button id="modsAuditIgnoreBtn" class="ghost">IGNORAR</button><button id="modsHideWarningsBtn" class="ghost">NO VOLVER A MOSTRAR</button><button id="modsAuditBtn" class="ghost">REVISAR</button></div>
         </div>
 
-        <div class="mods-store-layout">
+        <div class="mods-store-layout installed-only">
           <article class="panel mods-manager-card">
             <div class="panel-head"><span>INSTALADOS</span><b>LOCAL</b></div>
             <div class="mods-toolbar">
@@ -318,38 +304,6 @@
             <div id="modsList" class="mods-list"><div class="empty-state">Cargando mods…</div></div>
           </article>
 
-          <article class="panel mod-browser-card">
-            <div class="panel-head"><span>EXPLORAR MODS</span><b>FORGE 1.20.1</b></div>
-            <div class="mod-browser-controls">
-              <select id="modProvider"><option value="modrinth">Modrinth</option><option value="curseforge">CurseForge</option></select>
-              <div class="search-box"><span>⌕</span><input id="catalogSearch" placeholder="Buscar mods o explorar por categoría..." autocomplete="off" /></div>
-              <button id="catalogSearchBtn" class="primary">Buscar</button>
-            </div>
-            <div class="catalog-filters">
-              <div class="catalog-categories" id="catalogCategories">
-                <button class="catalog-category active" data-category="all">Todos</button>
-                <button class="catalog-category" data-category="optimization">Optimización</button>
-                <button class="catalog-category" data-category="client">Cliente</button>
-                <button class="catalog-category" data-category="qol">QoL</button>
-                <button class="catalog-category" data-category="technology">Tecnología</button>
-                <button class="catalog-category" data-category="adventure">Aventura</button>
-                <button class="catalog-category" data-category="worldgen">Mundo</button>
-                <button class="catalog-category" data-category="mobs">Mobs</button>
-                <button class="catalog-category" data-category="magic">Magia</button>
-                <button class="catalog-category" data-category="equipment">Equipo</button>
-                <button class="catalog-category" data-category="decoration">Decoración</button>
-                <button class="catalog-category" data-category="library">Librerías</button>
-              </div>
-              <div class="catalog-filter-row">
-                <label>ENTORNO <select id="catalogEnvironment"><option value="all">Cualquiera</option><option value="client">Solo cliente</option><option value="both">Cliente + servidor</option><option value="server">Solo servidor</option></select></label>
-                <label class="hidden">CANAL <select id="catalogReleaseChannel"><option value="release">Estable</option><option value="beta">Estable + beta</option><option value="alpha">Todos</option></select></label>
-                <label>ORDEN <select id="catalogSort"><option value="relevance">Relevancia</option><option value="updated">Actualizados recientemente</option><option value="newest">Más nuevos</option><option value="downloads">Más descargados</option></select></label>
-              </div>
-            </div>
-            <div id="catalogNotice" class="catalog-notice"><b>Modrinth</b> funciona directamente y sin cuenta. CurseForge usa su API oficial y necesita una API key del desarrollador.</div>
-            <div id="modQueueBar" class="mod-queue-bar hidden"><div><span>COLA DE INSTALACIÓN</span><b><span id="modQueueCount">0</span> mods listos</b></div><div><button id="modQueueClearBtn" class="ghost">LIMPIAR</button><button id="modQueueInstallBtn" class="primary">INSTALAR COLA</button></div></div>
-            <div id="catalogResults" class="catalog-grid"><div class="empty-state">Explorá mods compatibles con Forge 1.20.1.</div></div><button id="catalogLoadMoreBtn" class="ghost catalog-load-more hidden">CARGAR MÁS</button>
-          </article>
         </div>
       </section>
 
@@ -447,7 +401,7 @@
         <div class="update-center-grid">
           <article class="panel update-product-card" data-update-kind="pack"><div class="update-product-icon">▦</div><div class="update-product-copy"><span>MODPACK OFICIAL</span><b id="updatesPackTitle">Comprobando…</b><small id="updatesPackText">—</small></div><button id="updatesPackBtn" class="ghost">ABRIR</button></article>
           <article class="panel update-product-card" data-update-kind="mods"><div class="update-product-icon">◇</div><div class="update-product-copy"><span>MODS PERSONALES</span><b id="updatesModsTitle">Comprobando…</b><small id="updatesModsText">—</small></div><button id="updatesModsBtn" class="ghost">ABRIR</button></article>
-          <article class="panel update-product-card" data-update-kind="launcher"><div class="update-product-icon">↻</div><div class="update-product-copy"><span>LAUNCHER</span><b id="updatesLauncherTitle">v0.25.17</b><small id="updatesLauncherText">Comprobando canal…</small></div><button id="updatesLauncherBtn" class="ghost">COMPROBAR</button></article>
+          <article class="panel update-product-card" data-update-kind="launcher"><div class="update-product-icon">↻</div><div class="update-product-copy"><span>LAUNCHER</span><b id="updatesLauncherTitle">v0.30.0</b><small id="updatesLauncherText">Comprobando canal…</small></div><button id="updatesLauncherBtn" class="ghost">COMPROBAR</button></article>
           <article class="panel update-product-card" data-update-kind="runtime"><div class="update-product-icon">J</div><div class="update-product-copy"><span>RUNTIME</span><b id="updatesRuntimeTitle">Java 17</b><small id="updatesRuntimeText">—</small></div><button id="updatesRuntimeBtn" class="ghost">AJUSTES</button></article>
         </div>
         <article class="panel update-policy-card">
@@ -569,7 +523,7 @@
             <div class="panel-head"><span>COMPORTAMIENTO</span><b>LAUNCH</b></div>
             <div class="settings-body">
               <label class="switch-row"><span><b>Actualizar antes de jugar</b><small>Recomendado. Solo descarga archivos que cambiaron.</small></span><input id="autoUpdateToggle" type="checkbox"/><i></i></label>
-              <label class="switch-row"><span><b>Reparar antes de cada inicio</b><small>Más lento; útil si tenés problemas frecuentes.</small></span><input id="repairBeforeToggle" type="checkbox"/><i></i></label><label class="switch-row"><span><b>Crear punto de restauración antes de actualizar</b><small>Guarda mods personales, config y opciones. Recomendado.</small></span><input id="autoSnapshotToggle" type="checkbox"/><i></i></label><label class="switch-row"><span><b>Buscar updates de mods personales al abrir</b><small>Consulta Modrinth en segundo plano al iniciar el launcher.</small></span><input id="autoModUpdateToggle" type="checkbox"/><i></i></label><label class="switch-row"><span><b>Actualizar mods personales automáticamente</b><small>Opcional. Actualiza mods de Modrinth antes de jugar. Viene apagado por seguridad.</small></span><input id="autoUpdateUserModsToggle" type="checkbox"/><i></i></label><label class="field"><span>COMPATIBILIDAD DE VERSIONES</span><select id="modReleaseChannelSelect"><option value="release">Compatibles recomendadas</option><option value="beta">Compatibles + pruebas beta</option><option value="alpha">Todas las versiones disponibles</option></select><small class="field-hint">Controla qué versiones de Modrinth se pueden instalar o actualizar. Las recomendadas son el valor inicial.</small></label><label class="switch-row"><span><b>Protección de compatibilidad con el servidor</b><small>Antes de instalar, avisa o bloquea mods que no son de cliente o que requieren cambios del servidor.</small></span><input id="protectServerCompatibilityToggle" type="checkbox"/><i></i></label><label class="switch-row"><span><b>Punto de restauración antes de cambios riesgosos</b><small>Crea una copia de seguridad antes de quitar o actualizar mods personales.</small></span><input id="autoChangeSnapshotsToggle" type="checkbox"/><i></i></label>
+              <label class="switch-row"><span><b>Reparar antes de cada inicio</b><small>Más lento; útil si tenés problemas frecuentes.</small></span><input id="repairBeforeToggle" type="checkbox"/><i></i></label><label class="switch-row"><span><b>Crear punto de restauración antes de actualizar</b><small>Guarda mods personales, config y opciones. Recomendado.</small></span><input id="autoSnapshotToggle" type="checkbox"/><i></i></label><label class="switch-row"><span><b>Buscar updates de mods personales al abrir</b><small>Consulta Modrinth en segundo plano al iniciar el launcher.</small></span><input id="autoModUpdateToggle" type="checkbox"/><i></i></label><label class="switch-row"><span><b>Actualizar mods personales automáticamente</b><small>Opcional. Actualiza mods de Modrinth antes de jugar. Viene apagado por seguridad.</small></span><input id="autoUpdateUserModsToggle" type="checkbox"/><i></i></label><label class="switch-row"><span><b>Protección de compatibilidad con el servidor</b><small>Antes de instalar, avisa o bloquea mods que no son de cliente o que requieren cambios del servidor.</small></span><input id="protectServerCompatibilityToggle" type="checkbox"/><i></i></label><label class="switch-row"><span><b>Punto de restauración antes de cambios riesgosos</b><small>Crea una copia de seguridad antes de quitar o actualizar mods personales.</small></span><input id="autoChangeSnapshotsToggle" type="checkbox"/><i></i></label>
               <label class="switch-row"><span><b>Ocultar launcher al abrir Minecraft</b><small>Vuelve a aparecer cuando el juego se cierra.</small></span><input id="hideOnStartToggle" type="checkbox"/><i></i></label>
               <label class="switch-row"><span><b>Volver al launcher al cerrar Minecraft</b><small>Trae esta ventana al frente al terminar la sesión.</small></span><input id="refocusOnExitToggle" type="checkbox"/><i></i></label>
               <label class="field"><span>CARPETA DEL JUEGO</span><div id="settingsInstallPath" class="path-box compact">—</div></label>
@@ -682,7 +636,7 @@
     </main>
 
     <footer class="statusbar">
-      <span id="footerStatus">INICIANDO</span><i></i><span id="footerServer" class="hidden">LINK --</span><div></div><span id="footerBuild">ETERNAL CRAFT LAUNCHER // 0.25.17</span>
+      <span id="footerStatus">INICIANDO</span><i></i><span id="footerServer" class="hidden">LINK --</span><div></div><span id="footerBuild">ETERNAL CRAFT LAUNCHER // 0.30.0</span>
     </footer>
   </div>
 
