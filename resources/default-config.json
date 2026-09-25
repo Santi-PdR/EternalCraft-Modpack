@@ -44,6 +44,7 @@
     "accent2": "",
     "cardRadius": 16,
     "clipsDirectory": "",
+    "profiles": [],
     "backgroundMode": "fixed",
     "density": "comfortable",
     "glassEffects": true,

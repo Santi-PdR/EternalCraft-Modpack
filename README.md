@@ -1,4 +1,4 @@
-# Eternal Craft Launcher 0.60.0
+# Eternal Craft Launcher 0.61.0
 
 Official launcher for **Eternal Craft // SIEGE**.
 
@@ -9,6 +9,13 @@ Official launcher for **Eternal Craft // SIEGE**.
 - Maintainer build: **Fedora/Linux** with Developer Mode
 
 Eternal Craft Launcher is intentionally not a generic multi-instance launcher. It manages one official SIEGE installation and aims to make installing, repairing, updating and launching that pack safe and simple.
+
+## 0.61.0 — Galería filtrable, perfiles visuales y publicación con preflight
+
+- La Galería permite buscar por nombre, filtrar imágenes o videos y ordenar por fecha, nombre o tamaño.
+- Ajustes permite guardar hasta ocho perfiles locales de tema, fondo, colores, densidad y efectos para aplicarlos con un clic.
+- La publicación del modpack ejecuta un preflight obligatorio: valida GitHub CLI, repositorio, instancia SIEGE y carpeta `mods` antes de comenzar la subida.
+- Los perfiles exportados solo contienen preferencias visuales; nunca incluyen contraseñas, API keys, tokens ni rutas privadas.
 
 ## 0.60.0 — Personalization studio, Microsoft skins and media vault
 
