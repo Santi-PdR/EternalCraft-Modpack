@@ -1,4 +1,4 @@
-# Eternal Craft Launcher 0.40.0
+# Eternal Craft Launcher 0.40.1
 
 Official launcher for **Eternal Craft // SIEGE**.
 
@@ -10,6 +10,10 @@ Official launcher for **Eternal Craft // SIEGE**.
 
 Eternal Craft Launcher is intentionally not a generic multi-instance launcher. It manages one official SIEGE installation and aims to make installing, repairing, updating and launching that pack safe and simple.
 
+## 0.40.1 — Dummies vs Noobs backgrounds and theme polish
+
+This patch keeps the existing SIEGE layout and removes generated placeholder scenes. The appearance gallery now uses only the Dummies vs Noobs artwork shipped with the launcher, while themes apply consistently to navigation, panels, controls, labels, shadows and the play surface.
+
 ## 0.40.0 — Visual system and launcher polish
 
 The 0.40 line keeps the current SIEGE workflow while adding a stronger visual system: richer theme presets, expanded background scenes, clearer button hierarchy, keyboard focus states and responsive action wrapping. Appearance changes are saved with the launcher configuration and remain compatible with older settings files.
@@ -19,7 +23,7 @@ The 0.40 line keeps the current SIEGE workflow while adding a stronger visual sy
 - Installed-mods workspace focused on the local SIEGE instance, with search, filters, sorting and update actions.
 - Official pack files stay protected; personal mods can be enabled, disabled, updated or removed from the installed list.
 - Modrinth metadata is used for update checks without exposing a public add/explore catalog to players.
-- Fourteen theme presets and sixteen background scenes, including Neon Relay, Verdant Ops, Monolith Black, Aurora Sky, Deep Space and Emberfield.
+- Fourteen theme presets and thirteen Dummies vs Noobs background scenes, including Neon Relay, Verdant Ops and Monolith Black.
 - **Pinned versions** opt out of automatic/bulk updates.
 - Source provenance labels: official pack, Modrinth, CurseForge or local/unverified.
 - Official files stay protected from player mod management.

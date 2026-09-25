@@ -75,7 +75,7 @@
 
   <div id="whatsNewOverlay" class="whats-new-overlay hidden" role="dialog" aria-modal="true" aria-label="Novedades del launcher">
     <section class="whats-new-card">
-      <div class="whats-new-hero"><img src="assets/logo.svg" alt=""/><div><span class="eyebrow">ETERNAL CRAFT LAUNCHER</span><h2>v0.40.0</h2><p>Mods instalados en primer plano y publicaciones del modpack reanudables.</p></div></div>
+      <div class="whats-new-hero"><img src="assets/logo.svg" alt=""/><div><span class="eyebrow">ETERNAL CRAFT LAUNCHER</span><h2>v0.40.1</h2><p>Fondos de Dummies vs Noobs y temas más consistentes en toda la interfaz.</p></div></div>
       <div class="whats-new-grid">
         <div><i>01</i><b>Mods instalados</b><span>La vista de mods se centra en tu instancia local, con búsqueda, filtros y actualizaciones.</span></div>
         <div><i>02</i><b>Búsqueda de Ajustes</b><span>Encontrá una opción sin recorrer todas las categorías.</span></div>
@@ -101,7 +101,7 @@
         <b id="notificationsBadge" class="hidden">0</b>
       </button>
       <div id="globalStatus" class="global-status" title="Estado de conexión"><i></i><span id="globalStatusText">COMPROBANDO</span></div>
-      <div id="titleBuild" class="title-build">BUILD 0.40.0</div>
+      <div id="titleBuild" class="title-build">BUILD 0.40.1</div>
       <div class="window-controls">
         <button id="minimizeBtn" aria-label="Minimizar">—</button>
         <button id="maximizeBtn" aria-label="Maximizar">□</button>
@@ -401,7 +401,7 @@
         <div class="update-center-grid">
           <article class="panel update-product-card" data-update-kind="pack"><div class="update-product-icon">▦</div><div class="update-product-copy"><span>MODPACK OFICIAL</span><b id="updatesPackTitle">Comprobando…</b><small id="updatesPackText">—</small></div><button id="updatesPackBtn" class="ghost">ABRIR</button></article>
           <article class="panel update-product-card" data-update-kind="mods"><div class="update-product-icon">◇</div><div class="update-product-copy"><span>MODS PERSONALES</span><b id="updatesModsTitle">Comprobando…</b><small id="updatesModsText">—</small></div><button id="updatesModsBtn" class="ghost">ABRIR</button></article>
-          <article class="panel update-product-card" data-update-kind="launcher"><div class="update-product-icon">↻</div><div class="update-product-copy"><span>LAUNCHER</span><b id="updatesLauncherTitle">v0.40.0</b><small id="updatesLauncherText">Comprobando canal…</small></div><button id="updatesLauncherBtn" class="ghost">COMPROBAR</button></article>
+          <article class="panel update-product-card" data-update-kind="launcher"><div class="update-product-icon">↻</div><div class="update-product-copy"><span>LAUNCHER</span><b id="updatesLauncherTitle">v0.40.1</b><small id="updatesLauncherText">Comprobando canal…</small></div><button id="updatesLauncherBtn" class="ghost">COMPROBAR</button></article>
           <article class="panel update-product-card" data-update-kind="runtime"><div class="update-product-icon">J</div><div class="update-product-copy"><span>RUNTIME</span><b id="updatesRuntimeTitle">Java 17</b><small id="updatesRuntimeText">—</small></div><button id="updatesRuntimeBtn" class="ghost">AJUSTES</button></article>
         </div>
         <article class="panel update-policy-card">
@@ -547,7 +547,7 @@
             <div class="panel-head"><span>INTERFAZ</span><b>SIEGE</b></div>
             <div class="settings-body interface-grid">
               <label class="field"><span>TEMA</span><select id="themeSelect"><option value="aurora">Aurora Command</option><option value="tactical">Tactical Field</option><option value="crimson">Crimson Alert</option><option value="frost">Frostline</option><option value="obsidian">Obsidian</option><option value="dvn">DVN Pulse</option><option value="classic">SIEGE Classic</option><option value="dominion">Dominion Gold</option><option value="nusia">Nusia Signal</option><option value="ember">Ember Protocol</option><option value="clean">Command White</option><option value="neon">Neon Relay</option><option value="verdant">Verdant Ops</option><option value="monolith">Monolith Black</option></select></label>
-              <label class="field"><span>FONDO</span><select id="backgroundSelect"><option value="frontline">Frontline</option><option value="night">Night Battle</option><option value="canyon">Canyon Engagement</option><option value="anniversary">Anniversary</option><option value="cyborg">Cyborg</option><option value="dummies">Dummies Assault</option><option value="orbit">Earth Orbit</option><option value="laststand">Last Stand</option><option value="vought">Vought Siege</option><option value="nightop">Night Operation</option><option value="rooftop">Rooftop Squad</option><option value="tempest">Tempest</option><option value="urban">Urban Rendezvous</option><option value="aurora-sky">Aurora Sky</option><option value="deep-space">Deep Space</option><option value="emberfield">Emberfield</option></select></label>
+              <label class="field"><span>FONDO</span><select id="backgroundSelect"><option value="frontline">Frontline</option><option value="night">Night Battle</option><option value="canyon">Canyon Engagement</option><option value="anniversary">Anniversary</option><option value="cyborg">Cyborg</option><option value="dummies">Dummies Assault</option><option value="orbit">Earth Orbit</option><option value="laststand">Last Stand</option><option value="vought">Vought Siege</option><option value="nightop">Night Operation</option><option value="rooftop">Rooftop Squad</option><option value="tempest">Tempest</option><option value="urban">Urban Rendezvous</option></select></label>
               <label class="field"><span>CAMBIO DE FONDO</span><select id="backgroundModeSelect"><option value="fixed">Fijo</option><option value="randomStartup">Aleatorio al abrir</option><option value="rotate5">Rotar cada 5 min</option><option value="rotate15">Rotar cada 15 min</option></select></label><label class="field"><span>DENSIDAD</span><select id="densitySelect"><option value="comfortable">Cómoda</option><option value="compact">Compacta</option></select><small class="field-hint">Compacta muestra más información sin achicar el texto principal.</small></label><label class="field"><span>ESCALA DE INTERFAZ</span><select id="uiScaleSelect"><option value="normal">100% · Recomendada</option><option value="large">110% · Más grande</option><option value="small">92% · Más contenido</option></select><small class="field-hint">Ajusta lectura y espacio sin cambiar la resolución de Minecraft.</small></label>
               <label class="switch-row"><span><b>Líneas de monitor</b><small>Textura visual sutil sobre la interfaz.</small></span><input id="scanlinesToggle" type="checkbox"/><i></i></label>
               <label class="switch-row"><span><b>Interferencia</b><small>Ruido visual muy leve. Desactivado por defecto.</small></span><input id="noiseToggle" type="checkbox"/><i></i></label>
@@ -561,6 +561,7 @@
                 <button type="button" data-theme-choice="dvn"><i></i><b>DVN Pulse</b><small>neón</small></button>
                 <button type="button" data-theme-choice="classic"><i></i><b>SIEGE</b><small>clásico</small></button><button type="button" data-theme-choice="dominion"><i></i><b>Dominion</b><small>dorado táctico</small></button><button type="button" data-theme-choice="nusia"><i></i><b>Nusia</b><small>azul de señal</small></button><button type="button" data-theme-choice="ember"><i></i><b>Ember</b><small>cobre y calor</small></button><button type="button" data-theme-choice="clean"><i></i><b>Command White</b><small>claro profesional</small></button><button type="button" data-theme-choice="neon"><i></i><b>Neon Relay</b><small>cian eléctrico</small></button><button type="button" data-theme-choice="verdant"><i></i><b>Verdant Ops</b><small>verde táctico</small></button><button type="button" data-theme-choice="monolith"><i></i><b>Monolith</b><small>negro premium</small></button>
               </div>
+              <p class="theme-gallery-note"><strong>Qué cambia con el tema:</strong> navegación, paneles, botones, etiquetas, tarjeta de juego, sombras y contraste. El fondo se elige por separado y siempre usa arte de Dummies vs Noobs incluido en el launcher.</p>
               <div class="background-gallery-wrap"><div class="background-gallery-title"><span>VISTA PREVIA DE FONDOS</span><small>Elegí uno sin abrir listas.</small></div><div id="backgroundGallery" class="background-gallery"></div></div>
             </div>
           </article>
@@ -636,7 +637,7 @@
     </main>
 
     <footer class="statusbar">
-      <span id="footerStatus">INICIANDO</span><i></i><span id="footerServer" class="hidden">LINK --</span><div></div><span id="footerBuild">ETERNAL CRAFT LAUNCHER // 0.40.0</span>
+      <span id="footerStatus">INICIANDO</span><i></i><span id="footerServer" class="hidden">LINK --</span><div></div><span id="footerBuild">ETERNAL CRAFT LAUNCHER // 0.40.1</span>
     </footer>
   </div>
 
