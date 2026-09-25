@@ -32,6 +32,12 @@ function mcString(value) {
   return Buffer.concat([encodeVarInt(data.length), data]);
 }
 
+function textFromDescription(value) {
+  if (typeof value === 'string') return value;
+  if (!value || typeof value !== 'object') return '';
+  return [value.text, ...(Array.isArray(value.extra) ? value.extra.map(textFromDescription) : [])].filter(Boolean).join(' ');
+}
+
 function packet(id, payload = Buffer.alloc(0)) {
   const body = Buffer.concat([encodeVarInt(id), payload]);
   return Buffer.concat([encodeVarInt(body.length), body]);
@@ -85,12 +91,12 @@ function pingMinecraftServer(host, port, timeout = 3500) {
 
         const json = incoming.subarray(cursor, cursor + strLen.value).toString('utf8');
         const data = JSON.parse(json);
-        const description = typeof data.description === 'string' ? data.description : data.description?.text || '';
+        const description = textFromDescription(data.description);
         const version = data.version?.name || 'Desconocida';
         const lobbyText = `${description} ${version}`.toLowerCase();
         // Exaroton can answer with its lobby while the configured instance is stopped.
         // Treat the provider's generic lobby/offline responses as offline to avoid a false positive.
-        const exarotonLobby = /exaroton|server\s*(is\s*)?(offline|stopped)|start\s*(your|the)\s*server|lobby/.test(lobbyText);
+        const exarotonLobby = /exaroton|server\s*(is\s*)?(offline|stopped)|start\s*(your|the)\s*server|lobby|waiting\s*for\s*server|server\s*starting/.test(lobbyText);
         done({
           online: !exarotonLobby,
           latency: Date.now() - started,

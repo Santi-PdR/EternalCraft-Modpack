@@ -1,6 +1,6 @@
 {
   "name": "eternal-craft-launcher",
-  "version": "0.40.1",
+  "version": "0.40.2",
   "description": "Launcher oficial de Eternal Craft // SIEGE: experiencia premium, actualización segura, catálogo inteligente de mods, Crash Guard y herramientas de desarrollo.",
   "main": "src/main/main.js",
   "author": "Eternal Craft",
