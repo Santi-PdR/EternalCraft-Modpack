@@ -1,4 +1,4 @@
-# Eternal Craft Launcher 0.25.16
+# Eternal Craft Launcher 0.25.17
 
 Official launcher for **Eternal Craft // SIEGE**.
 
@@ -49,7 +49,7 @@ Optional user-owned continuity layer. It does not require an Eternal Craft accou
 - Dedicated GPU preference enabled by default.
 - RAM recommendation and presets.
 - Managed Java 17 when needed.
-- Server status, players, ping and favicon.
+- Server endpoint is kept in the pack configuration; the launcher avoids showing a stale online/offline indicator for exaroton lobby endpoints.
 - Differential pack updates using SHA-256, staging, cache and rollback.
 - Offline manifest cache.
 - Update Center for launcher, pack, personal mods and runtime.
@@ -73,6 +73,8 @@ Developer Mode is hidden from player Windows builds and protected by a local pas
 - Preview exact changed files before publishing
 - Source fingerprint protection: publishing is rejected if SIEGE changed after preview
 - Differential GitHub release publishing
+
+La primera publicación puede tardar varios minutos si la instancia tiene cientos de archivos: cada hash nuevo se conserva como asset reutilizable para que las siguientes versiones suban únicamente los cambios. El publicador usa lotes pequeños y, si GitHub rechaza un lote, reintenta esos archivos de forma individual sin perder el progreso.
 
 ## Build / install on Fedora
 

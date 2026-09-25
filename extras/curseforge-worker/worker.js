@@ -31,5 +31,5 @@ export default{async fetch(req,env){try{
   if(u.pathname==='/categories'){
     const data=await cf('/categories?gameId=432&classId=6',env.CF_API_KEY);return json({categories:(data.data||[]).map(x=>({id:x.id,name:x.name,slug:x.slug||'',iconUrl:x.iconUrl||''}))},200,3600);
   }
-  return json({ok:true,service:'Eternal Craft CurseForge proxy',version:'0.25.16'},200);
+  return json({ok:true,service:'Eternal Craft CurseForge proxy',version:'0.25.17'},200);
 }catch(e){return json({error:e.message||String(e)},500)}}}

@@ -36,6 +36,16 @@ async function uploadAssetWithRetry(tag, repo, file, label, maxAttempts = 3) {
   }
   throw lastError || new Error(`No se pudo subir ${path.basename(file)}.`);
 }
+async function uploadAssetBatch(tag, repo, files, completed, total) {
+  try {
+    gh(['release', 'upload', tag, '--repo', repo, '--clobber', ...files], { stdio: 'inherit' });
+    return files.length;
+  } catch (_) {
+    console.log(`El lote ${completed + 1}-${completed + files.length}/${total} no respondió bien; reintentando esos archivos por separado.`);
+    for (const file of files) await uploadAssetWithRetry(tag, repo, file);
+    return files.length;
+  }
+}
 function manifestFingerprint(manifest){
   const crypto=require('crypto');
   const rows=(manifest?.files||[]).map(f=>`${f.path}:${f.sha256}`).sort().join('\n');
@@ -129,11 +139,16 @@ async function main() {
   try { gh(['release', 'view', tag, '--repo', repo]); }
   catch (_) { gh(['release', 'create', tag, '--repo', repo, '--title', `${version} — ${result.manifest.releaseName}`, '--notes-file', notes]); }
 
-  console.log(`Subiendo ${newHashes.length} blobs nuevos (carga segura individual)...`);
-  for (let i = 0; i < newHashes.length; i++) {
-    const sha = newHashes[i];
-    await uploadAssetWithRetry(tag, repo, path.join(out, 'blobs', sha));
-    if ((i + 1) % 10 === 0 || i + 1 === newHashes.length) console.log(`Blobs subidos: ${i + 1}/${newHashes.length}`);
+  const uploadStarted = Date.now();
+  const batchSize = 8;
+  console.log(`Subiendo ${newHashes.length} blobs nuevos (lotes de ${batchSize}, con reintento individual si falla un lote)...`);
+  for (let i = 0; i < newHashes.length; i += batchSize) {
+    const batch = newHashes.slice(i, i + batchSize).map((sha) => path.join(out, 'blobs', sha));
+    await uploadAssetBatch(tag, repo, batch, i, newHashes.length);
+    const uploaded = Math.min(i + batch.length, newHashes.length);
+    if (uploaded % 10 < batch.length || uploaded === newHashes.length) {
+      console.log(`Blobs subidos: ${uploaded}/${newHashes.length} · ${Math.round((Date.now() - uploadStarted) / 1000)} s`);
+    }
   }
   const manifestAsset = path.join(out, 'channel', 'stable.json');
   await uploadAssetWithRetry(tag, repo, manifestAsset, 'manifest.json');
@@ -143,6 +158,7 @@ async function main() {
   console.log(`Manifest estable: https://raw.githubusercontent.com/${repo}/${branch}/channel/stable.json`);
   console.log(`Versión: ${version} — ${result.manifest.releaseName}`);
   console.log(`Blobs nuevos subidos: ${newHashes.length}`);
+  console.log(`Tiempo de carga: ${Math.round((Date.now() - uploadStarted) / 1000)} s`);
   console.log('Los jugadores solo descargarán archivos nuevos, cambiados o faltantes.');
 }
 main().catch((err) => { console.error(`ERROR: ${err.message}`); process.exit(1); });
