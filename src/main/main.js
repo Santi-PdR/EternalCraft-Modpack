@@ -449,7 +449,13 @@ function registerIpc() {
 
   ipcMain.handle('mods:search', async (_event, payload = {}) => {
     const provider = String(payload.provider || 'modrinth'); const query = String(payload.query || '').trim();
-    const options = { category:String(payload.category||'all'), environment:String(payload.environment||'all'), sort:String(payload.sort||'relevance'), limit:36 };
+    const options = {
+      category:String(payload.category||'all'),
+      environment:String(payload.environment||'all'),
+      sort:String(payload.sort||'relevance'),
+      offset:Math.max(0, Number(payload.offset||0)),
+      limit:Math.max(1, Math.min(48, Number(payload.limit||36)))
+    };
     if (provider === 'curseforge') { const cfg=store.load(); return searchCurseForge(query, developerService.getCurseForgeApiKey(), options, cfg.mods?.curseforgeProxyUrl || ''); }
     return { provider: 'modrinth', configured: true, results: await searchModrinth(query, options) };
   });
