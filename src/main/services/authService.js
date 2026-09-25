@@ -1,6 +1,7 @@
 const fs = require('fs');
 const path = require('path');
 const { Auth } = require('msmc');
+const fsp = require('fs/promises');
 
 /**
  * Microsoft/Xbox/Minecraft authentication for premium accounts.
@@ -45,6 +46,48 @@ class AuthService {
     const minecraft = await xbox.getMinecraft();
     this.save({ refreshToken: xbox.save(), profile: minecraft.profile, signedInAt: this.account.signedInAt || new Date().toISOString() });
     return { authorization: minecraft.mclc(true), profile: minecraft.profile };
+  }
+  async refreshProfile() {
+    if (!this.account?.refreshToken) return this.status();
+    await this.getAuthorization();
+    return this.status();
+  }
+  async minecraftToken() {
+    const session = await this.getAuthorization();
+    const authorization = session?.authorization || {};
+    const token = authorization.access_token || authorization.accessToken || authorization.token;
+    if (!token) throw new Error('Microsoft no devolvió un token de Minecraft válido.');
+    return token;
+  }
+  async listSkins() {
+    if (!this.account?.refreshToken) throw new Error('Iniciá sesión con Microsoft para ver tus skins.');
+    const token = await this.minecraftToken();
+    const response = await fetch('https://api.minecraftservices.com/minecraft/profile', { headers: { Authorization: `Bearer ${token}` } });
+    if (!response.ok) throw new Error(`No pude consultar tus skins (HTTP ${response.status}).`);
+    const profile = await response.json();
+    if (profile?.id && profile?.name) this.save({ ...this.account, profile, refreshedAt: new Date().toISOString() });
+    return this.status();
+  }
+  async uploadSkin(filePath, variant = 'classic') {
+    if (!this.account?.refreshToken) throw new Error('Iniciá sesión con Microsoft antes de subir una skin.');
+    const absolute = path.resolve(String(filePath || ''));
+    if (path.extname(absolute).toLowerCase() !== '.png') throw new Error('Las skins deben ser archivos PNG.');
+    const stat = await fsp.stat(absolute).catch(() => null);
+    if (!stat?.isFile() || stat.size > 2 * 1024 * 1024) throw new Error('La skin no existe o supera el límite de 2 MB.');
+    const token = await this.minecraftToken();
+    const bytes = await fsp.readFile(absolute);
+    if (bytes.length < 24 || bytes.subarray(0, 8).toString('hex') !== '89504e470d0a1a0a') throw new Error('El archivo elegido no es un PNG válido.');
+    const width = bytes.readUInt32BE(16); const height = bytes.readUInt32BE(20);
+    if (!((width === 64 && height === 64) || (width === 128 && height === 128))) throw new Error('La skin debe medir 64×64 o 128×128 píxeles.');
+    const form = new FormData();
+    form.append('variant', variant === 'slim' ? 'slim' : 'classic');
+    form.append('file', new Blob([bytes], { type: 'image/png' }), path.basename(absolute));
+    const response = await fetch('https://api.minecraftservices.com/minecraft/profile/skins', { method: 'POST', headers: { Authorization: `Bearer ${token}` }, body: form });
+    if (!response.ok) {
+      const detail = await response.text().catch(() => '');
+      throw new Error(`Microsoft rechazó la skin (HTTP ${response.status})${detail ? `: ${detail.slice(0, 180)}` : '.'}`);
+    }
+    return this.listSkins();
   }
   logout() {
     this.account = null;

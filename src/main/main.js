@@ -21,6 +21,7 @@ const { storageSummary, cleanupLogs } = require('./services/storageService');
 const { connectivityReport } = require('./services/connectivityService');
 const { recordChange, listChanges, changesSince } = require('./services/changeHistoryService');
 const { vaultStatus, pushVault, pullVault } = require('./services/vaultService');
+const { listMedia, isAllowedFile } = require('./services/mediaService');
 
 
 // Give Linux/Windows a stable application identity. In development this also
@@ -257,7 +258,7 @@ function portableSettings(config) {
     schema:1, exportedAt:new Date().toISOString(), launcherVersion:app.getVersion(),
     minecraft:{ username:config.minecraft?.username||'', maxMemoryMb:config.minecraft?.maxMemoryMb||6144, width:config.minecraft?.width||0, height:config.minecraft?.height||0, useSystemResolution:config.minecraft?.useSystemResolution!==false, fullscreen:Boolean(config.minecraft?.fullscreen), preset:config.minecraft?.preset||'balanced', autoInstallJava:config.minecraft?.autoInstallJava!==false, preferDedicatedGpu:config.minecraft?.preferDedicatedGpu!==false },
     pack:{ autoUpdate:config.pack?.autoUpdate!==false, repairBeforeLaunch:Boolean(config.pack?.repairBeforeLaunch), autoSnapshot:config.pack?.autoSnapshot!==false },
-    launcher:{ hideOnGameStart:Boolean(config.launcher?.hideOnGameStart), refocusOnGameExit:config.launcher?.refocusOnGameExit!==false, background:config.launcher?.background||'frontline', backgroundMode:config.launcher?.backgroundMode||'fixed', theme:config.launcher?.theme||'aurora', density:config.launcher?.density||'comfortable', glassEffects:config.launcher?.glassEffects!==false, scanlines:Boolean(config.launcher?.scanlines), noise:Boolean(config.launcher?.noise), reducedMotion:Boolean(config.launcher?.reducedMotion), uiScale:config.launcher?.uiScale||'normal', startPage:config.launcher?.startPage||'home', rememberLastPage:Boolean(config.launcher?.rememberLastPage), autoConnectivityCheck:config.launcher?.autoConnectivityCheck!==false, closeToTray:config.launcher?.closeToTray!==false, startWithSystem:Boolean(config.launcher?.startWithSystem), startMinimized:Boolean(config.launcher?.startMinimized), nativeNotifications:config.launcher?.nativeNotifications!==false, sidebarCollapsed:Boolean(config.launcher?.sidebarCollapsed), lastSeenVersion:String(config.launcher?.lastSeenVersion||''), crashStreak:Number(config.launcher?.crashStreak||0) },
+    launcher:{ hideOnGameStart:Boolean(config.launcher?.hideOnGameStart), refocusOnGameExit:config.launcher?.refocusOnGameExit!==false, background:config.launcher?.background||'frontline', backgroundMode:config.launcher?.backgroundMode||'fixed', theme:config.launcher?.theme||'aurora', density:config.launcher?.density||'comfortable', glassEffects:config.launcher?.glassEffects!==false, scanlines:Boolean(config.launcher?.scanlines), noise:Boolean(config.launcher?.noise), reducedMotion:Boolean(config.launcher?.reducedMotion), uiScale:config.launcher?.uiScale||'normal', accent:String(config.launcher?.accent||''), accent2:String(config.launcher?.accent2||''), cardRadius:Number(config.launcher?.cardRadius||16), clipsDirectory:String(config.launcher?.clipsDirectory||''), startPage:config.launcher?.startPage||'home', rememberLastPage:Boolean(config.launcher?.rememberLastPage), autoConnectivityCheck:config.launcher?.autoConnectivityCheck!==false, closeToTray:config.launcher?.closeToTray!==false, startWithSystem:Boolean(config.launcher?.startWithSystem), startMinimized:Boolean(config.launcher?.startMinimized), nativeNotifications:config.launcher?.nativeNotifications!==false, sidebarCollapsed:Boolean(config.launcher?.sidebarCollapsed), lastSeenVersion:String(config.launcher?.lastSeenVersion||''), crashStreak:Number(config.launcher?.crashStreak||0) },
     mods:{ sort:config.mods?.sort||'recent', provider:config.mods?.provider||'modrinth', category:config.mods?.category||'all', environment:config.mods?.environment||'all', releaseChannel:config.mods?.releaseChannel||'release', autoCheckUpdates:config.mods?.autoCheckUpdates!==false, autoUpdateUserMods:Boolean(config.mods?.autoUpdateUserMods), compatibilityWarnings:config.mods?.compatibilityWarnings!==false, hideWarnings:Boolean(config.mods?.hideWarnings), protectServerCompatibility:config.mods?.protectServerCompatibility!==false, autoChangeSnapshots:config.mods?.autoChangeSnapshots!==false },
     sync:{ includeScreenshots:config.sync?.includeScreenshots!==false, includeSaves:Boolean(config.sync?.includeSaves), extraPaths:Array.isArray(config.sync?.extraPaths)?config.sync.extraPaths.slice(0,20):[] }
   };
@@ -271,7 +272,8 @@ function sanitizeImportedSettings(raw={}) {
   if(raw.pack&&typeof raw.pack==='object') out.pack={ autoUpdate:raw.pack.autoUpdate!==false, repairBeforeLaunch:Boolean(raw.pack.repairBeforeLaunch), autoSnapshot:raw.pack.autoSnapshot!==false };
   if(raw.launcher&&typeof raw.launcher==='object') {
     const l=raw.launcher; const themes=new Set(['aurora','tactical','crimson','frost','obsidian','dvn','classic','dominion','nusia','ember','clean','neon','verdant','monolith']); const backgrounds=new Set(['frontline','night','canyon','anniversary','cyborg','dummies','orbit','laststand','vought','nightop','rooftop','tempest','urban']);
-    out.launcher={ hideOnGameStart:Boolean(l.hideOnGameStart), refocusOnGameExit:l.refocusOnGameExit!==false, background:backgrounds.has(String(l.background))?String(l.background):'frontline', backgroundMode:['fixed','randomStartup','rotate5','rotate15'].includes(String(l.backgroundMode))?String(l.backgroundMode):'fixed', theme:themes.has(String(l.theme))?String(l.theme):'aurora', density:['comfortable','compact'].includes(String(l.density))?String(l.density):'comfortable', glassEffects:l.glassEffects!==false, scanlines:Boolean(l.scanlines), noise:Boolean(l.noise), reducedMotion:Boolean(l.reducedMotion), uiScale:['small','normal','large'].includes(String(l.uiScale))?String(l.uiScale):'normal', startPage:['home','mods','updates','modpack','support','settings'].includes(String(l.startPage))?String(l.startPage):'home', rememberLastPage:Boolean(l.rememberLastPage), autoConnectivityCheck:l.autoConnectivityCheck!==false, closeToTray:l.closeToTray!==false, startWithSystem:Boolean(l.startWithSystem), startMinimized:Boolean(l.startMinimized), nativeNotifications:l.nativeNotifications!==false, sidebarCollapsed:Boolean(l.sidebarCollapsed), lastSeenVersion:String(l.lastSeenVersion||''), crashStreak:Math.max(0,Math.min(9,Number(l.crashStreak||0))) };
+    const hexColor = (value) => /^#[0-9a-f]{6}$/i.test(String(value || '')) ? String(value) : '';
+    out.launcher={ hideOnGameStart:Boolean(l.hideOnGameStart), refocusOnGameExit:l.refocusOnGameExit!==false, background:backgrounds.has(String(l.background))?String(l.background):'frontline', backgroundMode:['fixed','randomStartup','rotate5','rotate15'].includes(String(l.backgroundMode))?String(l.backgroundMode):'fixed', theme:themes.has(String(l.theme))?String(l.theme):'aurora', density:['comfortable','compact'].includes(String(l.density))?String(l.density):'comfortable', glassEffects:l.glassEffects!==false, scanlines:Boolean(l.scanlines), noise:Boolean(l.noise), reducedMotion:Boolean(l.reducedMotion), uiScale:['small','normal','large'].includes(String(l.uiScale))?String(l.uiScale):'normal', accent:hexColor(l.accent), accent2:hexColor(l.accent2), cardRadius:Math.max(8,Math.min(28,Number(l.cardRadius)||16)), clipsDirectory:String(l.clipsDirectory||'').slice(0,500), startPage:['home','mods','modpack','updates','support','settings','gallery'].includes(String(l.startPage))?String(l.startPage):'home', rememberLastPage:Boolean(l.rememberLastPage), autoConnectivityCheck:l.autoConnectivityCheck!==false, closeToTray:l.closeToTray!==false, startWithSystem:Boolean(l.startWithSystem), startMinimized:Boolean(l.startMinimized), nativeNotifications:l.nativeNotifications!==false, sidebarCollapsed:Boolean(l.sidebarCollapsed), lastSeenVersion:String(l.lastSeenVersion||''), crashStreak:Math.max(0,Math.min(9,Number(l.crashStreak||0))) };
   }
   if(raw.mods&&typeof raw.mods==='object') { const m=raw.mods; out.mods={ sort:['recent','oldest','az','size','favorites','updated'].includes(String(m.sort))?String(m.sort):'recent', provider:['modrinth','curseforge'].includes(String(m.provider))?String(m.provider):'modrinth', category:String(m.category||'all').slice(0,40), environment:['all','client','both','server'].includes(String(m.environment))?String(m.environment):'all', releaseChannel:['release','beta','alpha'].includes(String(m.releaseChannel))?String(m.releaseChannel):'release', autoCheckUpdates:m.autoCheckUpdates!==false, autoUpdateUserMods:Boolean(m.autoUpdateUserMods), compatibilityWarnings:m.compatibilityWarnings!==false, hideWarnings:Boolean(m.hideWarnings), protectServerCompatibility:m.protectServerCompatibility!==false, autoChangeSnapshots:m.autoChangeSnapshots!==false }; }
   if(raw.sync&&typeof raw.sync==='object'){const x=raw.sync;out.sync={includeScreenshots:x.includeScreenshots!==false,includeSaves:Boolean(x.includeSaves),extraPaths:Array.isArray(x.extraPaths)?x.extraPaths.map(v=>String(v).slice(0,180)).slice(0,20):[]};}
@@ -750,6 +752,41 @@ function registerIpc() {
     store.save({ minecraft: { accountMode:'offline' } });
     return result;
   });
+  ipcMain.handle('account:refresh', async () => runExclusive('actualizar perfil Microsoft', async () => {
+    const result = await authService.refreshProfile();
+    if (result.authenticated) store.save({ minecraft: { username: result.name, accountMode: 'premium' } });
+    return result;
+  }));
+  ipcMain.handle('account:skins', async () => authService.listSkins());
+  ipcMain.handle('account:choose-skin', async () => {
+    const result = await dialog.showOpenDialog(mainWindow, { title:'Elegir skin de Minecraft', properties:['openFile'], filters:[{ name:'Skin PNG', extensions:['png'] }] });
+    return result.canceled || !result.filePaths[0] ? null : result.filePaths[0];
+  });
+  ipcMain.handle('account:upload-skin', async (_event, variant = 'classic') => runExclusive('subir skin de Minecraft', async () => {
+    const result = await dialog.showOpenDialog(mainWindow, { title:'Elegir skin PNG', properties:['openFile'], filters:[{ name:'Skin PNG', extensions:['png'] }] });
+    if (result.canceled || !result.filePaths[0]) return null;
+    return authService.uploadSkin(result.filePaths[0], variant);
+  }));
+  ipcMain.handle('clips:list', async () => listMedia(store.load().launcher?.clipsDirectory || ''));
+  ipcMain.handle('clips:choose-folder', async () => {
+    const current = store.load().launcher?.clipsDirectory || app.getPath('videos');
+    const result = await dialog.showOpenDialog(mainWindow, { title:'Elegir carpeta de clips y capturas', defaultPath:current, properties:['openDirectory','createDirectory'] });
+    if (result.canceled || !result.filePaths[0]) return null;
+    const next = store.save({ launcher:{ clipsDirectory:result.filePaths[0] } });
+    return listMedia(next.launcher.clipsDirectory);
+  });
+  ipcMain.handle('clips:open-folder', async () => {
+    const directory = store.load().launcher?.clipsDirectory || '';
+    if (!directory) throw new Error('Elegí una carpeta de clips primero.');
+    await fsp.mkdir(directory, { recursive:true });
+    return shell.openPath(directory);
+  });
+  ipcMain.handle('clips:open', async (_event, file) => {
+    const directory = store.load().launcher?.clipsDirectory || '';
+    if (!directory || !isAllowedFile(directory, file)) throw new Error('El archivo no pertenece a la carpeta de clips configurada.');
+    return shell.openPath(path.resolve(file));
+  });
+  ipcMain.handle('clips:clear-folder', async () => store.save({ launcher:{ clipsDirectory:'' } }));
   ipcMain.handle('developer:status', async () => developerService.status());
   ipcMain.handle('developer:preflight', async () => { const cfg=store.load(); return developerService.preflight(cfg.developer?.sourceDirectory, cfg.developer?.testDirectory, cfg.developer?.githubRepo); });
   ipcMain.handle('developer:backup-source', async () => { const cfg=store.load(); return developerService.backupSourceMods(cfg.developer?.sourceDirectory); });

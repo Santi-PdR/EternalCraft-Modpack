@@ -75,7 +75,7 @@
 
   <div id="whatsNewOverlay" class="whats-new-overlay hidden" role="dialog" aria-modal="true" aria-label="Novedades del launcher">
     <section class="whats-new-card">
-      <div class="whats-new-hero"><img src="assets/logo.svg" alt=""/><div><span class="eyebrow">ETERNAL CRAFT LAUNCHER</span><h2>v0.51.0</h2><p>Flujos premium persistentes, diagnósticos más rápidos, operaciones seguras y publicación de packs sin límites de argumentos.</p></div></div>
+      <div class="whats-new-hero"><img src="assets/logo.svg" alt=""/><div><span class="eyebrow">ETERNAL CRAFT LAUNCHER</span><h2>v0.60.0</h2><p>Personalización avanzada, cuentas premium reforzadas, galería local y operaciones de publicación más confiables.</p></div></div>
       <div class="whats-new-grid">
         <div><i>01</i><b>Mods instalados</b><span>La vista de mods se centra en tu instancia local, con búsqueda, filtros y actualizaciones.</span></div>
         <div><i>02</i><b>Búsqueda de Ajustes</b><span>Encontrá una opción sin recorrer todas las categorías.</span></div>
@@ -93,7 +93,7 @@
 
   <div class="app-shell">
     <header class="titlebar">
-      <div class="titlebar-brand"><img src="assets/logo.svg" alt=""/><b>ETERNAL CRAFT</b><span>// LAUNCHER</span><em class="titlebar-release">0.40</em></div>
+      <div class="titlebar-brand"><img src="assets/logo.svg" alt=""/><b>ETERNAL CRAFT</b><span>// LAUNCHER</span><em class="titlebar-release">0.60</em></div>
       <button id="commandPaletteBtn" class="titlebar-command" type="button" title="Abrir acciones rápidas"><span>Buscar o ejecutar acción</span><kbd>Ctrl K</kbd></button>
       <button id="operationTaskPill" class="operation-task-pill hidden" type="button" title="Ver operación en curso"><i></i><span id="operationTaskText">PREPARANDO</span><b id="operationTaskPercent">0%</b></button>
       <button id="notificationsBtn" class="titlebar-notifications" type="button" title="Notificaciones" aria-label="Abrir notificaciones">
@@ -101,7 +101,7 @@
         <b id="notificationsBadge" class="hidden">0</b>
       </button>
       <div id="globalStatus" class="global-status" title="Estado de conexión"><i></i><span id="globalStatusText">COMPROBANDO</span></div>
-      <div id="titleBuild" class="title-build">BUILD 0.51.0</div>
+      <div id="titleBuild" class="title-build">BUILD 0.60.0</div>
       <div class="window-controls">
         <button id="minimizeBtn" aria-label="Minimizar">—</button>
         <button id="maximizeBtn" aria-label="Maximizar">□</button>
@@ -123,6 +123,7 @@
         <button class="nav-item" data-page="mods"><i class="nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M4 4h7v7H4zM13 4h7v7h-7zM4 13h7v7H4zM13 13h7v7h-7z"/></svg></i><span>Mods</span><b id="navModsBadge" class="nav-badge hidden">!</b></button>
         <button class="nav-item" data-page="modpack"><i class="nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M4 7.5 12 3l8 4.5v9L12 21l-8-4.5zM4 7.5 12 12m8-4.5L12 12m0 9v-9"/></svg></i><span>Modpack</span><b id="navPackBadge" class="nav-badge hidden">!</b></button>
         <button class="nav-item" data-page="updates"><i class="nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M20 7h-7V3M4 17h7v4M19 11a7 7 0 0 0-12-4l-3 3M5 13a7 7 0 0 0 12 4l3-3"/></svg></i><span>Actualizaciones</span><b id="navUpdatesBadge" class="nav-badge hidden">0</b></button>
+        <button class="nav-item" data-page="gallery"><i class="nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2"/><circle cx="8.5" cy="9" r="1.5"/><path d="m21 15-4.5-4.5L9 18l-2.5-2.5L3 19"/></svg></i><span>Galería</span></button>
         <span class="nav-section-label">SISTEMA</span>
         <button class="nav-item" data-page="support"><i class="nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M9.7 9a2.5 2.5 0 0 1 4.8.8c0 1.8-2.5 2-2.5 3.7M12 17h.01"/></svg></i><span>Soporte</span></button>
         <button class="nav-item" data-page="settings"><i class="nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.9l.1.1-2.8 2.8-.1-.1a1.7 1.7 0 0 0-1.9-.3 1.7 1.7 0 0 0-1 1.6v.2H10V21a1.7 1.7 0 0 0-1-1.6 1.7 1.7 0 0 0-1.9.3l-.1.1L4.2 17l.1-.1A1.7 1.7 0 0 0 4.6 15 1.7 1.7 0 0 0 3 14H2.8v-4H3a1.7 1.7 0 0 0 1.6-1 1.7 1.7 0 0 0-.3-1.9L4.2 7 7 4.2l.1.1A1.7 1.7 0 0 0 9 4.6 1.7 1.7 0 0 0 10 3V2.8h4V3a1.7 1.7 0 0 0 1 1.6 1.7 1.7 0 0 0 1.9-.3l.1-.1L19.8 7l-.1.1a1.7 1.7 0 0 0-.3 1.9 1.7 1.7 0 0 0 1.6 1h.2v4H21a1.7 1.7 0 0 0-1.6 1z"/></svg></i><span>Ajustes</span></button>
@@ -401,13 +402,23 @@
         <div class="update-center-grid">
           <article class="panel update-product-card" data-update-kind="pack"><div class="update-product-icon">▦</div><div class="update-product-copy"><span>MODPACK OFICIAL</span><b id="updatesPackTitle">Comprobando…</b><small id="updatesPackText">—</small></div><button id="updatesPackBtn" class="ghost">ABRIR</button></article>
           <article class="panel update-product-card" data-update-kind="mods"><div class="update-product-icon">◇</div><div class="update-product-copy"><span>MODS PERSONALES</span><b id="updatesModsTitle">Comprobando…</b><small id="updatesModsText">—</small></div><button id="updatesModsBtn" class="ghost">ABRIR</button></article>
-          <article class="panel update-product-card" data-update-kind="launcher"><div class="update-product-icon">↻</div><div class="update-product-copy"><span>LAUNCHER</span><b id="updatesLauncherTitle">v0.51.0</b><small id="updatesLauncherText">Comprobando canal…</small></div><button id="updatesLauncherBtn" class="ghost">COMPROBAR</button></article>
+          <article class="panel update-product-card" data-update-kind="launcher"><div class="update-product-icon">↻</div><div class="update-product-copy"><span>LAUNCHER</span><b id="updatesLauncherTitle">v0.60.0</b><small id="updatesLauncherText">Comprobando canal…</small></div><button id="updatesLauncherBtn" class="ghost">COMPROBAR</button></article>
           <article class="panel update-product-card" data-update-kind="runtime"><div class="update-product-icon">J</div><div class="update-product-copy"><span>RUNTIME</span><b id="updatesRuntimeTitle">Java 17</b><small id="updatesRuntimeText">—</small></div><button id="updatesRuntimeBtn" class="ghost">AJUSTES</button></article>
         </div>
         <article class="panel update-policy-card">
           <div class="panel-head"><span>POLÍTICA DE ACTUALIZACIÓN</span><b>SEGURO</b></div>
           <div class="update-policy-grid"><div><i>01</i><b>COMPARA</b><span>Solo detecta archivos que realmente cambiaron.</span></div><div><i>02</i><b>DESCARGA</b><span>Reutiliza caché y baja únicamente lo necesario.</span></div><div><i>03</i><b>VERIFICA</b><span>Valida hashes antes de tocar tu instalación actual.</span></div><div><i>04</i><b>RECUPERA</b><span>Puede volver atrás si una actualización falla.</span></div></div>
         </article>
+      </section>
+
+      <section id="page-gallery" class="page">
+        <div class="page-heading content-heading">
+          <div><span class="eyebrow">MEDIA VAULT</span><h2>GALERÍA</h2><p>Visualizá tus capturas y clips desde cualquier carpeta que elijas. El launcher solo lee archivos locales.</p></div>
+          <div class="heading-actions"><button id="clipsRefreshBtn" class="ghost">ACTUALIZAR</button><button id="clipsOpenFolderBtn" class="ghost">ABRIR CARPETA</button><button id="clipsChooseBtn" class="primary">ELEGIR CARPETA</button></div>
+        </div>
+        <article class="panel clips-folder-card"><div><span class="eyebrow">CARPETA ACTIVA</span><b id="clipsFolderPath">Ninguna carpeta seleccionada</b><small>Se aceptan PNG, JPG, WEBP, GIF, MP4, WEBM, MOV y MKV. Nada se sube a internet.</small></div><button id="clipsClearBtn" class="ghost">QUITAR CARPETA</button></article>
+        <div class="clips-summary"><article class="summary-tile accent-blue"><span>ARCHIVOS</span><b id="clipsTotal">0</b><small>en la carpeta elegida</small></article><article class="summary-tile accent-green"><span>IMÁGENES</span><b id="clipsImages">0</b><small>capturas y arte</small></article><article class="summary-tile accent-violet"><span>VIDEOS</span><b id="clipsVideos">0</b><small>clips de juego</small></article></div>
+        <article class="panel clips-panel"><div class="panel-head"><span>ARCHIVOS RECIENTES</span><b>LOCAL</b></div><div id="clipsGrid" class="clips-grid"><div class="empty-state">Elegí una carpeta para comenzar.</div></div></article>
       </section>
 
       <section id="page-support" class="page">
@@ -506,6 +517,10 @@
                 <div><span class="eyebrow">CUENTA PREMIUM</span><b id="minecraftAccountName">Perfil local</b><small id="minecraftAccountStatus">Podés jugar en modo offline o iniciar sesión con Microsoft.</small></div>
                 <div class="button-row"><button id="minecraftLoginBtn" class="ghost" type="button">INICIAR SESIÓN MICROSOFT</button><button id="minecraftLogoutBtn" class="ghost hidden" type="button">CERRAR SESIÓN</button></div>
               </div>
+              <div class="skin-library-card">
+                <div class="skin-library-head"><div><span class="eyebrow">MICROSOFT SKINS</span><b>Tu galería de skins</b><small>Las skins se gestionan en tu cuenta oficial de Minecraft.</small></div><div class="button-row"><select id="skinVariantSelect" class="compact-select" aria-label="Tipo de modelo"><option value="classic">Classic</option><option value="slim">Slim</option></select><button id="refreshSkinsBtn" class="ghost" type="button">ACTUALIZAR</button><button id="uploadSkinBtn" class="primary" type="button">SUBIR PNG</button></div></div>
+                <div id="skinGallery" class="skin-gallery"><div class="empty-state">Iniciá sesión con Microsoft para ver tus skins.</div></div>
+              </div>
               <div class="field ram-field"><span class="field-label">RAM ASIGNADA <b id="ramValue">6 GB</b></span><div class="ram-picker"><button id="ramMinus" type="button">−</button><div id="ramPresets" class="ram-presets"><button type="button" data-ram="4">4 GB</button><button type="button" data-ram="6">6 GB</button><button type="button" data-ram="8">8 GB</button><button type="button" data-ram="10">10 GB</button><button type="button" data-ram="12">12 GB</button></div><button id="ramPlus" type="button">+</button></div><input id="ramRange" type="range" min="3" max="12" step="1" value="6"/><small id="ramRecommendation" class="field-hint">Recomendado: calculando...</small></div>
               <div class="field-row">
                 <label class="field hidden"><span>PRESET</span><select id="gamePresetSelect"><option value="performance">Rendimiento</option><option value="balanced">Equilibrado</option><option value="quality">Calidad</option></select></label>
@@ -549,6 +564,7 @@
               <label class="field"><span>TEMA</span><select id="themeSelect"><option value="aurora">Aurora Command</option><option value="tactical">Tactical Field</option><option value="crimson">Crimson Alert</option><option value="frost">Frostline</option><option value="obsidian">Obsidian</option><option value="dvn">DVN Pulse</option><option value="classic">SIEGE Classic</option><option value="dominion">Dominion Gold</option><option value="nusia">Nusia Signal</option><option value="ember">Ember Protocol</option><option value="clean">Command White</option><option value="neon">Neon Relay</option><option value="verdant">Verdant Ops</option><option value="monolith">Monolith Black</option></select></label>
               <label class="field"><span>FONDO</span><select id="backgroundSelect"><option value="frontline">Frontline</option><option value="night">Night Battle</option><option value="canyon">Canyon Engagement</option><option value="anniversary">Anniversary</option><option value="cyborg">Cyborg</option><option value="dummies">Dummies Assault</option><option value="orbit">Earth Orbit</option><option value="laststand">Last Stand</option><option value="vought">Vought Siege</option><option value="nightop">Night Operation</option><option value="rooftop">Rooftop Squad</option><option value="tempest">Tempest</option><option value="urban">Urban Rendezvous</option></select></label>
               <label class="field"><span>CAMBIO DE FONDO</span><select id="backgroundModeSelect"><option value="fixed">Fijo</option><option value="randomStartup">Aleatorio al abrir</option><option value="rotate5">Rotar cada 5 min</option><option value="rotate15">Rotar cada 15 min</option></select></label><label class="field"><span>DENSIDAD</span><select id="densitySelect"><option value="comfortable">Cómoda</option><option value="compact">Compacta</option></select><small class="field-hint">Compacta muestra más información sin achicar el texto principal.</small></label><label class="field"><span>ESCALA DE INTERFAZ</span><select id="uiScaleSelect"><option value="normal">100% · Recomendada</option><option value="large">110% · Más grande</option><option value="small">92% · Más contenido</option></select><small class="field-hint">Ajusta lectura y espacio sin cambiar la resolución de Minecraft.</small></label>
+              <div class="customization-controls"><label class="field color-field"><span>COLOR PRINCIPAL</span><div><input id="accentColorInput" type="color" value="#2aa9c4"/><code id="accentColorValue">#2aa9c4</code></div></label><label class="field color-field"><span>COLOR SECUNDARIO</span><div><input id="accent2ColorInput" type="color" value="#6a70d9"/><code id="accent2ColorValue">#6a70d9</code></div></label><label class="field"><span>BORDES Y TARJETAS <b id="cardRadiusValue">16px</b></span><input id="cardRadiusRange" type="range" min="8" max="28" step="1" value="16"/></label></div>
               <label class="switch-row"><span><b>Líneas de monitor</b><small>Textura visual sutil sobre la interfaz.</small></span><input id="scanlinesToggle" type="checkbox"/><i></i></label>
               <label class="switch-row"><span><b>Interferencia</b><small>Ruido visual muy leve. Desactivado por defecto.</small></span><input id="noiseToggle" type="checkbox"/><i></i></label>
               <label class="switch-row"><span><b>Reducir movimiento</b><small>Desactiva transiciones no esenciales.</small></span><input id="reducedMotionToggle" type="checkbox"/><i></i></label><label class="switch-row"><span><b>Profundidad visual</b><small>Desenfoque y transparencias suaves en tarjetas y navegación.</small></span><input id="glassEffectsToggle" type="checkbox"/><i></i></label>
@@ -573,7 +589,7 @@
                 <div><span>MODS</span><b id="storageMods">—</b></div><div><span>CONFIG</span><b id="storageConfig">—</b></div><div><span>CACHÉ</span><b id="storageCacheDetail">—</b></div><div><span>BACKUPS</span><b id="storageRecovery">—</b></div><div><span>LOGS</span><b id="storageLogs">—</b></div>
               </div>
               <div class="maintenance-actions"><button id="refreshStorageBtn" class="ghost">ACTUALIZAR TAMAÑOS</button><button id="cleanupLogsBtn" class="ghost">LIMPIAR LOGS ANTIGUOS</button><button id="openLastLogMaintenanceBtn" class="ghost">ABRIR ÚLTIMO LOG</button><button id="maintenanceClearCacheBtn" class="ghost">LIMPIAR CACHÉ</button></div>
-              <label class="field"><span>PÁGINA AL ABRIR</span><select id="startPageSelect"><option value="home">Jugar</option><option value="mods">Mods</option><option value="updates">Actualizaciones</option><option value="modpack">Modpack</option></select><small class="field-hint">Elegí qué sección querés ver al abrir el launcher.</small></label>
+              <label class="field"><span>PÁGINA AL ABRIR</span><select id="startPageSelect"><option value="home">Jugar</option><option value="mods">Mods</option><option value="updates">Actualizaciones</option><option value="modpack">Modpack</option><option value="gallery">Galería</option></select><small class="field-hint">Elegí qué sección querés ver al abrir el launcher.</small></label>
               <label class="switch-row"><span><b>Comprobar conectividad al abrir</b><small>Revisa el canal del pack y servicios de mods sin bloquear el inicio.</small></span><input id="autoConnectivityToggle" type="checkbox"/><i></i></label>
               <label class="switch-row"><span><b>Advertencias de compatibilidad</b><small>Avisa por duplicados, mods locales y mods pensados solo para servidor.</small></span><input id="compatibilityWarningsToggle" type="checkbox"/><i></i></label>
               <label class="switch-row"><span><b>Mostrar avisos de mods</b><small>Controla las barras de actualizaciones y compatibilidad en la sección Mods.</small></span><input id="modWarningsToggle" type="checkbox"/><i></i></label>
@@ -637,7 +653,7 @@
     </main>
 
     <footer class="statusbar">
-      <span id="footerStatus">INICIANDO</span><i></i><span id="footerServer" class="hidden">LINK --</span><div></div><span id="footerBuild">ETERNAL CRAFT LAUNCHER // 0.51.0</span>
+      <span id="footerStatus">INICIANDO</span><i></i><span id="footerServer" class="hidden">LINK --</span><div></div><span id="footerBuild">ETERNAL CRAFT LAUNCHER // 0.60.0</span>
     </footer>
   </div>
 
