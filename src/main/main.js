@@ -300,7 +300,9 @@ async function statePayload() {
   const minimumLauncher = String(manifestInfo.manifest?.minimumLauncher || '0.0.0');
   const system = await cachedSystemProfile(config.pack.installDirectory).catch(() => null);
   if (system) system.display = primaryDisplayInfo();
+  const account = authService ? authService.status() : { authenticated:false, name:'', id:'' };
   const effectiveConfig = configWithDisplay(config);
+  if (account.authenticated) effectiveConfig.minecraft = { ...effectiveConfig.minecraft, username:account.name || effectiveConfig.minecraft?.username, accountMode:'premium' };
   return {
     appVersion: app.getVersion(), platform: process.platform, packaged: app.isPackaged,
     config: effectiveConfig, manifest: manifestInfo.manifest, manifestConfigured: manifestInfo.configured,
@@ -309,7 +311,7 @@ async function statePayload() {
     needsOnboarding: !config.onboarding?.completed || !validMinecraftUsername(username) || username.toLowerCase() === 'player',
     launcherUpdateConfigured: Boolean(config.launcher?.updateFeedUrl),
     developer: developerService ? developerService.status() : { configured:false, unlocked:false, curseforgeConfigured:false },
-    account: authService ? authService.status() : { authenticated:false, name:'', id:'' },
+    account,
     operation: activeOperation || '', configRecovery: store.recoveryInfo ? store.recoveryInfo() : null
   };
 }
@@ -404,7 +406,7 @@ function registerIpc() {
     const config = store.load(); const info = await currentManifest(config);
     return listMods(config.pack.installDirectory, info.manifest, config.mods?.sort || 'recent');
   });
-  ipcMain.handle('mods:add', async () => {
+  ipcMain.handle('mods:add', async () => runExclusive('agregar mods', async () => {
     const config = store.load(); const info = await currentManifest(config);
     const result = await dialog.showOpenDialog(mainWindow, {
       title: 'Agregar mods a Eternal Craft',
@@ -415,37 +417,37 @@ function registerIpc() {
     const listing = await addMods(config.pack.installDirectory, result.filePaths, info.manifest);
     await recordUserChange(config,{type:'mod-install-local',title:'Mods locales agregados',detail:`${result.filePaths.length} archivo(s) .jar`,filenames:result.filePaths.map(p=>path.basename(p)),risk:'medium'});
     return listing;
-  });
-  ipcMain.handle('mods:toggle', async (_event, filename) => {
+  }));
+  ipcMain.handle('mods:toggle', async (_event, filename) => runExclusive('cambiar estado de mod', async () => {
     const config = store.load(); const info = await currentManifest(config);
     const listing = await toggleMod(config.pack.installDirectory, filename, info.manifest);
     await recordUserChange(config,{type:'mod-toggle',title:'Estado de mod cambiado',detail:String(filename||''),filenames:[String(filename||'')],risk:'low'});
     return listing;
-  });
-  ipcMain.handle('mods:remove', async (_event, filename) => {
+  }));
+  ipcMain.handle('mods:remove', async (_event, filename) => runExclusive('quitar mod', async () => {
     const config = store.load(); const info = await currentManifest(config);
     await maybeSnapshotBeforeModChange(config,info.manifest,`Antes de quitar ${path.basename(String(filename||'mod'))}`);
     const listing = await removeMod(config.pack.installDirectory, filename, info.manifest);
     await recordUserChange(config,{type:'mod-remove',title:'Mod personal eliminado',detail:String(filename||''),filenames:[String(filename||'')],risk:'high'});
     return listing;
-  });
-  ipcMain.handle('mods:favorite', async (_event, filename) => {
+  }));
+  ipcMain.handle('mods:favorite', async (_event, filename) => runExclusive('marcar mod favorito', async () => {
     const config = store.load(); const info = await currentManifest(config);
     return toggleFavorite(config.pack.installDirectory, filename, info.manifest);
-  });
-  ipcMain.handle('mods:pin', async (_event, filename) => {
+  }));
+  ipcMain.handle('mods:pin', async (_event, filename) => runExclusive('fijar versión de mod', async () => {
     const config = store.load(); const info = await currentManifest(config);
     const result = await togglePin(config.pack.installDirectory, filename, info.manifest);
     await recordUserChange(config,{type:'mod-pin',title:result.pinned?'Versión de mod fijada':'Versión de mod liberada',detail:String(filename||''),filenames:[String(filename||'')],risk:'low'});
     return result;
-  });
-  ipcMain.handle('mods:set-all-enabled', async (_event, enabled) => {
+  }));
+  ipcMain.handle('mods:set-all-enabled', async (_event, enabled) => runExclusive('actualizar mods personales', async () => {
     const config = store.load(); const info = await currentManifest(config);
     await maybeSnapshotBeforeModChange(config,info.manifest,enabled?'Antes de activar mods personales':'Antes de desactivar mods personales');
     const result = await setAllUserModsEnabled(config.pack.installDirectory, info.manifest, Boolean(enabled));
     await recordUserChange(config,{type:enabled?'mods-enable-all':'mods-disable-all',title:enabled?'Mods personales activados':'Mods personales desactivados',detail:`${result.changed?.length||0} cambios`,filenames:(result.changed||[]).map(x=>x.to||x.from),risk:'medium'});
     return result;
-  });
+  }));
 
   ipcMain.handle('mods:search', async (_event, payload = {}) => {
     const provider = String(payload.provider || 'modrinth'); const query = String(payload.query || '').trim();
@@ -557,10 +559,9 @@ function registerIpc() {
 
   ipcMain.handle('app:health-check', async () => {
     const cfg=store.load(); const info=await currentManifest(cfg);
-    const [java, pack, server, diagnostic, mods, system] = await Promise.all([
+    const [java, pack, diagnostic, mods, system] = await Promise.all([
       resolveJava17(cfg.minecraft.javaPath || '', managedJavaRoot()).catch(()=>({found:false})),
       info.configured ? checkInstallation(cfg.pack.installDirectory, info.manifest).catch(()=>null) : Promise.resolve(null),
-      pingMinecraftServer(cfg.server.host,cfg.server.port).catch(()=>({online:false})),
       quickDiagnostic(cfg).catch(()=>({severity:'warn',title:'No se pudo revisar el último log',summary:''})),
       listMods(cfg.pack.installDirectory, info.manifest, cfg.mods?.sort || 'recent').catch(()=>({mods:[],counts:{}})),
       cachedSystemProfile(cfg.pack.installDirectory, 0).catch(()=>null)
@@ -570,15 +571,16 @@ function registerIpc() {
     const issues=[];
     if(!supportedJava(java.major) && cfg.minecraft.autoInstallJava===false) issues.push({type:'java',severity:'bad',text:'Falta Java 17 o superior'});
     if(pack && !pack.healthy) issues.push({type:'pack',severity:'warn',text:'El modpack necesita sincronización'});
-    if(!server.online) issues.push({type:'server',severity:'warn',text:'El servidor está offline'});
+    // Exaroton may answer with a provider lobby while the game instance is
+    // stopped. Server reachability is informational and must never block the
+    // local readiness check or make the launcher look broken.
     const freeBytes=Number(system?.disk?.freeBytes||0);
     if(freeBytes>0 && freeBytes<5*1024**3) issues.push({type:'disk',severity:freeBytes<2*1024**3?'bad':'warn',text:`Poco espacio libre (${Math.max(0,freeBytes/1024**3).toFixed(1)} GB)`});
     const assignedRamGb=Number(cfg.minecraft?.maxMemoryMb||0)/1024; const maxRam=Number(system?.maxRamGb||0);
     if(maxRam>0 && assignedRamGb>maxRam) issues.push({type:'memory',severity:'warn',text:`RAM asignada alta (${assignedRamGb.toFixed(0)} GB · sugerido hasta ${maxRam} GB)`});
     if(info.stale) issues.push({type:'network',severity:'warn',text:'Usando el último manifest guardado en caché'});
     if(diagnostic?.severity && diagnostic.severity!=='ok') issues.push({type:'log',severity:'warn',text:diagnostic.title||'Revisar último log'});
-    const latency=Number(server.latency||0); const connectionQuality=!server.online?'offline':latency<=70?'excellent':latency<=130?'good':latency<=220?'fair':'poor';
-    return { ok:issues.length===0, issues, javaOk:Boolean(java.found&&supportedJava(java.major)), packOk:Boolean(pack?.healthy), serverOnline:Boolean(server.online), userMods:userMods.length, disabledMods:disabled, favorites:Number(mods.counts?.favorites||0), diagnostic, system, connectionQuality, latency };
+    return { ok:issues.length===0, issues, javaOk:Boolean(java.found&&supportedJava(java.major)), packOk:Boolean(pack?.healthy), serverOnline:null, userMods:userMods.length, disabledMods:disabled, favorites:Number(mods.counts?.favorites||0), diagnostic, system, connectionQuality:'informational', latency:null };
   });
 
   ipcMain.handle('java:install', async () => runExclusive('instalación de Java 17', async () => {
@@ -618,7 +620,7 @@ function registerIpc() {
     config = store.save({ launcher: { lastPlayedAt: new Date().toISOString() } });
     const latest = await currentManifest(config);
     const premium = await authService.getAuthorization().catch((err) => {
-      if (config.minecraft?.accountMode === 'premium') throw new Error(`No pude renovar la sesión premium: ${err.message || err}`);
+      if (config.minecraft?.accountMode === 'premium' || authService.status().authenticated) throw new Error(`No pude renovar la sesión premium: ${err.message || err}`);
       return null;
     });
     if (premium) config = { ...config, minecraft: { ...config.minecraft, username: premium.profile.name, accountMode:'premium', authorization:premium.authorization } };

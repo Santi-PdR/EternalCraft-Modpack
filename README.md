@@ -1,4 +1,4 @@
-# Eternal Craft Launcher 0.50.1
+# Eternal Craft Launcher 0.51.0
 
 Official launcher for **Eternal Craft // SIEGE**.
 
@@ -9,6 +9,15 @@ Official launcher for **Eternal Craft // SIEGE**.
 - Maintainer build: **Fedora/Linux** with Developer Mode
 
 Eternal Craft Launcher is intentionally not a generic multi-instance launcher. It manages one official SIEGE installation and aims to make installing, repairing, updating and launching that pack safe and simple.
+
+## 0.51.0 — Full flow hardening and reliable publishing
+
+- El login premium persiste el modo de cuenta y se renueva correctamente al volver a abrir el launcher.
+- El chequeo de salud ya no bloquea el inicio por el ping de Exaroton; el estado del servidor es informativo y separado del diagnóstico local.
+- Las operaciones de mods se serializan también en el proceso principal para evitar dobles clics, estados intermedios y archivos parcialmente modificados.
+- Las comprobaciones de actualizaciones y compatibilidad comparten operaciones en curso, con avisos sin duplicados y guardado automático consistente para las preferencias visuales.
+- El publicador envía el manifest mediante un archivo temporal para evitar `spawnSync E2BIG` en packs grandes.
+- Mantenimiento abre directamente el `latest.log` más reciente y vuelve a la carpeta de logs si todavía no existe ninguno.
 
 ## 0.50.1 — Single-flight diagnostics and direct latest-log access
 

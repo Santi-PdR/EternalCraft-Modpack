@@ -72,10 +72,15 @@ async function updateChannel(repo, branch, manifest) {
     const info = JSON.parse(gh(['api', `repos/${repo}/contents/channel/stable.json?ref=${branch}`]));
     sha = info.sha || '';
   } catch (_) {}
-  const content = Buffer.from(JSON.stringify(manifest, null, 2)).toString('base64');
-  const args = ['api', '--method', 'PUT', `repos/${repo}/contents/channel/stable.json`, '-f', `message=Publish Eternal Craft ${manifest.version}`, '-f', `content=${content}`, '-f', `branch=${branch}`];
-  if (sha) args.push('-f', `sha=${sha}`);
-  gh(args);
+  // Never pass the base64 manifest as a command-line argument. Large packs
+  // can exceed the OS argv limit and fail with spawnSync E2BIG after all
+  // blobs were uploaded. GitHub CLI accepts a JSON request body from a file.
+  const bodyFile = path.join(os.tmpdir(), `eternal-craft-channel-${process.pid}.json`);
+  const body = { message:`Publish Eternal Craft ${manifest.version}`, content:Buffer.from(JSON.stringify(manifest, null, 2)).toString('base64'), branch };
+  if (sha) body.sha = sha;
+  await fsp.writeFile(bodyFile, JSON.stringify(body), 'utf8');
+  try { gh(['api', '--method', 'PUT', `repos/${repo}/contents/channel/stable.json`, '--input', bodyFile]); }
+  finally { await fsp.rm(bodyFile, { force:true }).catch(() => {}); }
 }
 async function main() {
   const args = parseArgs(process.argv.slice(2));

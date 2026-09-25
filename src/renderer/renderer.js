@@ -12,7 +12,7 @@ const mockConfig = {
   onboarding:{completed:true},links:{}
 };
 const mockManifest = {
-  schema:2,version:'1.0.0',releaseName:'Siege Origin',minecraft:'1.20.1',forge:'47.4.10',minimumLauncher:'0.50.1',files:[],remove:[],
+  schema:2,version:'1.0.0',releaseName:'Siege Origin',minecraft:'1.20.1',forge:'47.4.10',minimumLauncher:'0.51.0',files:[],remove:[],
   releaseNotes:{title:'SIEGE DEV',summary:'Base del launcher renovada y sistema de actualización segura.',addedCount:2,changedCount:4,removedCount:0,highlights:[{type:'changed',path:'mods/siege-menu.jar'},{type:'added',path:'config/eternal-client.toml'}]}
 };
 
@@ -23,7 +23,7 @@ function merge(target, patch){
 }
 
 const previewApi = {
-  getState:async()=>({appVersion:'0.50.1',platform:'preview',packaged:false,config:mockConfig,manifest:mockManifest,manifestConfigured:true,manifestSource:'development',java:{found:true,major:17,version:'17.0.x',path:'java'},needsOnboarding:false,launcherUpdateConfigured:false,minimumLauncher:'0.50.1',launcherCompatible:true,developer:{configured:false,unlocked:false,curseforgeConfigured:false,developerAllowed:false},account:{authenticated:false,name:'',id:''},system:{recommendedRamGb:6,maxRamGb:11,totalMemoryBytes:16*1024**3,gpus:[{vendor:'NVIDIA',name:'NVIDIA GeForce GTX 1050'}],display:{width:1920,height:1080,workWidth:1920,workHeight:1040,scaleFactor:1,label:'Monitor principal'},disk:{available:true,freeBytes:180*1024**3,totalBytes:480*1024**3,requiredBytes:512*1024**2}}}),
+  getState:async()=>({appVersion:'0.51.0',platform:'preview',packaged:false,config:mockConfig,manifest:mockManifest,manifestConfigured:true,manifestSource:'development',java:{found:true,major:17,version:'17.0.x',path:'java'},needsOnboarding:false,launcherUpdateConfigured:false,minimumLauncher:'0.51.0',launcherCompatible:true,developer:{configured:false,unlocked:false,curseforgeConfigured:false,developerAllowed:false},account:{authenticated:false,name:'',id:''},system:{recommendedRamGb:6,maxRamGb:11,totalMemoryBytes:16*1024**3,gpus:[{vendor:'NVIDIA',name:'NVIDIA GeForce GTX 1050'}],display:{width:1920,height:1080,workWidth:1920,workHeight:1040,scaleFactor:1,label:'Monitor principal'},disk:{available:true,freeBytes:180*1024**3,totalBytes:480*1024**3,requiredBytes:512*1024**2}}}),
   completeOnboarding:async(p)=>{mockConfig.minecraft.username=p.username;mockConfig.onboarding.completed=true;return previewApi.getState()},
   pingServer:async()=>({online:true,latency:57,players:{online:12,max:40},version:'Forge 1.20.1',favicon:null}),
   checkPack:async()=>({configured:true,state:{version:'SIEGE-DEV',updatedAt:new Date().toISOString()},expectedVersion:'SIEGE-DEV',versionMatches:true,total:247,ok:247,missing:[],changed:[],remove:[],bytesRequired:0,healthy:true}),
@@ -86,6 +86,8 @@ let updateCenterInFlight=null;
 let healthInFlight=null;
 let crashGuardInFlight=null;
 let connectivityInFlight=null;
+let modUpdatesInFlight=null;
+let modAuditInFlight=null;
 let globalErrorAt=0;
 
 function clamp(v,a,b){return Math.max(a,Math.min(b,v))}
@@ -111,7 +113,9 @@ function initial(name){return String(name||'?').trim().slice(0,1).toUpperCase()|
 function footer(text){if($('footerStatus'))$('footerStatus').textContent=text}
 function toast(message,type=''){
   const text=String(message||'').trim();
-  const el=document.createElement('div'); el.className=`toast ${type}`.trim(); el.textContent=text; $('toastArea').appendChild(el); setTimeout(()=>el.remove(),3800);
+  const duplicate=notificationHistory[0];
+  if(duplicate&&duplicate.message===text&&duplicate.type===(type||'info')&&Date.now()-new Date(duplicate.time).getTime()<2500)return;
+  const el=document.createElement('div'); el.className=`toast ${type}`.trim(); el.setAttribute('role',type==='error'?'alert':'status'); el.setAttribute('aria-live',type==='error'?'assertive':'polite'); el.textContent=text; $('toastArea').appendChild(el); setTimeout(()=>el.remove(),3800);
   if(text){notificationHistory.unshift({message:text,type:type||'info',time:new Date().toISOString()});notificationHistory=notificationHistory.slice(0,30);notificationUnread=true;renderNotifications();}
 }
 function reportUnexpectedError(prefix,error){
@@ -207,6 +211,7 @@ function setGlobalStatus(text,state='neutral'){const root=$('globalStatus'),labe
 function setBusy(value,label='PROCESANDO'){
   busy=value;
   document.body.dataset.busy=value?'true':'false';
+  document.querySelector('.content')?.setAttribute('aria-busy',value?'true':'false');
   ['playBtn','repairQuickBtn','updatePackBtn','checkPackBtn','quickCheck','refreshServerBtn','modsUpdateBtn','modsUpdateAllBtn','modsAuditBtn','updatesCheckAllBtn','updatesApplyAllBtn','updatesPackBtn','updatesModsBtn','developerPreviewBtn','developerPublishBtn','developerCompareTestBtn','developerPreflightBtn'].forEach(id=>{if($(id))$(id).disabled=value});
   footer(value?label:'LISTO'); updatePlayAvailability();
 }
@@ -308,13 +313,13 @@ function renderAccount(account={}){
 }
 async function loginMicrosoft(){
   if(busy)return; setBusy(true,'ABRIENDO MICROSOFT');
-  try{const account=await api.accountLogin();renderAccount(account);if(appState){appState.account=account;appState.config.minecraft={...(appState.config.minecraft||{}),username:account.name||appState.config.minecraft.username,accountMode:'premium'};}toast(`Sesión iniciada como ${account.name||'cuenta Microsoft'}.`,'success');}
+  try{const account=await api.accountLogin();const cfg=await api.saveSettings({minecraft:{username:account.name||appState?.config?.minecraft?.username||'',accountMode:'premium'}});renderAccount(account);if(appState){appState.account=account;appState.config=cfg;}toast(`Sesión iniciada como ${account.name||'cuenta Microsoft'}.`,'success');}
   catch(err){toast(err.message||String(err),'error');}
   finally{setBusy(false);}
 }
 async function logoutMicrosoft(){
   if(!await askConfirm({title:'Cerrar sesión Microsoft',message:'Minecraft volverá a usar el modo offline de este equipo.',confirmText:'Cerrar sesión'}))return;
-  try{const account=await api.accountLogout();renderAccount(account);if(appState){appState.account=account;appState.config.minecraft={...(appState.config.minecraft||{}),accountMode:'offline'};}toast('Sesión Microsoft cerrada.','success');}catch(err){toast(err.message||String(err),'error');}
+  try{const account=await api.accountLogout();const cfg=await api.saveSettings({minecraft:{accountMode:'offline'}});renderAccount(account);if(appState){appState.account=account;appState.config=cfg;}toast('Sesión Microsoft cerrada.','success');}catch(err){toast(err.message||String(err),'error');}
 }
 
 function fillBaseState(state){
@@ -466,14 +471,15 @@ async function removeUserMod(filename){if(busy)return;if(!await askConfirm({titl
 async function copyUserModToTest(filename){try{await api.developerCopyModTest(filename);toast('Mod copiado a test-1 para probarlo.','success')}catch(err){toast(err.message||String(err),'error')}}
 
 async function checkPersonalModUpdates(showToast=true){
-  if(busy)return; if($('modsUpdateBtn'))$('modsUpdateBtn').disabled=true;
-  try{
+  if(busy)return; if(modUpdatesInFlight)return modUpdatesInFlight; if($('modsUpdateBtn'))$('modsUpdateBtn').disabled=true;
+  modUpdatesInFlight=(async()=>{try{
     const result=await api.checkModUpdates(); modUpdates=new Map((result.updates||[]).filter(x=>!x.error).map(x=>[x.filename,x]));
     const count=result.count||0; const bar=$('modsUpdateBar');
     if(bar){const hidden=count===0||shouldHideModWarning('updates');bar.classList.toggle('hidden',hidden);$('modsUpdateCount').textContent=String(count);$('modsUpdateText').textContent=count?`${count} mod${count===1?'':'s'} personal${count===1?'':'es'} tiene${count===1?'':'n'} actualización en Modrinth.${result.skippedPinned?` · ${result.skippedPinned} fijado${result.skippedPinned===1?'':'s'}`:''}`:`Tus mods personales están al día.${result.skippedPinned?` · ${result.skippedPinned} fijado${result.skippedPinned===1?'':'s'}`:''}`;}
     const badge=$('navModsBadge'); if(badge){badge.classList.toggle('hidden',count===0 && !((modsState.counts||{}).user>0));badge.textContent=count?String(count):'•';}
     renderMods(modsState); if(showToast)toast(count?`${count} actualización${count===1?'':'es'} de mods disponible${count===1?'':'s'}.`:'Tus mods de Modrinth están al día.',count?'warn':'success'); return result;
-  }catch(err){if(showToast)toast(err.message||String(err),'error');return null;}finally{if($('modsUpdateBtn'))$('modsUpdateBtn').disabled=false;}
+  }catch(err){if(showToast)toast(err.message||String(err),'error');return null;}finally{if($('modsUpdateBtn'))$('modsUpdateBtn').disabled=false;}})();
+  try{return await modUpdatesInFlight}finally{modUpdatesInFlight=null;}
 }
 async function updatePersonalMod(filename){
   if(busy)return;setBusy(true,'ACTUALIZANDO MOD');showOperation('ACTUALIZANDO MOD');
@@ -490,7 +496,8 @@ async function updateAllPersonalMods(){
 
 async function refreshModAudit(showToast=false){
   const bar=$('modsAuditBar'); if(!bar||!api.auditMods)return null;
-  try{
+  if(modAuditInFlight)return modAuditInFlight;
+  modAuditInFlight=(async()=>{try{
     const r=await api.auditMods(); const bad=Number(r.counts?.bad||0),warn=Number(r.counts?.warn||0),info=Number(r.counts?.info||0);
     bar.classList.toggle('hidden',shouldHideModWarning('audit'));bar.classList.toggle('bad',bad>0);bar.classList.toggle('warn',bad===0&&warn>0);bar.classList.toggle('ok',bad===0&&warn===0);
     $('modsAuditBar').querySelector('.mods-audit-icon').textContent=bad?'!':warn?'•':'✓';
@@ -499,7 +506,8 @@ async function refreshModAudit(showToast=false){
     $('modsAuditText').textContent=visible||`${r.total||0} mods revisados · sin conflictos detectados.`;
     if(showToast)toast(bad?'Hay problemas que conviene corregir antes de jugar.':warn?'Hay advertencias de mods para revisar.':'No detecté conflictos en tus mods.',bad?'error':warn?'warn':'success');
     return r;
-  }catch(err){bar.classList.remove('ok','warn','bad');$('modsAuditTitle').textContent='No pude revisar compatibilidad';$('modsAuditText').textContent=err.message||String(err);if(showToast)toast(err.message||String(err),'error');return null;}
+  }catch(err){bar.classList.remove('ok','warn','bad');$('modsAuditTitle').textContent='No pude revisar compatibilidad';$('modsAuditText').textContent=err.message||String(err);if(showToast)toast(err.message||String(err),'error');return null;}})();
+  try{return await modAuditInFlight}finally{modAuditInFlight=null;}
 }
 function shouldHideModWarning(kind){return ignoredModWarnings.has(kind)||appState?.config?.mods?.hideWarnings===true;}
 async function hideAllModWarnings(){
@@ -569,9 +577,9 @@ function renderHealth(result={}){
   const ok=Boolean(result.ok); const issues=result.issues||[]; const icon=$('healthIcon'); if(!icon)return;
   icon.textContent=ok?'✓':issues.some(x=>x.severity==='bad')?'!':'•'; $('healthTitle').textContent=ok?'SISTEMA LISTO':'REVISAR ANTES DE JUGAR';
   const free=result.system?.disk?.freeBytes?formatStorage(result.system.disk.freeBytes):'';
-  $('healthText').textContent=ok?`Java, modpack y servidor están listos.${free?` ${free} libres en disco.`:''}`:issues.map(x=>x.text).slice(0,2).join(' · ')||'Hay elementos para revisar.';
+  $('healthText').textContent=ok?`Java, modpack y launcher están listos.${free?` ${free} libres en disco.`:''}`:issues.map(x=>x.text).slice(0,2).join(' · ')||'Hay elementos para revisar.';
   $('healthRibbon').classList.toggle('warn',!ok); $('healthRibbon').classList.toggle('ok',ok);
-  $('healthJava').textContent=`JAVA · ${result.javaOk?'OK':'REVISAR'}`;$('healthPack').textContent=`PACK · ${result.packOk?'OK':'REVISAR'}`;$('healthServer').textContent=`SERVER · ${result.serverOnline?'ONLINE':'OFFLINE'}`;$('healthMods').textContent=`MODS · ${result.userMods||0}${result.disabledMods?` / ${result.disabledMods} OFF`:''}`;
+  $('healthJava').textContent=`JAVA · ${result.javaOk?'OK':'REVISAR'}`;$('healthPack').textContent=`PACK · ${result.packOk?'OK':'REVISAR'}`;$('healthServer').textContent=`SERVER · ${result.serverOnline?'ONLINE':'INFO'}`;$('healthMods').textContent=`MODS · ${result.userMods||0}${result.disabledMods?` / ${result.disabledMods} OFF`:''}`;
 }
 async function refreshHealth(showToast=false){
   if(healthInFlight)return healthInFlight;
@@ -648,7 +656,7 @@ function renderUpdateCenter(){
 
   if($('updatesModsTitle'))$('updatesModsTitle').textContent=modCount?`${modCount} actualización${modCount===1?'':'es'}`:'Al día';
   if($('updatesModsText'))$('updatesModsText').textContent=modCount?'Mods personales de Modrinth listos para actualizar.':'No hay updates pendientes de mods personales.';
-  if($('updatesLauncherTitle'))$('updatesLauncherTitle').textContent=launcherNeeds?'Nueva versión disponible':`v${appState?.appVersion||'0.50.1'}`;
+  if($('updatesLauncherTitle'))$('updatesLauncherTitle').textContent=launcherNeeds?'Nueva versión disponible':`v${appState?.appVersion||'0.51.0'}`;
   if($('updatesLauncherText'))$('updatesLauncherText').textContent=launcherNeeds?'Podés descargarla sin tocar el modpack.':appState?.packaged?'Canal del launcher comprobado.':'Modo desarrollo · updater desactivado.';
   const javaOk=Boolean(appState?.java?.found&&Number(appState?.java?.major)>=17);if($('updatesRuntimeTitle'))$('updatesRuntimeTitle').textContent=javaOk?`Java ${appState.java.version||17}`:'Java compatible pendiente';if($('updatesRuntimeText'))$('updatesRuntimeText').textContent=javaOk?(appState.java.managed?'Runtime administrado por Eternal Craft.':'Runtime detectado en el sistema.'):'Elegí un Java 17 o superior en tu sistema.';
   if($('updatesHeroMark'))$('updatesHeroMark').textContent=total?'!':'✓';if($('updatesHero'))$('updatesHero').classList.toggle('has-updates',total>0);if($('updatesHeroTitle'))$('updatesHeroTitle').textContent=total?`${total} actualización${total===1?'':'es'} pendiente${total===1?'':'s'}`:'Todo está actualizado';if($('updatesHeroText'))$('updatesHeroText').textContent=total?'Podés revisar cada componente o aplicar las actualizaciones disponibles.':'Launcher, modpack y mods personales están listos.';
@@ -877,7 +885,7 @@ function bind(){
   $('copyDiagnosticBtn').addEventListener('click',async()=>{try{await api.copyDiagnostic();toast('Diagnóstico copiado.','success')}catch(err){toast(err.message||String(err),'error')}});
   $('saveDiagnosticBtn')?.addEventListener('click',async()=>{try{const file=await api.saveDiagnostic();if(file)toast('Informe de soporte guardado.','success')}catch(err){toast(err.message||String(err),'error')}});$('supportBundleBtn')?.addEventListener('click',async()=>{try{const file=await api.exportSupportBundle();if(file)toast('Paquete de soporte guardado. No incluye contraseñas, API keys ni mundos.','success')}catch(err){toast(err.message||String(err),'error')}});$('openLogsBtn').addEventListener('click',()=>api.openLogs());
   $('ramRange').addEventListener('input',updateRamPicker); $('ramMinus').addEventListener('click',()=>setRam(Number($('ramRange').value)-1)); $('ramPlus').addEventListener('click',()=>setRam(Number($('ramRange').value)+1)); $$('#ramPresets [data-ram]').forEach(btn=>btn.addEventListener('click',()=>setRam(Number(btn.dataset.ram))));
-  $('themeSelect').addEventListener('change',()=>{document.body.dataset.theme=$('themeSelect').value;$$('#themeGallery [data-theme-choice]').forEach(b=>b.classList.toggle('active',b.dataset.themeChoice===$('themeSelect').value));queueSettingsSave()});$$('#themeGallery [data-theme-choice]').forEach(btn=>btn.addEventListener('click',()=>{$('themeSelect').value=btn.dataset.themeChoice;document.body.dataset.theme=btn.dataset.themeChoice;$$('#themeGallery [data-theme-choice]').forEach(b=>b.classList.toggle('active',b===btn));queueSettingsSave()}));$('backgroundSelect').addEventListener('change',()=>{applyBackground($('backgroundSelect').value);queueSettingsSave()});$('densitySelect')?.addEventListener('change',()=>document.body.dataset.density=$('densitySelect').value);$('uiScaleSelect')?.addEventListener('change',()=>document.body.dataset.uiScale=$('uiScaleSelect').value);$('glassEffectsToggle')?.addEventListener('change',()=>document.body.classList.toggle('glass-off',!$('glassEffectsToggle').checked));$('scanlinesToggle').addEventListener('change',()=>document.body.classList.toggle('no-scanlines',!$('scanlinesToggle').checked));$('noiseToggle').addEventListener('change',()=>document.body.classList.toggle('no-noise',!$('noiseToggle').checked));$('reducedMotionToggle').addEventListener('change',()=>document.body.classList.toggle('reduced-motion',$('reducedMotionToggle').checked));
+  $('themeSelect').addEventListener('change',()=>{document.body.dataset.theme=$('themeSelect').value;$$('#themeGallery [data-theme-choice]').forEach(b=>b.classList.toggle('active',b.dataset.themeChoice===$('themeSelect').value));queueSettingsSave()});$$('#themeGallery [data-theme-choice]').forEach(btn=>btn.addEventListener('click',()=>{$('themeSelect').value=btn.dataset.themeChoice;document.body.dataset.theme=btn.dataset.themeChoice;$$('#themeGallery [data-theme-choice]').forEach(b=>b.classList.toggle('active',b===btn));queueSettingsSave()}));$('backgroundSelect').addEventListener('change',()=>{applyBackground($('backgroundSelect').value);queueSettingsSave()});$('densitySelect')?.addEventListener('change',()=>{document.body.dataset.density=$('densitySelect').value;queueSettingsSave()});$('uiScaleSelect')?.addEventListener('change',()=>{document.body.dataset.uiScale=$('uiScaleSelect').value;queueSettingsSave()});$('glassEffectsToggle')?.addEventListener('change',()=>{document.body.classList.toggle('glass-off',!$('glassEffectsToggle').checked);queueSettingsSave()});$('scanlinesToggle').addEventListener('change',()=>{document.body.classList.toggle('no-scanlines',!$('scanlinesToggle').checked);queueSettingsSave()});$('noiseToggle').addEventListener('change',()=>{document.body.classList.toggle('no-noise',!$('noiseToggle').checked);queueSettingsSave()});$('reducedMotionToggle').addEventListener('change',()=>{document.body.classList.toggle('reduced-motion',$('reducedMotionToggle').checked);queueSettingsSave()});
   $('installJavaBtn').addEventListener('click',installJava);$('saveSettingsBtn').addEventListener('click',saveSettings);$('resetPresetBtn').addEventListener('click',async()=>{try{await api.resetGamePreset($('gamePresetSelect').value);toast('Ajustes recomendados restaurados.','success')}catch(err){toast(err.message||String(err),'error')}});
   $('minecraftLoginBtn')?.addEventListener('click',loginMicrosoft);$('minecraftLogoutBtn')?.addEventListener('click',logoutMicrosoft);
   $('autoConfigureBtn')?.addEventListener('click',autoConfigureRecommended);$('exportSettingsBtn')?.addEventListener('click',exportSettingsAction);$('importSettingsBtn')?.addEventListener('click',importSettingsAction);
