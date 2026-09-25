@@ -12,7 +12,7 @@ const mockConfig = {
   onboarding:{completed:true},links:{}
 };
 const mockManifest = {
-  schema:2,version:'1.0.0',releaseName:'Siege Origin',minecraft:'1.20.1',forge:'47.4.10',minimumLauncher:'0.40.3',files:[],remove:[],
+  schema:2,version:'1.0.0',releaseName:'Siege Origin',minecraft:'1.20.1',forge:'47.4.10',minimumLauncher:'0.50.0',files:[],remove:[],
   releaseNotes:{title:'SIEGE DEV',summary:'Base del launcher renovada y sistema de actualización segura.',addedCount:2,changedCount:4,removedCount:0,highlights:[{type:'changed',path:'mods/siege-menu.jar'},{type:'added',path:'config/eternal-client.toml'}]}
 };
 
@@ -23,7 +23,7 @@ function merge(target, patch){
 }
 
 const previewApi = {
-  getState:async()=>({appVersion:'0.40.3',platform:'preview',packaged:false,config:mockConfig,manifest:mockManifest,manifestConfigured:true,manifestSource:'development',java:{found:true,major:17,version:'17.0.x',path:'java'},needsOnboarding:false,launcherUpdateConfigured:false,minimumLauncher:'0.40.3',launcherCompatible:true,developer:{configured:false,unlocked:false,curseforgeConfigured:false,developerAllowed:false},account:{authenticated:false,name:'',id:''},system:{recommendedRamGb:6,maxRamGb:11,totalMemoryBytes:16*1024**3,gpus:[{vendor:'NVIDIA',name:'NVIDIA GeForce GTX 1050'}],display:{width:1920,height:1080,workWidth:1920,workHeight:1040,scaleFactor:1,label:'Monitor principal'},disk:{available:true,freeBytes:180*1024**3,totalBytes:480*1024**3,requiredBytes:512*1024**2}}}),
+  getState:async()=>({appVersion:'0.50.0',platform:'preview',packaged:false,config:mockConfig,manifest:mockManifest,manifestConfigured:true,manifestSource:'development',java:{found:true,major:17,version:'17.0.x',path:'java'},needsOnboarding:false,launcherUpdateConfigured:false,minimumLauncher:'0.50.0',launcherCompatible:true,developer:{configured:false,unlocked:false,curseforgeConfigured:false,developerAllowed:false},account:{authenticated:false,name:'',id:''},system:{recommendedRamGb:6,maxRamGb:11,totalMemoryBytes:16*1024**3,gpus:[{vendor:'NVIDIA',name:'NVIDIA GeForce GTX 1050'}],display:{width:1920,height:1080,workWidth:1920,workHeight:1040,scaleFactor:1,label:'Monitor principal'},disk:{available:true,freeBytes:180*1024**3,totalBytes:480*1024**3,requiredBytes:512*1024**2}}}),
   completeOnboarding:async(p)=>{mockConfig.minecraft.username=p.username;mockConfig.onboarding.completed=true;return previewApi.getState()},
   pingServer:async()=>({online:true,latency:57,players:{online:12,max:40},version:'Forge 1.20.1',favicon:null}),
   checkPack:async()=>({configured:true,state:{version:'SIEGE-DEV',updatedAt:new Date().toISOString()},expectedVersion:'SIEGE-DEV',versionMatches:true,total:247,ok:247,missing:[],changed:[],remove:[],bytesRequired:0,healthy:true}),
@@ -81,6 +81,9 @@ let autoSaveTimer=null;
 let operationMinimized=false;
 let pingHistory=[];
 let settingsGroup='game';
+let packRefreshInFlight=null;
+let updateCenterInFlight=null;
+let globalErrorAt=0;
 
 function clamp(v,a,b){return Math.max(a,Math.min(b,v))}
 function escapeHtml(value){return String(value??'').replace(/[&<>"']/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));}
@@ -108,6 +111,15 @@ function toast(message,type=''){
   const el=document.createElement('div'); el.className=`toast ${type}`.trim(); el.textContent=text; $('toastArea').appendChild(el); setTimeout(()=>el.remove(),3800);
   if(text){notificationHistory.unshift({message:text,type:type||'info',time:new Date().toISOString()});notificationHistory=notificationHistory.slice(0,30);notificationUnread=true;renderNotifications();}
 }
+function reportUnexpectedError(prefix,error){
+  const now=Date.now();
+  if(now-globalErrorAt<2500)return;
+  globalErrorAt=now;
+  const detail=String(error?.reason?.message||error?.error?.message||error?.message||error||'Error desconocido').trim();
+  toast(`${prefix}: ${detail}`,'error');
+}
+window.addEventListener('error',(event)=>reportUnexpectedError('Error inesperado',event.error||event.message));
+window.addEventListener('unhandledrejection',(event)=>{event.preventDefault();reportUnexpectedError('Operación no completada',event.reason)});
 function renderNotifications(){
   const host=$('notificationList'),badge=$('notificationsBadge');if(!host||!badge)return;
   badge.textContent=String(notificationHistory.length);badge.classList.toggle('hidden',notificationHistory.length===0||!notificationUnread);host.innerHTML='';
@@ -191,7 +203,8 @@ function setHealth(id,text,state=''){const el=$(id);if(!el)return;el.textContent
 function setGlobalStatus(text,state='neutral'){const root=$('globalStatus'),label=$('globalStatusText');if(!root||!label)return;label.textContent=text;root.dataset.state=state;}
 function setBusy(value,label='PROCESANDO'){
   busy=value;
-  ['playBtn','repairQuickBtn','updatePackBtn','checkPackBtn','quickCheck','refreshServerBtn','modsUpdateBtn','modsUpdateAllBtn','updatesCheckAllBtn','updatesApplyAllBtn','updatesPackBtn','updatesModsBtn','developerPreviewBtn','developerPublishBtn','developerCompareTestBtn'].forEach(id=>{if($(id))$(id).disabled=value});
+  document.body.dataset.busy=value?'true':'false';
+  ['playBtn','repairQuickBtn','updatePackBtn','checkPackBtn','quickCheck','refreshServerBtn','modsUpdateBtn','modsUpdateAllBtn','modsAuditBtn','updatesCheckAllBtn','updatesApplyAllBtn','updatesPackBtn','updatesModsBtn','developerPreviewBtn','developerPublishBtn','developerCompareTestBtn','developerPreflightBtn'].forEach(id=>{if($(id))$(id).disabled=value});
   footer(value?label:'LISTO'); updatePlayAvailability();
 }
 function applyBackground(name){
@@ -440,7 +453,9 @@ async function toggleFavoriteMod(filename){try{const r=await api.favoriteMod(fil
 async function togglePinnedMod(filename){try{const r=await api.pinMod(filename);if(r.listing)renderMods(r.listing);toast(r.pinned?'Versión fijada: Update All no la tocará.':'Versión liberada: volverá a recibir actualizaciones.','success')}catch(err){toast(err.message||String(err),'error')}}
 async function setAllPersonalModsEnabled(enabled){if(busy)return;const verb=enabled?'activar':'desactivar';if(!await askConfirm({title:`${enabled?'Activar':'Desactivar'} mods personales`,message:`Se van a ${verb} todos los mods que agregaste. Los mods oficiales no se tocan.`,confirmText:enabled?'Activar todos':'Desactivar todos'}))return;setBusy(true,'ACTUALIZANDO MODS');try{const r=await api.setAllUserModsEnabled(enabled);if(r.listing)renderMods(r.listing);toast(`${r.changed?.length||0} mods personales actualizados.`,'success')}catch(err){toast(err.message||String(err),'error')}finally{setBusy(false)}}
 async function refreshMods(showToast=false){
-  try{const state=await api.listMods();renderMods(state);if(showToast)toast('Lista de mods actualizada.','success');return state;}catch(err){if(showToast)toast(err.message||String(err),'error');return null;}
+  if(refreshMods.inFlight)return refreshMods.inFlight;
+  refreshMods.inFlight=(async()=>{try{const state=await api.listMods();renderMods(state);if(showToast)toast('Lista de mods actualizada.','success');return state;}catch(err){if(showToast)toast(err.message||String(err),'error');return null;}})();
+  try{return await refreshMods.inFlight}finally{refreshMods.inFlight=null}
 }
 async function addUserMods(){if(busy)return;setBusy(true,'AGREGANDO MODS');try{const state=await api.addMods();renderMods(state);toast('Mods agregados a Eternal Craft.','success');}catch(err){toast(err.message||String(err),'error');}finally{setBusy(false)}}
 async function toggleUserMod(filename){if(busy)return;setBusy(true,'ACTUALIZANDO MOD');try{const state=await api.toggleMod(filename);renderMods(state);toast('Estado del mod actualizado.','success');}catch(err){toast(err.message||String(err),'error');}finally{setBusy(false)}}
@@ -622,13 +637,15 @@ function renderUpdateCenter(){
 
   if($('updatesModsTitle'))$('updatesModsTitle').textContent=modCount?`${modCount} actualización${modCount===1?'':'es'}`:'Al día';
   if($('updatesModsText'))$('updatesModsText').textContent=modCount?'Mods personales de Modrinth listos para actualizar.':'No hay updates pendientes de mods personales.';
-  if($('updatesLauncherTitle'))$('updatesLauncherTitle').textContent=launcherNeeds?'Nueva versión disponible':`v${appState?.appVersion||'0.25.4'}`;
+  if($('updatesLauncherTitle'))$('updatesLauncherTitle').textContent=launcherNeeds?'Nueva versión disponible':`v${appState?.appVersion||'0.50.0'}`;
   if($('updatesLauncherText'))$('updatesLauncherText').textContent=launcherNeeds?'Podés descargarla sin tocar el modpack.':appState?.packaged?'Canal del launcher comprobado.':'Modo desarrollo · updater desactivado.';
   const javaOk=Boolean(appState?.java?.found&&Number(appState?.java?.major)>=17);if($('updatesRuntimeTitle'))$('updatesRuntimeTitle').textContent=javaOk?`Java ${appState.java.version||17}`:'Java compatible pendiente';if($('updatesRuntimeText'))$('updatesRuntimeText').textContent=javaOk?(appState.java.managed?'Runtime administrado por Eternal Craft.':'Runtime detectado en el sistema.'):'Elegí un Java 17 o superior en tu sistema.';
   if($('updatesHeroMark'))$('updatesHeroMark').textContent=total?'!':'✓';if($('updatesHero'))$('updatesHero').classList.toggle('has-updates',total>0);if($('updatesHeroTitle'))$('updatesHeroTitle').textContent=total?`${total} actualización${total===1?'':'es'} pendiente${total===1?'':'s'}`:'Todo está actualizado';if($('updatesHeroText'))$('updatesHeroText').textContent=total?'Podés revisar cada componente o aplicar las actualizaciones disponibles.':'Launcher, modpack y mods personales están listos.';
   if($('homeQuickUpdate'))$('homeQuickUpdate').textContent=total?`${total} PENDIENTE${total===1?'':'S'}`:'TODO AL DÍA'; if($('homeQuickUpdateMeta'))$('homeQuickUpdateMeta').textContent=packNeeds?`${formatBytes(pack.bytesRequired||0)} de pack${modCount?` · ${modCount} mods`:''}`:modCount?`${modCount} mods personales`:launcherNeeds?'Launcher disponible':'Sin descargas pendientes';
 }
 async function refreshUpdateCenter(showToast=false){
+  if(updateCenterInFlight)return updateCenterInFlight;
+  updateCenterInFlight=(async()=>{
   if($('updatesHeroTitle'))$('updatesHeroTitle').textContent='Comprobando actualizaciones…';
   try{
     const [pack,mods]=await Promise.all([api.checkPack(),api.checkModUpdates().catch(()=>({count:0,updates:[]}))]);
@@ -637,6 +654,8 @@ async function refreshUpdateCenter(showToast=false){
     if(appState?.packaged&&appState?.launcherUpdateConfigured)await api.checkLauncherUpdate().catch(()=>{});
     renderUpdateCenter();if(showToast)toast('Comprobación completa.','success');return updateCenterState;
   }catch(err){if(showToast)toast(err.message||String(err),'error');throw err;}
+  })();
+  try{return await updateCenterInFlight}finally{updateCenterInFlight=null}
 }
 async function applyAllUpdates(){
   if(busy)return;const packNeeds=Boolean(updateCenterState.pack?.healthy===false);const modCount=Number(updateCenterState.mods?.count||0);if(!packNeeds&&!modCount&&!launcherUpdateAvailable){toast('No hay actualizaciones pendientes.','success');return;}
@@ -673,10 +692,12 @@ function updatePlayAvailability(){
 }
 
 async function refreshServer(showToast=false){
-  try{const status=await api.pingServer();renderServer(status);if(showToast)toast('El estado del servidor está oculto para evitar falsos positivos.','info');}
-  catch(err){renderServer({online:false});if(showToast)toast('El estado del servidor está oculto para evitar falsos positivos.','info');}
+  if(refreshServer.inFlight)return refreshServer.inFlight;
+  refreshServer.inFlight=(async()=>{try{const status=await api.pingServer();renderServer(status);if(showToast)toast('Estado de conexión actualizado.','info');return status;}
+  catch(err){renderServer({online:false});if(showToast)toast('No pude comprobar la conexión.','warn');return null;}})();
+  try{return await refreshServer.inFlight}finally{refreshServer.inFlight=null}
 }
-async function refreshPack(showOverlay=false){
+async function performPackRefresh(showOverlay=false){
   if(showOverlay && busy)return null;
   const ownsBusy=Boolean(showOverlay);
   const started=performance.now();
@@ -699,6 +720,11 @@ async function refreshPack(showOverlay=false){
     if(ownsBusy){$('operationPhase').textContent='NO SE PUDO COMPROBAR';$('operationFile').textContent=String(err?.message||err||'Error').slice(0,180);await waitMs(650-(performance.now()-started));}
     toast(err.message||String(err),'error');throw err;
   } finally{if(ownsBusy){hideOperation();setBusy(false)}}
+}
+async function refreshPack(showOverlay=false){
+  if(packRefreshInFlight)return packRefreshInFlight;
+  packRefreshInFlight=performPackRefresh(showOverlay);
+  try{return await packRefreshInFlight}finally{packRefreshInFlight=null}
 }
 async function runPackAction(mode='update'){
   if(busy)return;const started=performance.now();setBusy(true,mode==='repair'?'REPARANDO':'ACTUALIZANDO');showOperation(mode==='repair'?'REPARANDO MODPACK':'ACTUALIZANDO MODPACK');
@@ -728,6 +754,8 @@ function problemHelp(type){
 }
 function validUsername(value){return /^[A-Za-z0-9_]{3,16}$/.test(String(value||'').trim())}
 async function saveSettings(silent=false){
+  clearTimeout(autoSaveTimer); autoSaveTimer=null;
+  if(silent&&$('settingsSaved'))$('settingsSaved').textContent='GUARDANDO…';
   const typedUsername=$('usernameInput').value.trim(); const username=validUsername(typedUsername)?typedUsername:String(appState?.config?.minecraft?.username||'').trim(); if(!validUsername(username)){if(!silent)toast('El nick debe tener entre 3 y 16 caracteres.','error');return;}
   const resolution=$('resolutionSelect').value; const systemResolution=resolution==='system'; let width=appState?.system?.display?.width||1920,height=appState?.system?.display?.height||1080; if(!systemResolution){[width,height]=resolution.split('x').map(Number)}
   const patch={
@@ -737,9 +765,9 @@ async function saveSettings(silent=false){
     sync:{...(appState?.config?.sync||{}),includeScreenshots:$('vaultScreenshotsToggle')?.checked!==false,includeSaves:Boolean($('vaultSavesToggle')?.checked),extraPaths:String($('vaultExtraPaths')?.value||'').split(/[,;\n]+/).map(x=>x.trim()).filter(Boolean).slice(0,20)},
     launcher:{hideOnGameStart:$('hideOnStartToggle').checked,refocusOnGameExit:$('refocusOnExitToggle').checked,startPage:$('startPageSelect')?.value||'home',rememberLastPage:Boolean($('rememberLastPageToggle')?.checked),autoConnectivityCheck:$('autoConnectivityToggle')?.checked!==false,closeToTray:$('closeToTrayToggle')?.checked!==false,startWithSystem:Boolean($('startWithSystemToggle')?.checked),startMinimized:Boolean($('startMinimizedToggle')?.checked),nativeNotifications:$('nativeNotificationsToggle')?.checked!==false,sidebarCollapsed:document.body.classList.contains('sidebar-collapsed'),theme:$('themeSelect').value,background:$('backgroundSelect').value,backgroundMode:$('backgroundModeSelect')?.value||'fixed',density:$('densitySelect')?.value||'comfortable',uiScale:$('uiScaleSelect')?.value||'normal',glassEffects:$('glassEffectsToggle')?.checked!==false,scanlines:$('scanlinesToggle').checked,noise:$('noiseToggle').checked,reducedMotion:$('reducedMotionToggle').checked}
   };
-  try{const config=await api.saveSettings(patch);appState.config=config;if(!silent){fillBaseState({...appState,config,developer:developerState});$('settingsSaved').textContent='GUARDADO';setTimeout(()=>$('settingsSaved').textContent='',2200);toast('Ajustes guardados.','success');}}catch(err){if(!silent)toast(err.message||String(err),'error')}
+  try{const config=await api.saveSettings(patch);appState.config=config;if(!silent){fillBaseState({...appState,config,developer:developerState});$('settingsSaved').textContent='GUARDADO';setTimeout(()=>$('settingsSaved').textContent='',2200);toast('Ajustes guardados.','success');}else if($('settingsSaved')){ $('settingsSaved').textContent='AUTOGUARDADO'; setTimeout(()=>{if($('settingsSaved')?.textContent==='AUTOGUARDADO')$('settingsSaved').textContent=''},1400); }}catch(err){if($('settingsSaved'))$('settingsSaved').textContent='NO GUARDADO';if(!silent)toast(err.message||String(err),'error')}
 }
-function queueSettingsSave(){clearTimeout(autoSaveTimer);autoSaveTimer=setTimeout(()=>saveSettings(true),450)}
+function queueSettingsSave(){clearTimeout(autoSaveTimer);if($('settingsSaved'))$('settingsSaved').textContent='PENDIENTE';autoSaveTimer=setTimeout(()=>saveSettings(true),450)}
 
 function renderVault(status={}){
   const configured=Boolean(status.configured);const conflicts=Array.isArray(status.conflicts)?status.conflicts:[];

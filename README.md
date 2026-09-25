@@ -1,4 +1,4 @@
-# Eternal Craft Launcher 0.40.3
+# Eternal Craft Launcher 0.50.0
 
 Official launcher for **Eternal Craft // SIEGE**.
 
@@ -9,6 +9,13 @@ Official launcher for **Eternal Craft // SIEGE**.
 - Maintainer build: **Fedora/Linux** with Developer Mode
 
 Eternal Craft Launcher is intentionally not a generic multi-instance launcher. It manages one official SIEGE installation and aims to make installing, repairing, updating and launching that pack safe and simple.
+
+## 0.50.0 — Coordinated operations and visible autosave
+
+- Las comprobaciones de modpack, mods, servidor y actualizaciones evitan solicitudes duplicadas si se pulsa varias veces.
+- Los errores asíncronos inesperados se muestran como aviso controlado en vez de desaparecer silenciosamente.
+- Ajustes muestra `PENDIENTE`, `GUARDANDO…`, `AUTOGUARDADO` o `NO GUARDADO` durante el guardado automático.
+- El modo desarrollador conserva el aislamiento de la build privada y sus comprobaciones de GitHub ligeras.
 
 ## 0.40.3 — Developer status isolation and lighter settings
 
