@@ -449,6 +449,7 @@ body[data-busy="true"] .content{cursor:progress}body[data-busy="true"] .nav-item
 @media(max-width:860px){.clips-summary{grid-template-columns:1fr}.clips-folder-card,.skin-library-head{align-items:flex-start;flex-direction:column}.clips-grid,.skin-gallery{grid-template-columns:repeat(2,1fr)}.customization-controls{grid-template-columns:1fr 1fr}.customization-controls .field:last-child{grid-column:1/-1}}
 /* 0.61 workspace polish: searchable media and reusable visual profiles */
 .clips-toolbar{display:grid;grid-template-columns:minmax(220px,1fr) 170px 190px;gap:12px;padding:16px 18px;border-bottom:1px solid var(--line);align-items:end}
+.panel-head-actions{display:flex;align-items:center;gap:12px}.text-button{border:0;background:transparent;color:var(--muted);font:inherit;font-size:10px;font-weight:700;letter-spacing:.04em;cursor:pointer}.text-button:hover{color:var(--accent)}
 .clips-toolbar .field{margin:0}.clips-toolbar .field span{display:block;margin-bottom:6px}
 .clips-toolbar input,.clips-toolbar select{width:100%;min-height:40px}
 .visual-profiles-card{margin-top:18px;border:1px solid var(--line);border-radius:var(--card-radius);background:color-mix(in srgb,var(--panel) 82%,transparent);padding:16px 18px}

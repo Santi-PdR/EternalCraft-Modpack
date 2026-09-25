@@ -75,7 +75,7 @@
 
   <div id="whatsNewOverlay" class="whats-new-overlay hidden" role="dialog" aria-modal="true" aria-label="Novedades del launcher">
     <section class="whats-new-card">
-      <div class="whats-new-hero"><img src="assets/logo.svg" alt=""/><div><span class="eyebrow">ETERNAL CRAFT LAUNCHER</span><h2>v0.61.0</h2><p>Perfiles visuales guardables, galería local con filtros y publicación protegida por preflight.</p></div></div>
+      <div class="whats-new-hero"><img src="assets/logo.svg" alt=""/><div><span class="eyebrow">ETERNAL CRAFT LAUNCHER</span><h2>v0.62.0</h2><p>Preferencias de galería persistentes, filtros restablecibles y una interfaz más consistente.</p></div></div>
       <div class="whats-new-grid">
         <div><i>01</i><b>Mods instalados</b><span>La vista de mods se centra en tu instancia local, con búsqueda, filtros y actualizaciones.</span></div>
         <div><i>02</i><b>Búsqueda de Ajustes</b><span>Encontrá una opción sin recorrer todas las categorías.</span></div>
@@ -101,7 +101,7 @@
         <b id="notificationsBadge" class="hidden">0</b>
       </button>
       <div id="globalStatus" class="global-status" title="Estado de conexión"><i></i><span id="globalStatusText">COMPROBANDO</span></div>
-      <div id="titleBuild" class="title-build">BUILD 0.61.0</div>
+      <div id="titleBuild" class="title-build">BUILD 0.62.0</div>
       <div class="window-controls">
         <button id="minimizeBtn" aria-label="Minimizar">—</button>
         <button id="maximizeBtn" aria-label="Maximizar">□</button>
@@ -402,7 +402,7 @@
         <div class="update-center-grid">
           <article class="panel update-product-card" data-update-kind="pack"><div class="update-product-icon">▦</div><div class="update-product-copy"><span>MODPACK OFICIAL</span><b id="updatesPackTitle">Comprobando…</b><small id="updatesPackText">—</small></div><button id="updatesPackBtn" class="ghost">ABRIR</button></article>
           <article class="panel update-product-card" data-update-kind="mods"><div class="update-product-icon">◇</div><div class="update-product-copy"><span>MODS PERSONALES</span><b id="updatesModsTitle">Comprobando…</b><small id="updatesModsText">—</small></div><button id="updatesModsBtn" class="ghost">ABRIR</button></article>
-          <article class="panel update-product-card" data-update-kind="launcher"><div class="update-product-icon">↻</div><div class="update-product-copy"><span>LAUNCHER</span><b id="updatesLauncherTitle">v0.61.0</b><small id="updatesLauncherText">Comprobando canal…</small></div><button id="updatesLauncherBtn" class="ghost">COMPROBAR</button></article>
+          <article class="panel update-product-card" data-update-kind="launcher"><div class="update-product-icon">↻</div><div class="update-product-copy"><span>LAUNCHER</span><b id="updatesLauncherTitle">v0.62.0</b><small id="updatesLauncherText">Comprobando canal…</small></div><button id="updatesLauncherBtn" class="ghost">COMPROBAR</button></article>
           <article class="panel update-product-card" data-update-kind="runtime"><div class="update-product-icon">J</div><div class="update-product-copy"><span>RUNTIME</span><b id="updatesRuntimeTitle">Java 17</b><small id="updatesRuntimeText">—</small></div><button id="updatesRuntimeBtn" class="ghost">AJUSTES</button></article>
         </div>
         <article class="panel update-policy-card">
@@ -418,7 +418,7 @@
         </div>
         <article class="panel clips-folder-card"><div><span class="eyebrow">CARPETA ACTIVA</span><b id="clipsFolderPath">Ninguna carpeta seleccionada</b><small>Se aceptan PNG, JPG, WEBP, GIF, MP4, WEBM, MOV y MKV. Nada se sube a internet.</small></div><button id="clipsClearBtn" class="ghost">QUITAR CARPETA</button></article>
         <div class="clips-summary"><article class="summary-tile accent-blue"><span>ARCHIVOS</span><b id="clipsTotal">0</b><small>en la carpeta elegida</small></article><article class="summary-tile accent-green"><span>IMÁGENES</span><b id="clipsImages">0</b><small>capturas y arte</small></article><article class="summary-tile accent-violet"><span>VIDEOS</span><b id="clipsVideos">0</b><small>clips de juego</small></article></div>
-        <article class="panel clips-panel"><div class="panel-head"><span>ARCHIVOS LOCALES</span><b id="clipsVisibleCount">0 MOSTRADOS</b></div><div class="clips-toolbar"><label class="field"><span>BUSCAR</span><input id="clipsSearch" type="search" placeholder="Nombre de captura o clip…" autocomplete="off" /></label><label class="field"><span>TIPO</span><select id="clipsTypeFilter"><option value="all">Todos</option><option value="image">Imágenes</option><option value="video">Videos</option></select></label><label class="field"><span>ORDEN</span><select id="clipsSort"><option value="newest">Más recientes</option><option value="oldest">Más antiguos</option><option value="name">Nombre</option><option value="size">Tamaño</option></select></label></div><div id="clipsGrid" class="clips-grid"><div class="empty-state">Elegí una carpeta para comenzar.</div></div></article>
+        <article class="panel clips-panel"><div class="panel-head"><span>ARCHIVOS LOCALES</span><div class="panel-head-actions"><b id="clipsVisibleCount">0 MOSTRADOS</b><button id="clipsResetBtn" class="text-button" type="button">RESTABLECER FILTROS</button></div></div><div class="clips-toolbar"><label class="field"><span>BUSCAR</span><input id="clipsSearch" type="search" placeholder="Nombre de captura o clip…" autocomplete="off" /></label><label class="field"><span>TIPO</span><select id="clipsTypeFilter"><option value="all">Todos</option><option value="image">Imágenes</option><option value="video">Videos</option></select></label><label class="field"><span>ORDEN</span><select id="clipsSort"><option value="newest">Más recientes</option><option value="oldest">Más antiguos</option><option value="name">Nombre</option><option value="size">Tamaño</option></select></label></div><div id="clipsGrid" class="clips-grid"><div class="empty-state">Elegí una carpeta para comenzar.</div></div></article>
       </section>
 
       <section id="page-support" class="page">
@@ -654,7 +654,7 @@
     </main>
 
     <footer class="statusbar">
-      <span id="footerStatus">INICIANDO</span><i></i><span id="footerServer" class="hidden">LINK --</span><div></div><span id="footerBuild">ETERNAL CRAFT LAUNCHER // 0.61.0</span>
+      <span id="footerStatus">INICIANDO</span><i></i><span id="footerServer" class="hidden">LINK --</span><div></div><span id="footerBuild">ETERNAL CRAFT LAUNCHER // 0.62.0</span>
     </footer>
   </div>
 

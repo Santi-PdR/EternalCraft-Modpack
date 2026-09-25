@@ -1,4 +1,4 @@
-# Eternal Craft Launcher 0.61.0
+# Eternal Craft Launcher 0.62.0
 
 Official launcher for **Eternal Craft // SIEGE**.
 
@@ -9,6 +9,12 @@ Official launcher for **Eternal Craft // SIEGE**.
 - Maintainer build: **Fedora/Linux** with Developer Mode
 
 Eternal Craft Launcher is intentionally not a generic multi-instance launcher. It manages one official SIEGE installation and aims to make installing, repairing, updating and launching that pack safe and simple.
+
+## 0.62.0 — Preferencias persistentes de Galería
+
+- La Galería conserva búsqueda, tipo y orden entre sesiones.
+- Se añadió un botón para restablecer todos los filtros sin perder la carpeta elegida.
+- Las preferencias se limitan y validan al importar o exportar ajustes para mantener el archivo seguro y portable.
 
 ## 0.61.0 — Galería filtrable, perfiles visuales y publicación con preflight
 

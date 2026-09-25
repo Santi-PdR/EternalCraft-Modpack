@@ -45,6 +45,7 @@
     "cardRadius": 16,
     "clipsDirectory": "",
     "profiles": [],
+    "galleryView": {"query":"", "type":"all", "sort":"newest"},
     "backgroundMode": "fixed",
     "density": "comfortable",
     "glassEffects": true,
