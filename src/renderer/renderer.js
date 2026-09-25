@@ -12,7 +12,7 @@ const mockConfig = {
   onboarding:{completed:true},links:{}
 };
 const mockManifest = {
-  schema:2,version:'1.0.0',releaseName:'Siege Origin',minecraft:'1.20.1',forge:'47.4.10',minimumLauncher:'0.50.0',files:[],remove:[],
+  schema:2,version:'1.0.0',releaseName:'Siege Origin',minecraft:'1.20.1',forge:'47.4.10',minimumLauncher:'0.50.1',files:[],remove:[],
   releaseNotes:{title:'SIEGE DEV',summary:'Base del launcher renovada y sistema de actualización segura.',addedCount:2,changedCount:4,removedCount:0,highlights:[{type:'changed',path:'mods/siege-menu.jar'},{type:'added',path:'config/eternal-client.toml'}]}
 };
 
@@ -23,7 +23,7 @@ function merge(target, patch){
 }
 
 const previewApi = {
-  getState:async()=>({appVersion:'0.50.0',platform:'preview',packaged:false,config:mockConfig,manifest:mockManifest,manifestConfigured:true,manifestSource:'development',java:{found:true,major:17,version:'17.0.x',path:'java'},needsOnboarding:false,launcherUpdateConfigured:false,minimumLauncher:'0.50.0',launcherCompatible:true,developer:{configured:false,unlocked:false,curseforgeConfigured:false,developerAllowed:false},account:{authenticated:false,name:'',id:''},system:{recommendedRamGb:6,maxRamGb:11,totalMemoryBytes:16*1024**3,gpus:[{vendor:'NVIDIA',name:'NVIDIA GeForce GTX 1050'}],display:{width:1920,height:1080,workWidth:1920,workHeight:1040,scaleFactor:1,label:'Monitor principal'},disk:{available:true,freeBytes:180*1024**3,totalBytes:480*1024**3,requiredBytes:512*1024**2}}}),
+  getState:async()=>({appVersion:'0.50.1',platform:'preview',packaged:false,config:mockConfig,manifest:mockManifest,manifestConfigured:true,manifestSource:'development',java:{found:true,major:17,version:'17.0.x',path:'java'},needsOnboarding:false,launcherUpdateConfigured:false,minimumLauncher:'0.50.1',launcherCompatible:true,developer:{configured:false,unlocked:false,curseforgeConfigured:false,developerAllowed:false},account:{authenticated:false,name:'',id:''},system:{recommendedRamGb:6,maxRamGb:11,totalMemoryBytes:16*1024**3,gpus:[{vendor:'NVIDIA',name:'NVIDIA GeForce GTX 1050'}],display:{width:1920,height:1080,workWidth:1920,workHeight:1040,scaleFactor:1,label:'Monitor principal'},disk:{available:true,freeBytes:180*1024**3,totalBytes:480*1024**3,requiredBytes:512*1024**2}}}),
   completeOnboarding:async(p)=>{mockConfig.minecraft.username=p.username;mockConfig.onboarding.completed=true;return previewApi.getState()},
   pingServer:async()=>({online:true,latency:57,players:{online:12,max:40},version:'Forge 1.20.1',favicon:null}),
   checkPack:async()=>({configured:true,state:{version:'SIEGE-DEV',updatedAt:new Date().toISOString()},expectedVersion:'SIEGE-DEV',versionMatches:true,total:247,ok:247,missing:[],changed:[],remove:[],bytesRequired:0,healthy:true}),
@@ -48,7 +48,7 @@ const previewApi = {
   buildDiagnostic:async()=> 'ETERNAL CRAFT // DIAGNÓSTICO\nPreview sin acceso al sistema local.',quickDiagnostic:async()=>({severity:'ok',title:'No veo un error claro',summary:'El último log no contiene una causa típica de crash.'}),copyDiagnostic:async()=>true,saveDiagnostic:async()=>'/tmp/EternalCraft-Diagnostico.txt',exportSupportBundle:async()=>'/tmp/EternalCraft-Soporte.json',
   saveSettings:async(p)=>{const next=merge(mockConfig,p);Object.assign(mockConfig,next);return mockConfig},exportSettings:async()=>'/tmp/EternalCraft-Ajustes.json',importSettings:async()=>mockConfig,clearPackCache:async()=>({clearedFiles:12,clearedBytes:120*1024*1024}),getStorageSummary:async()=>({mods:{bytes:2100*1024*1024,files:196},config:{bytes:12*1024*1024,files:81},cache:{bytes:210*1024*1024,files:14},recovery:{bytes:360*1024*1024,files:45},logs:{bytes:8*1024*1024,files:12}}),cleanupLogs:async()=>({removed:5,bytes:3*1024*1024}),vaultStatus:async()=>({configured:Boolean(mockConfig.sync?.vaultDirectory),directory:mockConfig.sync?.vaultDirectory||'',paths:['options.txt','servers.dat','screenshots'],files:42,bytes:28*1024*1024,lastPush:new Date(Date.now()-3600000).toISOString(),sourceDevice:'SANTI-PC',conflicts:[]}),chooseVaultDirectory:async()=>{mockConfig.sync.vaultDirectory='/home/user/Nextcloud/Eternal';return {config:mockConfig,status:await previewApi.vaultStatus()}},pushVault:async()=>({ok:true,files:42,bytes:28*1024*1024,createdAt:new Date().toISOString(),paths:['options.txt','servers.dat','screenshots']}),pullVault:async()=>({ok:true,copied:42,bytes:28*1024*1024,conflicts:0,createdAt:new Date().toISOString()}),connectivityCheck:async()=>({online:true,checkedAt:new Date().toISOString(),results:[{name:'Canal del pack',ok:true,latency:108},{name:'Modrinth',ok:true,latency:82},{name:'GitHub',ok:true,latency:124}]}),chooseInstallDirectory:async()=>mockConfig.pack.installDirectory,
   checkLauncherUpdate:async()=>({configured:false,development:true}),downloadLauncherUpdate:async()=>true,installLauncherUpdate:async()=>true,
-  copyServerAddress:async()=>true,openInstance:async()=>'',openLogs:async()=>'',openExternal:async()=>true,minimize:()=>{},toggleMaximize:()=>{},close:()=>{},
+  copyServerAddress:async()=>true,openInstance:async()=>'',openLogs:async()=>'',openLatestLog:async()=>'',openExternal:async()=>true,minimize:()=>{},toggleMaximize:()=>{},close:()=>{},
   onPackProgress:()=>()=>{},onGameLog:()=>()=>{},onGameExit:()=>()=>{},onMaximized:()=>()=>{},onLauncherUpdate:()=>()=>{},onDeveloperPublishLog:()=>()=>{},onUiCommand:()=>()=>{}
 };
 previewApi.accountStatus=async()=>({authenticated:false,name:'',id:''});
@@ -83,6 +83,9 @@ let pingHistory=[];
 let settingsGroup='game';
 let packRefreshInFlight=null;
 let updateCenterInFlight=null;
+let healthInFlight=null;
+let crashGuardInFlight=null;
+let connectivityInFlight=null;
 let globalErrorAt=0;
 
 function clamp(v,a,b){return Math.max(a,Math.min(b,v))}
@@ -555,7 +558,11 @@ function renderCrashGuard(result={}){
   const bad=Number(result.crashStreak||0)>0||result.diagnostic?.severity!=='ok';$('crashGuardBadge').textContent=bad?'REVISAR':'SIN ALERTAS';$('crashGuardBadge').className=bad?'warn':'ok';$('crashGuardIcon').textContent=bad?'!':'✓';$('crashGuardTitle').textContent=suspects.length?`${suspects.length} mod${suspects.length===1?'':'s'} reciente${suspects.length===1?'':'s'} a revisar`:'No hay un cambio reciente claramente sospechoso';$('crashGuardText').textContent=suspects.length?'Crash Guard cruzó el último cierre con instalaciones y actualizaciones recientes. Podés desactivarlos temporalmente de una vez.':(result.diagnostic?.summary||'Los últimos cambios no apuntan a un mod personal concreto.');
   for(const mod of suspects){const row=document.createElement('div');row.className='crash-suspect';row.innerHTML='<div><b></b><span></span></div><em></em>';row.querySelector('b').textContent=mod.name||mod.filename;row.querySelector('span').textContent=`${mod.changeType||'cambio'} · ${timeAgo(mod.changedAt)}`;row.querySelector('em').textContent=mod.enabled?'ACTIVO':'YA DESACTIVADO';host.appendChild(row);}if(!suspects.length)host.innerHTML='<div class="empty-state">Sin sospechosos recientes. Inicio Seguro sigue disponible para descartar todos los mods personales.</div>';$('crashGuardDisableBtn').disabled=!suspects.some(x=>x.enabled);$('crashGuardDisableBtn').dataset.files=JSON.stringify(suspects.filter(x=>x.enabled).map(x=>x.filename));
 }
-async function refreshCrashGuard(showToast=false){try{const r=await api.crashGuard();renderCrashGuard(r);if(showToast)toast(r.suspects?.length?`${r.suspects.length} mod(s) reciente(s) para revisar.`:'Crash Guard no encontró un sospechoso claro.',r.suspects?.length?'warn':'success');return r}catch(err){if(showToast)toast(err.message||String(err),'error');return null}}
+async function refreshCrashGuard(showToast=false){
+  if(crashGuardInFlight)return crashGuardInFlight;
+  crashGuardInFlight=(async()=>{try{const r=await api.crashGuard();renderCrashGuard(r);if(showToast)toast(r.suspects?.length?`${r.suspects.length} mod(s) reciente(s) para revisar.`:'Crash Guard no encontró un sospechoso claro.',r.suspects?.length?'warn':'success');return r}catch(err){if(showToast)toast(err.message||String(err),'error');return null}})();
+  try{return await crashGuardInFlight}finally{crashGuardInFlight=null}
+}
 async function quarantineCrashSuspects(){let files=[];try{files=JSON.parse($('crashGuardDisableBtn')?.dataset.files||'[]')}catch(_){}if(!files.length)return;if(!await askConfirm({title:'Poner mods en cuarentena',message:`Se desactivarán temporalmente ${files.length} mod(s) personal(es) sospechoso(s). Antes se crea un punto de restauración.`,confirmText:'Desactivar sospechosos'}))return;try{const r=await api.disableCrashSuspects(files);if(r.listing)renderMods(r.listing);await refreshCrashGuard(false);await refreshChangeHistory();toast(`${r.changed?.length||0} mod(s) puestos en cuarentena. Probá iniciar Minecraft de nuevo.`,'success')}catch(err){toast(err.message||String(err),'error')}}
 
 function renderHealth(result={}){
@@ -566,7 +573,11 @@ function renderHealth(result={}){
   $('healthRibbon').classList.toggle('warn',!ok); $('healthRibbon').classList.toggle('ok',ok);
   $('healthJava').textContent=`JAVA · ${result.javaOk?'OK':'REVISAR'}`;$('healthPack').textContent=`PACK · ${result.packOk?'OK':'REVISAR'}`;$('healthServer').textContent=`SERVER · ${result.serverOnline?'ONLINE':'OFFLINE'}`;$('healthMods').textContent=`MODS · ${result.userMods||0}${result.disabledMods?` / ${result.disabledMods} OFF`:''}`;
 }
-async function refreshHealth(showToast=false){try{const r=await api.healthCheck();renderHealth(r);if(showToast)toast(r.ok?'Todo listo para jugar.':'Encontré cosas para revisar.',r.ok?'success':'warn');return r}catch(err){if(showToast)toast(err.message||String(err),'error');return null;}}
+async function refreshHealth(showToast=false){
+  if(healthInFlight)return healthInFlight;
+  healthInFlight=(async()=>{try{const r=await api.healthCheck();renderHealth(r);if(showToast)toast(r.ok?'Todo listo para jugar.':'Encontré cosas para revisar.',r.ok?'success':'warn');return r}catch(err){if(showToast)toast(err.message||String(err),'error');return null;}})();
+  try{return await healthInFlight}finally{healthInFlight=null}
+}
 
 async function promoteAllTestMods(){if(!await askConfirm({title:'Promover todos a SIEGE',message:'Se copiarán todos los mods nuevos o modificados desde test-1. Antes de reemplazar archivos se crearán backups.',confirmText:'Promover todos'}))return;try{const r=await api.developerPromoteAllTestMods();renderTestDiff(r.diff||{});toast(`${r.promoted?.length||0} mods promovidos a SIEGE. Todavía no están publicados.`, 'success');}catch(err){toast(err.message||String(err),'error')}}
 
@@ -637,7 +648,7 @@ function renderUpdateCenter(){
 
   if($('updatesModsTitle'))$('updatesModsTitle').textContent=modCount?`${modCount} actualización${modCount===1?'':'es'}`:'Al día';
   if($('updatesModsText'))$('updatesModsText').textContent=modCount?'Mods personales de Modrinth listos para actualizar.':'No hay updates pendientes de mods personales.';
-  if($('updatesLauncherTitle'))$('updatesLauncherTitle').textContent=launcherNeeds?'Nueva versión disponible':`v${appState?.appVersion||'0.50.0'}`;
+  if($('updatesLauncherTitle'))$('updatesLauncherTitle').textContent=launcherNeeds?'Nueva versión disponible':`v${appState?.appVersion||'0.50.1'}`;
   if($('updatesLauncherText'))$('updatesLauncherText').textContent=launcherNeeds?'Podés descargarla sin tocar el modpack.':appState?.packaged?'Canal del launcher comprobado.':'Modo desarrollo · updater desactivado.';
   const javaOk=Boolean(appState?.java?.found&&Number(appState?.java?.major)>=17);if($('updatesRuntimeTitle'))$('updatesRuntimeTitle').textContent=javaOk?`Java ${appState.java.version||17}`:'Java compatible pendiente';if($('updatesRuntimeText'))$('updatesRuntimeText').textContent=javaOk?(appState.java.managed?'Runtime administrado por Eternal Craft.':'Runtime detectado en el sistema.'):'Elegí un Java 17 o superior en tu sistema.';
   if($('updatesHeroMark'))$('updatesHeroMark').textContent=total?'!':'✓';if($('updatesHero'))$('updatesHero').classList.toggle('has-updates',total>0);if($('updatesHeroTitle'))$('updatesHeroTitle').textContent=total?`${total} actualización${total===1?'':'es'} pendiente${total===1?'':'s'}`:'Todo está actualizado';if($('updatesHeroText'))$('updatesHeroText').textContent=total?'Podés revisar cada componente o aplicar las actualizaciones disponibles.':'Launcher, modpack y mods personales están listos.';
@@ -823,8 +834,10 @@ async function launcherUpdateAction(){
 
 async function refreshConnectivity(showToast=false){
   const host=$('connectivityList'),badge=$('connectivityBadge'); if(!host||!api.connectivityCheck)return;
+  if(connectivityInFlight)return connectivityInFlight;
   host.innerHTML='<div class="empty-state">Comprobando servicios…</div>'; badge.textContent='COMPROBANDO'; badge.className='warn';
-  try{const r=await api.connectivityCheck();host.innerHTML='';for(const item of r.results||[]){const row=document.createElement('div');row.className='connectivity-row';const detail=item.ok?`${item.latency} ms`:item.status?`HTTP ${item.status}`:'SIN CONEXIÓN';row.innerHTML=`<span><i class="${item.ok?'ok':'bad'}"></i>${escapeHtml(item.name)}</span><b class="${item.ok?'ok':'bad'}">${detail}</b>`;host.appendChild(row);}const ok=(r.results||[]).length>0&&(r.results||[]).every(x=>x.ok);badge.textContent=ok?'TODO ONLINE':'REVISAR';badge.className=ok?'ok':'warn';if(showToast)toast(ok?'Conectividad correcta.':'Hay servicios sin conexión.',ok?'success':'warn');return r;}catch(err){host.innerHTML=`<div class="empty-state">${escapeHtml(err.message||String(err))}</div>`;badge.textContent='ERROR';badge.className='bad';}
+  connectivityInFlight=(async()=>{try{const r=await api.connectivityCheck();host.innerHTML='';for(const item of r.results||[]){const row=document.createElement('div');row.className='connectivity-row';const detail=item.ok?`${item.latency} ms`:item.status?`HTTP ${item.status}`:'SIN CONEXIÓN';row.innerHTML=`<span><i class="${item.ok?'ok':'bad'}"></i>${escapeHtml(item.name)}</span><b class="${item.ok?'ok':'bad'}">${detail}</b>`;host.appendChild(row);}const ok=(r.results||[]).length>0&&(r.results||[]).every(x=>x.ok);badge.textContent=ok?'TODO ONLINE':'REVISAR';badge.className=ok?'ok':'warn';if(showToast)toast(ok?'Conectividad correcta.':'Hay servicios sin conexión.',ok?'success':'warn');return r;}catch(err){host.innerHTML=`<div class="empty-state">${escapeHtml(err.message||String(err))}</div>`;badge.textContent='ERROR';badge.className='bad';if(showToast)toast(err.message||String(err),'error');return null;}})();
+  try{return await connectivityInFlight}finally{connectivityInFlight=null}
 }
 async function refreshStorage(showToast=false){
   if(!api.getStorageSummary)return;try{const r=await api.getStorageSummary();const set=(id,v)=>{if($(id))$(id).textContent=`${formatBytes(v?.bytes||0)} · ${v?.files||0}`};set('storageMods',r.mods);set('storageConfig',r.config);set('storageCacheDetail',r.cache);set('storageRecovery',r.recovery);set('storageLogs',r.logs);if(showToast)toast('Uso de almacenamiento actualizado.','success');return r;}catch(err){if(showToast)toast(err.message||String(err),'error')}
@@ -857,7 +870,7 @@ function bind(){
   $('modsEnableAllBtn')?.addEventListener('click',()=>setAllPersonalModsEnabled(true));$('modsDisableAllBtn')?.addEventListener('click',()=>setAllPersonalModsEnabled(false));$('modsUpdateBtn')?.addEventListener('click',()=>checkPersonalModUpdates(true));$('modsUpdateAllBtn')?.addEventListener('click',updateAllPersonalMods);$('openModsFolderBtn')?.addEventListener('click',()=>api.openInstance());$('modsSearch')?.addEventListener('input',()=>renderMods(modsState));$$('[data-mod-filter]').forEach(btn=>btn.addEventListener('click',()=>{modFilter=btn.dataset.modFilter;$$('[data-mod-filter]').forEach(x=>x.classList.toggle('active',x===btn));renderMods(modsState)}));
   $('modsSort')?.addEventListener('change',async()=>{await api.saveSettings({mods:{sort:$('modsSort').value}});if(appState)appState.config.mods={...(appState.config.mods||{}),sort:$('modsSort').value};refreshMods(false)});
   $('checkPackBtn').addEventListener('click',()=>refreshPack(true));$('quickCheck').addEventListener('click',()=>refreshPack(true));$('updatePackBtn').addEventListener('click',()=>runPackAction('update'));$('openInstanceBtn').addEventListener('click',()=>api.openInstance());
-  $('clearCacheBtn')?.addEventListener('click',clearPackCacheAction);$('modsAuditBtn')?.addEventListener('click',()=>refreshModAudit(true));$('modsAuditIgnoreBtn')?.addEventListener('click',()=>ignoreModWarning('audit'));$('modsUpdateIgnoreBtn')?.addEventListener('click',()=>ignoreModWarning('updates'));$('modsHideWarningsBtn')?.addEventListener('click',hideAllModWarnings);$('modWarningsToggle')?.addEventListener('change',async()=>{ignoredModWarnings.clear();await saveSettings(true);if($('modWarningsToggle').checked){refreshModAudit(false).catch(()=>{});checkPersonalModUpdates(false).catch(()=>{});}});$('openLastLogMaintenanceBtn')?.addEventListener('click',()=>api.openLogs());
+  $('clearCacheBtn')?.addEventListener('click',clearPackCacheAction);$('modsAuditBtn')?.addEventListener('click',()=>refreshModAudit(true));$('modsAuditIgnoreBtn')?.addEventListener('click',()=>ignoreModWarning('audit'));$('modsUpdateIgnoreBtn')?.addEventListener('click',()=>ignoreModWarning('updates'));$('modsHideWarningsBtn')?.addEventListener('click',hideAllModWarnings);$('modWarningsToggle')?.addEventListener('change',async()=>{ignoredModWarnings.clear();await saveSettings(true);if($('modWarningsToggle').checked){refreshModAudit(false).catch(()=>{});checkPersonalModUpdates(false).catch(()=>{});}});$('openLastLogMaintenanceBtn')?.addEventListener('click',()=>api.openLatestLog?api.openLatestLog():api.openLogs());
   $('createRecoveryBtn')?.addEventListener('click',createRecovery);$('healthRefreshBtn')?.addEventListener('click',()=>refreshHealth(true));
   $$('.problem-card').forEach(btn=>btn.addEventListener('click',()=>problemHelp(btn.dataset.problem)));
   $('quickDiagnoseBtn').addEventListener('click',runQuickDiagnostic);$('crashGuardRefreshBtn')?.addEventListener('click',()=>refreshCrashGuard(true));$('crashGuardDisableBtn')?.addEventListener('click',quarantineCrashSuspects);$('buildDiagnosticBtn').addEventListener('click',async()=>{try{$('diagnosticOutput').textContent=await api.buildDiagnostic()}catch(err){toast(err.message||String(err),'error')}});

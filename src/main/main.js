@@ -854,6 +854,20 @@ function registerIpc() {
   ipcMain.handle('shell:open-logs', async () => {
     const folder = path.join(store.load().pack.installDirectory, 'logs'); await fsp.mkdir(folder, { recursive: true }); return shell.openPath(folder);
   });
+  ipcMain.handle('shell:open-latest-log', async () => {
+    const folder = path.join(store.load().pack.installDirectory, 'logs');
+    await fsp.mkdir(folder, { recursive: true });
+    const entries = (await fsp.readdir(folder, { withFileTypes: true }))
+      .filter((entry) => entry.isFile() && /\.log(?:\.gz)?$/i.test(entry.name));
+    if (!entries.length) return shell.openPath(folder);
+    const candidates = await Promise.all(entries.map(async (entry) => {
+      const fullPath = path.join(folder, entry.name);
+      const stat = await fsp.stat(fullPath);
+      return { fullPath, mtimeMs: stat.mtimeMs };
+    }));
+    candidates.sort((a, b) => b.mtimeMs - a.mtimeMs);
+    return shell.openPath(candidates[0].fullPath);
+  });
   ipcMain.handle('shell:open-external', async (_event, url) => {
     if (!/^https?:\/\//i.test(String(url || ''))) throw new Error('URL no permitida'); await shell.openExternal(url); return true;
   });

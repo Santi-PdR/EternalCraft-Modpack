@@ -88,6 +88,7 @@ contextBridge.exposeInMainWorld('eternal', {
   installLauncherUpdate: () => ipcRenderer.invoke('launcher:update-install'),
   openInstance: () => ipcRenderer.invoke('shell:open-instance'),
   openLogs: () => ipcRenderer.invoke('shell:open-logs'),
+  openLatestLog: () => ipcRenderer.invoke('shell:open-latest-log'),
   openExternal: (url) => ipcRenderer.invoke('shell:open-external', url),
   minimize: () => ipcRenderer.send('window:minimize'),
   toggleMaximize: () => ipcRenderer.send('window:maximize-toggle'),
