@@ -53,6 +53,12 @@ class DeveloperService {
     this.scriptRoot = scriptRoot;
     this.publishWorkDir = path.join(userDataDir, 'pack-dist-publish');
     this.unlocked = false;
+    // `gh auth status` and `gh api user` are synchronous CLI calls. The
+    // renderer asks for developer status while switching settings tabs and
+    // before every publish action, so repeating them can briefly freeze the
+    // window. Keep the result for a short interval while still picking up a
+    // logout or token change quickly.
+    this.githubStatusCache = { at: 0, ready: false, login: '' };
   }
   // The public Windows/Linux artifacts never pass this flag. The local Fedora
   // wrapper sets both the environment marker and the explicit argument so the
@@ -67,13 +73,20 @@ class DeveloperService {
   status() {
     const s = this.load(); let githubReady = false, githubLogin = '';
     const developerAllowed = this.isMaintenanceBuild();
-    try {
-      const v = spawnSync('gh', ['--version'], { encoding: 'utf8' });
-      if (v.status === 0) {
-        const auth = spawnSync('gh', ['auth', 'status'], { encoding: 'utf8' }); githubReady = auth.status === 0;
-        if (githubReady) { const me = spawnSync('gh', ['api', 'user', '--jq', '.login'], { encoding: 'utf8' }); if (me.status === 0) githubLogin = String(me.stdout || '').trim(); }
-      }
-    } catch (_) {}
+    const cacheFresh = Date.now() - this.githubStatusCache.at < 5000;
+    if (cacheFresh) {
+      githubReady = this.githubStatusCache.ready;
+      githubLogin = this.githubStatusCache.login;
+    } else {
+      try {
+        const v = spawnSync('gh', ['--version'], { encoding: 'utf8' });
+        if (v.status === 0) {
+          const auth = spawnSync('gh', ['auth', 'status'], { encoding: 'utf8' }); githubReady = auth.status === 0;
+          if (githubReady) { const me = spawnSync('gh', ['api', 'user', '--jq', '.login'], { encoding: 'utf8' }); if (me.status === 0) githubLogin = String(me.stdout || '').trim(); }
+        }
+      } catch (_) {}
+      this.githubStatusCache = { at: Date.now(), ready: githubReady, login: githubLogin };
+    }
     return {
       configured: developerAllowed && Boolean(s.passwordSalt && s.passwordHash), unlocked: developerAllowed && this.unlocked,
       curseforgeConfigured: developerAllowed && Boolean(s.curseforgeApiKey), githubReady, githubLogin,
