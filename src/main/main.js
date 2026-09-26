@@ -186,7 +186,21 @@ function createWindow() {
   if (Number.isFinite(saved?.x)) opts.x = saved.x;
   if (Number.isFinite(saved?.y)) opts.y = saved.y;
   mainWindow = new BrowserWindow(opts);
-  mainWindow.loadFile(rendererPath('index.html'));
+  mainWindow.webContents.on('did-fail-load', (_event, code, description, url, isMainFrame) => {
+    if (isMainFrame) appendLauncherError('renderer did-fail-load', { code, description, url });
+  });
+  mainWindow.webContents.on('render-process-gone', (_event, details) => {
+    appendLauncherError('renderer render-process-gone', details);
+    if (details?.reason === 'crashed' && mainWindow && !mainWindow.isDestroyed()) {
+      setTimeout(() => {
+        if (!mainWindow || mainWindow.isDestroyed()) return;
+        mainWindow.reload();
+      }, 250);
+    }
+  });
+  mainWindow.loadFile(rendererPath('index.html')).catch((error) => {
+    appendLauncherError('renderer load-file', error);
+  });
   mainWindow.once('ready-to-show', () => { if (cfg.launcher?.windowMaximized) mainWindow.maximize(); const startup=process.argv.includes('--startup'); if(startup && cfg.launcher?.startMinimized) mainWindow.hide(); else mainWindow.show(); });
   let saveTimer = null;
   const saveWindowState = () => {
