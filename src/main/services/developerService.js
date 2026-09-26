@@ -162,6 +162,7 @@ class DeveloperService {
     // window. Keep the result for a short interval while still picking up a
     // logout or token change quickly.
     this.githubStatusCache = { at: 0, ready: false, login: '' };
+    this.githubStatusInFlight = null;
   }
   async cleanupStalePublishWorkDir(maxAgeMs = 6 * 60 * 60 * 1000) {
     try {
@@ -206,15 +207,20 @@ class DeveloperService {
     if (!developerAllowed) return this.buildStatus(s);
     const cacheFresh = Date.now() - this.githubStatusCache.at < 5000;
     if (cacheFresh) return this.buildStatus(s, this.githubStatusCache.ready, this.githubStatusCache.login);
-    let githubReady = false; let githubLogin = '';
-    try {
-      await execFileAsync('gh', ['--version'], { encoding: 'utf8', timeout: 15000 });
-      await execFileAsync('gh', ['auth', 'status'], { encoding: 'utf8', timeout: 15000 });
-      githubReady = true;
-      try { const me = await execFileAsync('gh', ['api', 'user', '--jq', '.login'], { encoding: 'utf8', timeout: 15000 }); githubLogin = String(me.stdout || '').trim(); } catch (_) {}
-    } catch (_) {}
-    this.githubStatusCache = { at: Date.now(), ready: githubReady, login: githubLogin };
-    return this.buildStatus(s, githubReady, githubLogin);
+    if (this.githubStatusInFlight) return this.githubStatusInFlight;
+    this.githubStatusInFlight = (async () => {
+      let githubReady = false; let githubLogin = '';
+      try {
+        await execFileAsync('gh', ['--version'], { encoding: 'utf8', timeout: 15000 });
+        await execFileAsync('gh', ['auth', 'status'], { encoding: 'utf8', timeout: 15000 });
+        githubReady = true;
+        try { const me = await execFileAsync('gh', ['api', 'user', '--jq', '.login'], { encoding: 'utf8', timeout: 15000 }); githubLogin = String(me.stdout || '').trim(); } catch (_) {}
+      } catch (_) {}
+      this.githubStatusCache = { at: Date.now(), ready: githubReady, login: githubLogin };
+      return this.buildStatus(this.load(), githubReady, githubLogin);
+    })();
+    try { return await this.githubStatusInFlight; }
+    finally { this.githubStatusInFlight = null; }
   }
   requireAvailable() { if (!this.isMaintenanceBuild()) throw new Error('El modo desarrollador solo está disponible en la build privada de mantenimiento.'); }
   setup(password) {

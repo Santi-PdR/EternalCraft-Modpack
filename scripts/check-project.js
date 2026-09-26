@@ -49,6 +49,7 @@ if (!developerServiceSource.includes("output = `${output}${text}`.slice(-maxCapt
 if (!developerServiceSource.includes('async cleanupStalePublishWorkDir')) throw new Error('La limpieza de temporales del publicador debe ser asíncrona.');
 if (!developerServiceSource.includes("child.kill('SIGTERM')")) throw new Error('El publicador debe terminar el proceso hijo cuando falla su canal de salida.');
 if (!developerServiceSource.includes('const hasCache = this.githubStatusCache.at > 0')) throw new Error('El estado del developer no debe ocultar una conexión GitHub conocida durante el desbloqueo.');
+if (!developerServiceSource.includes('this.githubStatusInFlight')) throw new Error('El estado de GitHub del developer debe deduplicar comprobaciones simultáneas.');
 if (!mainSource.includes('runtimeCacheGeneration')) throw new Error('Las cachés de runtime deben descartar respuestas iniciadas antes de una invalidación.');
 if (!mainSource.includes('rendererLoadAttempts < 3')) throw new Error('La carga del renderer debe reintentar fallos iniciales sin entrar en un bucle infinito.');
 const configStoreSource = fs.readFileSync(path.join(root,'src','main','services','configStore.js'),'utf8');
