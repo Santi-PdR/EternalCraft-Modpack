@@ -166,7 +166,10 @@ async function listPublishableFiles(source) {
 async function validatePublishedPayload(source, manifest) {
   const { files: sourceFiles, excludedUserMods } = await listPublishableFiles(source);
   const expected = new Map(sourceFiles.map((file) => [file.relative, publishedPathKind(file.relative)]));
-  const actual = new Map((manifest?.files || []).map((file) => [String(file.path || '').replace(/\\/g, '/'), publishedPathKind(file.path)]));
+  const manifestPaths = (manifest?.files || []).map((file) => String(file.path || '').replace(/\\/g, '/'));
+  const duplicatePaths = [...new Set(manifestPaths.filter((file, index) => manifestPaths.indexOf(file) !== index))];
+  if (duplicatePaths.length) throw new Error(`El manifest contiene rutas duplicadas: ${duplicatePaths.slice(0, 5).join(', ')}.`);
+  const actual = new Map(manifestPaths.map((file) => [file, publishedPathKind(file)]));
   const missing = [...expected.keys()].filter((file) => !actual.has(file));
   const unexpected = [...actual.keys()].filter((file) => !expected.has(file) || !actual.get(file));
   if (missing.length || unexpected.length) {

@@ -223,6 +223,9 @@ function closeCommandPalette(){$('commandPalette').classList.add('hidden')}
 async function executeCommand(action){closeCommandPalette();try{await action?.run?.()}catch(err){toast(err.message||String(err),'error')}}
 function setPage(page){
   const labels={home:'Jugar',mods:'Mods',modpack:'Modpack',updates:'Actualizaciones',gallery:'Galería',support:'Soporte',settings:'Ajustes'};
+  // A stale deep-link or an old remembered page must never leave every page
+  // hidden. Fall back to the home shell before toggling classes.
+  if(!$(`page-${page}`)){page='home';}
   $$('.nav-item').forEach(b=>{const active=b.dataset.page===page;b.classList.toggle('active',active);if(active)b.setAttribute('aria-current','page');else b.removeAttribute('aria-current')});
   const targetId=`page-${page}`;
   $$('.page').forEach(s=>{
