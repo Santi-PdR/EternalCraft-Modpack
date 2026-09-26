@@ -3,7 +3,7 @@ async function probe(url, timeoutMs=5500, attempts=2) {
   for(let attempt=1;attempt<=attempts;attempt++){
     const started=Date.now(); const controller=new AbortController(); const timer=setTimeout(()=>controller.abort(),timeoutMs);
     try {
-      const r=await fetch(url,{method:'GET',signal:controller.signal,headers:{'User-Agent':'EternalCraftLauncher/0.65.36',Accept:'application/json,text/plain,*/*'}});
+      const r=await fetch(url,{method:'GET',signal:controller.signal,headers:{'User-Agent':'EternalCraftLauncher/0.65.37',Accept:'application/json,text/plain,*/*'}});
       const result={ok:r.ok,status:r.status,latency:Date.now()-started};
       if(r.ok || (![408,425,429].includes(r.status) && r.status<500)) return result;
       last=result;
