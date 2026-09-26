@@ -118,8 +118,11 @@ function runPublisherProcess({ args, cwd, onLine = () => {}, timeoutMs, label, e
       error ? reject(error) : resolve(value);
     };
     const collect = (buf) => {
+      if (settled) return;
       const text = String(buf || '');
-      if (output.length < maxCapture) output += text.slice(0, Math.max(0, maxCapture - output.length));
+      // Keep the tail: long publishes emit hundreds of progress lines and the
+      // useful failure (HTTP status, E2BIG, auth error, etc.) is at the end.
+      output = `${output}${text}`.slice(-maxCapture);
       for (const line of text.split(/\r?\n/).filter(Boolean)) onLine(line);
     };
     const timer = setTimeout(() => {

@@ -33,6 +33,7 @@ const publisherSource = fs.readFileSync(path.join(root,'scripts','publish-pack-g
 const packBuilderSource = fs.readFileSync(path.join(root,'scripts','build-pack.js'),'utf8');
 const manifestServiceSource = fs.readFileSync(path.join(root,'src','main','services','manifestService.js'),'utf8');
 const updateServiceSource = fs.readFileSync(path.join(root,'src','main','services','updateService.js'),'utf8');
+const developerServiceSource = fs.readFileSync(path.join(root,'src','main','services','developerService.js'),'utf8');
 if (!packBuilderSource.includes('ETERNAL_LAUNCHER_VERSION')) throw new Error('El constructor del pack no tiene fallback de versión para builds empaquetadas.');
 if (!publisherSource.includes("String(output || '').trim()")) throw new Error('El publicador debe normalizar la salida nula de gh antes de trim().');
 if (!publisherSource.includes("'--input', bodyFile")) throw new Error('El publicador debe enviar el manifest por archivo y no por argumentos de gh.');
@@ -40,6 +41,7 @@ if (!publisherSource.includes('includeUserMods')) throw new Error('El publicador
 if (!packBuilderSource.includes("Boolean(args['include-user-mods'])")) throw new Error('El constructor debe aceptar la política explícita de publicación de mods personales.');
 if (!manifestServiceSource.includes('Ruta fuera del payload administrado')) throw new Error('El validador debe limitar el manifiesto a los directorios administrados.');
 if (!updateServiceSource.includes('if (availableInfo) emit({ type: \'available\'')) throw new Error('El updater debe conservar el reintento después de un fallo de descarga.');
+if (!developerServiceSource.includes("output = `${output}${text}`.slice(-maxCapture)")) throw new Error('El publicador debe conservar el final del log para diagnosticar fallos.');
 if (/--(?:raw-)?field['\"`][^\n]*(?:manifest|content|body)/i.test(publisherSource)) throw new Error('El publicador volvió a pasar contenido grande del manifest por argumentos de gh.');
 for (const match of mainSource.matchAll(/const\s*\{([^}]+)\}\s*=\s*require\('\.\/services\/([^']+)'\)/g)) {
   const names = match[1].split(',').map(value => value.trim()).filter(Boolean);
