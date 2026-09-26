@@ -171,7 +171,7 @@ async function downloadFile(url, destination, expectedSha256, onChunk = () => {}
     await fsp.rename(temp, destination);
     return;
   }
-  const response = await fetchWithRetry(url, { headers: { 'User-Agent': 'EternalCraftLauncher/0.65.30', Accept: '*/*' } }, 3, 120000);
+  const response = await fetchWithRetry(url, { headers: { 'User-Agent': 'EternalCraftLauncher/0.65.31', Accept: '*/*' } }, 3, 120000);
   if (!response.body) throw new Error(`Respuesta vacía al descargar ${url}`);
   const total = Number(response.headers.get('content-length') || 0); let received = 0;
   const reader = response.body.getReader();
