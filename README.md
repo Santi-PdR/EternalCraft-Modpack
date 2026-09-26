@@ -1,4 +1,4 @@
-# Eternal Craft Launcher 0.65.1
+# Eternal Craft Launcher 0.65.2
 
 Official launcher for **Eternal Craft // SIEGE**.
 
@@ -10,9 +10,10 @@ Official launcher for **Eternal Craft // SIEGE**.
 
 Eternal Craft Launcher is intentionally not a generic multi-instance launcher. It manages one official SIEGE installation and aims to make installing, repairing, updating and launching that pack safe and simple.
 
-## 0.65.1 — Estado de Developer sin bloqueos
+## 0.65.2 — Páginas recuperables y errores IPC aislados
 
-- La biblioteca de Mods administra exclusivamente archivos instalados localmente; se retiraron los catálogos, API keys, proxies y comprobaciones de proveedores externos.
+- Las páginas de Mods, Modpack, Actualizaciones, Galería, Soporte y Ajustes siguen renderizando aunque no exista un canal remoto publicado.
+- Los errores IPC y las salidas cerradas de terminal ya no pueden cerrar el proceso principal por un EPIPE.
 - El modo desarrollador ya no contiene credenciales de servicios de mods: solo publica el modpack mediante GitHub CLI en la build privada de mantenimiento.
 - La publicación se ejecuta en un proceso asíncrono con registro de progreso, sin bloquear la ventana mientras prepara o sube blobs grandes.
 - El actualizador del launcher usa el feed de GitHub Releases y requiere una acción explícita para descargar y reiniciar con la nueva versión.

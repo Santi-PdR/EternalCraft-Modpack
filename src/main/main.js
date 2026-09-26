@@ -81,6 +81,18 @@ async function tailLauncherErrorLog(maxBytes = 64000) {
   } catch (_) { return ''; }
 }
 
+// A detached desktop launch can outlive the terminal that started it. Electron
+// still writes rejected IPC calls to stderr; once that terminal closes Node
+// emits EPIPE and treats it as an uncaught exception. Keep the launcher alive
+// so one rejected page request cannot blank every other view.
+for (const stream of [process.stdout, process.stderr]) {
+  if (stream && typeof stream.on === 'function') {
+    stream.on('error', (error) => {
+      if (error?.code !== 'EPIPE') appendLauncherError('process stream', error);
+    });
+  }
+}
+
 function resourcesDir() {
   return app.isPackaged ? path.join(process.resourcesPath, 'resources') : path.join(__dirname, '..', '..', 'resources');
 }
@@ -221,8 +233,18 @@ async function currentManifest(config) {
   if (cached && cached.expiresAt > now) return cached.value;
   if (manifestInFlight.has(key)) return manifestInFlight.get(key);
   const request = (async () => {
-    const info = await getManifest(config, path.join(resourcesDir(), 'manifest.example.json'), path.join(app.getPath('userData'), 'cache', 'stable-manifest.json'));
-    const value = { ...info, source: info.configured ? (process.env.ETERNAL_PACK_MANIFEST ? 'development' : 'remote') : 'fallback' };
+    const localPath = path.join(resourcesDir(), 'manifest.example.json');
+    let info;
+    try {
+      info = await getManifest(config, localPath, path.join(app.getPath('userData'), 'cache', 'stable-manifest.json'));
+    } catch (error) {
+      // A missing or temporarily unreachable channel must not blank Mods,
+      // Updates or Settings. Keep the local example manifest available so
+      // those pages can render and explain that the pack is unpublished.
+      const manifest = JSON.parse(await fsp.readFile(localPath, 'utf8'));
+      info = { manifest, configured: false, source: 'fallback', stale: false, error: error.message || String(error) };
+    }
+    const value = { ...info, source: info.configured ? (process.env.ETERNAL_PACK_MANIFEST ? 'development' : (info.source || 'remote')) : 'fallback' };
     manifestCache.set(key, { value, expiresAt: Date.now() + RUNTIME_CACHE_TTL_MS });
     return value;
   })();
