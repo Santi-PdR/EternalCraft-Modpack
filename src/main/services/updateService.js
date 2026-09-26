@@ -54,9 +54,17 @@ async function checkLauncherUpdate(config, onEvent) {
 async function downloadLauncherUpdate(config, onEvent) {
   const setup = configureLauncherUpdates({ feedUrl: config.launcher?.updateFeedUrl, onEvent });
   if (!setup.configured) throw new Error('No hay un canal de actualizaciones del launcher configurado.');
+  if (lastState.type === 'downloaded') return { downloaded: true, state: lastState };
+  if (!['available', 'progress'].includes(lastState.type)) {
+    throw new Error('Primero comprobá si hay una actualización disponible.');
+  }
   if (downloadPromise) return downloadPromise;
   downloadPromise = autoUpdater.downloadUpdate()
     .then(() => ({ downloaded: true, state: lastState }))
+    .catch((error) => {
+      emit({ type: 'error', message: error?.message || String(error) });
+      throw error;
+    })
     .finally(() => { downloadPromise = null; });
   return downloadPromise;
 }

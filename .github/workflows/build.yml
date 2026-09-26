@@ -27,6 +27,7 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
+          cache: npm
       - run: npm ci --no-audit --no-fund
       - run: npm run visuals:fetch
       - run: npm run check
@@ -51,6 +52,12 @@ jobs:
         with:
           path: release-files
           merge-multiple: true
+      - name: Verify updater metadata
+        shell: bash
+        run: |
+          cd release-files
+          if compgen -G '*AppImage' > /dev/null; then test -s latest-linux.yml; fi
+          if compgen -G '*Setup*.exe' > /dev/null || compgen -G '*Portable*.exe' > /dev/null; then test -s latest.yml; fi
       - name: Generate checksums
         shell: bash
         run: |
