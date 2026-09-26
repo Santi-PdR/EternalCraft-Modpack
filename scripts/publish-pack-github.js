@@ -134,14 +134,15 @@ async function main() {
   const reportBuildProgress = ({ current, total, file }) => {
     if (current === 1 || current === total || current % 25 === 0) console.log(`Preparando publicación: ${current}/${total} · ${file}`);
   };
-  let result = await buildPack({ source, out, version: initialVersion, baseUrl: `https://github.com/${repo}/releases/download/pack-v${initialVersion}`, previousManifest: previous, notes: args.notes || '', onProgress: reportBuildProgress });
+  const includeUserMods = Boolean(args['include-user-mods']);
+  let result = await buildPack({ source, out, version: initialVersion, baseUrl: `https://github.com/${repo}/releases/download/pack-v${initialVersion}`, previousManifest: previous, notes: args.notes || '', includeUserMods, onProgress: reportBuildProgress });
   const changeCount=(result.changes.added?.length||0)+(result.changes.changed?.length||0)+(result.changes.removed?.length||0);
   if(previous && changeCount===0) throw new Error('No hay cambios nuevos en la instancia SIEGE para publicar.');
   const version = requestedVersion || nextVersion(previous?.version || '', result.changes);
   const tag = `pack-v${version}`;
   if (version !== initialVersion) {
     await fsp.rm(out, { recursive: true, force: true });
-    result = await buildPack({ source, out, version, baseUrl: `https://github.com/${repo}/releases/download/${tag}`, previousManifest: previous, notes: args.notes || '', onProgress: reportBuildProgress });
+    result = await buildPack({ source, out, version, baseUrl: `https://github.com/${repo}/releases/download/${tag}`, previousManifest: previous, notes: args.notes || '', includeUserMods, onProgress: reportBuildProgress });
   }
   result.manifest.releaseName = twoWordReleaseName(result.changes);
   result.manifest.releaseNotes.title = `${version} — ${result.manifest.releaseName}`;

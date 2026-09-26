@@ -150,10 +150,10 @@ async function readLocalUserModPaths(source) {
   }
 }
 
-async function listPublishableFiles(source) {
+async function listPublishableFiles(source, { includeUserMods = false } = {}) {
   const localUserMods = await readLocalUserModPaths(source);
   const files = (await walk(source)).filter((file) => isPublishedPath(file.relative));
-  const publishable = files.filter((file) => !localUserMods.has(file.relative.toLowerCase()));
+  const publishable = includeUserMods ? files : files.filter((file) => !localUserMods.has(file.relative.toLowerCase()));
   return { files: publishable, excludedUserMods: files.length - publishable.length };
 }
 
@@ -163,8 +163,8 @@ async function listPublishableFiles(source) {
  * that was used to build the manifest. It catches future regressions where a
  * filter, a staging step, or a hand-edited manifest drops a SIEGE file.
  */
-async function validatePublishedPayload(source, manifest) {
-  const { files: sourceFiles, excludedUserMods } = await listPublishableFiles(source);
+async function validatePublishedPayload(source, manifest, { includeUserMods = false } = {}) {
+  const { files: sourceFiles, excludedUserMods } = await listPublishableFiles(source, { includeUserMods });
   const expected = new Map(sourceFiles.map((file) => [file.relative, publishedPathKind(file.relative)]));
   const manifestPaths = (manifest?.files || []).map((file) => String(file.path || '').replace(/\\/g, '/'));
   const duplicatePaths = [...new Set(manifestPaths.filter((file, index) => manifestPaths.indexOf(file) !== index))];
@@ -201,8 +201,12 @@ async function buildPack(options = {}) {
 
   // The SIEGE instance is also used for development and contains saves,
   // options, logs and other personal state. Only the pack payload is
-  // publishable: mods plus the iammusicplayerrenewed resource.
-  const { files } = await listPublishableFiles(source);
+  // publishable: mods plus the iammusicplayerrenewed resource. A normal
+  // local build keeps user-added mods out; an explicit developer publish
+  // passes includeUserMods so a jar intentionally present in SIEGE becomes
+  // part of the official manifest and is no longer classified as personal.
+  const includeUserMods = Boolean(options.includeUserMods);
+  const { files } = await listPublishableFiles(source, { includeUserMods });
   if (!files.length) throw new Error(`La instancia ${source} no contiene archivos publicables después de aplicar los filtros de seguridad.`);
   const blobsDir = path.join(out, 'blobs');
   const channelDir = path.join(out, 'channel');
@@ -269,7 +273,7 @@ async function buildPack(options = {}) {
     files: manifestFiles,
     remove
   };
-  const payload = await validatePublishedPayload(source, manifest);
+  const payload = await validatePublishedPayload(source, manifest, { includeUserMods });
   manifest.payload = payload;
   const changes = {
     version,
@@ -297,6 +301,7 @@ async function main() {
     baseUrl: args['base-url'],
     previous: args.previous,
     notes: args.notes,
+    includeUserMods: Boolean(args['include-user-mods']),
     onProgress: ({ current, total, file }) => {
       if (current === 1 || current === total || current % 25 === 0) console.log(`[${current}/${total}] ${file}`);
     }

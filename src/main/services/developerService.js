@@ -328,7 +328,7 @@ class DeveloperService {
     const script = path.join(this.scriptRoot, 'publish-pack-github.js');
     fs.mkdirSync(this.publishWorkDir, { recursive: true });
     const args = [script, '--preview', '--repo', repo, '--source', normalizePathInput(source, path.join(os.homedir(), '.sklauncher', 'instances', 'siege')), '--out', this.publishWorkDir];
-    if (version) args.push('--version', version); if (notes) args.push('--notes', notes);
+    if (version) args.push('--version', version); if (notes) args.push('--notes', notes); args.push('--include-user-mods');
     return runPublisherProcess({ args, cwd: this.publishWorkDir, onLine, timeoutMs: 10 * 60 * 1000, label: 'La previsualización', env: { ETERNAL_LAUNCHER_VERSION: this.launcherVersion } })
       .then(({ output }) => {
         const line = output.split(/\r?\n/).find((x) => x.startsWith('PREVIEW_JSON:'));
@@ -343,7 +343,7 @@ class DeveloperService {
     const script = path.join(this.scriptRoot, 'publish-pack-github.js'); if (!fs.existsSync(script)) return Promise.reject(new Error('No encontré el publicador del modpack.'));
     fs.mkdirSync(this.publishWorkDir, { recursive: true });
     const args = [script, '--repo', repo, '--source', normalizePathInput(source, path.join(os.homedir(), '.sklauncher', 'instances', 'siege')), '--out', this.publishWorkDir];
-    if (version) args.push('--version', version); if (notes) args.push('--notes', notes); if(expectedFingerprint) args.push('--expected-fingerprint', expectedFingerprint);
+    if (version) args.push('--version', version); if (notes) args.push('--notes', notes); args.push('--include-user-mods'); if(expectedFingerprint) args.push('--expected-fingerprint', expectedFingerprint);
     return runPublisherProcess({ args, cwd: this.publishWorkDir, onLine, timeoutMs: 45 * 60 * 1000, label: 'La publicación', env: { ETERNAL_LAUNCHER_VERSION: this.launcherVersion } })
       .then(({ output }) => ({ ok: true, output }));
   }
