@@ -694,6 +694,10 @@ function registerIpc() {
     config = store.save({ launcher: { lastPlayedAt: new Date().toISOString() } });
     const latest = await currentManifest(config);
     const premium = await authService.getAuthorization().catch((err) => {
+      if (err?.reauthRequired) {
+        store.save({ minecraft: { accountMode: 'offline' } });
+        throw new Error('La sesión Microsoft venció. Iniciá sesión nuevamente para jugar con tu cuenta premium.');
+      }
       if (config.minecraft?.accountMode === 'premium' || authService.status().authenticated) throw new Error(`No pude renovar la sesión premium: ${err.message || err}`);
       return null;
     });

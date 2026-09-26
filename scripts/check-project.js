@@ -62,6 +62,7 @@ const configStoreSource = fs.readFileSync(path.join(root,'src','main','services'
 const authServiceSource = fs.readFileSync(path.join(root,'src','main','services','authService.js'),'utf8');
 if (!authServiceSource.includes('function isAuthFailure') || !authServiceSource.includes('error.reauthRequired = true')) throw new Error('La sesión Microsoft debe diferenciar tokens inválidos de fallos de red.');
 if (!mainSource.includes('else if (result.reauthRequired) store.save({ minecraft: { accountMode: \'offline\' } });')) throw new Error('El launcher debe salir del modo premium cuando Microsoft invalida la sesión.');
+if (!mainSource.includes("if (err?.reauthRequired) {\n        store.save({ minecraft: { accountMode: 'offline' } });")) throw new Error('El inicio del juego debe convertir una sesión premium vencida en una acción recuperable.');
 if (!configStoreSource.includes('Persist the migration immediately')) throw new Error('La limpieza de configuración heredada debe persistirse al migrar.');
 if (/--(?:raw-)?field['\"`][^\n]*(?:manifest|content|body)/i.test(publisherSource)) throw new Error('El publicador volvió a pasar contenido grande del manifest por argumentos de gh.');
 for (const match of mainSource.matchAll(/const\s*\{([^}]+)\}\s*=\s*require\('\.\/services\/([^']+)'\)/g)) {
