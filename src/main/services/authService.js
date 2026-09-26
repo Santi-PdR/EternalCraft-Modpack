@@ -3,6 +3,19 @@ const path = require('path');
 const { Auth } = require('msmc');
 const fsp = require('fs/promises');
 
+async function fetchWithTimeout(url, options = {}, timeoutMs = 20000) {
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), timeoutMs);
+  try {
+    return await fetch(url, { ...options, signal: options.signal || controller.signal });
+  } catch (error) {
+    if (error?.name === 'AbortError') throw new Error(`La operación de Microsoft superó el tiempo de espera (${Math.round(timeoutMs / 1000)} s).`);
+    throw error;
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
 /**
  * Microsoft/Xbox/Minecraft authentication for premium accounts.
  * Only the long-lived Microsoft refresh token is persisted locally. Passwords
@@ -62,7 +75,7 @@ class AuthService {
   async listSkins() {
     if (!this.account?.refreshToken) throw new Error('Iniciá sesión con Microsoft para ver tus skins.');
     const token = await this.minecraftToken();
-    const response = await fetch('https://api.minecraftservices.com/minecraft/profile', { headers: { Authorization: `Bearer ${token}` } });
+    const response = await fetchWithTimeout('https://api.minecraftservices.com/minecraft/profile', { headers: { Authorization: `Bearer ${token}` } });
     if (!response.ok) throw new Error(`No pude consultar tus skins (HTTP ${response.status}).`);
     const profile = await response.json();
     if (profile?.id && profile?.name) this.save({ ...this.account, profile, refreshedAt: new Date().toISOString() });
@@ -82,7 +95,7 @@ class AuthService {
     const form = new FormData();
     form.append('variant', variant === 'slim' ? 'slim' : 'classic');
     form.append('file', new Blob([bytes], { type: 'image/png' }), path.basename(absolute));
-    const response = await fetch('https://api.minecraftservices.com/minecraft/profile/skins', { method: 'POST', headers: { Authorization: `Bearer ${token}` }, body: form });
+    const response = await fetchWithTimeout('https://api.minecraftservices.com/minecraft/profile/skins', { method: 'POST', headers: { Authorization: `Bearer ${token}` }, body: form });
     if (!response.ok) {
       const detail = await response.text().catch(() => '');
       throw new Error(`Microsoft rechazó la skin (HTTP ${response.status})${detail ? `: ${detail.slice(0, 180)}` : '.'}`);
