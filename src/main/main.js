@@ -833,7 +833,7 @@ function registerIpc() {
     developerService.requireUnlocked(); const cfg=store.load();
     const source=cfg.developer?.sourceDirectory || path.join(require('os').homedir(), '.sklauncher', 'instances', 'siege');
     const test=cfg.developer?.testDirectory || path.join(require('os').homedir(), '.sklauncher', 'instances', 'test-1');
-    return developerService.compareTest(source,test);
+    return developerService.compareTestAsync(source,test);
   });
   ipcMain.handle('developer:test-promote', async (_event, filename) => {
     developerService.requireUnlocked(); const cfg=store.load();
@@ -845,11 +845,11 @@ function registerIpc() {
   ipcMain.handle('developer:test-promote-all', async () => runExclusive('promoción de mods de test-1', async () => {
     const cfg=store.load(); const source=cfg.developer?.sourceDirectory; const test=cfg.developer?.testDirectory;
     if(!source||!test) throw new Error('Configurá las instancias SIEGE y test-1.');
-    const diff=developerService.compareTest(source,test);
+    const diff=await developerService.compareTestAsync(source,test);
     const names=[...(diff.testOnly||[]).map(x=>x.name),...(diff.changed||[]).map(x=>x.name)];
     const promoted=[];
     for(const name of names){ await developerService.promoteTestMod(source,test,name); promoted.push(name); }
-    return { promoted, diff:developerService.compareTest(source,test) };
+    return { promoted, diff:await developerService.compareTestAsync(source,test) };
   }));
 
   ipcMain.handle('developer:publish', async (_event, payload = {}) => runExclusive('publicación del modpack', async () => {

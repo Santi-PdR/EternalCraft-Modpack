@@ -1,4 +1,5 @@
 const fs = require('fs');
+const fsp = fs.promises;
 const path = require('path');
 const os = require('os');
 const crypto = require('crypto');
@@ -38,6 +39,51 @@ function scanModDirectory(candidate) {
     }
   } catch (_) {}
   return { root, dir, map };
+}
+
+// Publishing preflight runs in the Electron main process. Hashing a large
+// mods directory synchronously blocks paint and IPC, which looks like a
+// frozen launcher. Keep the exact SHA-256 comparison but yield file reads
+// through a small worker pool so the window remains responsive.
+async function scanModDirectoryAsync(candidate) {
+  const root = resolveMinecraftRoot(candidate); const dir = path.join(root, 'mods'); const map = new Map();
+  let names;
+  try { names = await fsp.readdir(dir); } catch (_) { return { root, dir, map }; }
+  const files = [];
+  for (const name of names) {
+    if (!/\.jar$/i.test(name)) continue;
+    const full = path.join(dir, name);
+    try {
+      const stat = await fsp.stat(full);
+      if (stat.isFile()) files.push({ name, full, size: stat.size, modifiedAt: stat.mtime.toISOString() });
+    } catch (_) {}
+  }
+  let cursor = 0;
+  const worker = async () => {
+    while (cursor < files.length) {
+      const item = files[cursor++];
+      try {
+        const bytes = await fsp.readFile(item.full);
+        item.sha256 = crypto.createHash('sha256').update(bytes).digest('hex');
+        map.set(item.name, item);
+      } catch (_) {}
+    }
+  };
+  await Promise.all(Array.from({ length: Math.min(2, Math.max(1, files.length)) }, worker));
+  return { root, dir, map };
+}
+
+function compareScans(a, b) {
+  const testOnly = []; const sourceOnly = []; const changed = []; const same = [];
+  for (const [name, mod] of b.map) {
+    const old = a.map.get(name);
+    if (!old) testOnly.push(mod);
+    else if (old.sha256 !== mod.sha256) changed.push({ name, source: old, test: mod });
+    else same.push(name);
+  }
+  for (const [name, mod] of a.map) if (!b.map.has(name)) sourceOnly.push(mod);
+  const newest = [...testOnly, ...changed.map((x) => x.test)].sort((x, y) => new Date(y.modifiedAt) - new Date(x.modifiedAt));
+  return { sourceRoot: a.root, testRoot: b.root, counts: { testOnly: testOnly.length, sourceOnly: sourceOnly.length, changed: changed.length, same: same.length }, testOnly, sourceOnly, changed, newest };
 }
 
 function safeEqualHex(a, b) {
@@ -178,8 +224,8 @@ class DeveloperService {
   requireUnlocked() { this.requireAvailable(); if (!this.unlocked) throw new Error('Modo desarrollador bloqueado.'); }
   async preflightAsync(source, test, repo) {
     this.requireUnlocked();
-    const src = scanModDirectory(source || path.join(os.homedir(), '.sklauncher', 'instances', 'siege'));
-    const tst = scanModDirectory(test || path.join(os.homedir(), '.sklauncher', 'instances', 'test-1'));
+    const src = await scanModDirectoryAsync(source || path.join(os.homedir(), '.sklauncher', 'instances', 'siege'));
+    const tst = await scanModDirectoryAsync(test || path.join(os.homedir(), '.sklauncher', 'instances', 'test-1'));
     let githubReady = false; let githubLogin = ''; let repoReady = false;
     try {
       await execFileAsync('gh', ['--version'], { encoding: 'utf8', timeout: 15000 });
@@ -188,7 +234,7 @@ class DeveloperService {
       try { const me = await execFileAsync('gh', ['api', 'user', '--jq', '.login'], { encoding: 'utf8', timeout: 15000 }); githubLogin = String(me.stdout || '').trim(); } catch (_) {}
       if (repo && repo.includes('/')) { try { await execFileAsync('gh', ['repo', 'view', repo, '--json', 'name'], { encoding: 'utf8', timeout: 20000 }); repoReady = true; } catch (_) {} }
     } catch (_) {}
-    const diff = this.compareTest(src.root, tst.root);
+    const diff = compareScans(src, tst);
     return { githubReady, githubLogin, repoReady, repo: repo || '', sourceReady:Boolean(src.root && fs.existsSync(path.join(src.root, 'mods'))), sourceRoot:src.root, sourceMods:src.map.size, testReady:Boolean(tst.root && fs.existsSync(path.join(tst.root, 'mods'))), testRoot:tst.root, testMods:tst.map.size, pendingTestChanges:Number(diff.counts?.testOnly||0)+Number(diff.counts?.changed||0), diff };
   }
 
@@ -243,6 +289,14 @@ class DeveloperService {
     for (const [name, mod] of a.map) if (!b.map.has(name)) sourceOnly.push(mod);
     const newest = [...testOnly, ...changed.map((x) => x.test)].sort((x,y)=>new Date(y.modifiedAt)-new Date(x.modifiedAt));
     return { sourceRoot:a.root, testRoot:b.root, counts:{testOnly:testOnly.length,sourceOnly:sourceOnly.length,changed:changed.length,same:same.length}, testOnly, sourceOnly, changed, newest };
+  }
+  async compareTestAsync(source, test) {
+    this.requireUnlocked();
+    const [a, b] = await Promise.all([
+      scanModDirectoryAsync(source || path.join(os.homedir(), '.sklauncher', 'instances', 'siege')),
+      scanModDirectoryAsync(test || path.join(os.homedir(), '.sklauncher', 'instances', 'test-1'))
+    ]);
+    return compareScans(a, b);
   }
   promoteTestMod(source, test, filename) {
     this.requireUnlocked();
