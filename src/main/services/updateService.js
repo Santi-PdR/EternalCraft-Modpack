@@ -6,6 +6,7 @@ let wired = false;
 let checkPromise = null;
 let downloadPromise = null;
 let lastState = { type: 'idle', info: null, progress: null, error: '' };
+let availableInfo = null;
 let eventSink = () => {};
 
 function normalizeBaseUrl(url) {
@@ -28,14 +29,16 @@ function configureLauncherUpdates({ feedUrl, onEvent = () => {} }) {
     autoUpdater.autoInstallOnAppQuit = false;
     autoUpdater.allowPrerelease = false;
     autoUpdater.on('checking-for-update', () => emit({ type: 'checking' }));
-    autoUpdater.on('update-available', (info) => emit({ type: 'available', info }));
-    autoUpdater.on('update-not-available', (info) => emit({ type: 'none', info }));
+    autoUpdater.on('update-available', (info) => { availableInfo = info || null; emit({ type: 'available', info, error: '' }); });
+    autoUpdater.on('update-not-available', (info) => { availableInfo = null; emit({ type: 'none', info, error: '' }); });
     autoUpdater.on('download-progress', (progress) => emit({ type: 'progress', progress }));
     autoUpdater.on('update-downloaded', (info) => emit({ type: 'downloaded', info }));
     autoUpdater.on('error', (error) => emit({ type: 'error', message: error?.message || String(error) }));
   }
   if (configuredUrl !== normalized) {
     configuredUrl = normalized;
+    availableInfo = null;
+    lastState = { type: 'idle', info: null, progress: null, error: '' };
     autoUpdater.setFeedURL({ provider: 'generic', url: normalized });
   }
   return { configured: true, url: normalized, state: lastState };
@@ -62,7 +65,13 @@ async function downloadLauncherUpdate(config, onEvent) {
   downloadPromise = autoUpdater.downloadUpdate()
     .then(() => ({ downloaded: true, state: lastState }))
     .catch((error) => {
-      emit({ type: 'error', message: error?.message || String(error) });
+      const message = error?.message || String(error);
+      // Keep the retry path usable after a transient download failure. The
+      // updater already knows which release was offered, so returning to the
+      // available state lets the user press DESCARGAR again instead of being
+      // forced to run a new check first.
+      if (availableInfo) emit({ type: 'available', info: availableInfo, error: message });
+      else emit({ type: 'error', message });
       throw error;
     })
     .finally(() => { downloadPromise = null; });
