@@ -51,6 +51,7 @@ const manifestInFlight = new Map();
 const systemProfileCache = new Map();
 const systemProfileInFlight = new Map();
 const RUNTIME_CACHE_TTL_MS = 2500;
+let runtimeCacheGeneration = 0;
 
 let launcherErrorLog = '';
 function serializeError(value) {
@@ -267,6 +268,7 @@ async function currentManifest(config) {
   const cached = manifestCache.get(key);
   if (cached && cached.expiresAt > now) return cached.value;
   if (manifestInFlight.has(key)) return manifestInFlight.get(key);
+  const generation = runtimeCacheGeneration;
   const request = (async () => {
     const localPath = path.join(resourcesDir(), 'manifest.example.json');
     let info;
@@ -280,7 +282,9 @@ async function currentManifest(config) {
       info = { manifest, configured: false, source: 'fallback', stale: false, error: error.message || String(error) };
     }
     const value = { ...info, source: info.configured ? (process.env.ETERNAL_PACK_MANIFEST ? 'development' : (info.source || 'remote')) : 'fallback' };
-    manifestCache.set(key, { value, expiresAt: Date.now() + RUNTIME_CACHE_TTL_MS });
+    // A publish/update may invalidate the cache while this request is still
+    // in flight. Do not let the older response repopulate stale state.
+    if (generation === runtimeCacheGeneration) manifestCache.set(key, { value, expiresAt: Date.now() + RUNTIME_CACHE_TTL_MS });
     return value;
   })();
   manifestInFlight.set(key, request);
@@ -288,6 +292,7 @@ async function currentManifest(config) {
   finally { manifestInFlight.delete(key); }
 }
 function invalidateRuntimeCaches() {
+  runtimeCacheGeneration += 1;
   manifestCache.clear();
   systemProfileCache.clear();
 }
@@ -297,8 +302,9 @@ async function cachedSystemProfile(installDirectory, bytesRequired = 0) {
   const cached = systemProfileCache.get(key);
   if (cached && cached.expiresAt > now) return cached.value;
   if (systemProfileInFlight.has(key)) return systemProfileInFlight.get(key);
+  const generation = runtimeCacheGeneration;
   const request = systemProfile(installDirectory, bytesRequired).then((value) => {
-    systemProfileCache.set(key, { value, expiresAt: Date.now() + RUNTIME_CACHE_TTL_MS });
+    if (generation === runtimeCacheGeneration) systemProfileCache.set(key, { value, expiresAt: Date.now() + RUNTIME_CACHE_TTL_MS });
     return value;
   });
   systemProfileInFlight.set(key, request);
