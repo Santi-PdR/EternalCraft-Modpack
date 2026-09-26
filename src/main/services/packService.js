@@ -171,19 +171,25 @@ async function downloadFile(url, destination, expectedSha256, onChunk = () => {}
     await fsp.rename(temp, destination);
     return;
   }
-  const response = await fetchWithRetry(url, { headers: { 'User-Agent': 'EternalCraftLauncher/0.65.26', Accept: '*/*' } }, 3, 120000);
+  const response = await fetchWithRetry(url, { headers: { 'User-Agent': 'EternalCraftLauncher/0.65.27', Accept: '*/*' } }, 3, 120000);
   if (!response.body) throw new Error(`Respuesta vacía al descargar ${url}`);
   const total = Number(response.headers.get('content-length') || 0); let received = 0;
   const reader = response.body.getReader();
+  let bodyTimer;
   const source = new Readable({
     async read() {
       try {
         const { done, value } = await reader.read();
         if (done) return this.push(null);
         received += value.byteLength; onChunk(received, total); this.push(Buffer.from(value));
+        clearTimeout(bodyTimer); bodyTimer = setTimeout(() => { reader.cancel().catch(() => {}); source.destroy(new Error('La descarga quedó sin datos durante demasiado tiempo.')); }, 120000);
       } catch (err) { this.destroy(err); }
     }
   });
+  bodyTimer = setTimeout(() => {
+    reader.cancel().catch(() => {});
+    source.destroy(new Error('La descarga quedó sin datos durante demasiado tiempo.'));
+  }, 120000);
   try {
     await pipeline(source, fs.createWriteStream(temp));
     if (expectedSha256) {
@@ -193,6 +199,7 @@ async function downloadFile(url, destination, expectedSha256, onChunk = () => {}
     await fsp.rm(destination, { force: true }).catch(() => {});
     await fsp.rename(temp, destination);
   } catch (err) { await fsp.rm(temp, { force: true }).catch(() => {}); throw err; }
+  finally { clearTimeout(bodyTimer); }
 }
 
 async function validCachedBlob(file, entry) {
