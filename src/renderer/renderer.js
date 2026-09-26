@@ -12,7 +12,7 @@ const mockConfig = {
   onboarding:{completed:true},links:{}
 };
 const mockManifest = {
-  schema:2,version:'1.0.0',releaseName:'Siege Origin',minecraft:'1.20.1',forge:'47.4.10',minimumLauncher:'0.65.27',files:[],remove:[],
+  schema:2,version:'1.0.0',releaseName:'Siege Origin',minecraft:'1.20.1',forge:'47.4.10',minimumLauncher:'0.65.28',files:[],remove:[],
   releaseNotes:{title:'SIEGE DEV',summary:'Base del launcher renovada y sistema de actualización segura.',addedCount:2,changedCount:4,removedCount:0,highlights:[{type:'changed',path:'mods/siege-menu.jar'},{type:'added',path:'config/eternal-client.toml'}]}
 };
 
@@ -23,7 +23,7 @@ function merge(target, patch){
 }
 
 const previewApi = {
-  getState:async()=>({appVersion:'0.65.27',platform:'preview',packaged:false,config:mockConfig,manifest:mockManifest,manifestConfigured:true,manifestSource:'development',java:{found:true,major:17,version:'17.0.x',path:'java'},needsOnboarding:false,launcherUpdateConfigured:false,minimumLauncher:'0.65.27',launcherCompatible:true,developer:{configured:false,unlocked:false,developerAllowed:false},account:{authenticated:false,name:'',id:'',skins:[]},system:{recommendedRamGb:6,maxRamGb:11,totalMemoryBytes:16*1024**3,gpus:[{vendor:'NVIDIA',name:'NVIDIA GeForce GTX 1050'}],display:{width:1920,height:1080,workWidth:1920,workHeight:1040,scaleFactor:1,label:'Monitor principal'},disk:{available:true,freeBytes:180*1024**3,totalBytes:480*1024**3,requiredBytes:512*1024**2}}}),
+  getState:async()=>({appVersion:'0.65.28',platform:'preview',packaged:false,config:mockConfig,manifest:mockManifest,manifestConfigured:true,manifestSource:'development',java:{found:true,major:17,version:'17.0.x',path:'java'},needsOnboarding:false,launcherUpdateConfigured:false,minimumLauncher:'0.65.28',launcherCompatible:true,developer:{configured:false,unlocked:false,developerAllowed:false},account:{authenticated:false,name:'',id:'',skins:[]},system:{recommendedRamGb:6,maxRamGb:11,totalMemoryBytes:16*1024**3,gpus:[{vendor:'NVIDIA',name:'NVIDIA GeForce GTX 1050'}],display:{width:1920,height:1080,workWidth:1920,workHeight:1040,scaleFactor:1,label:'Monitor principal'},disk:{available:true,freeBytes:180*1024**3,totalBytes:480*1024**3,requiredBytes:512*1024**2}}}),
   completeOnboarding:async(p)=>{mockConfig.minecraft.username=p.username;mockConfig.onboarding.completed=true;return previewApi.getState()},
   pingServer:async()=>({online:true,latency:57,players:{online:12,max:40},version:'Forge 1.20.1',favicon:null}),
   checkPack:async()=>({configured:true,state:{version:'SIEGE-DEV',updatedAt:new Date().toISOString()},expectedVersion:'SIEGE-DEV',versionMatches:true,total:247,ok:247,missing:[],changed:[],remove:[],bytesRequired:0,healthy:true}),
@@ -114,7 +114,7 @@ function toast(message,type=''){
   const duplicate=notificationHistory[0];
   if(duplicate&&duplicate.message===text&&duplicate.type===(type||'info')&&Date.now()-new Date(duplicate.time).getTime()<2500)return;
   const el=document.createElement('div'); el.className=`toast ${type}`.trim(); el.setAttribute('role',type==='error'?'alert':'status'); el.setAttribute('aria-live',type==='error'?'assertive':'polite'); el.textContent=text; $('toastArea').appendChild(el); setTimeout(()=>el.remove(),3800);
-  if(text){notificationHistory.unshift({message:text,type:type||'info',time:new Date().toISOString()});notificationHistory=notificationHistory.slice(0,30);notificationUnread=true;renderNotifications();}
+  if(text){notificationHistory.unshift({message:text,type:type||'info',time:new Date().toISOString()});notificationHistory=notificationHistory.slice(0,30);const drawer=$('notificationDrawer');if(!drawer||drawer.classList.contains('hidden'))notificationUnread=true;renderNotifications();}
 }
 function reportUnexpectedError(prefix,error){
   const now=Date.now();
@@ -131,7 +131,7 @@ function renderNotifications(){
   if(!notificationHistory.length){host.innerHTML='<div class="empty-state">Todavía no hay notificaciones.</div>';return;}
   for(const item of notificationHistory){const row=document.createElement('div');row.className=`notification-item ${item.type||''}`;row.innerHTML='<i></i><div><b></b><small></small></div>';row.querySelector('b').textContent=item.message;row.querySelector('small').textContent=timeAgo(item.time);host.appendChild(row);}
 }
-function toggleNotifications(force){const drawer=$('notificationDrawer');if(!drawer)return;const show=typeof force==='boolean'?force:drawer.classList.contains('hidden');drawer.classList.toggle('hidden',!show);if(show){notificationUnread=false;renderNotifications();}}
+function toggleNotifications(force){const drawer=$('notificationDrawer');if(!drawer)return;const show=typeof force==='boolean'?force:drawer.classList.contains('hidden');drawer.classList.toggle('hidden',!show);$('notificationsBtn')?.setAttribute('aria-expanded',String(show));if(show){notificationUnread=false;renderNotifications();}}
 
 
 let dialogResolver=null;
@@ -718,7 +718,7 @@ function renderUpdateCenter(){
 
   if($('updatesModsTitle'))$('updatesModsTitle').textContent=modCount?`${modCount} actualización${modCount===1?'':'es'}`:'Al día';
   if($('updatesModsText'))$('updatesModsText').textContent='Los mods instalados se administran localmente; las versiones oficiales llegan con el modpack.';
-  if($('updatesLauncherTitle'))$('updatesLauncherTitle').textContent=launcherNeeds?'Nueva versión disponible':`v${appState?.appVersion||'0.65.27'}`;
+  if($('updatesLauncherTitle'))$('updatesLauncherTitle').textContent=launcherNeeds?'Nueva versión disponible':`v${appState?.appVersion||'0.65.28'}`;
   if($('updatesLauncherText'))$('updatesLauncherText').textContent=launcherNeeds?'Podés descargarla sin tocar el modpack.':appState?.packaged?'Canal del launcher comprobado.':'Modo desarrollo · updater desactivado.';
   const javaOk=Boolean(appState?.java?.found&&Number(appState?.java?.major)>=17);if($('updatesRuntimeTitle'))$('updatesRuntimeTitle').textContent=javaOk?`Java ${appState.java.version||17}`:'Java compatible pendiente';if($('updatesRuntimeText'))$('updatesRuntimeText').textContent=javaOk?(appState.java.managed?'Runtime administrado por Eternal Craft.':'Runtime detectado en el sistema.'):'Elegí un Java 17 o superior en tu sistema.';
   if($('updatesHeroMark'))$('updatesHeroMark').textContent=total?'!':'✓';if($('updatesHero'))$('updatesHero').classList.toggle('has-updates',total>0);if($('updatesHeroTitle'))$('updatesHeroTitle').textContent=total?`${total} actualización${total===1?'':'es'} pendiente${total===1?'':'s'}`:'Todo está actualizado';if($('updatesHeroText'))$('updatesHeroText').textContent=total?'Podés revisar cada componente o aplicar las actualizaciones disponibles.':'Launcher, modpack y mods personales están listos.';
