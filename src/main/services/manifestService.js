@@ -6,19 +6,32 @@ async function fetchJson(url, timeoutMs = 12000) {
   const value = String(url || '').trim();
   if (value.startsWith('file://')) return JSON.parse(fs.readFileSync(fileURLToPath(value), 'utf8'));
   if (path.isAbsolute(value)) return JSON.parse(fs.readFileSync(value, 'utf8'));
-  const controller = new AbortController();
-  const timer = setTimeout(() => controller.abort(), timeoutMs);
-  try {
-    const response = await fetch(value, {
-      signal: controller.signal,
-      cache: 'no-store',
-      headers: { 'User-Agent': 'EternalCraftLauncher/0.25.0' }
-    });
-    if (!response.ok) throw new Error(`HTTP ${response.status}`);
-    return await response.json();
-  } finally {
-    clearTimeout(timer);
+  let lastError;
+  for (let attempt = 1; attempt <= 3; attempt++) {
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), timeoutMs);
+    try {
+      const response = await fetch(value, {
+        signal: controller.signal,
+        cache: 'no-store',
+        headers: { Accept: 'application/json', 'User-Agent': 'EternalCraftLauncher/0.64.0' }
+      });
+      if (!response.ok) {
+        const retryable = response.status === 408 || response.status === 425 || response.status === 429 || response.status >= 500;
+        const error = new Error(`HTTP ${response.status}`);
+        error.retryable = retryable;
+        throw error;
+      }
+      return await response.json();
+    } catch (error) {
+      lastError = error?.name === 'AbortError' ? new Error(`Tiempo de espera agotado al consultar el canal (${timeoutMs / 1000} s).`) : error;
+      if (!lastError?.retryable && error?.name !== 'AbortError' && !['ECONNRESET', 'ETIMEDOUT', 'EAI_AGAIN'].includes(error?.code)) throw lastError;
+      if (attempt < 3) await new Promise((resolve) => setTimeout(resolve, 250 * 2 ** (attempt - 1)));
+    } finally {
+      clearTimeout(timer);
+    }
   }
+  throw lastError || new Error('No se pudo consultar el canal del modpack.');
 }
 
 function validateManifest(manifest) {

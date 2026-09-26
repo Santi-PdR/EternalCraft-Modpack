@@ -132,25 +132,47 @@ async function removeMod(root, filename, manifest) {
 }
 
 async function fetchJson(url, options = {}) {
-  const res = await fetch(url, { ...options, headers: { 'User-Agent': 'EternalCraftLauncher/0.25.0', Accept: 'application/json', ...(options.headers || {}) } });
-  if (!res.ok) {
-    let detail = '';
+  let lastError;
+  for (let attempt = 1; attempt <= 3; attempt++) {
     try {
-      const body = await res.text();
-      if (body) {
-        try { detail = String(JSON.parse(body).error || JSON.parse(body).message || ''); }
-        catch (_) { detail = body.replace(/\s+/g, ' ').slice(0, 180); }
+      const res = await fetch(url, { ...options, signal: AbortSignal.timeout(12000), headers: { 'User-Agent': 'EternalCraftLauncher/0.64.0', Accept: 'application/json', ...(options.headers || {}) } });
+      if (!res.ok) {
+        let detail = '';
+        try {
+          const body = await res.text();
+          if (body) {
+            try { const parsed = JSON.parse(body); detail = String(parsed.error || parsed.message || ''); }
+            catch (_) { detail = body.replace(/\s+/g, ' ').slice(0, 180); }
+          }
+        } catch (_) {}
+        const suffix = detail ? `: ${detail}` : '';
+        const error = new Error(`HTTP ${res.status}${suffix}`);
+        error.retryable = res.status === 408 || res.status === 425 || res.status === 429 || res.status >= 500;
+        throw error;
       }
-    } catch (_) {}
-    const suffix = detail ? `: ${detail}` : '';
-    throw new Error(`HTTP ${res.status}${suffix}`);
+      return res.json();
+    } catch (error) {
+      lastError = error?.name === 'TimeoutError' || error?.name === 'AbortError' ? new Error('La consulta tardó demasiado. Revisá la conexión e intentá de nuevo.') : error;
+      if (!lastError?.retryable && !['ECONNRESET', 'ETIMEDOUT', 'EAI_AGAIN'].includes(error?.code)) throw lastError;
+      if (attempt < 3) await new Promise((resolve) => setTimeout(resolve, 300 * 2 ** (attempt - 1)));
+    }
   }
-  return res.json();
+  throw lastError || new Error('No se pudo consultar el proveedor de mods.');
 }
 async function download(url, target) {
-  const res = await fetch(url, { headers: { 'User-Agent': 'EternalCraftLauncher/0.25.0' }, redirect: 'follow' });
-  if (!res.ok) throw new Error(`Descarga falló (${res.status}).`);
-  const buf = Buffer.from(await res.arrayBuffer()); await fsp.mkdir(path.dirname(target), { recursive: true }); await fsp.writeFile(target, buf); return buf;
+  let lastError;
+  for (let attempt = 1; attempt <= 3; attempt++) {
+    try {
+      const res = await fetch(url, { signal: AbortSignal.timeout(30000), headers: { 'User-Agent': 'EternalCraftLauncher/0.64.0' }, redirect: 'follow' });
+      if (!res.ok) { const error = new Error(`Descarga falló (${res.status}).`); error.retryable = res.status === 408 || res.status === 425 || res.status === 429 || res.status >= 500; throw error; }
+      const buf = Buffer.from(await res.arrayBuffer()); await fsp.mkdir(path.dirname(target), { recursive: true }); await fsp.writeFile(target, buf); return buf;
+    } catch (error) {
+      lastError = error?.name === 'TimeoutError' || error?.name === 'AbortError' ? new Error('La descarga tardó demasiado. Intentá nuevamente.') : error;
+      if (!lastError?.retryable && !['ECONNRESET', 'ETIMEDOUT', 'EAI_AGAIN'].includes(error?.code)) throw lastError;
+      if (attempt < 3) await new Promise((resolve) => setTimeout(resolve, 500 * 2 ** (attempt - 1)));
+    }
+  }
+  throw lastError || new Error('No se pudo descargar el mod.');
 }
 
 function modrinthFacets({ category = 'all', environment = 'all' } = {}) {

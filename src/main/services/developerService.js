@@ -201,7 +201,7 @@ class DeveloperService {
     if (version) args.push('--version', version); if (notes) args.push('--notes', notes);
     return new Promise((resolve, reject) => {
       const child = spawn(process.execPath, args, { cwd: this.publishWorkDir, env: { ...process.env, ELECTRON_RUN_AS_NODE: '1' }, stdio: ['ignore','pipe','pipe'] });
-      let output=''; const collect=(buf)=>{const text=String(buf);output+=text;text.split(/\r?\n/).filter(Boolean).forEach(onLine);};
+      let output=''; const MAX_CAPTURE=2*1024*1024; const collect=(buf)=>{const text=String(buf);if(output.length<MAX_CAPTURE)output+=(output+text).length>MAX_CAPTURE?text.slice(0,MAX_CAPTURE-output.length):text;text.split(/\r?\n/).filter(Boolean).forEach(onLine);};
       child.stdout.on('data',collect); child.stderr.on('data',collect); child.on('error',reject);
       child.on('close',code=>{
         if(code!==0) return reject(new Error(output.trim()||`Preview falló (${code})`));
@@ -221,7 +221,7 @@ class DeveloperService {
     if (version) args.push('--version', version); if (notes) args.push('--notes', notes); if(expectedFingerprint) args.push('--expected-fingerprint', expectedFingerprint);
     return new Promise((resolve, reject) => {
       const child = spawn(process.execPath, args, { cwd: this.publishWorkDir, env: { ...process.env, ELECTRON_RUN_AS_NODE: '1' }, stdio: ['ignore', 'pipe', 'pipe'] });
-      let output = ''; const collect = (buf) => { const text = String(buf); output += text; text.split(/\r?\n/).filter(Boolean).forEach(onLine); };
+      let output = ''; const MAX_CAPTURE = 2 * 1024 * 1024; const collect = (buf) => { const text = String(buf); if (output.length < MAX_CAPTURE) output += (output + text).length > MAX_CAPTURE ? text.slice(0, MAX_CAPTURE - output.length) : text; text.split(/\r?\n/).filter(Boolean).forEach(onLine); };
       child.stdout.on('data', collect); child.stderr.on('data', collect); child.on('error', reject);
       child.on('close', code => code === 0 ? resolve({ ok: true, output }) : reject(new Error(output.trim() || `Publicación falló (${code})`)));
     });
