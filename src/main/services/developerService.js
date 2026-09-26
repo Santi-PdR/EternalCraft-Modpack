@@ -210,7 +210,21 @@ class DeveloperService {
     return process.env.ETERNAL_DEVELOPER_BUILD === '1' || process.argv.includes('--developer-build');
   }
   load() { try { const value = JSON.parse(fs.readFileSync(this.file, 'utf8')); if (value && Object.prototype.hasOwnProperty.call(value, 'curseforgeApiKey')) { delete value.curseforgeApiKey; try { this.save(value); } catch (_) {} } return value || {}; } catch (_) { return {}; } }
-  save(data) { fs.mkdirSync(path.dirname(this.file), { recursive: true }); fs.writeFileSync(this.file, JSON.stringify(data, null, 2), { mode: 0o600 }); }
+  save(data) {
+    fs.mkdirSync(path.dirname(this.file), { recursive: true });
+    const serialized = JSON.stringify(data, null, 2);
+    const temporary = `${this.file}.tmp-${process.pid}-${Date.now()}-${Math.random().toString(16).slice(2)}`;
+    fs.writeFileSync(temporary, serialized, { mode: 0o600 });
+    try { fs.chmodSync(temporary, 0o600); } catch (_) {}
+    try {
+      fs.renameSync(temporary, this.file);
+    } catch (_) {
+      // Windows may refuse replacing an existing destination with rename().
+      fs.writeFileSync(this.file, serialized, { mode: 0o600 });
+      try { fs.chmodSync(this.file, 0o600); } catch (_) {}
+      try { fs.rmSync(temporary, { force: true }); } catch (_) {}
+    }
+  }
   buildStatus(s, githubReady = false, githubLogin = '') {
     const developerAllowed = this.isMaintenanceBuild();
     return {

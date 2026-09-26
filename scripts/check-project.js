@@ -55,6 +55,7 @@ if (!developerServiceSource.includes('const hasCache = this.githubStatusCache.at
 if (!developerServiceSource.includes('this.githubStatusInFlight')) throw new Error('El estado de GitHub del developer debe deduplicar comprobaciones simultáneas.');
 if (!developerServiceSource.includes('function sha256FileAsync') || !developerServiceSource.includes('item.sha256 = await sha256FileAsync(item.full)')) throw new Error('El preflight debe calcular hashes de mods por stream para no cargar JARs completos en memoria.');
 if (!developerServiceSource.includes('publisherChildren')) throw new Error('Los procesos de publicación deben registrarse para terminarlos al salir.');
+if (!developerServiceSource.includes('const temporary = `${this.file}.tmp-${process.pid}-${Date.now()}-') || !developerServiceSource.includes('fs.renameSync(temporary, this.file)')) throw new Error('Los secretos del modo desarrollador deben guardarse con reemplazo atómico.');
 if (!developerServiceSource.includes("child.kill('SIGKILL')")) throw new Error('El cierre del launcher debe forzar procesos de publicación que no respondan.');
 if (!developerServiceSource.includes('if (child.exitCode === null) { try { child.kill(\'SIGKILL\')')) throw new Error('Los errores del publicador deben forzar el proceso aunque child.killed ya sea true.');
 if (!mainSource.includes('runtimeCacheGeneration')) throw new Error('Las cachés de runtime deben descartar respuestas iniciadas antes de una invalidación.');
