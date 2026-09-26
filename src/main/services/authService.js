@@ -15,6 +15,10 @@ async function fetchWithTimeout(url, options = {}, timeoutMs = 20000) {
     clearTimeout(timer);
   }
 }
+function isAuthFailure(error) {
+  const text = `${error?.code || ''} ${error?.status || ''} ${error?.message || error || ''}`.toLowerCase();
+  return /invalid_grant|invalid token|expired|unauthori[sz]|refresh token|\b401\b|\b403\b/.test(text);
+}
 
 /**
  * Microsoft/Xbox/Minecraft authentication for premium accounts.
@@ -54,16 +58,32 @@ class AuthService {
   }
   async getAuthorization() {
     if (!this.account?.refreshToken) return null;
-    const auth = new Auth('select_account');
-    const xbox = await auth.refresh(this.account.refreshToken);
-    const minecraft = await xbox.getMinecraft();
-    this.save({ refreshToken: xbox.save(), profile: minecraft.profile, signedInAt: this.account.signedInAt || new Date().toISOString() });
-    return { authorization: minecraft.mclc(true), profile: minecraft.profile };
+    try {
+      const auth = new Auth('select_account');
+      const xbox = await auth.refresh(this.account.refreshToken);
+      const minecraft = await xbox.getMinecraft();
+      this.save({ refreshToken: xbox.save(), profile: minecraft.profile, signedInAt: this.account.signedInAt || new Date().toISOString() });
+      return { authorization: minecraft.mclc(true), profile: minecraft.profile };
+    } catch (error) {
+      // Do not destroy a session for a network outage. If Microsoft clearly
+      // rejects the refresh token, remove the stale credential so the UI can
+      // offer a clean sign-in instead of retrying the same failure forever.
+      if (isAuthFailure(error)) {
+        this.logout();
+        error.reauthRequired = true;
+      }
+      throw error;
+    }
   }
   async refreshProfile() {
     if (!this.account?.refreshToken) return this.status();
-    await this.getAuthorization();
-    return this.status();
+    try {
+      await this.getAuthorization();
+      return this.status();
+    } catch (error) {
+      if (error?.reauthRequired) return { ...this.status(), reauthRequired: true };
+      throw error;
+    }
   }
   async minecraftToken() {
     const session = await this.getAuthorization();

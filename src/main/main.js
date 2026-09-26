@@ -828,6 +828,7 @@ function registerIpc() {
   ipcMain.handle('account:refresh', async () => runExclusive('actualizar perfil Microsoft', async () => {
     const result = await authService.refreshProfile();
     if (result.authenticated) store.save({ minecraft: { username: result.name, accountMode: 'premium' } });
+    else if (result.reauthRequired) store.save({ minecraft: { accountMode: 'offline' } });
     return result;
   }));
   ipcMain.handle('account:skins', async () => authService.listSkins());
