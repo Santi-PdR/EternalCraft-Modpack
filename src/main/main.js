@@ -51,6 +51,10 @@ const manifestInFlight = new Map();
 const systemProfileCache = new Map();
 const systemProfileInFlight = new Map();
 const RUNTIME_CACHE_TTL_MS = 2500;
+// Raw GitHub can briefly serve the previous stable.json after a successful
+// publish. Keep the verified local manifest authoritative for that short
+// propagation window so the developer's own mods are not shown as personal.
+const PRIMED_MANIFEST_TTL_MS = 60 * 1000;
 let runtimeCacheGeneration = 0;
 
 let launcherErrorLog = '';
@@ -302,6 +306,14 @@ async function currentManifest(config) {
   manifestInFlight.set(key, request);
   try { return await request; }
   finally { manifestInFlight.delete(key); }
+}
+function primeManifestCache(config, manifest, source = 'remote') {
+  if (!manifest || !Array.isArray(manifest.files)) return;
+  const key = `${String(process.env.ETERNAL_PACK_MANIFEST || '').trim()}|${String(config.pack?.manifestUrl || '').trim()}`;
+  manifestCache.set(key, {
+    value: { manifest, configured: true, source, stale: false },
+    expiresAt: Date.now() + PRIMED_MANIFEST_TTL_MS
+  });
 }
 function invalidateRuntimeCaches() {
   runtimeCacheGeneration += 1;
@@ -939,8 +951,9 @@ function registerIpc() {
     emit('developer:publish-log', `Preflight OK · ${preflight.sourceMods} mods detectados · GitHub ${preflight.githubLogin || 'conectado'}`);
     const cfg = store.save({ developer: { githubRepo: repo, sourceDirectory: source } });
     const result = await developerService.publish({ repo, source, version: String(payload.version || '').trim(), notes: String(payload.notes || ''), expectedFingerprint: String(payload.expectedFingerprint || ''), onLine: (line) => emit('developer:publish-log', line) });
+    let publishedManifest = null;
     try {
-      const publishedManifest = JSON.parse(await fsp.readFile(result.manifestPath, 'utf8'));
+      publishedManifest = JSON.parse(await fsp.readFile(result.manifestPath, 'utf8'));
       await markPublishedOfficial(developerService.resolveRoot(source), publishedManifest);
     } catch (error) {
       // The GitHub publication is already verified. Keep that success visible,
@@ -952,6 +965,10 @@ function registerIpc() {
       store.save({ pack: { manifestUrl: `https://raw.githubusercontent.com/${repo}/${branch}/channel/stable.json` } });
     }
     invalidateRuntimeCaches();
+    // Use the manifest that just passed remote verification while GitHub's
+    // raw edge propagates the new stable.json. This must happen after cache
+    // invalidation so the primed value is not immediately discarded.
+    if (publishedManifest && repo.includes('/')) primeManifestCache(store.load(), publishedManifest, 'remote');
     return { ...result, state: await safeStatePayload() };
   }));
 

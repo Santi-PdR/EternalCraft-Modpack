@@ -53,6 +53,7 @@ if (!developerServiceSource.includes('this.githubStatusInFlight')) throw new Err
 if (!developerServiceSource.includes('publisherChildren')) throw new Error('Los procesos de publicación deben registrarse para terminarlos al salir.');
 if (!developerServiceSource.includes("child.kill('SIGKILL')")) throw new Error('El cierre del launcher debe forzar procesos de publicación que no respondan.');
 if (!mainSource.includes('runtimeCacheGeneration')) throw new Error('Las cachés de runtime deben descartar respuestas iniciadas antes de una invalidación.');
+if (!mainSource.includes('PRIMED_MANIFEST_TTL_MS') || !mainSource.includes('primeManifestCache(store.load(), publishedManifest')) throw new Error('La publicación debe usar el manifiesto verificado mientras GitHub propaga stable.json.');
 if (!mainSource.includes('rendererLoadAttempts < 3')) throw new Error('La carga del renderer debe reintentar fallos iniciales sin entrar en un bucle infinito.');
 const configStoreSource = fs.readFileSync(path.join(root,'src','main','services','configStore.js'),'utf8');
 if (!configStoreSource.includes('Persist the migration immediately')) throw new Error('La limpieza de configuración heredada debe persistirse al migrar.');
