@@ -376,6 +376,32 @@ async function statePayload() {
   };
 }
 
+// The first state request is the renderer's dependency for every page. A
+// transient Java/profile/system failure must not turn that request into a
+// rejected IPC call and leave the entire content area empty. Return a minimal
+// but valid state and keep the original error in the launcher diagnostic log;
+// individual panels can then retry their own checks normally.
+async function safeStatePayload() {
+  try { return await statePayload(); }
+  catch (error) {
+    void appendLauncherError('statePayload', error);
+    const config = store?.load?.() || {};
+    let manifest = { schema: 2, version: 'DEV', minecraft: '1.20.1', forge: '47.4.10', files: [], remove: [] };
+    try { manifest = JSON.parse(await fsp.readFile(path.join(resourcesDir(), 'manifest.example.json'), 'utf8')); } catch (_) {}
+    return {
+      appVersion: app.getVersion(), platform: process.platform, packaged: app.isPackaged,
+      config: configWithDisplay(config), manifest, manifestConfigured: false,
+      manifestSource: 'error', manifestError: String(error?.message || error), manifestStale: false,
+      minimumLauncher: String(manifest.minimumLauncher || '0.0.0'), launcherCompatible: true,
+      java: { found: false, major: 0, version: '', path: '' }, system: null,
+      needsOnboarding: !config.onboarding?.completed || !validMinecraftUsername(String(config.minecraft?.username || '').trim()) || String(config.minecraft?.username || '').trim().toLowerCase() === 'player',
+      developer: { configured: false, unlocked: false, developerAllowed: false },
+      account: { authenticated: false, name: '', id: '', skins: [] }, operation: activeOperation || '',
+      configRecovery: null
+    };
+  }
+}
+
 async function checkPack(config, info) {
   if (!info.configured) {
     const system = await cachedSystemProfile(config.pack.installDirectory, 0).catch(() => null);
@@ -433,7 +459,7 @@ async function maybeSnapshotBeforeModChange(config, manifest, label) {
 }
 
 function registerIpc() {
-  ipcMain.handle('app:get-state', statePayload);
+  ipcMain.handle('app:get-state', safeStatePayload);
 
   ipcMain.handle('onboarding:complete', async (_event, payload = {}) => {
     const username = String(payload.username || '').trim();
