@@ -2,26 +2,34 @@
   "schema": 2,
   "pack": "Eternal Craft",
   "channel": "stable",
-  "version": "1.0.1",
-  "releaseName": "Steel Surge",
+  "version": "1.0.2",
+  "releaseName": "Content Drop",
   "minecraft": "1.20.1",
   "forge": "47.4.10",
   "minimumLauncher": "0.65.40",
-  "generatedAt": "2026-09-26T17:05:55.270Z",
+  "generatedAt": "2026-09-26T18:29:07.612Z",
   "releaseNotes": {
-    "title": "1.0.1 — Steel Surge",
-    "summary": "2 archivos nuevos · 2 actualizados · 2 eliminados",
-    "addedCount": 2,
-    "changedCount": 2,
-    "removedCount": 2,
+    "title": "1.0.2 — Content Drop",
+    "summary": "16 archivos nuevos · 3 actualizados · 9 eliminados",
+    "addedCount": 16,
+    "changedCount": 3,
+    "removedCount": 9,
     "highlights": [
       {
         "type": "added",
-        "path": "mods/DarkestHours-v666.jar"
+        "path": "bin/natives-1790444011982/.fuse_hidden0000090500000011"
       },
       {
         "type": "added",
-        "path": "mods/siege-menu-20.0.0.jar"
+        "path": "bin/natives-1790444011982/.fuse_hidden0000091800000013"
+      },
+      {
+        "type": "added",
+        "path": "bin/natives-1790444011982/libglfw.so"
+      },
+      {
+        "type": "added",
+        "path": "bin/natives-1790444011982/libjemalloc.so"
       },
       {
         "type": "changed",
@@ -29,15 +37,23 @@
       },
       {
         "type": "changed",
+        "path": "config/mcreator_mem_fix.json"
+      },
+      {
+        "type": "changed",
         "path": "config/packetfixer.properties"
       },
       {
         "type": "removed",
-        "path": "mods/Darkesthours-8.0.jar"
+        "path": "bin/natives-1790395702053/.fuse_hidden000030a100000007"
       },
       {
         "type": "removed",
-        "path": "mods/SIEGE-5.30.0.jar"
+        "path": "bin/natives-1790395702053/.fuse_hidden000030cd00000009"
+      },
+      {
+        "type": "removed",
+        "path": "bin/natives-1790395702053/libglfw.so"
       }
     ]
   },
@@ -49,56 +65,8 @@
     {
       "path": ".mixin.out/class/net/minecraft/client/multiplayer/ClientLevel.class",
       "size": 73530,
-      "sha256": "bb74a819eb8dd904b1c9ef2a9aca152d5ed5a873a6f27ab57f1a0b67f5ee5b36",
-      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.1/bb74a819eb8dd904b1c9ef2a9aca152d5ed5a873a6f27ab57f1a0b67f5ee5b36"
-    },
-    {
-      "path": "bin/natives-1790395702053/.fuse_hidden000030a100000007",
-      "size": 134519,
-      "sha256": "deb6a3fe903c8e453a3bcb0e8a3ab584fd97734ea3b339897e2f1beb6376172a",
-      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/deb6a3fe903c8e453a3bcb0e8a3ab584fd97734ea3b339897e2f1beb6376172a"
-    },
-    {
-      "path": "bin/natives-1790395702053/.fuse_hidden000030cd00000009",
-      "size": 94722,
-      "sha256": "28f80f4c2a11226c6636aa41213127bef229ff4f3ddd134580be9f2bd709bf68",
-      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/28f80f4c2a11226c6636aa41213127bef229ff4f3ddd134580be9f2bd709bf68"
-    },
-    {
-      "path": "bin/natives-1790395702053/libglfw.so",
-      "size": 373744,
-      "sha256": "2ce6387ad0882ed2a92356c90fe81a6a63a1093476ed65da28920895544b455d",
-      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/2ce6387ad0882ed2a92356c90fe81a6a63a1093476ed65da28920895544b455d"
-    },
-    {
-      "path": "bin/natives-1790395702053/libjemalloc.so",
-      "size": 371600,
-      "sha256": "1211116b99ef06c545e74e9bbdaab76f7fe10a807db1da05d389fe216575f9a9",
-      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/1211116b99ef06c545e74e9bbdaab76f7fe10a807db1da05d389fe216575f9a9"
-    },
-    {
-      "path": "bin/natives-1790395702053/liblwjgl_opengl.so",
-      "size": 354072,
-      "sha256": "c1c6ad9adf1894b3e6eaa5b04c2d47be7f7bfa427099811f61a657f4ab61ace1",
-      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/c1c6ad9adf1894b3e6eaa5b04c2d47be7f7bfa427099811f61a657f4ab61ace1"
-    },
-    {
-      "path": "bin/natives-1790395702053/liblwjgl_stb.so",
-      "size": 466160,
-      "sha256": "67139beeb703c94d52193f895477b21b69a5c376c0bdf20a7db0647d7607850e",
-      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/67139beeb703c94d52193f895477b21b69a5c376c0bdf20a7db0647d7607850e"
-    },
-    {
-      "path": "bin/natives-1790395702053/liblwjgl.so",
-      "size": 441024,
-      "sha256": "80deae641e4057f51b485ef9e32261adbde96b3ffc07c356c70ae1464800b99a",
-      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/80deae641e4057f51b485ef9e32261adbde96b3ffc07c356c70ae1464800b99a"
-    },
-    {
-      "path": "bin/natives-1790395702053/libopenal.so",
-      "size": 991320,
-      "sha256": "78487c11a870b071a9487a5f9ee4a4a409205b331f8c1b7c32dd990feb2872fc",
-      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/78487c11a870b071a9487a5f9ee4a4a409205b331f8c1b7c32dd990feb2872fc"
+      "sha256": "43bd2a8555917ac6741c777a09235f8fbe65c4f97758d45c1b17e24fc0c4624f",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.2/43bd2a8555917ac6741c777a09235f8fbe65c4f97758d45c1b17e24fc0c4624f"
     },
     {
       "path": "bin/natives-1790434508239/libglfw.so",
@@ -132,6 +100,102 @@
     },
     {
       "path": "bin/natives-1790434508239/libopenal.so",
+      "size": 991320,
+      "sha256": "78487c11a870b071a9487a5f9ee4a4a409205b331f8c1b7c32dd990feb2872fc",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/78487c11a870b071a9487a5f9ee4a4a409205b331f8c1b7c32dd990feb2872fc"
+    },
+    {
+      "path": "bin/natives-1790444011982/.fuse_hidden0000090500000011",
+      "size": 134519,
+      "sha256": "deb6a3fe903c8e453a3bcb0e8a3ab584fd97734ea3b339897e2f1beb6376172a",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/deb6a3fe903c8e453a3bcb0e8a3ab584fd97734ea3b339897e2f1beb6376172a"
+    },
+    {
+      "path": "bin/natives-1790444011982/.fuse_hidden0000091800000013",
+      "size": 94722,
+      "sha256": "28f80f4c2a11226c6636aa41213127bef229ff4f3ddd134580be9f2bd709bf68",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/28f80f4c2a11226c6636aa41213127bef229ff4f3ddd134580be9f2bd709bf68"
+    },
+    {
+      "path": "bin/natives-1790444011982/libglfw.so",
+      "size": 373744,
+      "sha256": "2ce6387ad0882ed2a92356c90fe81a6a63a1093476ed65da28920895544b455d",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/2ce6387ad0882ed2a92356c90fe81a6a63a1093476ed65da28920895544b455d"
+    },
+    {
+      "path": "bin/natives-1790444011982/libjemalloc.so",
+      "size": 371600,
+      "sha256": "1211116b99ef06c545e74e9bbdaab76f7fe10a807db1da05d389fe216575f9a9",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/1211116b99ef06c545e74e9bbdaab76f7fe10a807db1da05d389fe216575f9a9"
+    },
+    {
+      "path": "bin/natives-1790444011982/liblwjgl_opengl.so",
+      "size": 354072,
+      "sha256": "c1c6ad9adf1894b3e6eaa5b04c2d47be7f7bfa427099811f61a657f4ab61ace1",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/c1c6ad9adf1894b3e6eaa5b04c2d47be7f7bfa427099811f61a657f4ab61ace1"
+    },
+    {
+      "path": "bin/natives-1790444011982/liblwjgl_stb.so",
+      "size": 466160,
+      "sha256": "67139beeb703c94d52193f895477b21b69a5c376c0bdf20a7db0647d7607850e",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/67139beeb703c94d52193f895477b21b69a5c376c0bdf20a7db0647d7607850e"
+    },
+    {
+      "path": "bin/natives-1790444011982/liblwjgl.so",
+      "size": 441024,
+      "sha256": "80deae641e4057f51b485ef9e32261adbde96b3ffc07c356c70ae1464800b99a",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/80deae641e4057f51b485ef9e32261adbde96b3ffc07c356c70ae1464800b99a"
+    },
+    {
+      "path": "bin/natives-1790444011982/libopenal.so",
+      "size": 991320,
+      "sha256": "78487c11a870b071a9487a5f9ee4a4a409205b331f8c1b7c32dd990feb2872fc",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/78487c11a870b071a9487a5f9ee4a4a409205b331f8c1b7c32dd990feb2872fc"
+    },
+    {
+      "path": "bin/natives-1790446338254/.fuse_hidden0000016a00000002",
+      "size": 134519,
+      "sha256": "deb6a3fe903c8e453a3bcb0e8a3ab584fd97734ea3b339897e2f1beb6376172a",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/deb6a3fe903c8e453a3bcb0e8a3ab584fd97734ea3b339897e2f1beb6376172a"
+    },
+    {
+      "path": "bin/natives-1790446338254/.fuse_hidden0000027800000004",
+      "size": 94722,
+      "sha256": "28f80f4c2a11226c6636aa41213127bef229ff4f3ddd134580be9f2bd709bf68",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/28f80f4c2a11226c6636aa41213127bef229ff4f3ddd134580be9f2bd709bf68"
+    },
+    {
+      "path": "bin/natives-1790446338254/libglfw.so",
+      "size": 373744,
+      "sha256": "2ce6387ad0882ed2a92356c90fe81a6a63a1093476ed65da28920895544b455d",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/2ce6387ad0882ed2a92356c90fe81a6a63a1093476ed65da28920895544b455d"
+    },
+    {
+      "path": "bin/natives-1790446338254/libjemalloc.so",
+      "size": 371600,
+      "sha256": "1211116b99ef06c545e74e9bbdaab76f7fe10a807db1da05d389fe216575f9a9",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/1211116b99ef06c545e74e9bbdaab76f7fe10a807db1da05d389fe216575f9a9"
+    },
+    {
+      "path": "bin/natives-1790446338254/liblwjgl_opengl.so",
+      "size": 354072,
+      "sha256": "c1c6ad9adf1894b3e6eaa5b04c2d47be7f7bfa427099811f61a657f4ab61ace1",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/c1c6ad9adf1894b3e6eaa5b04c2d47be7f7bfa427099811f61a657f4ab61ace1"
+    },
+    {
+      "path": "bin/natives-1790446338254/liblwjgl_stb.so",
+      "size": 466160,
+      "sha256": "67139beeb703c94d52193f895477b21b69a5c376c0bdf20a7db0647d7607850e",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/67139beeb703c94d52193f895477b21b69a5c376c0bdf20a7db0647d7607850e"
+    },
+    {
+      "path": "bin/natives-1790446338254/liblwjgl.so",
+      "size": 441024,
+      "sha256": "80deae641e4057f51b485ef9e32261adbde96b3ffc07c356c70ae1464800b99a",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/80deae641e4057f51b485ef9e32261adbde96b3ffc07c356c70ae1464800b99a"
+    },
+    {
+      "path": "bin/natives-1790446338254/libopenal.so",
       "size": 991320,
       "sha256": "78487c11a870b071a9487a5f9ee4a4a409205b331f8c1b7c32dd990feb2872fc",
       "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/78487c11a870b071a9487a5f9ee4a4a409205b331f8c1b7c32dd990feb2872fc"
@@ -1310,8 +1374,8 @@
     {
       "path": "config/mcreator_mem_fix.json",
       "size": 288,
-      "sha256": "55743e1a403a806ee16dd27fdeebb359f2dabfa0ddb7b785ec4519106d2f41e8",
-      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/55743e1a403a806ee16dd27fdeebb359f2dabfa0ddb7b785ec4519106d2f41e8"
+      "sha256": "938e2f32fd26de0e1934243f57e0fe4eb705ba5f259028ad49baffde9f68e638",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.2/938e2f32fd26de0e1934243f57e0fe4eb705ba5f259028ad49baffde9f68e638"
     },
     {
       "path": "config/midnightlib.json",
@@ -1592,8 +1656,8 @@
     {
       "path": "config/packetfixer.properties",
       "size": 473,
-      "sha256": "866c58d2acf459a822f471b359d64937abeebf2f2d3dfb731f5765e65cb44a36",
-      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.1/866c58d2acf459a822f471b359d64937abeebf2f2d3dfb731f5765e65cb44a36"
+      "sha256": "727fb9a6aa1eb5bd1a161889a3eab0defc94559b8f86ce27911899d033942aac",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.2/727fb9a6aa1eb5bd1a161889a3eab0defc94559b8f86ce27911899d033942aac"
     },
     {
       "path": "config/patchouli-client.toml",
@@ -2437,12 +2501,6 @@
       "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/9563d6c2c8d18d4808460451cfc6b404f1e1e7ff17131403f198965a2af33ca0"
     },
     {
-      "path": "mods/Fastquit-3.0.1+1.20.1forge.jar",
-      "size": 316223,
-      "sha256": "bd427354b03d92606062844ddf3ba1543711fbe68d4e68c7371cef9e1121f814",
-      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/bd427354b03d92606062844ddf3ba1543711fbe68d4e68c7371cef9e1121f814"
-    },
-    {
       "path": "mods/ferritecore-6.0.1-forge.jar",
       "size": 123034,
       "sha256": "9c2c9396a49e796d88497758caa4637d2bcbb433c318e2dd9cebcffbaf0f6c54",
@@ -3028,7 +3086,14 @@
     }
   ],
   "remove": [
-    "mods/Darkesthours-8.0.jar",
-    "mods/SIEGE-5.30.0.jar"
+    "bin/natives-1790395702053/.fuse_hidden000030a100000007",
+    "bin/natives-1790395702053/.fuse_hidden000030cd00000009",
+    "bin/natives-1790395702053/libglfw.so",
+    "bin/natives-1790395702053/libjemalloc.so",
+    "bin/natives-1790395702053/liblwjgl.so",
+    "bin/natives-1790395702053/liblwjgl_opengl.so",
+    "bin/natives-1790395702053/liblwjgl_stb.so",
+    "bin/natives-1790395702053/libopenal.so",
+    "mods/Fastquit-3.0.1+1.20.1forge.jar"
   ]
 }
