@@ -2,34 +2,42 @@
   "schema": 2,
   "pack": "Eternal Craft",
   "channel": "stable",
-  "version": "1.0.0",
-  "releaseName": "Core Boost",
+  "version": "1.0.1",
+  "releaseName": "Steel Surge",
   "minecraft": "1.20.1",
   "forge": "47.4.10",
-  "minimumLauncher": "0.65.39",
-  "generatedAt": "2026-09-26T16:03:22.334Z",
+  "minimumLauncher": "0.65.40",
+  "generatedAt": "2026-09-26T17:05:55.270Z",
   "releaseNotes": {
-    "title": "1.0.0 — Core Boost",
-    "summary": "496 archivos nuevos · 0 actualizados · 0 eliminados",
-    "addedCount": 496,
-    "changedCount": 0,
-    "removedCount": 0,
+    "title": "1.0.1 — Steel Surge",
+    "summary": "2 archivos nuevos · 2 actualizados · 2 eliminados",
+    "addedCount": 2,
+    "changedCount": 2,
+    "removedCount": 2,
     "highlights": [
       {
         "type": "added",
+        "path": "mods/DarkestHours-v666.jar"
+      },
+      {
+        "type": "added",
+        "path": "mods/siege-menu-20.0.0.jar"
+      },
+      {
+        "type": "changed",
         "path": ".mixin.out/class/net/minecraft/client/multiplayer/ClientLevel.class"
       },
       {
-        "type": "added",
-        "path": "bin/natives-1790395702053/.fuse_hidden000030a100000007"
+        "type": "changed",
+        "path": "config/packetfixer.properties"
       },
       {
-        "type": "added",
-        "path": "bin/natives-1790395702053/.fuse_hidden000030cd00000009"
+        "type": "removed",
+        "path": "mods/Darkesthours-8.0.jar"
       },
       {
-        "type": "added",
-        "path": "bin/natives-1790395702053/libglfw.so"
+        "type": "removed",
+        "path": "mods/SIEGE-5.30.0.jar"
       }
     ]
   },
@@ -41,8 +49,8 @@
     {
       "path": ".mixin.out/class/net/minecraft/client/multiplayer/ClientLevel.class",
       "size": 73530,
-      "sha256": "6ea022b8e4e954eafd0e6f2e8d1deb8f112727e3e2c03506e85ee611b62e96ea",
-      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/6ea022b8e4e954eafd0e6f2e8d1deb8f112727e3e2c03506e85ee611b62e96ea"
+      "sha256": "bb74a819eb8dd904b1c9ef2a9aca152d5ed5a873a6f27ab57f1a0b67f5ee5b36",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.1/bb74a819eb8dd904b1c9ef2a9aca152d5ed5a873a6f27ab57f1a0b67f5ee5b36"
     },
     {
       "path": "bin/natives-1790395702053/.fuse_hidden000030a100000007",
@@ -1584,8 +1592,8 @@
     {
       "path": "config/packetfixer.properties",
       "size": 473,
-      "sha256": "81f17ba6bff56571154661f84048e1e33bc5078c0e386204e16ebb3b3fd8f898",
-      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/81f17ba6bff56571154661f84048e1e33bc5078c0e386204e16ebb3b3fd8f898"
+      "sha256": "866c58d2acf459a822f471b359d64937abeebf2f2d3dfb731f5765e65cb44a36",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.1/866c58d2acf459a822f471b359d64937abeebf2f2d3dfb731f5765e65cb44a36"
     },
     {
       "path": "config/patchouli-client.toml",
@@ -2375,10 +2383,10 @@
       "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/c77211d6f289df6688ea3ac321206e041d596eaacf616611fcc46298a9ec9d26"
     },
     {
-      "path": "mods/Darkesthours-8.0.jar",
-      "size": 84879290,
-      "sha256": "08c9abe357b74d87fb1f85932cedd34ce557d41b0346bbb8f6fa4b1f2c0109e6",
-      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/08c9abe357b74d87fb1f85932cedd34ce557d41b0346bbb8f6fa4b1f2c0109e6"
+      "path": "mods/DarkestHours-v666.jar",
+      "size": 84880356,
+      "sha256": "b28967e1930c74103901c38d1e1924c329e5fbb9027800816900c5153eec540e",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.1/b28967e1930c74103901c38d1e1924c329e5fbb9027800816900c5153eec540e"
     },
     {
       "path": "mods/dynamic-fps-3.11.4+minecraft-1.20.0-forge.jar",
@@ -2777,10 +2785,10 @@
       "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/123d0f130fb2306eba02992ed4b6e62fba605dbade7f55c1955e0b5df6a1b1b8"
     },
     {
-      "path": "mods/SIEGE-5.30.0.jar",
-      "size": 105173150,
-      "sha256": "0de7f4fd7620e6bd405922964fd481b288885f41157cbbe9cd5b8bf1f22a0c4b",
-      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/0de7f4fd7620e6bd405922964fd481b288885f41157cbbe9cd5b8bf1f22a0c4b"
+      "path": "mods/siege-menu-20.0.0.jar",
+      "size": 102860530,
+      "sha256": "b82b7a5fcd2ebda7fa94f62ebc40c26990b42299d70e7615c9e0112380c8cc7d",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.1/b82b7a5fcd2ebda7fa94f62ebc40c26990b42299d70e7615c9e0112380c8cc7d"
     },
     {
       "path": "mods/silent-lib-1.20.1-8.0.0.jar",
@@ -3019,5 +3027,8 @@
       "empty": true
     }
   ],
-  "remove": []
+  "remove": [
+    "mods/Darkesthours-8.0.jar",
+    "mods/SIEGE-5.30.0.jar"
+  ]
 }
