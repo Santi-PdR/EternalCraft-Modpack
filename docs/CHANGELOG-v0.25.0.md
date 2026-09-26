@@ -2,11 +2,11 @@
 
 ## Safety-first mod management
 
-- **Install Plan** before adding Modrinth projects: resolves required dependencies, estimates the download and surfaces client/server compatibility warnings before touching the instance.
+- **Install Plan** before adding catálogo externo projects: resolves required dependencies, estimates the download and surfaces client/server compatibility warnings before touching the instance.
 - **Queue preflight** aggregates downloads, dependencies and warnings before installing several projects.
-- **Pinned mods** are excluded from automatic and bulk Modrinth updates until explicitly released.
+- **Pinned mods** are excluded from automatic and bulk catálogo externo updates until explicitly released.
 - **Release channels** for personal mods: release, beta or alpha, with release as the default.
-- **Source provenance** in the library: official pack, Modrinth, CurseForge or unverified local file.
+- **Source provenance** in the library: official pack, catálogo externo, proveedor externo or unverified local file.
 
 ## Crash Guard
 

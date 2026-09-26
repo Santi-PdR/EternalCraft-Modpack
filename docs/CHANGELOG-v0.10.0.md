@@ -1,6 +1,6 @@
 # Eternal Craft Launcher 0.11.0
 
-- Actualizaciones de mods personales instalados desde Modrinth.
+- Actualizaciones de mods personales instalados desde catálogo externo.
 - Filtro de mods actualizables y acción “Actualizar todo”.
 - Preview seguro antes de publicar el modpack.
 - Flujo developer `test-1 → SIEGE` con comparación por SHA-256 y promoción selectiva.

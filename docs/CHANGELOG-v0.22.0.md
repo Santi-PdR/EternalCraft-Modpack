@@ -4,7 +4,7 @@ Salto de cinco versiones menores centrado en seguridad, mantenimiento y acabado.
 
 - Manifest endurecido contra rutas inseguras, duplicados, hashes inválidos y URLs no seguras.
 - Descargas remotas requieren HTTPS salvo servidor de desarrollo local.
-- Centro de conectividad para canal del pack, Modrinth y GitHub.
+- Centro de conectividad para canal del pack, catálogo externo y GitHub.
 - Panel de mantenimiento con tamaños de mods/config/cache/backups/logs.
 - Limpieza de logs antiguos desde Ajustes.
 - Página inicial configurable.

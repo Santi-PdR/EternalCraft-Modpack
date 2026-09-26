@@ -2,7 +2,8 @@ const fs = require('fs');
 const path = require('path');
 const os = require('os');
 const crypto = require('crypto');
-const { spawn, spawnSync } = require('child_process');
+const { spawn, spawnSync, execFile } = require('child_process');
+const execFileAsync = require('util').promisify(execFile);
 
 function hashPassword(password, saltHex) {
   return crypto.scryptSync(String(password), Buffer.from(saltHex, 'hex'), 32).toString('hex');
@@ -68,7 +69,7 @@ class DeveloperService {
     if (process.platform !== 'linux') return false;
     return process.env.ETERNAL_DEVELOPER_BUILD === '1' || process.argv.includes('--developer-build');
   }
-  load() { try { return JSON.parse(fs.readFileSync(this.file, 'utf8')); } catch (_) { return {}; } }
+  load() { try { const value = JSON.parse(fs.readFileSync(this.file, 'utf8')); if (value && Object.prototype.hasOwnProperty.call(value, 'curseforgeApiKey')) { delete value.curseforgeApiKey; try { this.save(value); } catch (_) {} } return value || {}; } catch (_) { return {}; } }
   save(data) { fs.mkdirSync(path.dirname(this.file), { recursive: true }); fs.writeFileSync(this.file, JSON.stringify(data, null, 2), { mode: 0o600 }); }
   status() {
     const s = this.load(); let githubReady = false, githubLogin = '';
@@ -91,7 +92,7 @@ class DeveloperService {
     }
     return {
       configured: developerAllowed && Boolean(s.passwordSalt && s.passwordHash), unlocked: developerAllowed && this.unlocked,
-      curseforgeConfigured: developerAllowed && Boolean(s.curseforgeApiKey), githubReady, githubLogin,
+      githubReady, githubLogin,
       canSetup: developerAllowed, developerAllowed, maintenancePlatform: process.platform
     };
   }
@@ -122,9 +123,23 @@ class DeveloperService {
     this.unlock(currentPassword); if (String(nextPassword || '').length < 6) throw new Error('La nueva contraseña debe tener al menos 6 caracteres.');
     const s = this.load(); const salt = crypto.randomBytes(16).toString('hex'); this.save({ ...s, passwordSalt: salt, passwordHash: hashPassword(nextPassword, salt) }); this.unlocked = true; return this.status();
   }
-  setCurseForgeApiKey(key) { this.requireUnlocked(); const s = this.load(); this.save({ ...s, curseforgeApiKey: String(key || '').trim() }); return this.status(); }
-  getCurseForgeApiKey() { return this.isMaintenanceBuild() ? String(this.load().curseforgeApiKey || '') : ''; }
   requireUnlocked() { this.requireAvailable(); if (!this.unlocked) throw new Error('Modo desarrollador bloqueado.'); }
+  async preflightAsync(source, test, repo) {
+    this.requireUnlocked();
+    const src = scanModDirectory(source || path.join(os.homedir(), '.sklauncher', 'instances', 'siege'));
+    const tst = scanModDirectory(test || path.join(os.homedir(), '.sklauncher', 'instances', 'test-1'));
+    let githubReady = false; let githubLogin = ''; let repoReady = false;
+    try {
+      await execFileAsync('gh', ['--version'], { encoding: 'utf8', timeout: 15000 });
+      await execFileAsync('gh', ['auth', 'status'], { encoding: 'utf8', timeout: 15000 });
+      githubReady = true;
+      try { const me = await execFileAsync('gh', ['api', 'user', '--jq', '.login'], { encoding: 'utf8', timeout: 15000 }); githubLogin = String(me.stdout || '').trim(); } catch (_) {}
+      if (repo && repo.includes('/')) { try { await execFileAsync('gh', ['repo', 'view', repo, '--json', 'name'], { encoding: 'utf8', timeout: 20000 }); repoReady = true; } catch (_) {} }
+    } catch (_) {}
+    const diff = this.compareTest(src.root, tst.root);
+    return { githubReady, githubLogin, repoReady, repo: repo || '', sourceReady:Boolean(src.root && fs.existsSync(path.join(src.root, 'mods'))), sourceRoot:src.root, sourceMods:src.map.size, testReady:Boolean(tst.root && fs.existsSync(path.join(tst.root, 'mods'))), testRoot:tst.root, testMods:tst.map.size, pendingTestChanges:Number(diff.counts?.testOnly||0)+Number(diff.counts?.changed||0), diff };
+  }
+
   preflight(source, test, repo) {
     this.requireUnlocked();
     const status = this.status();

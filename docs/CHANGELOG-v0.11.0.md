@@ -13,7 +13,7 @@
 - Se conservan los snapshots más recientes automáticamente.
 
 ## Mods
-- Ficha completa de proyectos de Modrinth.
+- Ficha completa de proyectos de catálogo externo.
 - Metadata de entorno y versión guardada para instalaciones nuevas.
 - Toggle para comprobar updates de mods personales al abrir.
 
@@ -33,7 +33,7 @@
 - Barra de progreso nativa del sistema durante descargas/Java/Forge.
 - Inicio Seguro desde Soporte: desactiva temporalmente solo mods personales y los restaura al cerrar Minecraft, incluso si el inicio falla.
 - Recuperación automática de un Inicio Seguro interrumpido al volver a abrir el launcher.
-- Reconocimiento de mods `.jar` agregados manualmente mediante hash de Modrinth; al reconocerlos pueden recibir metadata y updates.
-- Protección extra frente a instalar dos veces el mismo proyecto de Modrinth/CurseForge.
-- CurseForge Worker ampliado con fichas de proyecto, categorías y metadatos de búsqueda.
+- Reconocimiento de mods `.jar` agregados manualmente mediante hash de catálogo externo; al reconocerlos pueden recibir metadata y updates.
+- Protección extra frente a instalar dos veces el mismo proyecto de catálogo externo/proveedor externo.
+- proveedor externo Worker ampliado con fichas de proyecto, categorías y metadatos de búsqueda.
 - Los snapshots consideran también mods oficiales marcados para eliminación, evitando restaurarlos accidentalmente como mods personales.

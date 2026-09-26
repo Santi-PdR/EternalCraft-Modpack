@@ -12,7 +12,7 @@ const { launchGame } = require('./services/gameService');
 const { ensurePreset } = require('./services/gamePresetService');
 const { systemProfile } = require('./services/systemService');
 const { checkLauncherUpdate, downloadLauncherUpdate, installLauncherUpdate } = require('./services/updateService');
-const { listMods, addMods, toggleMod, removeMod, toggleFavorite, togglePin, setAllUserModsEnabled, searchModrinth, installModrinth, planModrinthInstall, searchCurseForge, installCurseForge, getModDetails, copyModToRoot, checkModUpdates, updateModrinthUserMod, updateAllUserMods, identifyLocalModrinthMods, auditMods } = require('./services/modService');
+const { listMods, addMods, toggleMod, removeMod, toggleFavorite, togglePin, setAllUserModsEnabled, copyModToRoot, auditMods } = require('./services/modService');
 const { DeveloperService } = require('./services/developerService');
 const { AuthService } = require('./services/authService');
 const { listSnapshots, createSnapshot, restoreSnapshot, deleteSnapshot } = require('./services/recoveryService');
@@ -259,7 +259,7 @@ function portableSettings(config) {
     minecraft:{ username:config.minecraft?.username||'', maxMemoryMb:config.minecraft?.maxMemoryMb||6144, width:config.minecraft?.width||0, height:config.minecraft?.height||0, useSystemResolution:config.minecraft?.useSystemResolution!==false, fullscreen:Boolean(config.minecraft?.fullscreen), preset:config.minecraft?.preset||'balanced', autoInstallJava:config.minecraft?.autoInstallJava!==false, preferDedicatedGpu:config.minecraft?.preferDedicatedGpu!==false },
     pack:{ autoUpdate:config.pack?.autoUpdate!==false, repairBeforeLaunch:Boolean(config.pack?.repairBeforeLaunch), autoSnapshot:config.pack?.autoSnapshot!==false },
     launcher:{ hideOnGameStart:Boolean(config.launcher?.hideOnGameStart), refocusOnGameExit:config.launcher?.refocusOnGameExit!==false, background:config.launcher?.background||'frontline', backgroundMode:config.launcher?.backgroundMode||'fixed', backgroundBrightness:Math.max(.7,Math.min(1.2,Number(config.launcher?.backgroundBrightness)||1)), theme:config.launcher?.theme||'aurora', density:config.launcher?.density||'comfortable', glassEffects:config.launcher?.glassEffects!==false, scanlines:Boolean(config.launcher?.scanlines), noise:Boolean(config.launcher?.noise), reducedMotion:Boolean(config.launcher?.reducedMotion), uiScale:config.launcher?.uiScale||'normal', accent:String(config.launcher?.accent||''), accent2:String(config.launcher?.accent2||''), cardRadius:Number(config.launcher?.cardRadius||16), clipsDirectory:String(config.launcher?.clipsDirectory||''), galleryView:{query:String(config.launcher?.galleryView?.query||'').slice(0,120),type:['all','image','video'].includes(config.launcher?.galleryView?.type)?config.launcher.galleryView.type:'all',sort:['newest','oldest','name','size'].includes(config.launcher?.galleryView?.sort)?config.launcher.galleryView.sort:'newest'}, startPage:config.launcher?.startPage||'home', rememberLastPage:Boolean(config.launcher?.rememberLastPage), autoConnectivityCheck:config.launcher?.autoConnectivityCheck!==false, closeToTray:config.launcher?.closeToTray!==false, startWithSystem:Boolean(config.launcher?.startWithSystem), startMinimized:Boolean(config.launcher?.startMinimized), nativeNotifications:config.launcher?.nativeNotifications!==false, sidebarCollapsed:Boolean(config.launcher?.sidebarCollapsed), lastSeenVersion:String(config.launcher?.lastSeenVersion||''), crashStreak:Number(config.launcher?.crashStreak||0) },
-    mods:{ sort:config.mods?.sort||'recent', provider:config.mods?.provider||'modrinth', category:config.mods?.category||'all', environment:config.mods?.environment||'all', releaseChannel:config.mods?.releaseChannel||'release', autoCheckUpdates:config.mods?.autoCheckUpdates!==false, autoUpdateUserMods:Boolean(config.mods?.autoUpdateUserMods), compatibilityWarnings:config.mods?.compatibilityWarnings!==false, hideWarnings:Boolean(config.mods?.hideWarnings), protectServerCompatibility:config.mods?.protectServerCompatibility!==false, autoChangeSnapshots:config.mods?.autoChangeSnapshots!==false },
+    mods:{ sort:config.mods?.sort||'recent', allowUserMods:config.mods?.allowUserMods!==false, compatibilityWarnings:config.mods?.compatibilityWarnings!==false, hideWarnings:Boolean(config.mods?.hideWarnings), protectServerCompatibility:config.mods?.protectServerCompatibility!==false, autoChangeSnapshots:config.mods?.autoChangeSnapshots!==false },
     sync:{ includeScreenshots:config.sync?.includeScreenshots!==false, includeSaves:Boolean(config.sync?.includeSaves), extraPaths:Array.isArray(config.sync?.extraPaths)?config.sync.extraPaths.slice(0,20):[] }
   };
 }
@@ -271,12 +271,12 @@ function sanitizeImportedSettings(raw={}) {
   }
   if(raw.pack&&typeof raw.pack==='object') out.pack={ autoUpdate:raw.pack.autoUpdate!==false, repairBeforeLaunch:Boolean(raw.pack.repairBeforeLaunch), autoSnapshot:raw.pack.autoSnapshot!==false };
   if(raw.launcher&&typeof raw.launcher==='object') {
-    const l=raw.launcher; const themes=new Set(['aurora','tactical','crimson','frost','obsidian','dvn','dvn-ember','dvn-sand','dvn-night','classic','dominion','nusia','ember','clean','neon','verdant','monolith']); const backgrounds=new Set(['frontline','night','canyon','anniversary','cyborg','dummies','orbit','laststand','vought','nightop','rooftop','tempest','urban','dvn-official-01','dvn-official-02','dvn-official-03','dvn-official-04','dvn-official-05','dvn-official-06']);
+    const l=raw.launcher; const themes=new Set(['aurora','tactical','crimson','frost','obsidian','dvn','dvn-ember','dvn-sand','dvn-night','classic','dominion','nusia','ember','clean','neon','verdant','monolith','graphite','slate','smoke','iron']); const backgrounds=new Set(['frontline','night','canyon','anniversary','cyborg','dummies','orbit','laststand','vought','nightop','rooftop','tempest','urban','dvn-official-01','dvn-official-02','dvn-official-03','dvn-official-04','dvn-official-05','dvn-official-06']);
     const hexColor = (value) => /^#[0-9a-f]{6}$/i.test(String(value || '')) ? String(value) : '';
     const galleryView={query:String(l.galleryView?.query||'').slice(0,120),type:['all','image','video'].includes(l.galleryView?.type)?l.galleryView.type:'all',sort:['newest','oldest','name','size'].includes(l.galleryView?.sort)?l.galleryView.sort:'newest'};
     out.launcher={ hideOnGameStart:Boolean(l.hideOnGameStart), refocusOnGameExit:l.refocusOnGameExit!==false, background:backgrounds.has(String(l.background))?String(l.background):'frontline', backgroundMode:['fixed','randomStartup','rotate5','rotate15'].includes(String(l.backgroundMode))?String(l.backgroundMode):'fixed', backgroundBrightness:Math.max(.7,Math.min(1.2,Number(l.backgroundBrightness)||1)), theme:themes.has(String(l.theme))?String(l.theme):'aurora', density:['comfortable','compact'].includes(String(l.density))?String(l.density):'comfortable', glassEffects:l.glassEffects!==false, scanlines:Boolean(l.scanlines), noise:Boolean(l.noise), reducedMotion:Boolean(l.reducedMotion), uiScale:['small','normal','large'].includes(String(l.uiScale))?String(l.uiScale):'normal', accent:hexColor(l.accent), accent2:hexColor(l.accent2), cardRadius:Math.max(8,Math.min(28,Number(l.cardRadius)||16)), clipsDirectory:String(l.clipsDirectory||'').slice(0,500), galleryView, startPage:['home','mods','modpack','updates','support','settings','gallery'].includes(String(l.startPage))?String(l.startPage):'home', rememberLastPage:Boolean(l.rememberLastPage), autoConnectivityCheck:l.autoConnectivityCheck!==false, closeToTray:l.closeToTray!==false, startWithSystem:Boolean(l.startWithSystem), startMinimized:Boolean(l.startMinimized), nativeNotifications:l.nativeNotifications!==false, sidebarCollapsed:Boolean(l.sidebarCollapsed), lastSeenVersion:String(l.lastSeenVersion||''), crashStreak:Math.max(0,Math.min(9,Number(l.crashStreak||0))) };
   }
-  if(raw.mods&&typeof raw.mods==='object') { const m=raw.mods; out.mods={ sort:['recent','oldest','az','size','favorites','updated'].includes(String(m.sort))?String(m.sort):'recent', provider:['modrinth','curseforge'].includes(String(m.provider))?String(m.provider):'modrinth', category:String(m.category||'all').slice(0,40), environment:['all','client','both','server'].includes(String(m.environment))?String(m.environment):'all', releaseChannel:['release','beta','alpha'].includes(String(m.releaseChannel))?String(m.releaseChannel):'release', autoCheckUpdates:m.autoCheckUpdates!==false, autoUpdateUserMods:Boolean(m.autoUpdateUserMods), compatibilityWarnings:m.compatibilityWarnings!==false, hideWarnings:Boolean(m.hideWarnings), protectServerCompatibility:m.protectServerCompatibility!==false, autoChangeSnapshots:m.autoChangeSnapshots!==false }; }
+  if(raw.mods&&typeof raw.mods==='object') { const m=raw.mods; out.mods={ sort:['recent','oldest','az','size','favorites','updated'].includes(String(m.sort))?String(m.sort):'recent', allowUserMods:m.allowUserMods!==false, compatibilityWarnings:m.compatibilityWarnings!==false, hideWarnings:Boolean(m.hideWarnings), protectServerCompatibility:m.protectServerCompatibility!==false, autoChangeSnapshots:m.autoChangeSnapshots!==false }; }
   if(raw.sync&&typeof raw.sync==='object'){const x=raw.sync;out.sync={includeScreenshots:x.includeScreenshots!==false,includeSaves:Boolean(x.includeSaves),extraPaths:Array.isArray(x.extraPaths)?x.extraPaths.map(v=>String(v).slice(0,180)).slice(0,20):[]};}
   return out;
 }
@@ -313,7 +313,7 @@ async function statePayload() {
     minimumLauncher, launcherCompatible: versionAtLeast(app.getVersion(), minimumLauncher),
     needsOnboarding: !config.onboarding?.completed || !validMinecraftUsername(username) || username.toLowerCase() === 'player',
     launcherUpdateConfigured: Boolean(config.launcher?.updateFeedUrl),
-    developer: developerService ? developerService.status() : { configured:false, unlocked:false, curseforgeConfigured:false },
+    developer: developerService ? developerService.status() : { configured:false, unlocked:false },
     account,
     operation: activeOperation || '', configRecovery: store.recoveryInfo ? store.recoveryInfo() : null
   };
@@ -452,62 +452,6 @@ function registerIpc() {
     return result;
   }));
 
-  ipcMain.handle('mods:search', async (_event, payload = {}) => {
-    const provider = String(payload.provider || 'modrinth'); const query = String(payload.query || '').trim();
-    const options = {
-      category:String(payload.category||'all'),
-      environment:String(payload.environment||'all'),
-      sort:String(payload.sort||'relevance'),
-      offset:Math.max(0, Number(payload.offset||0)),
-      limit:Math.max(1, Math.min(48, Number(payload.limit||36)))
-    };
-    if (provider === 'curseforge') { const cfg=store.load(); return searchCurseForge(query, developerService.getCurseForgeApiKey(), options, cfg.mods?.curseforgeProxyUrl || ''); }
-    return { provider: 'modrinth', configured: true, results: await searchModrinth(query, options) };
-  });
-  ipcMain.handle('mods:plan', async (_event, project = {}) => {
-    const cfg=store.load(); const info=await currentManifest(cfg);
-    if(String(project.provider||'modrinth')!=='modrinth') return {provider:String(project.provider||''),blocked:false,items:[],needed:[],dependencies:[],totalSize:0,warnings:[{severity:'info',text:'El plan detallado está disponible para Modrinth.'}]};
-    return planModrinthInstall(cfg.pack.installDirectory,info.manifest,project,cfg.mods?.releaseChannel||'release');
-  });
-  ipcMain.handle('mods:details', async (_event, project = {}) => {
-    const cfg = store.load();
-    return getModDetails(project, developerService.getCurseForgeApiKey(), cfg.mods?.curseforgeProxyUrl || '');
-  });
-
-  ipcMain.handle('mods:install', async (_event, project = {}) => runExclusive('instalación de mod', async () => {
-    const config = store.load(); const info = await currentManifest(config);
-    const installed = project.provider === 'curseforge'
-      ? await installCurseForge(config.pack.installDirectory, info.manifest, project, developerService.getCurseForgeApiKey(), config.mods?.curseforgeProxyUrl || '')
-      : await installModrinth(config.pack.installDirectory, info.manifest, project, new Set(), config.mods?.releaseChannel || 'release');
-    await recordUserChange(config,{type:'mod-install',title:`Instalado ${project.name||'mod'}`,detail:`${installed.length||0} archivo(s), incluyendo dependencias`,filenames:installed,risk:'medium',source:String(project.provider||'modrinth')});
-    return { installed, ...(await listMods(config.pack.installDirectory, info.manifest)) };
-  }));
-
-  ipcMain.handle('mods:identify-local', async () => runExclusive('identificación de mods locales', async () => {
-    const config = store.load(); const info = await currentManifest(config);
-    return identifyLocalModrinthMods(config.pack.installDirectory, info.manifest);
-  }));
-
-  ipcMain.handle('mods:updates-check', async () => {
-    const config = store.load(); const info = await currentManifest(config);
-    return checkModUpdates(config.pack.installDirectory, info.manifest, config.mods?.releaseChannel || 'release');
-  });
-  ipcMain.handle('mods:update-one', async (_event, filename) => runExclusive('actualización de mod', async () => {
-    const config = store.load(); const info = await currentManifest(config);
-    await maybeSnapshotBeforeModChange(config,info.manifest,`Antes de actualizar ${path.basename(String(filename||'mod'))}`);
-    const result=await updateModrinthUserMod(config.pack.installDirectory, info.manifest, String(filename || ''), config.mods?.releaseChannel || 'release');
-    if(result.updated) await recordUserChange(config,{type:'mod-update',title:'Mod personal actualizado',detail:`${result.oldFilename||filename} → ${result.newFilename||''}`,filenames:[String(result.oldFilename||filename),String(result.newFilename||'')].filter(Boolean),risk:'high',source:'modrinth'});
-    return result;
-  }));
-  ipcMain.handle('mods:update-all', async () => runExclusive('actualización de mods', async () => {
-    const config = store.load(); const info = await currentManifest(config);
-    await maybeSnapshotBeforeModChange(config,info.manifest,'Antes de actualizar mods personales');
-    const result=await updateAllUserMods(config.pack.installDirectory, info.manifest, config.mods?.releaseChannel || 'release');
-    const files=(result.results||[]).filter(x=>x.updated).flatMap(x=>[x.oldFilename,x.newFilename]).filter(Boolean);
-    await recordUserChange(config,{type:'mods-update-all',title:'Mods personales actualizados',detail:`${(result.results||[]).filter(x=>x.updated).length} mod(s) actualizados`,filenames:files,risk:'high',source:'modrinth'});
-    return result;
-  }));
-
   ipcMain.handle('mods:audit', async () => { const config=store.load(); const info=await currentManifest(config); return auditMods(config.pack.installDirectory, info.manifest); });
   ipcMain.handle('mods:history', async (_event, limit=25) => listChanges(store.load().pack.installDirectory, limit));
   ipcMain.handle('diagnostic:crash-guard', async () => {
@@ -612,12 +556,6 @@ function registerIpc() {
     else if (config.pack.repairBeforeLaunch) {
       const status = await checkInstallation(config.pack.installDirectory, info.manifest, (p) => packProgress(p));
       if (!status.healthy) await repairInstallation(config.pack.installDirectory, info.manifest, (p) => packProgress(p));
-    }
-    if (config.mods?.autoUpdateUserMods) {
-      packProgress({ phase: 'mods', current: 0, total: 1, file: 'Comprobando mods personales' });
-      try { await updateAllUserMods(config.pack.installDirectory, info.manifest, config.mods?.releaseChannel || 'release'); }
-      catch (err) { emit('game:log', `[launcher] No se pudieron actualizar mods personales: ${err.message || err}`); }
-      packProgress({ phase: 'mods', current: 1, total: 1, file: 'Mods personales listos' });
     }
 
     config = store.save({ launcher: { lastPlayedAt: new Date().toISOString() } });
@@ -789,14 +727,13 @@ function registerIpc() {
   });
   ipcMain.handle('clips:clear-folder', async () => store.save({ launcher:{ clipsDirectory:'' } }));
   ipcMain.handle('developer:status', async () => developerService.status());
-  ipcMain.handle('developer:preflight', async () => { const cfg=store.load(); return developerService.preflight(cfg.developer?.sourceDirectory, cfg.developer?.testDirectory, cfg.developer?.githubRepo); });
+  ipcMain.handle('developer:preflight', async () => { const cfg=store.load(); return developerService.preflightAsync(cfg.developer?.sourceDirectory, cfg.developer?.testDirectory, cfg.developer?.githubRepo); });
   ipcMain.handle('developer:backup-source', async () => { const cfg=store.load(); return developerService.backupSourceMods(cfg.developer?.sourceDirectory); });
   ipcMain.handle('developer:setup', async (_event, password) => developerService.setup(password));
   ipcMain.handle('developer:unlock', async (_event, password) => developerService.unlock(password));
   ipcMain.handle('developer:reset-access', async () => developerService.resetAccess());
   ipcMain.handle('developer:lock', async () => developerService.lock());
   ipcMain.handle('developer:change-password', async (_event, payload = {}) => developerService.changePassword(payload.currentPassword, payload.nextPassword));
-  ipcMain.handle('developer:set-curseforge-key', async (_event, key) => developerService.setCurseForgeApiKey(key));
   ipcMain.handle('developer:choose-source', async () => {
     const cfg = store.load(); const folder = await developerService.chooseSource(dialog, mainWindow, cfg.developer?.sourceDirectory);
     if (folder) store.save({ developer: { sourceDirectory: folder } }); return folder;
@@ -831,15 +768,10 @@ function registerIpc() {
     for(const mod of listing.mods.filter(m=>m.userAdded&&m.enabled)){ await copyModToRoot(cfg.pack.installDirectory,test,mod.filename); copied.push(mod.filename); }
     return {ok:true,copied,testDirectory:test};
   });
-  ipcMain.handle('developer:install-mod-test', async (_event, project = {}) => runExclusive('instalación de mod en test-1', async () => {
-    developerService.requireUnlocked(); const cfg=store.load(); const test=developerService.resolveRoot(cfg.developer?.testDirectory || path.join(require('os').homedir(), '.sklauncher', 'instances', 'test-1'));
-    const installed = project.provider === 'curseforge' ? await installCurseForge(test,{files:[]},project,developerService.getCurseForgeApiKey(), cfg.mods?.curseforgeProxyUrl || '') : await installModrinth(test,{files:[]},project,new Set(),cfg.mods?.releaseChannel||'release');
-    return {ok:true,installed,testDirectory:test};
-  }));
   ipcMain.handle('developer:publish-preview', async (_event, payload = {}) => runExclusive('preview de publicación', async () => {
     const current = store.load(); const repo = String(payload.repo || current.developer?.githubRepo || '').trim();
     const source = String(payload.source || current.developer?.sourceDirectory || '').trim() || path.join(require('os').homedir(), '.sklauncher', 'instances', 'siege');
-    const preflight = developerService.preflight(source, current.developer?.testDirectory, repo);
+    const preflight = await developerService.preflightAsync(source, current.developer?.testDirectory, repo);
     if (!preflight.githubReady) throw new Error('Preview detenido: GitHub CLI no está autenticado en la build de mantenimiento.');
     if (!preflight.sourceReady) throw new Error(`Preview detenido: no encontré una carpeta mods válida en ${preflight.sourceRoot || source}.`);
     return developerService.previewPublish({ repo, source, version: String(payload.version || '').trim(), notes: String(payload.notes || ''), onLine: (line) => emit('developer:publish-log', line) });
@@ -871,7 +803,7 @@ function registerIpc() {
     const current = store.load();
     const repo = String(payload.repo || current.developer?.githubRepo || '').trim();
     const source = String(payload.source || current.developer?.sourceDirectory || '').trim() || path.join(require('os').homedir(), '.sklauncher', 'instances', 'siege');
-    const preflight = developerService.preflight(source, current.developer?.testDirectory, repo);
+    const preflight = await developerService.preflightAsync(source, current.developer?.testDirectory, repo);
     const blockers = [];
     if (!preflight.githubReady) blockers.push('GitHub CLI no está autenticado');
     if (!preflight.sourceReady) blockers.push(`la instancia SIEGE no tiene una carpeta mods válida (${preflight.sourceRoot || source})`);

@@ -2,7 +2,7 @@
 
 Eternal Craft Launcher is intentionally **not** a general-purpose multi-instance launcher. SIEGE has one official pack, so the product prioritizes a safe one-click path for players and a controlled test/publish workflow for the maintainer.
 
-Current general-purpose launchers already cover the basics very well: instance management, automatic Java, Modrinth/CurseForge browsing, modpack installs, screenshots and increasingly settings synchronization. Rebuilding all of that as generic functionality would add complexity without improving SIEGE.
+Current general-purpose launchers already cover the basics very well: instance management, automatic Java, catálogos externos browsing, modpack installs, screenshots and increasingly settings synchronization. Rebuilding all of that as generic functionality would add complexity without improving SIEGE.
 
 The v0.25 direction instead concentrates on gaps that are particularly valuable to a managed server pack:
 

@@ -2,7 +2,7 @@
 
 ## Interfaz y UX
 - Búsqueda global dentro de Ajustes.
-- `Ctrl + K` ahora también encuentra mods instalados y permite lanzar una búsqueda directa en Modrinth.
+- `Ctrl + K` ahora también encuentra mods instalados y permite lanzar una búsqueda directa en catálogo externo.
 - Perfil de juego en Inicio con configuración recomendada en un toque.
 - Compatibilidad cliente/servidor visible en el catálogo.
 - Cola de instalación de mods.

@@ -1,58 +1,71 @@
 const { autoUpdater } = require('electron-updater');
+const { app } = require('electron');
 
 let configuredUrl = '';
 let wired = false;
+let checkPromise = null;
+let downloadPromise = null;
+let lastState = { type: 'idle', info: null, progress: null, error: '' };
+let eventSink = () => {};
 
 function normalizeBaseUrl(url) {
-  const v = String(url || '').trim();
-  if (!v) return '';
-  return v.endsWith('/') ? v : `${v}/`;
+  const value = String(url || '').trim();
+  if (!value) return '';
+  return value.endsWith('/') ? value : `${value}/`;
 }
-
+function emit(payload) {
+  lastState = { ...lastState, ...payload };
+  try { eventSink(payload); } catch (_) {}
+}
 function configureLauncherUpdates({ feedUrl, onEvent = () => {} }) {
   const normalized = normalizeBaseUrl(feedUrl);
-  if (!normalized) return { configured: false };
-
+  if (!normalized) return { configured: false, state: lastState };
+  eventSink = onEvent;
   if (!wired) {
     wired = true;
     autoUpdater.autoDownload = false;
-    autoUpdater.autoInstallOnAppQuit = true;
-    autoUpdater.on('checking-for-update', () => onEvent({ type: 'checking' }));
-    autoUpdater.on('update-available', (info) => onEvent({ type: 'available', info }));
-    autoUpdater.on('update-not-available', (info) => onEvent({ type: 'none', info }));
-    autoUpdater.on('download-progress', (progress) => onEvent({ type: 'progress', progress }));
-    autoUpdater.on('update-downloaded', (info) => onEvent({ type: 'downloaded', info }));
-    autoUpdater.on('error', (error) => onEvent({ type: 'error', message: error?.message || String(error) }));
+    // Never install silently on quit. The user must press “Reiniciar e instalar”.
+    autoUpdater.autoInstallOnAppQuit = false;
+    autoUpdater.allowPrerelease = false;
+    autoUpdater.on('checking-for-update', () => emit({ type: 'checking' }));
+    autoUpdater.on('update-available', (info) => emit({ type: 'available', info }));
+    autoUpdater.on('update-not-available', (info) => emit({ type: 'none', info }));
+    autoUpdater.on('download-progress', (progress) => emit({ type: 'progress', progress }));
+    autoUpdater.on('update-downloaded', (info) => emit({ type: 'downloaded', info }));
+    autoUpdater.on('error', (error) => emit({ type: 'error', message: error?.message || String(error) }));
   }
-
   if (configuredUrl !== normalized) {
     configuredUrl = normalized;
     autoUpdater.setFeedURL({ provider: 'generic', url: normalized });
   }
-  return { configured: true, url: normalized };
+  return { configured: true, url: normalized, state: lastState };
 }
 
 async function checkLauncherUpdate(config, onEvent) {
   const setup = configureLauncherUpdates({ feedUrl: config.launcher?.updateFeedUrl, onEvent });
-  if (!setup.configured) return { configured: false };
-  const result = await autoUpdater.checkForUpdates();
-  return { configured: true, updateInfo: result?.updateInfo || null };
+  if (!setup.configured) return { configured: false, currentVersion: app.getVersion(), state: lastState };
+  if (checkPromise) return checkPromise;
+  checkPromise = autoUpdater.checkForUpdates()
+    .then((result) => ({ configured: true, currentVersion: app.getVersion(), updateInfo: result?.updateInfo || null, state: lastState }))
+    .finally(() => { checkPromise = null; });
+  return checkPromise;
 }
 
 async function downloadLauncherUpdate(config, onEvent) {
   const setup = configureLauncherUpdates({ feedUrl: config.launcher?.updateFeedUrl, onEvent });
   if (!setup.configured) throw new Error('No hay un canal de actualizaciones del launcher configurado.');
-  await autoUpdater.downloadUpdate();
-  return true;
+  if (downloadPromise) return downloadPromise;
+  downloadPromise = autoUpdater.downloadUpdate()
+    .then(() => ({ downloaded: true, state: lastState }))
+    .finally(() => { downloadPromise = null; });
+  return downloadPromise;
 }
 
 function installLauncherUpdate() {
+  if (lastState.type !== 'downloaded') throw new Error('La actualización todavía no terminó de descargarse.');
+  // quitAndInstall must run after the renderer has received the downloaded event.
   autoUpdater.quitAndInstall(false, true);
+  return true;
 }
 
-module.exports = {
-  configureLauncherUpdates,
-  checkLauncherUpdate,
-  downloadLauncherUpdate,
-  installLauncherUpdate
-};
+module.exports = { configureLauncherUpdates, checkLauncherUpdate, downloadLauncherUpdate, installLauncherUpdate };

@@ -8,10 +8,10 @@
 - Selector de RAM renovado con presets y controles +/-.
 
 ## Mods
-- Catálogo Modrinth integrado para Forge 1.20.1.
-- Instalación directa y dependencias requeridas de Modrinth.
-- Selector de proveedor Modrinth / CurseForge.
-- CurseForge queda condicionado a credenciales/integración, sin incluir secretos en builds de jugadores.
+- Catálogo catálogo externo integrado para Forge 1.20.1.
+- Instalación directa y dependencias requeridas de catálogo externo.
+- Selector de proveedor catálogo externo / proveedor externo.
+- proveedor externo queda condicionado a credenciales/integración, sin incluir secretos en builds de jugadores.
 - Mods personales sobreviven actualizaciones del pack.
 
 ## Rendimiento

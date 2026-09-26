@@ -28,7 +28,7 @@ if (manifest.minimumLauncher !== packageJson.version) throw new Error(`minimumLa
 if (packageJson.build?.appId !== 'uy.eternalcraft.launcher') throw new Error('appId del launcher cambió inesperadamente.');
 if (!defaults.minecraft?.preferDedicatedGpu) throw new Error('La GPU dedicada debe venir activada por defecto.');
 if (!defaults.minecraft?.useSystemResolution) throw new Error('La resolución del sistema debe venir activada por defecto.');
-if (defaults.mods?.autoUpdateUserMods) throw new Error('Los mods personales no deben auto-actualizarse por defecto.');
+for (const legacy of ['provider','category','environment','releaseChannel','curseforgeProxyUrl','autoCheckUpdates','autoUpdateUserMods']) if (Object.prototype.hasOwnProperty.call(defaults.mods || {}, legacy)) throw new Error(`La configuración conserva una clave retirada: ${legacy}`);
 
 const html = fs.readFileSync(path.join(root,'src','renderer','index.html'),'utf8');
 const ids = [...html.matchAll(/\bid=["']([^"']+)["']/g)].map(m=>m[1]);

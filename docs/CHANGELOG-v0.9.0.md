@@ -1,8 +1,8 @@
 # Eternal Craft Launcher 0.9.0
 
 - Resolución predeterminada detectada desde el monitor principal; puede cambiarse manualmente.
-- Modrinth mejorado con categorías, entorno y orden por actualización/descargas.
-- CurseForge usa únicamente la API oficial y queda disponible cuando el desarrollador configura su API key.
+- catálogo externo mejorado con categorías, entorno y orden por actualización/descargas.
+- proveedor externo usa únicamente la API oficial y queda disponible cuando el desarrollador configura su API key.
 - Mods instalados ordenados por fecha por defecto y con origen visible.
 - Modo desarrollador incorpora instancia `test-1`, instalación directa de mods de prueba y copia rápida desde la instancia administrada.
 - SIEGE ya no separa las letras en la barra lateral.

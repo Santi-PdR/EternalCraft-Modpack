@@ -1,4 +1,4 @@
-# Eternal Craft Launcher 0.64.0
+# Eternal Craft Launcher 0.65.0
 
 Official launcher for **Eternal Craft // SIEGE**.
 
@@ -10,24 +10,20 @@ Official launcher for **Eternal Craft // SIEGE**.
 
 Eternal Craft Launcher is intentionally not a generic multi-instance launcher. It manages one official SIEGE installation and aims to make installing, repairing, updating and launching that pack safe and simple.
 
-## 0.64.0 — Red compartida y operaciones resilientes
+## 0.65.0 — Instalación local y publicación sin bloqueos
 
-- Las consultas de canal, Modrinth y CurseForge reintentan cortes transitorios, timeouts y respuestas 429/5xx antes de mostrar un error.
-- Las descargas de mods tienen timeout, reintentos y mensajes de error más claros.
-- La conectividad distingue servicios críticos de integraciones opcionales, reintenta cortes breves y muestra el estado real en la interfaz.
-- La instalación administrada de Java 17 usa timeout, reintentos y validación de integridad antes de extraer el runtime.
-- Developer Mode mantiene el progreso en vivo sin guardar una salida ilimitada en memoria durante publicaciones grandes.
-- Apariencia añade intensidad del fondo (70–120%), integrada en perfiles, autoguardado, importación/exportación y restauración segura.
-- La colección DVN incluye los temas Pulse, Ember, Sandline y Night Ops, más las escenas Training Grounds, Outpost Assault, Warehouse Raid y Neon Extraction, todas empaquetadas localmente.
-- El publicador filtra secretos, muestra progreso de preparación, evita argumentos gigantes y verifica el manifest remoto y todos los blobs antes de confirmar una publicación.
-- Las actualizaciones de jugadores reutilizan caché por SHA-256, descargan solo diferencias y aplican cambios mediante staging/rollback para no dejar instalaciones a medias.
-- La versión conserva la revisión global, filtros persistentes, perfiles visuales, login Microsoft, galería local y protección de contenido oficial de 0.63.
+- La biblioteca de Mods administra exclusivamente archivos instalados localmente; se retiraron los catálogos, API keys, proxies y comprobaciones de proveedores externos.
+- El modo desarrollador ya no contiene credenciales de servicios de mods: solo publica el modpack mediante GitHub CLI en la build privada de mantenimiento.
+- La publicación se ejecuta en un proceso asíncrono con registro de progreso, sin bloquear la ventana mientras prepara o sube blobs grandes.
+- El actualizador del launcher usa el feed de GitHub Releases y requiere una acción explícita para descargar y reiniciar con la nueva versión.
+- Apariencia suma temas Graphite, Slate, Smoke e Iron para configuraciones oscuras y grises, con guardado automático y sin perfiles visuales acumulados.
+- Se conserva la colección de fondos oficiales de Dummies vs Noobs y la protección de archivos oficiales del pack.
 
 ## 0.63.0 — Revisión integral del launcher
 
 - Añade **Revisar todo** desde Inicio y desde la paleta de comandos (`Ctrl+Shift+R`) para actualizar en conjunto modpack, mods, soporte, almacenamiento, galería y Personal Vault sin bloquear la interfaz.
 - Añade restablecimiento de filtros de Mods, marca de última comprobación del modpack y controles responsive para evitar solapamientos en barras y filtros.
-- Añade **Restablecer apariencia**, conservando los perfiles visuales guardados y aplicando valores seguros de tema, fondo, escala, densidad y efectos.
+- Añade **Restablecer apariencia**, aplicando valores seguros de tema, fondo, escala, densidad y efectos.
 - Mantiene el contenido oficial de Mods instalado protegido y la galería local con filtros persistentes.
 
 ## 0.62.0 — Preferencias persistentes de Galería
@@ -94,11 +90,10 @@ The 0.40 line keeps the current SIEGE workflow while adding a stronger visual sy
 
 - Installed-mods workspace focused on the local SIEGE instance, with search, filters, sorting and update actions.
 - Official pack files stay protected; personal mods can be enabled, disabled, updated or removed from the installed list.
-- Modrinth metadata is used for update checks without exposing a public add/explore catalog to players.
-- Fourteen theme presets and thirteen Dummies vs Noobs background scenes, including Neon Relay, Verdant Ops and Monolith Black.
+- - Fourteen theme presets and thirteen Dummies vs Noobs background scenes, including Neon Relay, Verdant Ops and Monolith Black.
 - **Pinned versions** opt out of automatic/bulk updates.
-- Source provenance labels: official pack, Modrinth, CurseForge or local/unverified.
-- Official files stay protected from player mod management.
+- Source provenance labels: official pack or local/manual.
+- Official files stay protected from player mod management; personal JARs remain local and manually managed.
 
 ### Crash Guard
 
@@ -169,13 +164,13 @@ The project includes Electron Builder configuration and GitHub Actions for Windo
 ## Privacy and secrets
 
 - Session statistics and Crash Guard history stay local.
-- Exported settings exclude Developer password and CurseForge API key.
+- Exported settings exclude the Developer password and private credentials.
 - Personal Vault is opt-in and points to a folder chosen by the user.
 - GitHub authentication uses the maintainer's existing local `gh` session instead of storing a GitHub password in the launcher.
 
 ## Microsoft account and Discord
 
-- The player can sign in from **Ajustes → Juego → Cuenta premium**. Microsoft authentication opens in a separate account window; only the refresh token is kept in the local user-data folder with restrictive file permissions. No Microsoft password, token or CurseForge key is committed to GitHub.
+- The player can sign in from **Ajustes → Juego → Cuenta premium**. Microsoft authentication opens in a separate account window; only the refresh token is kept in the local user-data folder with restrictive file permissions. No Microsoft password or token is committed to GitHub.
 - Discord channels are presented as official links from the launcher. Reading messages in real time would require a Discord bot or a public feed hosted by the server; the launcher does not embed user credentials or scrape private channels. The configured channel links remain available without that extra service.
 
 See `docs/CHANGELOG-v0.25.0.md` and `docs/LAUNCHER-LANDSCAPE-v0.25.0.md` for this release's design notes.

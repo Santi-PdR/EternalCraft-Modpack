@@ -57,6 +57,12 @@ class ConfigStore {
   }
   load() {
     const merged = deepMerge(this.readDefaults(), this.readUser());
+    // Drop integrations removed from the launcher so old installs do not keep
+    // stale provider credentials, proxies or remote-mod preferences alive.
+    if (merged.mods && typeof merged.mods === 'object') {
+      for (const key of ['provider','category','environment','releaseChannel','curseforgeProxyUrl','autoCheckUpdates','autoUpdateUserMods']) delete merged.mods[key];
+    }
+    delete merged.visualProfiles;
     if (!merged.pack.installDirectory) merged.pack.installDirectory = defaultInstallDirectory(this.userDataDir);
     return merged;
   }
