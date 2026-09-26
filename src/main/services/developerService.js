@@ -193,8 +193,12 @@ class DeveloperService {
   }
   status() {
     const s = this.load();
-    const cacheFresh = Date.now() - this.githubStatusCache.at < 5000;
-    return this.buildStatus(s, cacheFresh && this.githubStatusCache.ready, cacheFresh ? this.githubStatusCache.login : '');
+    // Password setup/unlock is intentionally synchronous. Keep the last
+    // known GitHub state visible during that transition instead of briefly
+    // disabling publication just because the five-second refresh window
+    // expired; statusAsync() remains responsible for refreshing it.
+    const hasCache = this.githubStatusCache.at > 0;
+    return this.buildStatus(s, hasCache && this.githubStatusCache.ready, hasCache ? this.githubStatusCache.login : '');
   }
   async statusAsync() {
     const s = this.load();
