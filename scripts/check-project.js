@@ -48,6 +48,7 @@ if (!packServiceSource.includes('existingCheck = null') || !mainSource.includes(
 if (!manifestServiceSource.includes('Ruta fuera del payload administrado')) throw new Error('El validador debe limitar el manifiesto a los directorios administrados.');
 if (!serverPingSource.includes("confidence: hasStatusPayload && !exarotonLobby ? 'verified' : 'unknown'")) throw new Error('El ping del servidor debe distinguir respuestas verificadas de estados ambiguos.');
 if (!serverPingSource.includes('onlinePlayers <= maxPlayers')) throw new Error('El ping del servidor debe validar la coherencia de jugadores.');
+if (!serverPingSource.includes('incoming.length > 2 * 1024 * 1024')) throw new Error('El ping del servidor debe limitar respuestas excesivamente grandes.');
 if (!updateServiceSource.includes('if (availableInfo) emit({ type: \'available\'')) throw new Error('El updater debe conservar el reintento después de un fallo de descarga.');
 if (!updateServiceSource.includes('if (downloadPromise) return { configured: true')) throw new Error('El updater debe evitar comprobaciones concurrentes durante una descarga.');
 if (!updateServiceSource.includes('if (checkPromise) await checkPromise')) throw new Error('El updater debe esperar la comprobación antes de descargar.');

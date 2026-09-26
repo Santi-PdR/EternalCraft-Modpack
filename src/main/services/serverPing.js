@@ -73,6 +73,10 @@ function pingMinecraftServer(host, port, timeout = 3500) {
 
     socket.on('data', (chunk) => {
       incoming = Buffer.concat([incoming, chunk]);
+      if (incoming.length > 2 * 1024 * 1024) {
+        done({ online: false, confidence: 'unknown', error: 'respuesta de estado demasiado grande' });
+        return;
+      }
       try {
         const packetLength = decodeVarInt(incoming, 0);
         if (!packetLength) return;
