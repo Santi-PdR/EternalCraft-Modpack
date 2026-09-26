@@ -130,8 +130,9 @@ async function writeOfficialFiles(root, manifest) {
 async function readUserAddedPaths(root) {
   try {
     const data = JSON.parse(await fsp.readFile(path.join(root, path.join(INTERNAL_DIR, 'user-mods.json')), 'utf8'));
-    return new Set(Object.keys(data?.mods || {})
-      .map((name) => `mods/${String(name).replace(/\\/g, '/')}`)
+    return new Set(Object.entries(data?.mods || {})
+      .filter(([, metadata]) => String(metadata?.provider || '').toLowerCase() === 'local')
+      .map(([name]) => `mods/${String(name).replace(/\\/g, '/')}`)
       .filter((file) => /^mods\/[^/]+\.jar$/i.test(file)));
   } catch (_) {
     return new Set();
