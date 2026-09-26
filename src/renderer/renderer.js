@@ -145,10 +145,13 @@ function showPageRuntimeError(page,detail){
     banner.className='page-runtime-error';
     banner.innerHTML='<div><b></b><span></span></div><button class="ghost" type="button">REINTENTAR</button>';
     host.prepend(banner);
-    banner.querySelector('button').addEventListener('click',()=>{banner.remove();setPage(page)});
+    const retry=banner.querySelector('button');
+    if(retry) retry.addEventListener('click',()=>{banner.remove();setPage(page)});
   }
-  banner.querySelector('b').textContent='Esta sección no pudo completar la comprobación';
-  banner.querySelector('span').textContent=`${String(detail||'Error inesperado').slice(0,220)} · El resto del launcher sigue disponible.`;
+  const title=banner.querySelector('b');
+  const message=banner.querySelector('span');
+  if(title) title.textContent='Esta sección no pudo completar la comprobación';
+  if(message) message.textContent=`${String(detail||'Error inesperado').slice(0,220)} · El resto del launcher sigue disponible.`;
   banner.dataset.token=String(++pageErrorToken);
 }
 function renderNotifications(){

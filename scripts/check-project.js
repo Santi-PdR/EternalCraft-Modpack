@@ -126,6 +126,7 @@ if (duplicateIds.length) throw new Error(`IDs HTML duplicados: ${[...new Set(dup
 
 const renderer = fs.readFileSync(path.join(root,'src','renderer','renderer.js'),'utf8');
 if (!renderer.includes('s.hidden=!active') || !renderer.includes("s.setAttribute('aria-hidden',String(!active))")) throw new Error('La navegación debe controlar la visibilidad nativa de cada página.');
+if (!renderer.includes('const retry=banner.querySelector(\'button\')') || !renderer.includes('if(title) title.textContent')) throw new Error('El banner de errores del renderer debe tolerar un DOM parcial.');
 for (const ref of [...renderer.matchAll(/\$\(['"]([^'"]+)['"]\)/g)].map(m=>m[1])) {
   if (/^[.#\[]/.test(ref) || /[ >:+~]/.test(ref)) continue;
   if (!ids.includes(ref)) throw new Error(`renderer.js referencia un ID inexistente: ${ref}`);
