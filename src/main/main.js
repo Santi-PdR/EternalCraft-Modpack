@@ -476,6 +476,7 @@ function registerIpc() {
   ipcMain.handle('app:get-state', safeStatePayload);
 
   ipcMain.handle('onboarding:complete', async (_event, payload = {}) => {
+    payload = payload && typeof payload === 'object' && !Array.isArray(payload) ? payload : {};
     const username = String(payload.username || '').trim();
     if (!validMinecraftUsername(username)) throw new Error('El nick debe tener entre 3 y 16 caracteres y usar solo letras, números o _.');
     const current = store.load();
@@ -766,6 +767,7 @@ function registerIpc() {
   });
 
   ipcMain.handle('settings:save', async (_event, patch = {}) => {
+    patch = patch && typeof patch === 'object' && !Array.isArray(patch) ? patch : {};
     if (patch.minecraft?.useSystemResolution === true) { const d=primaryDisplayInfo(); patch={...patch,minecraft:{...patch.minecraft,width:d.width,height:d.height}}; }
     const next = store.save(patch);
     if (patch.pack?.manifestUrl || patch.developer?.githubRepo || patch.developer?.githubBranch) invalidateRuntimeCaches();
@@ -835,7 +837,10 @@ function registerIpc() {
   ipcMain.handle('developer:unlock', async (_event, password) => developerService.unlock(password));
   ipcMain.handle('developer:reset-access', async () => developerService.resetAccess());
   ipcMain.handle('developer:lock', async () => developerService.lock());
-  ipcMain.handle('developer:change-password', async (_event, payload = {}) => developerService.changePassword(payload.currentPassword, payload.nextPassword));
+  ipcMain.handle('developer:change-password', async (_event, payload = {}) => {
+    payload = payload && typeof payload === 'object' && !Array.isArray(payload) ? payload : {};
+    return developerService.changePassword(payload.currentPassword, payload.nextPassword);
+  });
   ipcMain.handle('developer:choose-source', async () => {
     const cfg = store.load(); const folder = await developerService.chooseSource(dialog, mainWindow, cfg.developer?.sourceDirectory);
     if (folder) store.save({ developer: { sourceDirectory: folder } }); return folder;
@@ -871,6 +876,7 @@ function registerIpc() {
     return {ok:true,copied,testDirectory:test};
   });
   ipcMain.handle('developer:publish-preview', async (_event, payload = {}) => runExclusive('preview de publicación', async () => {
+    payload = payload && typeof payload === 'object' && !Array.isArray(payload) ? payload : {};
     const current = store.load(); const repo = String(payload.repo || current.developer?.githubRepo || '').trim();
     const source = String(payload.source || current.developer?.sourceDirectory || '').trim() || path.join(require('os').homedir(), '.sklauncher', 'instances', 'siege');
     const preflight = await developerService.preflightAsync(source, current.developer?.testDirectory, repo);
@@ -902,6 +908,7 @@ function registerIpc() {
   }));
 
   ipcMain.handle('developer:publish', async (_event, payload = {}) => runExclusive('publicación del modpack', async () => {
+    payload = payload && typeof payload === 'object' && !Array.isArray(payload) ? payload : {};
     const current = store.load();
     const repo = String(payload.repo || current.developer?.githubRepo || '').trim();
     const source = String(payload.source || current.developer?.sourceDirectory || '').trim() || path.join(require('os').homedir(), '.sklauncher', 'instances', 'siege');
@@ -919,7 +926,7 @@ function registerIpc() {
       store.save({ pack: { manifestUrl: `https://raw.githubusercontent.com/${repo}/${branch}/channel/stable.json` } });
     }
     invalidateRuntimeCaches();
-    return { ...result, state: await statePayload() };
+    return { ...result, state: await safeStatePayload() };
   }));
 
   ipcMain.handle('launcher:update-check', async () => {
