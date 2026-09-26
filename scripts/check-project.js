@@ -46,6 +46,13 @@ for (const channel of preloadChannels) if (!mainChannels.has(channel)) throw new
 for (const channel of mainChannels) if (!preloadChannels.has(channel)) throw new Error(`main.js registra un handler sin puente preload: ${channel}`);
 if (manifest.minimumLauncher !== packageJson.version) throw new Error(`minimumLauncher ${manifest.minimumLauncher} no coincide con launcher ${packageJson.version}`);
 if (packageJson.build?.appId !== 'uy.eternalcraft.launcher') throw new Error('appId del launcher cambió inesperadamente.');
+const runtimeFiles = [...walk(path.join(root, 'src'), f => /\.(js|html|css)$/.test(f)), path.join(root, 'resources', 'default-config.json')];
+for (const file of runtimeFiles) {
+  const source = fs.readFileSync(file, 'utf8').toLowerCase();
+  if (/curseforge|modrinth/.test(source) && !/configstore|developerservice|changelog|diagnostic|provider/.test(path.basename(file).toLowerCase())) {
+    throw new Error(`Integración de catálogo externo encontrada en runtime: ${path.relative(root, file)}`);
+  }
+}
 if (!defaults.minecraft?.preferDedicatedGpu) throw new Error('La GPU dedicada debe venir activada por defecto.');
 if (!defaults.minecraft?.useSystemResolution) throw new Error('La resolución del sistema debe venir activada por defecto.');
 for (const legacy of ['provider','category','environment','releaseChannel','curseforgeProxyUrl','autoCheckUpdates','autoUpdateUserMods']) if (Object.prototype.hasOwnProperty.call(defaults.mods || {}, legacy)) throw new Error(`La configuración conserva una clave retirada: ${legacy}`);
