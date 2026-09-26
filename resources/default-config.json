@@ -47,6 +47,7 @@
     "profiles": [],
     "galleryView": {"query":"", "type":"all", "sort":"newest"},
     "backgroundMode": "fixed",
+    "backgroundBrightness": 1,
     "density": "comfortable",
     "glassEffects": true,
     "windowBounds": null,
