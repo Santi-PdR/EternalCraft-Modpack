@@ -930,6 +930,7 @@ if (!gotSingleInstanceLock) {
     process.on('unhandledRejection', (reason) => { appendLauncherError('unhandledRejection', reason); });
     if (process.platform === 'linux') { const os=require('os'); const cfg=store.load(); const devPatch={}; if(!cfg.developer?.sourceDirectory)devPatch.sourceDirectory=path.join(os.homedir(),'.sklauncher','instances','siege'); if(!cfg.developer?.testDirectory)devPatch.testDirectory=path.join(os.homedir(),'.sklauncher','instances','test-1'); if(Object.keys(devPatch).length)store.save({developer:devPatch}); }
     developerService = new DeveloperService(app.getPath('userData'), scriptsDir());
+    developerService.cleanupStalePublishWorkDir();
     authService = new AuthService(app.getPath('userData'));
     applyWindowsTasks();
     restoreSafeMode(store.load().pack.installDirectory).catch(()=>null);

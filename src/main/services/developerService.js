@@ -99,6 +99,16 @@ class DeveloperService {
     // logout or token change quickly.
     this.githubStatusCache = { at: 0, ready: false, login: '' };
   }
+  cleanupStalePublishWorkDir(maxAgeMs = 6 * 60 * 60 * 1000) {
+    try {
+      const stat = fs.statSync(this.publishWorkDir);
+      if (!stat.isDirectory() || Date.now() - stat.mtimeMs < maxAgeMs) return false;
+      fs.rmSync(this.publishWorkDir, { recursive: true, force: true });
+      return true;
+    } catch (_) {
+      return false;
+    }
+  }
   // The public Windows/Linux artifacts never pass this flag. The local Fedora
   // wrapper sets both the environment marker and the explicit argument so the
   // private maintenance build remains available even when Electron is launched
