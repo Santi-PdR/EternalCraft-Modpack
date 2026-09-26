@@ -235,10 +235,16 @@ function setPage(page){
     // attribute left by a previous renderer error must not blank a valid page.
     s.hidden=!active;
     s.setAttribute('aria-hidden',String(!active));
+    // Clear stale inline presentation left by an interrupted render for both
+    // branches; otherwise an inactive page with `display:block` can overlap
+    // the selected shell while the selected page remains hidden underneath.
+    s.style.removeProperty('display');
+    s.style.removeProperty('visibility');
+    s.style.removeProperty('opacity');
     // Keep navigation recoverable if a previous renderer operation left a
     // transient inline/display state behind. Pages are static shells and must
     // never disappear because a refresh request failed.
-    if(active){s.removeAttribute('hidden');s.style.removeProperty('display');s.style.removeProperty('visibility');s.style.removeProperty('opacity');}
+    if(active){s.removeAttribute('hidden');}
   });
   document.title=`Eternal Craft — ${labels[page]||'Launcher'}`;
   document.querySelector('.content')?.scrollTo({top:0,behavior:document.body.classList.contains('reduced-motion')?'auto':'smooth'});
