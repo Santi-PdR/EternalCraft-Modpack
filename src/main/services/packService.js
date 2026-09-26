@@ -160,6 +160,17 @@ async function reconcileOfficialModMetadata(root, manifest) {
   return changed;
 }
 
+// A developer publish can promote a local SIEGE jar before any player runs
+// the next pack update. Persist the same inventory used by repairInstallation
+// so the source instance immediately agrees with the verified manifest.
+async function markPublishedOfficial(root, manifest) {
+  if (!root || !manifest || !Array.isArray(manifest.files)) return false;
+  await fsp.mkdir(root, { recursive: true });
+  const changed = await reconcileOfficialModMetadata(root, manifest);
+  await writeOfficialFiles(root, manifest);
+  return changed;
+}
+
 async function removalPlan(root, manifest) {
   const current = new Set(manifestPaths(manifest));
   const currentKeys = new Set([...current].map((file) => file.toLowerCase()));
@@ -523,4 +534,4 @@ async function clearCache(root) {
   return { clearedFiles:Number(before.files||0), clearedBytes:Number(before.bytes||0) };
 }
 
-module.exports = { checkInstallation, repairInstallation, ensureForgeInstaller, safeTarget, sha256File, readState, cacheStats, pruneCache, clearCache, readOfficialFiles, removalPlan, reconcileOfficialModMetadata };
+module.exports = { checkInstallation, repairInstallation, ensureForgeInstaller, safeTarget, sha256File, readState, cacheStats, pruneCache, clearCache, readOfficialFiles, removalPlan, reconcileOfficialModMetadata, markPublishedOfficial };

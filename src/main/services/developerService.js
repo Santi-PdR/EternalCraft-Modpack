@@ -348,7 +348,7 @@ class DeveloperService {
     const args = [script, '--repo', repo, '--source', normalizePathInput(source, path.join(os.homedir(), '.sklauncher', 'instances', 'siege')), '--out', this.publishWorkDir];
     if (version) args.push('--version', version); if (notes) args.push('--notes', notes); args.push('--include-user-mods'); if(expectedFingerprint) args.push('--expected-fingerprint', expectedFingerprint);
     return runPublisherProcess({ args, cwd: this.publishWorkDir, onLine, timeoutMs: 45 * 60 * 1000, label: 'La publicación', env: { ETERNAL_LAUNCHER_VERSION: this.launcherVersion } })
-      .then(({ output }) => ({ ok: true, output }));
+      .then(({ output }) => ({ ok: true, output, manifestPath: path.join(this.publishWorkDir, 'channel', 'stable.json') }));
   }
 }
 module.exports = { DeveloperService };

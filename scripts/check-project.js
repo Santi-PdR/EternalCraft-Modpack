@@ -28,6 +28,8 @@ const modService = require(path.join(root,'src','main','services','modService'))
 for (const name of ['listMods','addMods','toggleMod','removeMod','toggleFavorite','togglePin','setAllUserModsEnabled','copyModToRoot','auditMods']) {
   if (typeof modService[name] !== 'function') throw new Error(`modService no exporta ${name}()`);
 }
+const packService = require(path.join(root,'src','main','services','packService'));
+if (typeof packService.markPublishedOfficial !== 'function') throw new Error('packService no exporta markPublishedOfficial()');
 const mainSource = fs.readFileSync(path.join(root,'src','main','main.js'),'utf8');
 const publisherSource = fs.readFileSync(path.join(root,'scripts','publish-pack-github.js'),'utf8');
 const packBuilderSource = fs.readFileSync(path.join(root,'scripts','build-pack.js'),'utf8');

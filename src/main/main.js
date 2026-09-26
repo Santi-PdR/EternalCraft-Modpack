@@ -5,7 +5,7 @@ const { app, BrowserWindow, ipcMain, shell, dialog, clipboard, screen, Tray, Men
 const { ConfigStore, deepMerge } = require('./services/configStore');
 const { pingMinecraftServer } = require('./services/serverPing');
 const { getManifest } = require('./services/manifestService');
-const { checkInstallation, repairInstallation, cacheStats, clearCache } = require('./services/packService');
+const { checkInstallation, repairInstallation, cacheStats, clearCache, markPublishedOfficial } = require('./services/packService');
 const { resolveJava17, ensureJava17, supportedJava } = require('./services/javaService');
 const { buildDiagnostic, quickDiagnostic } = require('./services/diagnostics');
 const { launchGame } = require('./services/gameService');
@@ -921,6 +921,14 @@ function registerIpc() {
     emit('developer:publish-log', `Preflight OK · ${preflight.sourceMods} mods detectados · GitHub ${preflight.githubLogin || 'conectado'}`);
     const cfg = store.save({ developer: { githubRepo: repo, sourceDirectory: source } });
     const result = await developerService.publish({ repo, source, version: String(payload.version || '').trim(), notes: String(payload.notes || ''), expectedFingerprint: String(payload.expectedFingerprint || ''), onLine: (line) => emit('developer:publish-log', line) });
+    try {
+      const publishedManifest = JSON.parse(await fsp.readFile(result.manifestPath, 'utf8'));
+      await markPublishedOfficial(developerService.resolveRoot(source), publishedManifest);
+    } catch (error) {
+      // The GitHub publication is already verified. Keep that success visible,
+      // while retaining a diagnostic if the local metadata sync is unavailable.
+      await appendLauncherError('published metadata sync', error);
+    }
     if (repo.includes('/')) {
       const branch = cfg.developer?.githubBranch || 'main';
       store.save({ pack: { manifestUrl: `https://raw.githubusercontent.com/${repo}/${branch}/channel/stable.json` } });
