@@ -46,8 +46,16 @@ function validateManifest(manifest) {
     if(!p||p.startsWith('/')||p.includes('\0')||p.split('/').includes('..')) throw new Error(`Ruta insegura en manifest: ${value||'vacía'}`);
     return p;
   };
+  const managedPath=(value)=>{
+    const p=validatePath(value);
+    const normalized=p.toLowerCase();
+    if (!(normalized.startsWith('mods/') || normalized.startsWith('iammusicplayerrenewed/'))) {
+      throw new Error(`Ruta fuera del payload administrado: ${p}`);
+    }
+    return p;
+  };
   for (const entry of manifest.files) {
-    const p=validatePath(entry?.path);
+    const p=managedPath(entry?.path);
     if(seen.has(p)) throw new Error(`Ruta duplicada en manifest: ${p}`); seen.add(p);
     if(!/^[a-f0-9]{64}$/i.test(String(entry?.sha256||''))) throw new Error(`SHA-256 inválido: ${p}`);
     const size=Number(entry.size||0);
@@ -64,7 +72,7 @@ function validateManifest(manifest) {
       if(!['https:','file:'].includes(parsed.protocol)&&!localHttp) throw new Error(`URL no segura en manifest: ${p}`);
     }
   }
-  if(Array.isArray(manifest.remove)) manifest.remove.forEach(validatePath);
+  if(Array.isArray(manifest.remove)) manifest.remove.forEach(managedPath);
   return manifest;
 }
 
