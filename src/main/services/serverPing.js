@@ -93,10 +93,14 @@ function pingMinecraftServer(host, port, timeout = 3500) {
         const data = JSON.parse(json);
         const description = textFromDescription(data.description);
         const version = data.version?.name || 'Desconocida';
+        const onlinePlayers = Number(data.players?.online);
+        const maxPlayers = Number(data.players?.max);
+        const protocol = Number(data.version?.protocol);
         const hasStatusPayload = Boolean(
           data && typeof data.version === 'object' && data.version &&
-          Number.isFinite(Number(data.version.protocol)) &&
-          data.players && Number.isFinite(Number(data.players.online)) && Number.isFinite(Number(data.players.max))
+          Number.isInteger(protocol) && protocol > 0 &&
+          data.players && Number.isInteger(onlinePlayers) && Number.isInteger(maxPlayers) &&
+          onlinePlayers >= 0 && maxPlayers >= 0 && onlinePlayers <= maxPlayers
         );
         const lobbyText = `${description} ${version}`.toLowerCase();
         // Exaroton can answer with its lobby while the configured instance is stopped.
