@@ -40,7 +40,7 @@ class AuthService {
   }
   save(data) {
     fs.mkdirSync(path.dirname(this.file), { recursive: true });
-    const temporary = `${this.file}.tmp-${process.pid}`;
+    const temporary = `${this.file}.tmp-${process.pid}-${Date.now()}-${Math.random().toString(16).slice(2)}`;
     const serialized = JSON.stringify(data, null, 2);
     fs.writeFileSync(temporary, serialized, { mode: 0o600 });
     try { fs.chmodSync(temporary, 0o600); } catch (_) {}

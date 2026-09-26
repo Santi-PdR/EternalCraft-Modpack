@@ -61,7 +61,7 @@ if (!mainSource.includes("isQuitting = true;\n    try { installLauncherUpdate();
 const configStoreSource = fs.readFileSync(path.join(root,'src','main','services','configStore.js'),'utf8');
 const authServiceSource = fs.readFileSync(path.join(root,'src','main','services','authService.js'),'utf8');
 if (!authServiceSource.includes('function isAuthFailure') || !authServiceSource.includes('error.reauthRequired = true')) throw new Error('La sesión Microsoft debe diferenciar tokens inválidos de fallos de red.');
-if (!authServiceSource.includes('const temporary = `${this.file}.tmp-${process.pid}`') || !authServiceSource.includes('fs.renameSync(temporary, this.file)')) throw new Error('La cuenta premium debe guardarse con reemplazo atómico.');
+if (!authServiceSource.includes('const temporary = `${this.file}.tmp-${process.pid}-${Date.now()}-') || !authServiceSource.includes('fs.renameSync(temporary, this.file)')) throw new Error('La cuenta premium debe guardarse con reemplazo atómico y temporal único.');
 if (!mainSource.includes('else if (result.reauthRequired) store.save({ minecraft: { accountMode: \'offline\' } });')) throw new Error('El launcher debe salir del modo premium cuando Microsoft invalida la sesión.');
 if (!mainSource.includes("if (err?.reauthRequired) {\n        store.save({ minecraft: { accountMode: 'offline' } });")) throw new Error('El inicio del juego debe convertir una sesión premium vencida en una acción recuperable.');
 if (!configStoreSource.includes('Persist the migration immediately')) throw new Error('La limpieza de configuración heredada debe persistirse al migrar.');
