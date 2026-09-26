@@ -112,7 +112,16 @@ function rendererPath(file) { return path.join(__dirname, '..', 'renderer', file
 function scriptsDir() { return app.isPackaged ? path.join(process.resourcesPath, 'scripts') : path.join(__dirname, '..', '..', 'scripts'); }
 function managedJavaRoot() { return path.join(app.getPath('userData'), 'runtime', 'java17'); }
 function emit(channel, payload) {
-  if (mainWindow && !mainWindow.isDestroyed()) mainWindow.webContents.send(channel, payload);
+  if (!mainWindow || mainWindow.isDestroyed()) return false;
+  try {
+    mainWindow.webContents.send(channel, payload);
+    return true;
+  } catch (error) {
+    // A background update can finish while the window is closing. Electron
+    // may surface that race as EPIPE; it must not become a launcher error.
+    if (error?.code !== 'EPIPE') void appendLauncherError(`ipc emit:${channel}`, error);
+    return false;
+  }
 }
 function showMainWindow() {
   if (!mainWindow || mainWindow.isDestroyed()) return;
@@ -926,8 +935,12 @@ if (!gotSingleInstanceLock) {
   app.whenReady().then(() => {
     store = new ConfigStore({ defaultsPath: path.join(resourcesDir(), 'default-config.json'), userDataDir: app.getPath('userData') });
     launcherErrorLog = path.join(app.getPath('userData'), 'launcher-errors.log');
-    process.on('uncaughtExceptionMonitor', (err) => { appendLauncherError('uncaughtException', err); });
-    process.on('unhandledRejection', (reason) => { appendLauncherError('unhandledRejection', reason); });
+    process.on('uncaughtExceptionMonitor', (err) => {
+      if (err?.code !== 'EPIPE') appendLauncherError('uncaughtException', err);
+    });
+    process.on('unhandledRejection', (reason) => {
+      if (reason?.code !== 'EPIPE') appendLauncherError('unhandledRejection', reason);
+    });
     if (process.platform === 'linux') { const os=require('os'); const cfg=store.load(); const devPatch={}; if(!cfg.developer?.sourceDirectory)devPatch.sourceDirectory=path.join(os.homedir(),'.sklauncher','instances','siege'); if(!cfg.developer?.testDirectory)devPatch.testDirectory=path.join(os.homedir(),'.sklauncher','instances','test-1'); if(Object.keys(devPatch).length)store.save({developer:devPatch}); }
     developerService = new DeveloperService(app.getPath('userData'), scriptsDir());
     developerService.cleanupStalePublishWorkDir();
