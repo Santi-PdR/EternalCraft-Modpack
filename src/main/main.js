@@ -2,7 +2,7 @@ const path = require('path');
 const os = require('os');
 const fsp = require('fs/promises');
 const { app, BrowserWindow, ipcMain, shell, dialog, clipboard, screen, Tray, Menu, Notification } = require('electron');
-const { ConfigStore } = require('./services/configStore');
+const { ConfigStore, deepMerge } = require('./services/configStore');
 const { pingMinecraftServer } = require('./services/serverPing');
 const { getManifest } = require('./services/manifestService');
 const { checkInstallation, repairInstallation, cacheStats, clearCache } = require('./services/packService');
@@ -385,7 +385,21 @@ async function safeStatePayload() {
   try { return await statePayload(); }
   catch (error) {
     void appendLauncherError('statePayload', error);
-    const config = store?.load?.() || {};
+    const fallbackDefaults = {
+      server: { host: '', port: 25565 },
+      minecraft: { username: 'Player', version: '1.20.1', forgeVersion: '47.4.10', javaPath: '', maxMemoryMb: 6144, width: 0, height: 0, useSystemResolution: true, fullscreen: false, preset: 'balanced', autoInstallJava: true, preferDedicatedGpu: true },
+      pack: { installDirectory: path.join(app.getPath('userData'), 'EternalCraft'), autoUpdate: true, repairBeforeLaunch: false, autoSnapshot: true },
+      launcher: { hideOnGameStart: false, refocusOnGameExit: true, theme: 'aurora', background: 'frontline', backgroundMode: 'fixed', density: 'comfortable', glassEffects: true, scanlines: false, noise: false, reducedMotion: false, uiScale: 'normal', cardRadius: 16, startPage: 'home', autoConnectivityCheck: true, nativeNotifications: true, closeToTray: true, sidebarCollapsed: false },
+      mods: { sort: 'recent', allowUserMods: true, compatibilityWarnings: true, hideWarnings: false, protectServerCompatibility: true, autoChangeSnapshots: true },
+      sync: { includeScreenshots: true, includeSaves: false, extraPaths: [] },
+      onboarding: { completed: false }
+    };
+    let config = fallbackDefaults;
+    try {
+      const defaults = store?.readDefaults?.() || {};
+      const persisted = store?.load?.() || {};
+      config = deepMerge(deepMerge(fallbackDefaults, defaults), persisted);
+    } catch (recoveryError) { void appendLauncherError('statePayload recovery', recoveryError); }
     let manifest = { schema: 2, version: 'DEV', minecraft: '1.20.1', forge: '47.4.10', files: [], remove: [] };
     try { manifest = JSON.parse(await fsp.readFile(path.join(resourcesDir(), 'manifest.example.json'), 'utf8')); } catch (_) {}
     return {
