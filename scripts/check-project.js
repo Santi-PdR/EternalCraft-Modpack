@@ -50,6 +50,7 @@ if (!developerServiceSource.includes('async cleanupStalePublishWorkDir')) throw 
 if (!developerServiceSource.includes("child.kill('SIGTERM')")) throw new Error('El publicador debe terminar el proceso hijo cuando falla su canal de salida.');
 if (!developerServiceSource.includes('const hasCache = this.githubStatusCache.at > 0')) throw new Error('El estado del developer no debe ocultar una conexión GitHub conocida durante el desbloqueo.');
 if (!developerServiceSource.includes('this.githubStatusInFlight')) throw new Error('El estado de GitHub del developer debe deduplicar comprobaciones simultáneas.');
+if (!developerServiceSource.includes('function sha256FileAsync') || !developerServiceSource.includes('item.sha256 = await sha256FileAsync(item.full)')) throw new Error('El preflight debe calcular hashes de mods por stream para no cargar JARs completos en memoria.');
 if (!developerServiceSource.includes('publisherChildren')) throw new Error('Los procesos de publicación deben registrarse para terminarlos al salir.');
 if (!developerServiceSource.includes("child.kill('SIGKILL')")) throw new Error('El cierre del launcher debe forzar procesos de publicación que no respondan.');
 if (!developerServiceSource.includes('if (child.exitCode === null) { try { child.kill(\'SIGKILL\')')) throw new Error('Los errores del publicador deben forzar el proceso aunque child.killed ya sea true.');

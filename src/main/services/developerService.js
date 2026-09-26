@@ -45,6 +45,15 @@ function normalizePathInput(candidate, fallback) {
 function sha256Sync(file) {
   const h = crypto.createHash('sha256'); h.update(fs.readFileSync(file)); return h.digest('hex');
 }
+function sha256FileAsync(file) {
+  return new Promise((resolve, reject) => {
+    const hash = crypto.createHash('sha256');
+    const stream = fs.createReadStream(file);
+    stream.on('error', reject);
+    stream.on('data', (chunk) => hash.update(chunk));
+    stream.on('end', () => resolve(hash.digest('hex')));
+  });
+}
 function scanModDirectory(candidate) {
   const root = resolveMinecraftRoot(candidate); const dir = path.join(root, 'mods'); const map = new Map();
   try {
@@ -80,8 +89,7 @@ async function scanModDirectoryAsync(candidate) {
     while (cursor < files.length) {
       const item = files[cursor++];
       try {
-        const bytes = await fsp.readFile(item.full);
-        item.sha256 = crypto.createHash('sha256').update(bytes).digest('hex');
+        item.sha256 = await sha256FileAsync(item.full);
         map.set(item.name, item);
       } catch (_) {}
     }
