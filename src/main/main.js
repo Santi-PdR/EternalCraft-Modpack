@@ -990,11 +990,14 @@ if (!gotSingleInstanceLock) {
     });
     if (process.platform === 'linux') { const os=require('os'); const cfg=store.load(); const devPatch={}; if(!cfg.developer?.sourceDirectory)devPatch.sourceDirectory=path.join(os.homedir(),'.sklauncher','instances','siege'); if(!cfg.developer?.testDirectory)devPatch.testDirectory=path.join(os.homedir(),'.sklauncher','instances','test-1'); if(Object.keys(devPatch).length)store.save({developer:devPatch}); }
     developerService = new DeveloperService(app.getPath('userData'), scriptsDir(), app.getVersion());
-    developerService.cleanupStalePublishWorkDir();
     authService = new AuthService(app.getPath('userData'));
     applyWindowsTasks();
     restoreSafeMode(store.load().pack.installDirectory).catch(()=>null);
     registerIpc(); createTray(); createWindow();
+    // A previous publish can leave hundreds of blobs in this directory. Do
+    // not remove them synchronously before the first paint: startup must stay
+    // responsive even when a publish was interrupted.
+    void developerService.cleanupStalePublishWorkDir().catch((error) => appendLauncherError('publish workdir cleanup', error));
     applyStartupPreference(Boolean(store.load().launcher?.startWithSystem)).catch(()=>null);
     mainWindow.webContents.once('did-finish-load', () => {
       const config = store.load();

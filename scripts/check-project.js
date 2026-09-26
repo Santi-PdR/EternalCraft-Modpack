@@ -42,6 +42,7 @@ if (!packBuilderSource.includes("Boolean(args['include-user-mods'])")) throw new
 if (!manifestServiceSource.includes('Ruta fuera del payload administrado')) throw new Error('El validador debe limitar el manifiesto a los directorios administrados.');
 if (!updateServiceSource.includes('if (availableInfo) emit({ type: \'available\'')) throw new Error('El updater debe conservar el reintento después de un fallo de descarga.');
 if (!developerServiceSource.includes("output = `${output}${text}`.slice(-maxCapture)")) throw new Error('El publicador debe conservar el final del log para diagnosticar fallos.');
+if (!developerServiceSource.includes('async cleanupStalePublishWorkDir')) throw new Error('La limpieza de temporales del publicador debe ser asíncrona.');
 if (/--(?:raw-)?field['\"`][^\n]*(?:manifest|content|body)/i.test(publisherSource)) throw new Error('El publicador volvió a pasar contenido grande del manifest por argumentos de gh.');
 for (const match of mainSource.matchAll(/const\s*\{([^}]+)\}\s*=\s*require\('\.\/services\/([^']+)'\)/g)) {
   const names = match[1].split(',').map(value => value.trim()).filter(Boolean);

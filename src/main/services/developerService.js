@@ -157,11 +157,11 @@ class DeveloperService {
     // logout or token change quickly.
     this.githubStatusCache = { at: 0, ready: false, login: '' };
   }
-  cleanupStalePublishWorkDir(maxAgeMs = 6 * 60 * 60 * 1000) {
+  async cleanupStalePublishWorkDir(maxAgeMs = 6 * 60 * 60 * 1000) {
     try {
-      const stat = fs.statSync(this.publishWorkDir);
+      const stat = await fsp.stat(this.publishWorkDir);
       if (!stat.isDirectory() || Date.now() - stat.mtimeMs < maxAgeMs) return false;
-      fs.rmSync(this.publishWorkDir, { recursive: true, force: true });
+      await fsp.rm(this.publishWorkDir, { recursive: true, force: true });
       return true;
     } catch (_) {
       return false;
