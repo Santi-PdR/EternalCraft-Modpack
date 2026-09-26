@@ -4,9 +4,11 @@ set -euo pipefail
 export ETERNAL_DEVELOPER_BUILD=1
 BASE="/home/Santipdr/.local/opt/eternal-craft-launcher"
 
-# Fedora installations without /dev/fuse run the extracted AppImage payload.
-if [[ -x "$BASE/app/AppRun" ]]; then
-  exec "$BASE/app/AppRun" --developer-build "$@"
+# Fedora installations without /dev/fuse run the extracted Electron binary.
+# Calling AppRun here can exit early when APPIMAGE is not set; the binary is
+# already self-contained inside the extracted AppDir and is the reliable path.
+if [[ -x "$BASE/app/EternalCraftLauncher" ]]; then
+  exec "$BASE/app/EternalCraftLauncher" --developer-build "$@"
 fi
 
 exec "$BASE/Eternal-Craft-Launcher.AppImage" --appimage-extract-and-run --developer-build "$@"

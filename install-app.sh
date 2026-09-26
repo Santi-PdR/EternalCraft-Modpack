@@ -45,7 +45,11 @@ cp -f resources/icons/icon.png "$ICON_DIR/$APP_ID.png"
 
 cat > "$WRAPPER" <<WRAPPER
 #!/usr/bin/env bash
+set -euo pipefail
 export ETERNAL_DEVELOPER_BUILD=1
+if [[ -x "$APP_HOME/app/EternalCraftLauncher" ]]; then
+  exec "$APP_HOME/app/EternalCraftLauncher" --developer-build "\$@"
+fi
 exec "$APPIMAGE" "\$@"
 WRAPPER
 chmod +x "$WRAPPER"
