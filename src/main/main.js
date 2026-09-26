@@ -980,7 +980,13 @@ function registerIpc() {
     if (!app.isPackaged) throw new Error('Las actualizaciones del launcher se prueban en una build empaquetada.');
     return downloadLauncherUpdate(store.load(), updateEvent);
   });
-  ipcMain.handle('launcher:update-install', async () => { installLauncherUpdate(); return true; });
+  ipcMain.handle('launcher:update-install', async () => {
+    // `closeToTray` must never intercept an explicit restart requested by the
+    // user to install a downloaded launcher update.
+    isQuitting = true;
+    try { installLauncherUpdate(); return true; }
+    catch (error) { isQuitting = false; throw error; }
+  });
 
   ipcMain.handle('shell:open-instance', async () => {
     const folder = store.load().pack.installDirectory; await fsp.mkdir(folder, { recursive: true }); return shell.openPath(folder);

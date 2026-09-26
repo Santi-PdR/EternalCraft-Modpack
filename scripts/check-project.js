@@ -57,6 +57,7 @@ if (!developerServiceSource.includes('if (child.exitCode === null) { try { child
 if (!mainSource.includes('runtimeCacheGeneration')) throw new Error('Las cachés de runtime deben descartar respuestas iniciadas antes de una invalidación.');
 if (!mainSource.includes('PRIMED_MANIFEST_TTL_MS') || !mainSource.includes('primeManifestCache(store.load(), publishedManifest')) throw new Error('La publicación debe usar el manifiesto verificado mientras GitHub propaga stable.json.');
 if (!mainSource.includes('rendererLoadAttempts < 3')) throw new Error('La carga del renderer debe reintentar fallos iniciales sin entrar en un bucle infinito.');
+if (!mainSource.includes("isQuitting = true;\n    try { installLauncherUpdate();")) throw new Error('La instalación de actualizaciones debe omitir el cierre a la bandeja.');
 const configStoreSource = fs.readFileSync(path.join(root,'src','main','services','configStore.js'),'utf8');
 if (!configStoreSource.includes('Persist the migration immediately')) throw new Error('La limpieza de configuración heredada debe persistirse al migrar.');
 if (/--(?:raw-)?field['\"`][^\n]*(?:manifest|content|body)/i.test(publisherSource)) throw new Error('El publicador volvió a pasar contenido grande del manifest por argumentos de gh.');
