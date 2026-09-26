@@ -116,6 +116,7 @@ const duplicateIds = ids.filter((id,i)=>ids.indexOf(id)!==i);
 if (duplicateIds.length) throw new Error(`IDs HTML duplicados: ${[...new Set(duplicateIds)].join(', ')}`);
 
 const renderer = fs.readFileSync(path.join(root,'src','renderer','renderer.js'),'utf8');
+if (!renderer.includes('s.hidden=!active') || !renderer.includes("s.setAttribute('aria-hidden',String(!active))")) throw new Error('La navegación debe controlar la visibilidad nativa de cada página.');
 for (const ref of [...renderer.matchAll(/\$\(['"]([^'"]+)['"]\)/g)].map(m=>m[1])) {
   if (/^[.#\[]/.test(ref) || /[ >:+~]/.test(ref)) continue;
   if (!ids.includes(ref)) throw new Error(`renderer.js referencia un ID inexistente: ${ref}`);

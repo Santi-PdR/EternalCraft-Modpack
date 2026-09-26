@@ -231,6 +231,10 @@ function setPage(page){
   $$('.page').forEach(s=>{
     const active=s.id===targetId;
     s.classList.toggle('active',active);
+    // Own native visibility as well as the CSS state. A stale `hidden`
+    // attribute left by a previous renderer error must not blank a valid page.
+    s.hidden=!active;
+    s.setAttribute('aria-hidden',String(!active));
     // Keep navigation recoverable if a previous renderer operation left a
     // transient inline/display state behind. Pages are static shells and must
     // never disappear because a refresh request failed.
