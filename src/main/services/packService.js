@@ -171,7 +171,7 @@ async function downloadFile(url, destination, expectedSha256, onChunk = () => {}
     await fsp.rename(temp, destination);
     return;
   }
-  const response = await fetchWithRetry(url, { headers: { 'User-Agent': 'EternalCraftLauncher/0.65.21', Accept: '*/*' } }, 3, 120000);
+  const response = await fetchWithRetry(url, { headers: { 'User-Agent': 'EternalCraftLauncher/0.65.22', Accept: '*/*' } }, 3, 120000);
   if (!response.body) throw new Error(`Respuesta vacía al descargar ${url}`);
   const total = Number(response.headers.get('content-length') || 0); let received = 0;
   const reader = response.body.getReader();
@@ -259,7 +259,29 @@ async function restoreRollback(root, rollbackRoot, records) {
   }
 }
 
+async function cleanupInterruptedTransactions(root, maxAgeMs = 60 * 60 * 1000) {
+  const now = Date.now();
+  const cacheDir = path.join(root, CACHE_DIR);
+  try {
+    for (const entry of await fsp.readdir(cacheDir, { withFileTypes: true })) {
+      if (!entry.isFile() || !/\.part-\d+-\d+$/i.test(entry.name)) continue;
+      await fsp.rm(path.join(cacheDir, entry.name), { force: true }).catch(() => {});
+    }
+  } catch (_) {}
+  for (const directory of [path.join(root, STAGING_DIR), path.join(root, ROLLBACK_DIR)]) {
+    try {
+      for (const entry of await fsp.readdir(directory, { withFileTypes: true })) {
+        if (!entry.isDirectory() || !/^tx-\d+-\d+$/i.test(entry.name)) continue;
+        const full = path.join(directory, entry.name);
+        const stat = await fsp.stat(full).catch(() => null);
+        if (stat && now - stat.mtimeMs > maxAgeMs) await fsp.rm(full, { recursive: true, force: true }).catch(() => {});
+      }
+    } catch (_) {}
+  }
+}
+
 async function repairInstallation(root, manifest, onProgress = () => {}) {
+  await cleanupInterruptedTransactions(root);
   const check = await checkInstallation(root, manifest, onProgress);
   const priorState = check.state || { version: null, updatedAt: null };
   const targets = [...check.missing, ...check.changed];

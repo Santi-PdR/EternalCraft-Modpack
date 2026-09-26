@@ -14,7 +14,7 @@ async function fetchJson(url, timeoutMs = 12000) {
       const response = await fetch(value, {
         signal: controller.signal,
         cache: 'no-store',
-        headers: { Accept: 'application/json', 'User-Agent': 'EternalCraftLauncher/0.65.21' }
+        headers: { Accept: 'application/json', 'User-Agent': 'EternalCraftLauncher/0.65.22' }
       });
       if (!response.ok) {
         const retryable = response.status === 408 || response.status === 425 || response.status === 429 || response.status >= 500;
