@@ -153,7 +153,10 @@ async function fetchJson(url, options = {}) {
       return res.json();
     } catch (error) {
       lastError = error?.name === 'TimeoutError' || error?.name === 'AbortError' ? new Error('La consulta tardó demasiado. Revisá la conexión e intentá de nuevo.') : error;
-      if (!lastError?.retryable && !['ECONNRESET', 'ETIMEDOUT', 'EAI_AGAIN'].includes(error?.code)) throw lastError;
+      const transientNetworkError = ['ECONNRESET', 'ETIMEDOUT', 'EAI_AGAIN', 'UND_ERR_CONNECT_TIMEOUT', 'UND_ERR_SOCKET'].includes(error?.code)
+        || error?.name === 'TypeError'
+        || /fetch failed|network|socket|connect/i.test(String(error?.message || ''));
+      if (!lastError?.retryable && !transientNetworkError) throw lastError;
       if (attempt < 3) await new Promise((resolve) => setTimeout(resolve, 300 * 2 ** (attempt - 1)));
     }
   }
@@ -168,7 +171,10 @@ async function download(url, target) {
       const buf = Buffer.from(await res.arrayBuffer()); await fsp.mkdir(path.dirname(target), { recursive: true }); await fsp.writeFile(target, buf); return buf;
     } catch (error) {
       lastError = error?.name === 'TimeoutError' || error?.name === 'AbortError' ? new Error('La descarga tardó demasiado. Intentá nuevamente.') : error;
-      if (!lastError?.retryable && !['ECONNRESET', 'ETIMEDOUT', 'EAI_AGAIN'].includes(error?.code)) throw lastError;
+      const transientNetworkError = ['ECONNRESET', 'ETIMEDOUT', 'EAI_AGAIN', 'UND_ERR_CONNECT_TIMEOUT', 'UND_ERR_SOCKET'].includes(error?.code)
+        || error?.name === 'TypeError'
+        || /fetch failed|network|socket|connect/i.test(String(error?.message || ''));
+      if (!lastError?.retryable && !transientNetworkError) throw lastError;
       if (attempt < 3) await new Promise((resolve) => setTimeout(resolve, 500 * 2 ** (attempt - 1)));
     }
   }

@@ -25,7 +25,10 @@ async function fetchJson(url, timeoutMs = 12000) {
       return await response.json();
     } catch (error) {
       lastError = error?.name === 'AbortError' ? new Error(`Tiempo de espera agotado al consultar el canal (${timeoutMs / 1000} s).`) : error;
-      if (!lastError?.retryable && error?.name !== 'AbortError' && !['ECONNRESET', 'ETIMEDOUT', 'EAI_AGAIN'].includes(error?.code)) throw lastError;
+      const transientNetworkError = ['ECONNRESET', 'ETIMEDOUT', 'EAI_AGAIN', 'UND_ERR_CONNECT_TIMEOUT', 'UND_ERR_SOCKET'].includes(error?.code)
+        || error?.name === 'TypeError'
+        || /fetch failed|network|socket|connect/i.test(String(error?.message || ''));
+      if (!lastError?.retryable && error?.name !== 'AbortError' && !transientNetworkError) throw lastError;
       if (attempt < 3) await new Promise((resolve) => setTimeout(resolve, 250 * 2 ** (attempt - 1)));
     } finally {
       clearTimeout(timer);
