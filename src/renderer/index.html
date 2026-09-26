@@ -75,7 +75,7 @@
 
   <div id="whatsNewOverlay" class="whats-new-overlay hidden" role="dialog" aria-modal="true" aria-label="Novedades del launcher">
     <section class="whats-new-card">
-      <div class="whats-new-hero"><img src="assets/logo.svg" alt=""/><div><span class="eyebrow">ETERNAL CRAFT LAUNCHER</span><h2>v0.62.0</h2><p>Preferencias de galería persistentes, filtros restablecibles y una interfaz más consistente.</p></div></div>
+      <div class="whats-new-hero"><img src="assets/logo.svg" alt=""/><div><span class="eyebrow">ETERNAL CRAFT LAUNCHER</span><h2>v0.63.0</h2><p>Revisión integral del launcher, revisión global, filtros recuperables y controles de apariencia más seguros.</p></div></div>
       <div class="whats-new-grid">
         <div><i>01</i><b>Mods instalados</b><span>La vista de mods se centra en tu instancia local, con búsqueda, filtros y actualizaciones.</span></div>
         <div><i>02</i><b>Búsqueda de Ajustes</b><span>Encontrá una opción sin recorrer todas las categorías.</span></div>
@@ -101,7 +101,7 @@
         <b id="notificationsBadge" class="hidden">0</b>
       </button>
       <div id="globalStatus" class="global-status" title="Estado de conexión"><i></i><span id="globalStatusText">COMPROBANDO</span></div>
-      <div id="titleBuild" class="title-build">BUILD 0.62.0</div>
+      <div id="titleBuild" class="title-build">BUILD 0.63.0</div>
       <div class="window-controls">
         <button id="minimizeBtn" aria-label="Minimizar">—</button>
         <button id="maximizeBtn" aria-label="Maximizar">□</button>
@@ -158,7 +158,7 @@
         <div id="healthRibbon" class="health-ribbon">
           <div class="health-ribbon-main"><span id="healthIcon">✓</span><div><b id="healthTitle">REVISANDO SISTEMA</b><small id="healthText">Comprobando Java, pack y mods personales.</small></div></div>
           <div class="health-ribbon-pills"><span id="healthJava">JAVA · …</span><span id="healthPack">PACK · …</span><span id="healthServer" class="hidden">SERVER · …</span><span id="healthMods">MODS · …</span></div>
-          <button id="healthRefreshBtn" class="ghost">REVISAR</button>
+          <div class="health-ribbon-actions"><button id="refreshAllBtn" class="ghost">REVISAR TODO</button><button id="healthRefreshBtn" class="ghost">REVISAR</button></div>
         </div>
 
         <div class="command-center-grid">
@@ -300,7 +300,7 @@
             <div class="mods-toolbar">
               <div class="search-box"><span>⌕</span><input id="modsSearch" placeholder="Buscar mods instalados..." autocomplete="off" /></div>
               <div class="filter-pills" role="group" aria-label="Filtro de mods"><button class="filter-pill active" data-mod-filter="all">Todos</button><button class="filter-pill" data-mod-filter="official">Oficiales</button><button class="filter-pill" data-mod-filter="user">Agregados</button><button class="filter-pill" data-mod-filter="disabled">Desactivados</button><button class="filter-pill" data-mod-filter="updates">Actualizables</button><button class="filter-pill" data-mod-filter="favorites">Favoritos</button><button class="filter-pill" data-mod-filter="pinned">Fijados</button><button class="filter-pill" data-mod-filter="local">Locales</button></div>
-              <select id="modsSort" class="compact-select" aria-label="Ordenar mods"><option value="recent">Más recientes</option><option value="oldest">Más antiguos</option><option value="az">A–Z</option><option value="size">Más pesados</option><option value="updated">Actualizados recientemente</option></select>
+              <div class="mods-sort-row"><select id="modsSort" class="compact-select" aria-label="Ordenar mods"><option value="recent">Más recientes</option><option value="oldest">Más antiguos</option><option value="az">A–Z</option><option value="size">Más pesados</option><option value="updated">Actualizados recientemente</option></select><button id="modsResetFiltersBtn" class="text-button" type="button">RESTABLECER</button></div>
             </div>
             <div id="modsList" class="mods-list"><div class="empty-state">Cargando mods…</div></div>
           </article>
@@ -317,10 +317,11 @@
         <div class="modpack-overview">
           <article class="panel modpack-state-card">
             <div class="panel-head"><span>ESTADO</span><b id="packSource">—</b></div>
-            <div class="pack-state-main">
+              <div class="pack-state-main">
               <div><span id="packStateKicker">INSTALACIÓN</span><strong id="packStateTitle">COMPROBANDO</strong><p id="packStateText">Analizando la instalación...</p></div>
               <div class="ring" id="packRing"><span id="packRingValue">0%</span></div>
             </div>
+            <div class="pack-last-check"><span>ÚLTIMA COMPROBACIÓN</span><b id="packLastChecked">—</b></div>
             <div class="pack-version-grid">
               <div><span>INSTALADO</span><b id="installedVersion">—</b></div>
               <div><span>DISPONIBLE</span><b id="targetVersion">—</b></div>
@@ -402,7 +403,7 @@
         <div class="update-center-grid">
           <article class="panel update-product-card" data-update-kind="pack"><div class="update-product-icon">▦</div><div class="update-product-copy"><span>MODPACK OFICIAL</span><b id="updatesPackTitle">Comprobando…</b><small id="updatesPackText">—</small></div><button id="updatesPackBtn" class="ghost">ABRIR</button></article>
           <article class="panel update-product-card" data-update-kind="mods"><div class="update-product-icon">◇</div><div class="update-product-copy"><span>MODS PERSONALES</span><b id="updatesModsTitle">Comprobando…</b><small id="updatesModsText">—</small></div><button id="updatesModsBtn" class="ghost">ABRIR</button></article>
-          <article class="panel update-product-card" data-update-kind="launcher"><div class="update-product-icon">↻</div><div class="update-product-copy"><span>LAUNCHER</span><b id="updatesLauncherTitle">v0.62.0</b><small id="updatesLauncherText">Comprobando canal…</small></div><button id="updatesLauncherBtn" class="ghost">COMPROBAR</button></article>
+          <article class="panel update-product-card" data-update-kind="launcher"><div class="update-product-icon">↻</div><div class="update-product-copy"><span>LAUNCHER</span><b id="updatesLauncherTitle">v0.63.0</b><small id="updatesLauncherText">Comprobando canal…</small></div><button id="updatesLauncherBtn" class="ghost">COMPROBAR</button></article>
           <article class="panel update-product-card" data-update-kind="runtime"><div class="update-product-icon">J</div><div class="update-product-copy"><span>RUNTIME</span><b id="updatesRuntimeTitle">Java 17</b><small id="updatesRuntimeText">—</small></div><button id="updatesRuntimeBtn" class="ghost">AJUSTES</button></article>
         </div>
         <article class="panel update-policy-card">
@@ -564,7 +565,7 @@
               <label class="field"><span>TEMA</span><select id="themeSelect"><option value="aurora">Aurora Command</option><option value="tactical">Tactical Field</option><option value="crimson">Crimson Alert</option><option value="frost">Frostline</option><option value="obsidian">Obsidian</option><option value="dvn">DVN Pulse</option><option value="classic">SIEGE Classic</option><option value="dominion">Dominion Gold</option><option value="nusia">Nusia Signal</option><option value="ember">Ember Protocol</option><option value="clean">Command White</option><option value="neon">Neon Relay</option><option value="verdant">Verdant Ops</option><option value="monolith">Monolith Black</option></select></label>
               <label class="field"><span>FONDO</span><select id="backgroundSelect"><option value="frontline">Frontline</option><option value="night">Night Battle</option><option value="canyon">Canyon Engagement</option><option value="anniversary">Anniversary</option><option value="cyborg">Cyborg</option><option value="dummies">Dummies Assault</option><option value="orbit">Earth Orbit</option><option value="laststand">Last Stand</option><option value="vought">Vought Siege</option><option value="nightop">Night Operation</option><option value="rooftop">Rooftop Squad</option><option value="tempest">Tempest</option><option value="urban">Urban Rendezvous</option></select></label>
               <label class="field"><span>CAMBIO DE FONDO</span><select id="backgroundModeSelect"><option value="fixed">Fijo</option><option value="randomStartup">Aleatorio al abrir</option><option value="rotate5">Rotar cada 5 min</option><option value="rotate15">Rotar cada 15 min</option></select></label><label class="field"><span>DENSIDAD</span><select id="densitySelect"><option value="comfortable">Cómoda</option><option value="compact">Compacta</option></select><small class="field-hint">Compacta muestra más información sin achicar el texto principal.</small></label><label class="field"><span>ESCALA DE INTERFAZ</span><select id="uiScaleSelect"><option value="normal">100% · Recomendada</option><option value="large">110% · Más grande</option><option value="small">92% · Más contenido</option></select><small class="field-hint">Ajusta lectura y espacio sin cambiar la resolución de Minecraft.</small></label>
-              <div class="customization-controls"><label class="field color-field"><span>COLOR PRINCIPAL</span><div><input id="accentColorInput" type="color" value="#2aa9c4"/><code id="accentColorValue">#2aa9c4</code></div></label><label class="field color-field"><span>COLOR SECUNDARIO</span><div><input id="accent2ColorInput" type="color" value="#6a70d9"/><code id="accent2ColorValue">#6a70d9</code></div></label><label class="field"><span>BORDES Y TARJETAS <b id="cardRadiusValue">16px</b></span><input id="cardRadiusRange" type="range" min="8" max="28" step="1" value="16"/></label></div>
+              <div class="customization-controls"><label class="field color-field"><span>COLOR PRINCIPAL</span><div><input id="accentColorInput" type="color" value="#2aa9c4"/><code id="accentColorValue">#2aa9c4</code></div></label><label class="field color-field"><span>COLOR SECUNDARIO</span><div><input id="accent2ColorInput" type="color" value="#6a70d9"/><code id="accent2ColorValue">#6a70d9</code></div></label><label class="field"><span>BORDES Y TARJETAS <b id="cardRadiusValue">16px</b></span><input id="cardRadiusRange" type="range" min="8" max="28" step="1" value="16"/></label><button id="resetAppearanceBtn" class="ghost" type="button">RESTABLECER APARIENCIA</button></div>
               <label class="switch-row"><span><b>Líneas de monitor</b><small>Textura visual sutil sobre la interfaz.</small></span><input id="scanlinesToggle" type="checkbox"/><i></i></label>
               <label class="switch-row"><span><b>Interferencia</b><small>Ruido visual muy leve. Desactivado por defecto.</small></span><input id="noiseToggle" type="checkbox"/><i></i></label>
               <label class="switch-row"><span><b>Reducir movimiento</b><small>Desactiva transiciones no esenciales.</small></span><input id="reducedMotionToggle" type="checkbox"/><i></i></label><label class="switch-row"><span><b>Profundidad visual</b><small>Desenfoque y transparencias suaves en tarjetas y navegación.</small></span><input id="glassEffectsToggle" type="checkbox"/><i></i></label>
@@ -654,7 +655,7 @@
     </main>
 
     <footer class="statusbar">
-      <span id="footerStatus">INICIANDO</span><i></i><span id="footerServer" class="hidden">LINK --</span><div></div><span id="footerBuild">ETERNAL CRAFT LAUNCHER // 0.62.0</span>
+      <span id="footerStatus">INICIANDO</span><i></i><span id="footerServer" class="hidden">LINK --</span><div></div><span id="footerBuild">ETERNAL CRAFT LAUNCHER // 0.63.0</span>
     </footer>
   </div>
 

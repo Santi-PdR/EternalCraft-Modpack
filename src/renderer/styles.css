@@ -450,6 +450,9 @@ body[data-busy="true"] .content{cursor:progress}body[data-busy="true"] .nav-item
 /* 0.61 workspace polish: searchable media and reusable visual profiles */
 .clips-toolbar{display:grid;grid-template-columns:minmax(220px,1fr) 170px 190px;gap:12px;padding:16px 18px;border-bottom:1px solid var(--line);align-items:end}
 .panel-head-actions{display:flex;align-items:center;gap:12px}.text-button{border:0;background:transparent;color:var(--muted);font:inherit;font-size:10px;font-weight:700;letter-spacing:.04em;cursor:pointer}.text-button:hover{color:var(--accent)}
+.health-ribbon-actions{display:flex;gap:7px;justify-content:flex-end;flex-wrap:wrap}.health-ribbon-actions .ghost{white-space:nowrap}.mods-sort-row{display:flex;align-items:center;gap:7px;min-width:0}.mods-sort-row .compact-select{min-width:0;flex:1}.mods-sort-row .text-button{white-space:nowrap}.pack-last-check{display:flex;justify-content:space-between;align-items:center;padding:8px 13px;border-top:1px solid color-mix(in srgb,var(--line) 80%,transparent);color:var(--muted);font-size:8px}.pack-last-check span{font:800 7px ui-monospace,monospace;letter-spacing:.08em}.pack-last-check b{font-size:8px;color:var(--ink)}.customization-controls .ghost{align-self:end;min-height:39px;white-space:nowrap}
+@media(max-width:1120px){.health-ribbon-actions{grid-column:1/-1;justify-content:flex-start}.mods-sort-row{width:100%}}
+@media(max-width:760px){.health-ribbon-actions{width:100%}.health-ribbon-actions .ghost{flex:1}.mods-sort-row{align-items:stretch;flex-direction:column}.mods-sort-row .text-button{align-self:flex-start;padding:5px 0}}
 .clips-toolbar .field{margin:0}.clips-toolbar .field span{display:block;margin-bottom:6px}
 .clips-toolbar input,.clips-toolbar select{width:100%;min-height:40px}
 .visual-profiles-card{margin-top:18px;border:1px solid var(--line);border-radius:var(--card-radius);background:color-mix(in srgb,var(--panel) 82%,transparent);padding:16px 18px}

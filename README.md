@@ -1,4 +1,4 @@
-# Eternal Craft Launcher 0.62.0
+# Eternal Craft Launcher 0.63.0
 
 Official launcher for **Eternal Craft // SIEGE**.
 
@@ -159,3 +159,9 @@ The project includes Electron Builder configuration and GitHub Actions for Windo
 - Discord channels are presented as official links from the launcher. Reading messages in real time would require a Discord bot or a public feed hosted by the server; the launcher does not embed user credentials or scrape private channels. The configured channel links remain available without that extra service.
 
 See `docs/CHANGELOG-v0.25.0.md` and `docs/LAUNCHER-LANDSCAPE-v0.25.0.md` for this release's design notes.
+## 0.63.0 — Revisión integral del launcher
+
+- Añade **Revisar todo** desde Inicio y desde la paleta de comandos (`Ctrl+Shift+R`) para actualizar en conjunto modpack, mods, soporte, almacenamiento, galería y Personal Vault sin bloquear la interfaz.
+- Añade restablecimiento de filtros de Mods, marca de última comprobación del modpack y controles responsive para evitar solapamientos en barras y filtros.
+- Añade **Restablecer apariencia**, conservando los perfiles visuales guardados y aplicando valores seguros de tema, fondo, escala, densidad y efectos.
+- Mantiene el contenido oficial de Mods instalado protegido y la galería local con filtros persistentes.
