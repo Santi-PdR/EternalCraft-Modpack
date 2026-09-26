@@ -30,6 +30,7 @@ for (const name of ['listMods','addMods','toggleMod','removeMod','toggleFavorite
 }
 const packService = require(path.join(root,'src','main','services','packService'));
 if (typeof packService.markPublishedOfficial !== 'function') throw new Error('packService no exporta markPublishedOfficial()');
+const packServiceSource = fs.readFileSync(path.join(root,'src','main','services','packService.js'),'utf8');
 const mainSource = fs.readFileSync(path.join(root,'src','main','main.js'),'utf8');
 const publisherSource = fs.readFileSync(path.join(root,'scripts','publish-pack-github.js'),'utf8');
 const packBuilderSource = fs.readFileSync(path.join(root,'scripts','build-pack.js'),'utf8');
@@ -41,6 +42,7 @@ if (!publisherSource.includes("String(output || '').trim()")) throw new Error('E
 if (!publisherSource.includes("'--input', bodyFile")) throw new Error('El publicador debe enviar el manifest por archivo y no por argumentos de gh.');
 if (!publisherSource.includes('includeUserMods')) throw new Error('El publicador debe declarar la política de mods personales.');
 if (!packBuilderSource.includes("Boolean(args['include-user-mods'])")) throw new Error('El constructor debe aceptar la política explícita de publicación de mods personales.');
+if (!packServiceSource.includes('function normalizeModMetadataPath') || !packServiceSource.includes("replace(/^mods\\//i, '')")) throw new Error('Los metadatos de mods deben normalizar rutas antiguas y archivos desactivados.');
 if (!manifestServiceSource.includes('Ruta fuera del payload administrado')) throw new Error('El validador debe limitar el manifiesto a los directorios administrados.');
 if (!updateServiceSource.includes('if (availableInfo) emit({ type: \'available\'')) throw new Error('El updater debe conservar el reintento después de un fallo de descarga.');
 if (!updateServiceSource.includes('if (downloadPromise) return { configured: true')) throw new Error('El updater debe evitar comprobaciones concurrentes durante una descarga.');

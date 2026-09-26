@@ -107,6 +107,12 @@ function manifestPaths(manifest) {
     .filter(Boolean);
 }
 
+function normalizeModMetadataPath(name) {
+  const value = String(name || '').replace(/\\/g, '/').replace(/^\.\//, '').replace(/^mods\//i, '').replace(/\.disabled$/i, '');
+  if (!value || value.includes('/') || !/\.jar$/i.test(value)) return '';
+  return `mods/${value}`.toLowerCase();
+}
+
 async function readOfficialFiles(root) {
   try {
     const data = JSON.parse(await fsp.readFile(path.join(root, OFFICIAL_FILES_FILE), 'utf8'));
@@ -132,8 +138,8 @@ async function readUserAddedPaths(root) {
     const data = JSON.parse(await fsp.readFile(path.join(root, path.join(INTERNAL_DIR, 'user-mods.json')), 'utf8'));
     return new Set(Object.entries(data?.mods || {})
       .filter(([, metadata]) => String(metadata?.provider || '').toLowerCase() === 'local')
-      .map(([name]) => `mods/${String(name).replace(/\\/g, '/')}`.toLowerCase())
-      .filter((file) => /^mods\/[^/]+\.jar$/i.test(file)));
+      .map(([name]) => normalizeModMetadataPath(name))
+      .filter(Boolean));
   } catch (_) {
     return new Set();
   }
@@ -149,7 +155,7 @@ async function reconcileOfficialModMetadata(root, manifest) {
     .filter((entry) => entry.startsWith('mods/') && entry.endsWith('.jar')));
   let changed = false;
   for (const [name, metadata] of Object.entries(data.mods)) {
-    const key = `mods/${String(name).replace(/\\/g, '/')}`.toLowerCase();
+    const key = normalizeModMetadataPath(name);
     if (!official.has(key) || !metadata || typeof metadata !== 'object') continue;
     if (String(metadata.provider || '').toLowerCase() === 'local') {
       data.mods[name] = { ...metadata, provider: 'official' };
