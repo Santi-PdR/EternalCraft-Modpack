@@ -94,11 +94,11 @@ function safeEqualHex(a, b) {
   } catch (_) { return false; }
 }
 
-function runPublisherProcess({ args, cwd, onLine = () => {}, timeoutMs, label }) {
+function runPublisherProcess({ args, cwd, onLine = () => {}, timeoutMs, label, env = {} }) {
   return new Promise((resolve, reject) => {
     const child = spawn(process.execPath, args, {
       cwd,
-      env: { ...process.env, ELECTRON_RUN_AS_NODE: '1' },
+      env: { ...process.env, ...env, ELECTRON_RUN_AS_NODE: '1' },
       stdio: ['ignore', 'pipe', 'pipe'],
       windowsHide: true
     });
@@ -141,9 +141,10 @@ function runPublisherProcess({ args, cwd, onLine = () => {}, timeoutMs, label })
 }
 
 class DeveloperService {
-  constructor(userDataDir, scriptRoot) {
+  constructor(userDataDir, scriptRoot, launcherVersion = '') {
     this.file = path.join(userDataDir, 'developer-secrets.json');
     this.scriptRoot = scriptRoot;
+    this.launcherVersion = String(launcherVersion || process.env.npm_package_version || '');
     this.publishWorkDir = path.join(userDataDir, 'pack-dist-publish');
     this.unlocked = false;
     // `gh auth status` and `gh api user` are synchronous CLI calls. The
@@ -328,7 +329,7 @@ class DeveloperService {
     fs.mkdirSync(this.publishWorkDir, { recursive: true });
     const args = [script, '--preview', '--repo', repo, '--source', normalizePathInput(source, path.join(os.homedir(), '.sklauncher', 'instances', 'siege')), '--out', this.publishWorkDir];
     if (version) args.push('--version', version); if (notes) args.push('--notes', notes);
-    return runPublisherProcess({ args, cwd: this.publishWorkDir, onLine, timeoutMs: 10 * 60 * 1000, label: 'La previsualización' })
+    return runPublisherProcess({ args, cwd: this.publishWorkDir, onLine, timeoutMs: 10 * 60 * 1000, label: 'La previsualización', env: { ETERNAL_LAUNCHER_VERSION: this.launcherVersion } })
       .then(({ output }) => {
         const line = output.split(/\r?\n/).find((x) => x.startsWith('PREVIEW_JSON:'));
         if (!line) throw new Error('No pude leer el resumen previo de publicación.');
@@ -343,7 +344,7 @@ class DeveloperService {
     fs.mkdirSync(this.publishWorkDir, { recursive: true });
     const args = [script, '--repo', repo, '--source', normalizePathInput(source, path.join(os.homedir(), '.sklauncher', 'instances', 'siege')), '--out', this.publishWorkDir];
     if (version) args.push('--version', version); if (notes) args.push('--notes', notes); if(expectedFingerprint) args.push('--expected-fingerprint', expectedFingerprint);
-    return runPublisherProcess({ args, cwd: this.publishWorkDir, onLine, timeoutMs: 45 * 60 * 1000, label: 'La publicación' })
+    return runPublisherProcess({ args, cwd: this.publishWorkDir, onLine, timeoutMs: 45 * 60 * 1000, label: 'La publicación', env: { ETERNAL_LAUNCHER_VERSION: this.launcherVersion } })
       .then(({ output }) => ({ ok: true, output }));
   }
 }

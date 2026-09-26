@@ -30,6 +30,8 @@ for (const name of ['listMods','addMods','toggleMod','removeMod','toggleFavorite
 }
 const mainSource = fs.readFileSync(path.join(root,'src','main','main.js'),'utf8');
 const publisherSource = fs.readFileSync(path.join(root,'scripts','publish-pack-github.js'),'utf8');
+const packBuilderSource = fs.readFileSync(path.join(root,'scripts','build-pack.js'),'utf8');
+if (!packBuilderSource.includes('ETERNAL_LAUNCHER_VERSION')) throw new Error('El constructor del pack no tiene fallback de versión para builds empaquetadas.');
 if (!publisherSource.includes("String(output || '').trim()")) throw new Error('El publicador debe normalizar la salida nula de gh antes de trim().');
 if (!publisherSource.includes("'--input', bodyFile")) throw new Error('El publicador debe enviar el manifest por archivo y no por argumentos de gh.');
 if (/--(?:raw-)?field['\"`][^\n]*(?:manifest|content|body)/i.test(publisherSource)) throw new Error('El publicador volvió a pasar contenido grande del manifest por argumentos de gh.');

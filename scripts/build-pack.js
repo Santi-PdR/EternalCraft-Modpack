@@ -5,7 +5,27 @@ const path = require('path');
 const os = require('os');
 const crypto = require('crypto');
 const { twoWordReleaseName } = require('./release-name');
-const launcherVersion = String(require('../package.json').version || '0.0.0');
+function resolveLauncherVersion() {
+  const candidates = [
+    process.env.ETERNAL_LAUNCHER_VERSION,
+    path.join(__dirname, '..', 'package.json'),
+    process.resourcesPath ? path.join(process.resourcesPath, 'launcher-package.json') : '',
+    process.resourcesPath ? path.join(process.resourcesPath, 'app.asar', 'package.json') : '',
+    path.join(__dirname, '..', '..', 'package.json')
+  ].filter(Boolean);
+  for (const candidate of candidates) {
+    try {
+      const value = candidate.endsWith('.json') && !candidate.includes('package.json') ? candidate : candidate;
+      const parsed = typeof value === 'string' && value.endsWith('.json') && fs.existsSync(value)
+        ? JSON.parse(fs.readFileSync(value, 'utf8'))
+        : null;
+      if (parsed?.version) return String(parsed.version);
+      if (!value.endsWith('.json') && value) return String(value);
+    } catch (_) {}
+  }
+  return '0.0.0';
+}
+const launcherVersion = resolveLauncherVersion();
 
 const FORGE_URL = 'https://maven.minecraftforge.net/net/minecraftforge/forge/1.20.1-47.4.10/forge-1.20.1-47.4.10-installer.jar';
 
