@@ -1,0 +1,3023 @@
+{
+  "schema": 2,
+  "pack": "Eternal Craft",
+  "channel": "stable",
+  "version": "1.0.0",
+  "releaseName": "Core Boost",
+  "minecraft": "1.20.1",
+  "forge": "47.4.10",
+  "minimumLauncher": "0.65.39",
+  "generatedAt": "2026-09-26T16:03:22.334Z",
+  "releaseNotes": {
+    "title": "1.0.0 — Core Boost",
+    "summary": "496 archivos nuevos · 0 actualizados · 0 eliminados",
+    "addedCount": 496,
+    "changedCount": 0,
+    "removedCount": 0,
+    "highlights": [
+      {
+        "type": "added",
+        "path": ".mixin.out/class/net/minecraft/client/multiplayer/ClientLevel.class"
+      },
+      {
+        "type": "added",
+        "path": "bin/natives-1790395702053/.fuse_hidden000030a100000007"
+      },
+      {
+        "type": "added",
+        "path": "bin/natives-1790395702053/.fuse_hidden000030cd00000009"
+      },
+      {
+        "type": "added",
+        "path": "bin/natives-1790395702053/libglfw.so"
+      }
+    ]
+  },
+  "forgeInstaller": {
+    "url": "https://maven.minecraftforge.net/net/minecraftforge/forge/1.20.1-47.4.10/forge-1.20.1-47.4.10-installer.jar",
+    "sha256": ""
+  },
+  "files": [
+    {
+      "path": ".mixin.out/class/net/minecraft/client/multiplayer/ClientLevel.class",
+      "size": 73530,
+      "sha256": "6ea022b8e4e954eafd0e6f2e8d1deb8f112727e3e2c03506e85ee611b62e96ea",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/6ea022b8e4e954eafd0e6f2e8d1deb8f112727e3e2c03506e85ee611b62e96ea"
+    },
+    {
+      "path": "bin/natives-1790395702053/.fuse_hidden000030a100000007",
+      "size": 134519,
+      "sha256": "deb6a3fe903c8e453a3bcb0e8a3ab584fd97734ea3b339897e2f1beb6376172a",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/deb6a3fe903c8e453a3bcb0e8a3ab584fd97734ea3b339897e2f1beb6376172a"
+    },
+    {
+      "path": "bin/natives-1790395702053/.fuse_hidden000030cd00000009",
+      "size": 94722,
+      "sha256": "28f80f4c2a11226c6636aa41213127bef229ff4f3ddd134580be9f2bd709bf68",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/28f80f4c2a11226c6636aa41213127bef229ff4f3ddd134580be9f2bd709bf68"
+    },
+    {
+      "path": "bin/natives-1790395702053/libglfw.so",
+      "size": 373744,
+      "sha256": "2ce6387ad0882ed2a92356c90fe81a6a63a1093476ed65da28920895544b455d",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/2ce6387ad0882ed2a92356c90fe81a6a63a1093476ed65da28920895544b455d"
+    },
+    {
+      "path": "bin/natives-1790395702053/libjemalloc.so",
+      "size": 371600,
+      "sha256": "1211116b99ef06c545e74e9bbdaab76f7fe10a807db1da05d389fe216575f9a9",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/1211116b99ef06c545e74e9bbdaab76f7fe10a807db1da05d389fe216575f9a9"
+    },
+    {
+      "path": "bin/natives-1790395702053/liblwjgl_opengl.so",
+      "size": 354072,
+      "sha256": "c1c6ad9adf1894b3e6eaa5b04c2d47be7f7bfa427099811f61a657f4ab61ace1",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/c1c6ad9adf1894b3e6eaa5b04c2d47be7f7bfa427099811f61a657f4ab61ace1"
+    },
+    {
+      "path": "bin/natives-1790395702053/liblwjgl_stb.so",
+      "size": 466160,
+      "sha256": "67139beeb703c94d52193f895477b21b69a5c376c0bdf20a7db0647d7607850e",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/67139beeb703c94d52193f895477b21b69a5c376c0bdf20a7db0647d7607850e"
+    },
+    {
+      "path": "bin/natives-1790395702053/liblwjgl.so",
+      "size": 441024,
+      "sha256": "80deae641e4057f51b485ef9e32261adbde96b3ffc07c356c70ae1464800b99a",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/80deae641e4057f51b485ef9e32261adbde96b3ffc07c356c70ae1464800b99a"
+    },
+    {
+      "path": "bin/natives-1790395702053/libopenal.so",
+      "size": 991320,
+      "sha256": "78487c11a870b071a9487a5f9ee4a4a409205b331f8c1b7c32dd990feb2872fc",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/78487c11a870b071a9487a5f9ee4a4a409205b331f8c1b7c32dd990feb2872fc"
+    },
+    {
+      "path": "bin/natives-1790434508239/libglfw.so",
+      "size": 373744,
+      "sha256": "2ce6387ad0882ed2a92356c90fe81a6a63a1093476ed65da28920895544b455d",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/2ce6387ad0882ed2a92356c90fe81a6a63a1093476ed65da28920895544b455d"
+    },
+    {
+      "path": "bin/natives-1790434508239/libjemalloc.so",
+      "size": 371600,
+      "sha256": "1211116b99ef06c545e74e9bbdaab76f7fe10a807db1da05d389fe216575f9a9",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/1211116b99ef06c545e74e9bbdaab76f7fe10a807db1da05d389fe216575f9a9"
+    },
+    {
+      "path": "bin/natives-1790434508239/liblwjgl_opengl.so",
+      "size": 354072,
+      "sha256": "c1c6ad9adf1894b3e6eaa5b04c2d47be7f7bfa427099811f61a657f4ab61ace1",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/c1c6ad9adf1894b3e6eaa5b04c2d47be7f7bfa427099811f61a657f4ab61ace1"
+    },
+    {
+      "path": "bin/natives-1790434508239/liblwjgl_stb.so",
+      "size": 466160,
+      "sha256": "67139beeb703c94d52193f895477b21b69a5c376c0bdf20a7db0647d7607850e",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/67139beeb703c94d52193f895477b21b69a5c376c0bdf20a7db0647d7607850e"
+    },
+    {
+      "path": "bin/natives-1790434508239/liblwjgl.so",
+      "size": 441024,
+      "sha256": "80deae641e4057f51b485ef9e32261adbde96b3ffc07c356c70ae1464800b99a",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/80deae641e4057f51b485ef9e32261adbde96b3ffc07c356c70ae1464800b99a"
+    },
+    {
+      "path": "bin/natives-1790434508239/libopenal.so",
+      "size": 991320,
+      "sha256": "78487c11a870b071a9487a5f9ee4a4a409205b331f8c1b7c32dd990feb2872fc",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/78487c11a870b071a9487a5f9ee4a4a409205b331f8c1b7c32dd990feb2872fc"
+    },
+    {
+      "path": "config/alexsmobs.toml",
+      "size": 35481,
+      "sha256": "401efa9056289c8a375d11a4eed5bb4fdcea8bee7340304ef9971ab6493aeca6",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/401efa9056289c8a375d11a4eed5bb4fdcea8bee7340304ef9971ab6493aeca6"
+    },
+    {
+      "path": "config/alexsmobs/alligator_snapping_turtle_spawns.json",
+      "size": 754,
+      "sha256": "df14afd6e1e96ace0dc8e4c71bc325e3baec8dbeaebf61f682561a70fc145f9d",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/df14afd6e1e96ace0dc8e4c71bc325e3baec8dbeaebf61f682561a70fc145f9d"
+    },
+    {
+      "path": "config/alexsmobs/anaconda_spawns.json",
+      "size": 1036,
+      "sha256": "ca961946a7b3c6e9abcb1bb82bbf36e1f9ce01d11769a06a7fbff6351293ff5d",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/ca961946a7b3c6e9abcb1bb82bbf36e1f9ce01d11769a06a7fbff6351293ff5d"
+    },
+    {
+      "path": "config/alexsmobs/anteater_spawns.json",
+      "size": 1166,
+      "sha256": "f65e31155b2f2e033bed66dc5ec2ce7f6962be3389369ff800b69dfdecb5d990",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/f65e31155b2f2e033bed66dc5ec2ce7f6962be3389369ff800b69dfdecb5d990"
+    },
+    {
+      "path": "config/alexsmobs/bald_eagle_spawns.json",
+      "size": 2723,
+      "sha256": "f8b51a798bfa4b51e0ee8fb78c860ca5b2677583db10584792a0e1548f17d396",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/f8b51a798bfa4b51e0ee8fb78c860ca5b2677583db10584792a0e1548f17d396"
+    },
+    {
+      "path": "config/alexsmobs/banana_slug_spawns.json",
+      "size": 1697,
+      "sha256": "1d5d0ce4ef42e94f0361c41b4b2402b64e87f0b1b987e1f1b2f6b2ac377211a7",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/1d5d0ce4ef42e94f0361c41b4b2402b64e87f0b1b987e1f1b2f6b2ac377211a7"
+    },
+    {
+      "path": "config/alexsmobs/bison_spawns.json",
+      "size": 1761,
+      "sha256": "78e726ed002a31f5084a7b49fcce467c5623a046981d6c59d9ed7c4eb6cdbb1e",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/78e726ed002a31f5084a7b49fcce467c5623a046981d6c59d9ed7c4eb6cdbb1e"
+    },
+    {
+      "path": "config/alexsmobs/blobfish_spawns.json",
+      "size": 146,
+      "sha256": "7e7b175c33aed22c3d2cd31e215c6243e3790b07a3664b42d130a8f3b897489f",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/7e7b175c33aed22c3d2cd31e215c6243e3790b07a3664b42d130a8f3b897489f"
+    },
+    {
+      "path": "config/alexsmobs/blue_jay_spawns.json",
+      "size": 4020,
+      "sha256": "7d1f784ab378e1e851e73dbb6f81866420c1328d25f754546d82c417bf304644",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/7d1f784ab378e1e851e73dbb6f81866420c1328d25f754546d82c417bf304644"
+    },
+    {
+      "path": "config/alexsmobs/bone_serpent_spawns.json",
+      "size": 257,
+      "sha256": "47eef91378d3d6455a911d58cc3afdbfcdda7fd49968a7921b22620faa8ff672",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/47eef91378d3d6455a911d58cc3afdbfcdda7fd49968a7921b22620faa8ff672"
+    },
+    {
+      "path": "config/alexsmobs/bunfungus_spawns.json",
+      "size": 486,
+      "sha256": "5d5a9d2039b6df546b788f62cb376cc29312a7115a5553541652aad7259436a6",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/5d5a9d2039b6df546b788f62cb376cc29312a7115a5553541652aad7259436a6"
+    },
+    {
+      "path": "config/alexsmobs/cachalot_whale_beached_spawns.json",
+      "size": 642,
+      "sha256": "73b8f83ddfa936642b38af1003e3c47eab6f089ad61612ee5181137409038f57",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/73b8f83ddfa936642b38af1003e3c47eab6f089ad61612ee5181137409038f57"
+    },
+    {
+      "path": "config/alexsmobs/cachalot_whale_spawns.json",
+      "size": 893,
+      "sha256": "fb901f1ea0bce7b9fb51dfaeb565539a3c1a9ee86bafb49caddac7ca1002e296",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/fb901f1ea0bce7b9fb51dfaeb565539a3c1a9ee86bafb49caddac7ca1002e296"
+    },
+    {
+      "path": "config/alexsmobs/caiman_spawns.json",
+      "size": 291,
+      "sha256": "542cca079ae671a6d928737b622b205deebfe2aed5864a01b5048f501aec2753",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/542cca079ae671a6d928737b622b205deebfe2aed5864a01b5048f501aec2753"
+    },
+    {
+      "path": "config/alexsmobs/capuchin_monkey_spawns.json",
+      "size": 1184,
+      "sha256": "83b68d395236771ae9276f48b2988cfa9eb65e14dc41531b37a6b4e77c64859a",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/83b68d395236771ae9276f48b2988cfa9eb65e14dc41531b37a6b4e77c64859a"
+    },
+    {
+      "path": "config/alexsmobs/catfish_spawns.json",
+      "size": 1097,
+      "sha256": "3c097d29c1f74807815d4c13e3586a76528ac3c104670ce95852bd3b62f9e16e",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/3c097d29c1f74807815d4c13e3586a76528ac3c104670ce95852bd3b62f9e16e"
+    },
+    {
+      "path": "config/alexsmobs/cave_centipede_spawns.json",
+      "size": 2200,
+      "sha256": "973b8ebc19fa04e02b050f28359ee6bffbae93367f49ecac10892f4a2c1dad7d",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/973b8ebc19fa04e02b050f28359ee6bffbae93367f49ecac10892f4a2c1dad7d"
+    },
+    {
+      "path": "config/alexsmobs/cockroach_spawns.json",
+      "size": 2085,
+      "sha256": "97a67afb52f1398f2c55e2a74001e5b893394e28d3f0eb00695f049bdd19f204",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/97a67afb52f1398f2c55e2a74001e5b893394e28d3f0eb00695f049bdd19f204"
+    },
+    {
+      "path": "config/alexsmobs/comb_jelly_spawns.json",
+      "size": 414,
+      "sha256": "cf9ba87b0d2001543fe09d8f6a4c602c03644643a9bd49d1e9ca0b041ab4dc02",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/cf9ba87b0d2001543fe09d8f6a4c602c03644643a9bd49d1e9ca0b041ab4dc02"
+    },
+    {
+      "path": "config/alexsmobs/cosmaw_spawns.json",
+      "size": 371,
+      "sha256": "8e1d05a9b4ab8b923ff4951ef391665f3bdd218d943152f6f1f57509786bc0f7",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/8e1d05a9b4ab8b923ff4951ef391665f3bdd218d943152f6f1f57509786bc0f7"
+    },
+    {
+      "path": "config/alexsmobs/cosmic_cod_spawns.json",
+      "size": 139,
+      "sha256": "aed14e990ed38ee78214b1ea4a15e06bca1b8d098e1e440596be9ab14e4403b8",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/aed14e990ed38ee78214b1ea4a15e06bca1b8d098e1e440596be9ab14e4403b8"
+    },
+    {
+      "path": "config/alexsmobs/crimson_mosquito_spawns.json",
+      "size": 785,
+      "sha256": "104fa9ce71421c5023abba88ce382957828b22341b44c2d03b3300b760482c9d",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/104fa9ce71421c5023abba88ce382957828b22341b44c2d03b3300b760482c9d"
+    },
+    {
+      "path": "config/alexsmobs/crocodile_spawns.json",
+      "size": 1007,
+      "sha256": "a73d36d1b5dd75eb20f6143193b991e942f4ef4cef725835b66ec01197d7074f",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/a73d36d1b5dd75eb20f6143193b991e942f4ef4cef725835b66ec01197d7074f"
+    },
+    {
+      "path": "config/alexsmobs/crow_spawns.json",
+      "size": 5146,
+      "sha256": "cace87b5d504be10d1fff107ad14349066ae1c39d5200a7a29bdd5476167d9b8",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/cace87b5d504be10d1fff107ad14349066ae1c39d5200a7a29bdd5476167d9b8"
+    },
+    {
+      "path": "config/alexsmobs/devils_hole_pupfish_spawns.json",
+      "size": 145,
+      "sha256": "e7855fa7d73f4d3af77f47ddd70b4fcbab7862302d004b4ddae9dddc75c4e402",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/e7855fa7d73f4d3af77f47ddd70b4fcbab7862302d004b4ddae9dddc75c4e402"
+    },
+    {
+      "path": "config/alexsmobs/dropbear_spawns.json",
+      "size": 403,
+      "sha256": "0fa8f72e4c73805727577a343758cfd39377cbdadebb88b6b2343183053e16cb",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/0fa8f72e4c73805727577a343758cfd39377cbdadebb88b6b2343183053e16cb"
+    },
+    {
+      "path": "config/alexsmobs/elephant_spawns.json",
+      "size": 1163,
+      "sha256": "cac271d780a6ed65db7b22e6944b6d456805d72b309865d6293ad6aa4f60c3e2",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/cac271d780a6ed65db7b22e6944b6d456805d72b309865d6293ad6aa4f60c3e2"
+    },
+    {
+      "path": "config/alexsmobs/emu_spawns.json",
+      "size": 1661,
+      "sha256": "70e30e058709266e665eb6642df126eeee744d05e63d77344501e78cb4a37851",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/70e30e058709266e665eb6642df126eeee744d05e63d77344501e78cb4a37851"
+    },
+    {
+      "path": "config/alexsmobs/endergrade_spawns.json",
+      "size": 250,
+      "sha256": "ca6e68bd3e74eb9cedcdbae4c82f594c4e85bdd54e1d0e35344a3febb9672980",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/ca6e68bd3e74eb9cedcdbae4c82f594c4e85bdd54e1d0e35344a3febb9672980"
+    },
+    {
+      "path": "config/alexsmobs/enderiophage_spawns.json",
+      "size": 603,
+      "sha256": "846748f4f352dead7fae39221d653713b7cbd775eaf10f80e0dea86f4e9ccb9a",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/846748f4f352dead7fae39221d653713b7cbd775eaf10f80e0dea86f4e9ccb9a"
+    },
+    {
+      "path": "config/alexsmobs/farseer.json",
+      "size": 266,
+      "sha256": "c245528d844458d8ac416572ee0df7575bb23d58beb07367d4cd55c66fec9000",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/c245528d844458d8ac416572ee0df7575bb23d58beb07367d4cd55c66fec9000"
+    },
+    {
+      "path": "config/alexsmobs/flutter_spawns.json",
+      "size": 147,
+      "sha256": "f729be2a0bc7bccc88cde40464f990d6074bfcf52a0d1d6719d8ebcd63c496ff",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/f729be2a0bc7bccc88cde40464f990d6074bfcf52a0d1d6719d8ebcd63c496ff"
+    },
+    {
+      "path": "config/alexsmobs/fly_spawns.json",
+      "size": 145,
+      "sha256": "e7855fa7d73f4d3af77f47ddd70b4fcbab7862302d004b4ddae9dddc75c4e402",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/e7855fa7d73f4d3af77f47ddd70b4fcbab7862302d004b4ddae9dddc75c4e402"
+    },
+    {
+      "path": "config/alexsmobs/flying_fish_spawns.json",
+      "size": 716,
+      "sha256": "69904b309696b6081cdec1ea87bdb62f84886cf6dac600a8bca231860c3a3f2f",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/69904b309696b6081cdec1ea87bdb62f84886cf6dac600a8bca231860c3a3f2f"
+    },
+    {
+      "path": "config/alexsmobs/frilled_shark_spawns.json",
+      "size": 146,
+      "sha256": "7e7b175c33aed22c3d2cd31e215c6243e3790b07a3664b42d130a8f3b897489f",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/7e7b175c33aed22c3d2cd31e215c6243e3790b07a3664b42d130a8f3b897489f"
+    },
+    {
+      "path": "config/alexsmobs/froststalker_spawns.json",
+      "size": 934,
+      "sha256": "2cc43cdc9df3b20cc2eeb75a3c11736558f544571640607d08dec5c0a939c02d",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/2cc43cdc9df3b20cc2eeb75a3c11736558f544571640607d08dec5c0a939c02d"
+    },
+    {
+      "path": "config/alexsmobs/gazelle_spawns.json",
+      "size": 1050,
+      "sha256": "17a5c3263942410596f91fb0aece138e5115bfabfa2a5913a63406fcb64b42d0",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/17a5c3263942410596f91fb0aece138e5115bfabfa2a5913a63406fcb64b42d0"
+    },
+    {
+      "path": "config/alexsmobs/gelada_monkey_spawns.json",
+      "size": 1001,
+      "sha256": "cdd0380bfa9b754856150966a042f807ac48d2f9409f4f2b543be19e87f4c41f",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/cdd0380bfa9b754856150966a042f807ac48d2f9409f4f2b543be19e87f4c41f"
+    },
+    {
+      "path": "config/alexsmobs/giant_squid_spawns.json",
+      "size": 146,
+      "sha256": "7e7b175c33aed22c3d2cd31e215c6243e3790b07a3664b42d130a8f3b897489f",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/7e7b175c33aed22c3d2cd31e215c6243e3790b07a3664b42d130a8f3b897489f"
+    },
+    {
+      "path": "config/alexsmobs/gorilla_spawns.json",
+      "size": 1053,
+      "sha256": "8c90151f66a632b01e7b8f6998f72618720aae5362c1df0bdd7fefdb13cc20c8",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/8c90151f66a632b01e7b8f6998f72618720aae5362c1df0bdd7fefdb13cc20c8"
+    },
+    {
+      "path": "config/alexsmobs/grizzly_bear_spawns.json",
+      "size": 4020,
+      "sha256": "7d1f784ab378e1e851e73dbb6f81866420c1328d25f754546d82c417bf304644",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/7d1f784ab378e1e851e73dbb6f81866420c1328d25f754546d82c417bf304644"
+    },
+    {
+      "path": "config/alexsmobs/guster_spawns.json",
+      "size": 1132,
+      "sha256": "263974f58a4b48df633648246820681745da9f9e16f30fefe6e07f576251dfb1",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/263974f58a4b48df633648246820681745da9f9e16f30fefe6e07f576251dfb1"
+    },
+    {
+      "path": "config/alexsmobs/hammerhead_shark_spawns.json",
+      "size": 254,
+      "sha256": "a5eeb1a3843a12ef4fde1d8a3a5f13161034457c0901d3f938aa71a20e6712f3",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/a5eeb1a3843a12ef4fde1d8a3a5f13161034457c0901d3f938aa71a20e6712f3"
+    },
+    {
+      "path": "config/alexsmobs/hummingbird_spawns.json",
+      "size": 3029,
+      "sha256": "6aa305d47ca32364d445c04c8a20da36a7ccef97955c27e834d4114604d2785d",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/6aa305d47ca32364d445c04c8a20da36a7ccef97955c27e834d4114604d2785d"
+    },
+    {
+      "path": "config/alexsmobs/jerboa_spawns.json",
+      "size": 1252,
+      "sha256": "c4b2ef89d9ad5c4dffcebb51209837da430b166c5767c1a38d90911c4445b124",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/c4b2ef89d9ad5c4dffcebb51209837da430b166c5767c1a38d90911c4445b124"
+    },
+    {
+      "path": "config/alexsmobs/kangaroo_spawns.json",
+      "size": 1661,
+      "sha256": "70e30e058709266e665eb6642df126eeee744d05e63d77344501e78cb4a37851",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/70e30e058709266e665eb6642df126eeee744d05e63d77344501e78cb4a37851"
+    },
+    {
+      "path": "config/alexsmobs/komodo_dragon_spawns.json",
+      "size": 775,
+      "sha256": "695a3eb4d61a8208cc634871c237b0e6efc980ac668793f4686848e32cda0907",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/695a3eb4d61a8208cc634871c237b0e6efc980ac668793f4686848e32cda0907"
+    },
+    {
+      "path": "config/alexsmobs/laviathan_spawns.json",
+      "size": 142,
+      "sha256": "07d0215377f12f1299ec46b6277426c3cf957aa1d310c97fa943cdf5ace8d260",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/07d0215377f12f1299ec46b6277426c3cf957aa1d310c97fa943cdf5ace8d260"
+    },
+    {
+      "path": "config/alexsmobs/leafcutter_anthill_spawns.json",
+      "size": 1166,
+      "sha256": "f65e31155b2f2e033bed66dc5ec2ce7f6962be3389369ff800b69dfdecb5d990",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/f65e31155b2f2e033bed66dc5ec2ce7f6962be3389369ff800b69dfdecb5d990"
+    },
+    {
+      "path": "config/alexsmobs/lobster_spawns.json",
+      "size": 398,
+      "sha256": "bb0c918e8dbd4d003417a1bcabb38b8433d1f9be95fe6f8feef95d30616b49a7",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/bb0c918e8dbd4d003417a1bcabb38b8433d1f9be95fe6f8feef95d30616b49a7"
+    },
+    {
+      "path": "config/alexsmobs/maned_wolf_spawns.json",
+      "size": 1037,
+      "sha256": "8483d96341369b430ff2ebfebd7562b0c58c40b96be541cc88189fc696606a0d",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/8483d96341369b430ff2ebfebd7562b0c58c40b96be541cc88189fc696606a0d"
+    },
+    {
+      "path": "config/alexsmobs/mantis_shrimp_spawns.json",
+      "size": 385,
+      "sha256": "4f6099fe4d9f99530f9f0f9bae7e55c0713506efdc47da69d227ae62137647e4",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/4f6099fe4d9f99530f9f0f9bae7e55c0713506efdc47da69d227ae62137647e4"
+    },
+    {
+      "path": "config/alexsmobs/mimic_octopus_spawns.json",
+      "size": 373,
+      "sha256": "9c68a433ab6f75ff9e8d46868480158e4c1f46949779cb0b0d973f7759dbfc2d",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/9c68a433ab6f75ff9e8d46868480158e4c1f46949779cb0b0d973f7759dbfc2d"
+    },
+    {
+      "path": "config/alexsmobs/mimicube_spawns.json",
+      "size": 365,
+      "sha256": "fcace6e8c558df6eb13827f7a2b4a7f43c9fdfd3015331bd7e277329ca034c34",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/fcace6e8c558df6eb13827f7a2b4a7f43c9fdfd3015331bd7e277329ca034c34"
+    },
+    {
+      "path": "config/alexsmobs/moose_spawns.json",
+      "size": 2291,
+      "sha256": "abac051da2458ec848604b66a6d7889f7c715060bb9706c1d1822155127d096c",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/abac051da2458ec848604b66a6d7889f7c715060bb9706c1d1822155127d096c"
+    },
+    {
+      "path": "config/alexsmobs/mudskipper_spawns.json",
+      "size": 291,
+      "sha256": "542cca079ae671a6d928737b622b205deebfe2aed5864a01b5048f501aec2753",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/542cca079ae671a6d928737b622b205deebfe2aed5864a01b5048f501aec2753"
+    },
+    {
+      "path": "config/alexsmobs/mungus_spawns.json",
+      "size": 486,
+      "sha256": "5d5a9d2039b6df546b788f62cb376cc29312a7115a5553541652aad7259436a6",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/5d5a9d2039b6df546b788f62cb376cc29312a7115a5553541652aad7259436a6"
+    },
+    {
+      "path": "config/alexsmobs/murmur.json",
+      "size": 2200,
+      "sha256": "973b8ebc19fa04e02b050f28359ee6bffbae93367f49ecac10892f4a2c1dad7d",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/973b8ebc19fa04e02b050f28359ee6bffbae93367f49ecac10892f4a2c1dad7d"
+    },
+    {
+      "path": "config/alexsmobs/orca_spawns.json",
+      "size": 255,
+      "sha256": "2e62ae273c3488a294068e5ed737dbf08791f4758cd3659308824d7bf4ece377",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/2e62ae273c3488a294068e5ed737dbf08791f4758cd3659308824d7bf4ece377"
+    },
+    {
+      "path": "config/alexsmobs/platypus_spawns.json",
+      "size": 625,
+      "sha256": "b96f9e44f59f54b67460784fb1fdfa06d053f9ca9abb4fc3b04f222fd65ee958",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/b96f9e44f59f54b67460784fb1fdfa06d053f9ca9abb4fc3b04f222fd65ee958"
+    },
+    {
+      "path": "config/alexsmobs/potoo_spawns.json",
+      "size": 148,
+      "sha256": "59c5832a40ef0e7212a4d499862f931a5dfcd3ff6d68598153f1274191b0939d",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/59c5832a40ef0e7212a4d499862f931a5dfcd3ff6d68598153f1274191b0939d"
+    },
+    {
+      "path": "config/alexsmobs/raccoon_spawns.json",
+      "size": 3712,
+      "sha256": "2f353aa8720d03fbdef9d9e4932ecc4435b7923bbc72191fab6f46acb66d3a12",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/2f353aa8720d03fbdef9d9e4932ecc4435b7923bbc72191fab6f46acb66d3a12"
+    },
+    {
+      "path": "config/alexsmobs/rain_frog_spawns.json",
+      "size": 1252,
+      "sha256": "c4b2ef89d9ad5c4dffcebb51209837da430b166c5767c1a38d90911c4445b124",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/c4b2ef89d9ad5c4dffcebb51209837da430b166c5767c1a38d90911c4445b124"
+    },
+    {
+      "path": "config/alexsmobs/rattlesnake_spawns.json",
+      "size": 1646,
+      "sha256": "b8662bb3de9e2e5cc4af3773700fe6446c389980a80f6350f99d51f3fa2cef39",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/b8662bb3de9e2e5cc4af3773700fe6446c389980a80f6350f99d51f3fa2cef39"
+    },
+    {
+      "path": "config/alexsmobs/rhinoceros_spawns.json",
+      "size": 1050,
+      "sha256": "17a5c3263942410596f91fb0aece138e5115bfabfa2a5913a63406fcb64b42d0",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/17a5c3263942410596f91fb0aece138e5115bfabfa2a5913a63406fcb64b42d0"
+    },
+    {
+      "path": "config/alexsmobs/roadrunner_spawns.json",
+      "size": 1646,
+      "sha256": "b8662bb3de9e2e5cc4af3773700fe6446c389980a80f6350f99d51f3fa2cef39",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/b8662bb3de9e2e5cc4af3773700fe6446c389980a80f6350f99d51f3fa2cef39"
+    },
+    {
+      "path": "config/alexsmobs/rocky_roller_spawns.json",
+      "size": 673,
+      "sha256": "98dc351abc061685560adc82bd3ffa6e4c87d4faab81e9bb6a9e2a6f07cdb177",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/98dc351abc061685560adc82bd3ffa6e4c87d4faab81e9bb6a9e2a6f07cdb177"
+    },
+    {
+      "path": "config/alexsmobs/seagull_spawns.json",
+      "size": 1296,
+      "sha256": "4dca182ebef46ea0076b8e8066add18f69527cf2f81da83e77e0409127c92dc4",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/4dca182ebef46ea0076b8e8066add18f69527cf2f81da83e77e0409127c92dc4"
+    },
+    {
+      "path": "config/alexsmobs/seal_spawns.json",
+      "size": 877,
+      "sha256": "ef706c1e2ba0b9356523f8aeb3679303ab98d85c9b761d0e55962e930be4d8e6",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/ef706c1e2ba0b9356523f8aeb3679303ab98d85c9b761d0e55962e930be4d8e6"
+    },
+    {
+      "path": "config/alexsmobs/shoebill_spawns.json",
+      "size": 623,
+      "sha256": "0d8683c0a1b8176d4e89f88c4f3b1e6fbf6b269781497a190749904c7323eeec",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/0d8683c0a1b8176d4e89f88c4f3b1e6fbf6b269781497a190749904c7323eeec"
+    },
+    {
+      "path": "config/alexsmobs/skelewag_spawns.json",
+      "size": 374,
+      "sha256": "86aad88d05c283679e85900cab1bf3977d496849005ac068a14e40b93db35aa2",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/86aad88d05c283679e85900cab1bf3977d496849005ac068a14e40b93db35aa2"
+    },
+    {
+      "path": "config/alexsmobs/skreecher.json",
+      "size": 276,
+      "sha256": "f812e719afb24421c6853dacf4d1f66864305e335cfdf6193613d7c408ecab30",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/f812e719afb24421c6853dacf4d1f66864305e335cfdf6193613d7c408ecab30"
+    },
+    {
+      "path": "config/alexsmobs/skunk_spawns.json",
+      "size": 2037,
+      "sha256": "01cc2eb4d92ba30b7301b9325a353cd96c5c7ff263c348795bfb34698cf8f11b",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/01cc2eb4d92ba30b7301b9325a353cd96c5c7ff263c348795bfb34698cf8f11b"
+    },
+    {
+      "path": "config/alexsmobs/snow_leopard_spawns.json",
+      "size": 1808,
+      "sha256": "fdf546af7c7ff2307d0862c0802450eef1e99554af3a340e7a6af69fa5785ea5",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/fdf546af7c7ff2307d0862c0802450eef1e99554af3a340e7a6af69fa5785ea5"
+    },
+    {
+      "path": "config/alexsmobs/soul_vulture_spawns.json",
+      "size": 523,
+      "sha256": "45407796e49769550eef92fd3953daa191c85aaf032fb2be32fe591b0199a172",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/45407796e49769550eef92fd3953daa191c85aaf032fb2be32fe591b0199a172"
+    },
+    {
+      "path": "config/alexsmobs/spectre_spawns.json",
+      "size": 250,
+      "sha256": "ca6e68bd3e74eb9cedcdbae4c82f594c4e85bdd54e1d0e35344a3febb9672980",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/ca6e68bd3e74eb9cedcdbae4c82f594c4e85bdd54e1d0e35344a3febb9672980"
+    },
+    {
+      "path": "config/alexsmobs/straddler_spawns.json",
+      "size": 664,
+      "sha256": "5ee746cf50b358048a0243e4c45997285cf4a9b736758d388ad730d4ed493900",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/5ee746cf50b358048a0243e4c45997285cf4a9b736758d388ad730d4ed493900"
+    },
+    {
+      "path": "config/alexsmobs/stradpole_spawns.json",
+      "size": 664,
+      "sha256": "5ee746cf50b358048a0243e4c45997285cf4a9b736758d388ad730d4ed493900",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/5ee746cf50b358048a0243e4c45997285cf4a9b736758d388ad730d4ed493900"
+    },
+    {
+      "path": "config/alexsmobs/sugar_glider_spawns.json",
+      "size": 418,
+      "sha256": "cec5208e2e9f12aa8ce13d0f6d34a18500a77d143441c9b511df21c623fe368f",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/cec5208e2e9f12aa8ce13d0f6d34a18500a77d143441c9b511df21c623fe368f"
+    },
+    {
+      "path": "config/alexsmobs/sunbird_spawns.json",
+      "size": 3925,
+      "sha256": "7b82ff39e191bd213cd8ecf06ff9a78c4658e6f6b9d8b48a4fcc4017e7268cb5",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/7b82ff39e191bd213cd8ecf06ff9a78c4658e6f6b9d8b48a4fcc4017e7268cb5"
+    },
+    {
+      "path": "config/alexsmobs/tarantula_hawk_spawns.json",
+      "size": 1252,
+      "sha256": "c4b2ef89d9ad5c4dffcebb51209837da430b166c5767c1a38d90911c4445b124",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/c4b2ef89d9ad5c4dffcebb51209837da430b166c5767c1a38d90911c4445b124"
+    },
+    {
+      "path": "config/alexsmobs/tasmanian_devil_spawns.json",
+      "size": 1908,
+      "sha256": "40c769365424d492a4c17700bb8cfac4c8ce7fac2bc16728f0c4287e3a043130",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/40c769365424d492a4c17700bb8cfac4c8ce7fac2bc16728f0c4287e3a043130"
+    },
+    {
+      "path": "config/alexsmobs/terrapin_spawns.json",
+      "size": 625,
+      "sha256": "b96f9e44f59f54b67460784fb1fdfa06d053f9ca9abb4fc3b04f222fd65ee958",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/b96f9e44f59f54b67460784fb1fdfa06d053f9ca9abb4fc3b04f222fd65ee958"
+    },
+    {
+      "path": "config/alexsmobs/tiger_spawns.json",
+      "size": 1209,
+      "sha256": "f88fc1b519759fe41347afca59030619365e173c577e8c1adfcb88777078d066",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/f88fc1b519759fe41347afca59030619365e173c577e8c1adfcb88777078d066"
+    },
+    {
+      "path": "config/alexsmobs/toucan_spawns.json",
+      "size": 1166,
+      "sha256": "f65e31155b2f2e033bed66dc5ec2ce7f6962be3389369ff800b69dfdecb5d990",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/f65e31155b2f2e033bed66dc5ec2ce7f6962be3389369ff800b69dfdecb5d990"
+    },
+    {
+      "path": "config/alexsmobs/triops_spawns.json",
+      "size": 1252,
+      "sha256": "c4b2ef89d9ad5c4dffcebb51209837da430b166c5767c1a38d90911c4445b124",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/c4b2ef89d9ad5c4dffcebb51209837da430b166c5767c1a38d90911c4445b124"
+    },
+    {
+      "path": "config/alexsmobs/tusklin_spawns.json",
+      "size": 882,
+      "sha256": "9ab4772704660c679ea30dff2db2c1272843e00675e2a7e610adcc6486120c3c",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/9ab4772704660c679ea30dff2db2c1272843e00675e2a7e610adcc6486120c3c"
+    },
+    {
+      "path": "config/alexsmobs/underminer.json",
+      "size": 2085,
+      "sha256": "97a67afb52f1398f2c55e2a74001e5b893394e28d3f0eb00695f049bdd19f204",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/97a67afb52f1398f2c55e2a74001e5b893394e28d3f0eb00695f049bdd19f204"
+    },
+    {
+      "path": "config/alexsmobs/void_worm_spawns.json",
+      "size": 18,
+      "sha256": "6712a2d6165ed52b7d251a8fc4cbfb6c1f834210a8bda82b55440402fd2d3273",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/6712a2d6165ed52b7d251a8fc4cbfb6c1f834210a8bda82b55440402fd2d3273"
+    },
+    {
+      "path": "config/alexsmobs/warped_mosco_spawns.json",
+      "size": 18,
+      "sha256": "6712a2d6165ed52b7d251a8fc4cbfb6c1f834210a8bda82b55440402fd2d3273",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/6712a2d6165ed52b7d251a8fc4cbfb6c1f834210a8bda82b55440402fd2d3273"
+    },
+    {
+      "path": "config/alexsmobs/warped_toad_spawns.json",
+      "size": 661,
+      "sha256": "72126b26d7f3ae03b80df97dd103e0cec87d10829e86ac8b08da23abc7b318d8",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/72126b26d7f3ae03b80df97dd103e0cec87d10829e86ac8b08da23abc7b318d8"
+    },
+    {
+      "path": "config/alltheleaks.json",
+      "size": 104,
+      "sha256": "2d0e1b8f2cd22226dd6dbca3fc95448510ff86508a7a0710ada0854cd76d2eff",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/2d0e1b8f2cd22226dd6dbca3fc95448510ff86508a7a0710ada0854cd76d2eff"
+    },
+    {
+      "path": "config/ambientsounds-client.json",
+      "size": 4083,
+      "sha256": "d002319f21f057d57ab1e6a018877d57e687b2e3cd6a5479164ec66d98cd0f78",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/d002319f21f057d57ab1e6a018877d57e687b2e3cd6a5479164ec66d98cd0f78"
+    },
+    {
+      "path": "config/appleskin-client.toml",
+      "size": 1337,
+      "sha256": "4f8278b45def834a2a6c03b9b2c29d821808bdb36e6be39abb4be38e81f863ae",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/4f8278b45def834a2a6c03b9b2c29d821808bdb36e6be39abb4be38e81f863ae"
+    },
+    {
+      "path": "config/armourers_workshop-client.toml",
+      "size": 4748,
+      "sha256": "86db1408fb8f7a18fa32f15ab5e8c34ac8439a56537d7b4bcfcb2078dc0a5807",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/86db1408fb8f7a18fa32f15ab5e8c34ac8439a56537d7b4bcfcb2078dc0a5807"
+    },
+    {
+      "path": "config/armourers_workshop-common.toml",
+      "size": 5495,
+      "sha256": "7e867be3696816c60b865030e4ea9c1c80d964af572e2a1ea7c14ff1f755ea6e",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/7e867be3696816c60b865030e4ea9c1c80d964af572e2a1ea7c14ff1f755ea6e"
+    },
+    {
+      "path": "config/artifacts/client.json5",
+      "size": 551,
+      "sha256": "dfae4a12bf924a5e12380032ff257ec535c6b003fef539a3893adb05c0a69c56",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/dfae4a12bf924a5e12380032ff257ec535c6b003fef539a3893adb05c0a69c56"
+    },
+    {
+      "path": "config/artifacts/common.json5",
+      "size": 1584,
+      "sha256": "736bec8c910558091bb749ac7adb013822a253a02f1f70637eb193952768d2b1",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/736bec8c910558091bb749ac7adb013822a253a02f1f70637eb193952768d2b1"
+    },
+    {
+      "path": "config/attributeslib.cfg",
+      "size": 2686,
+      "sha256": "fe85b449a9f8e1b5b74799822840aedfb5e2b8e269cbb1503f6d4c12a7a47fe7",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/fe85b449a9f8e1b5b74799822840aedfb5e2b8e269cbb1503f6d4c12a7a47fe7"
+    },
+    {
+      "path": "config/badmobs-common.toml",
+      "size": 303145,
+      "sha256": "d4076fafa4b6c8d3de7f18afce5db37194535b093b63c666791d2378234a2dfa",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/d4076fafa4b6c8d3de7f18afce5db37194535b093b63c666791d2378234a2dfa"
+    },
+    {
+      "path": "config/bagus_lib-client.toml",
+      "size": 339,
+      "sha256": "76e8d6a2007a8f8d359e67d24ebb904acdc444390d8646b40dcdae9f56427cf3",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/76e8d6a2007a8f8d359e67d24ebb904acdc444390d8646b40dcdae9f56427cf3"
+    },
+    {
+      "path": "config/bagus_lib-common.toml",
+      "size": 100,
+      "sha256": "cc5ab8d54f24dcf897f3fe326ca7e5a843ced92c6e39763ff2a8f8ee40374d20",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/cc5ab8d54f24dcf897f3fe326ca7e5a843ced92c6e39763ff2a8f8ee40374d20"
+    },
+    {
+      "path": "config/better_cloud.toml",
+      "size": 859,
+      "sha256": "d52f16239ee8ee97df9551c05b77cd1c2432eeb467bd2e6ee2953befd19560ef",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/d52f16239ee8ee97df9551c05b77cd1c2432eeb467bd2e6ee2953befd19560ef"
+    },
+    {
+      "path": "config/bettercombat/client.json5",
+      "size": 554,
+      "sha256": "8b11818b19f97decfcb119cce4038bfe28e83fbf3d2173a5472df678fce1a842",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/8b11818b19f97decfcb119cce4038bfe28e83fbf3d2173a5472df678fce1a842"
+    },
+    {
+      "path": "config/bettercombat/fallback_compatibility.json",
+      "size": 2995,
+      "sha256": "754feb4474a3f4d9fe6bd08f38c248fd5a796ed51f38d7d5704680250f3a34ca",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/754feb4474a3f4d9fe6bd08f38c248fd5a796ed51f38d7d5704680250f3a34ca"
+    },
+    {
+      "path": "config/bettercombat/server.json5",
+      "size": 5268,
+      "sha256": "cdf806c0ace89872a439f44f383132ed75003ae3445d55faa02a5f5b29aad4ef",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/cdf806c0ace89872a439f44f383132ed75003ae3445d55faa02a5f5b29aad4ef"
+    },
+    {
+      "path": "config/betterpingdisplay-client.toml",
+      "size": 649,
+      "sha256": "3cef81480f204e582b4578dc4d8657bc90a814ea79a9d7920e220cd599fdb5b3",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/3cef81480f204e582b4578dc4d8657bc90a814ea79a9d7920e220cd599fdb5b3"
+    },
+    {
+      "path": "config/brutality-client.toml",
+      "size": 2407,
+      "sha256": "bf0c5d083fd1c6e3ad2147459a8a70fa643fdbf6600e53c0afe2e0c242f41c80",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/bf0c5d083fd1c6e3ad2147459a8a70fa643fdbf6600e53c0afe2e0c242f41c80"
+    },
+    {
+      "path": "config/brutality-common.toml",
+      "size": 2182,
+      "sha256": "4be327c5a7ebf2baca86898a0a06043d99e75525559e909a3d759d397cd49e06",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/4be327c5a7ebf2baca86898a0a06043d99e75525559e909a3d759d397cd49e06"
+    },
+    {
+      "path": "config/canary.properties",
+      "size": 422,
+      "sha256": "a37eb7f218ab61f3277a103a85c5bd14ff0abe0dff94e17883bcbb5ea28a3855",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/a37eb7f218ab61f3277a103a85c5bd14ff0abe0dff94e17883bcbb5ea28a3855"
+    },
+    {
+      "path": "config/celestisynth/celestisynth-client.toml",
+      "size": 399,
+      "sha256": "532d94ed03574bdae6cdec8f3fc6c125a96ae8cb5b77367be61c4b75b3a08798",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/532d94ed03574bdae6cdec8f3fc6c125a96ae8cb5b77367be61c4b75b3a08798"
+    },
+    {
+      "path": "config/celestisynth/celestisynth-common.toml",
+      "size": 150,
+      "sha256": "3e5d95fe24c01821caf51235dd7737eafd5cd1ad56cc6ddaf54369319aef6350",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/3e5d95fe24c01821caf51235dd7737eafd5cd1ad56cc6ddaf54369319aef6350"
+    },
+    {
+      "path": "config/chat_heads.json5",
+      "size": 258,
+      "sha256": "26ccca1ccb0dac15f8565d3630fc5087ae5b83c5eac54ab3a26cae17f3704fca",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/26ccca1ccb0dac15f8565d3630fc5087ae5b83c5eac54ab3a26cae17f3704fca"
+    },
+    {
+      "path": "config/citadel-common.toml",
+      "size": 636,
+      "sha256": "0a41518641bbb4133fc61b934e8663ae5271ffd8190a281e5b35d1efd97fb3e3",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/0a41518641bbb4133fc61b934e8663ae5271ffd8190a281e5b35d1efd97fb3e3"
+    },
+    {
+      "path": "config/clientsort-server.json",
+      "size": 1220,
+      "sha256": "0fbb153c5f8dcba35bc67ee09a93d86949c141ae7a50540bb442660bdc3992aa",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/0fbb153c5f8dcba35bc67ee09a93d86949c141ae7a50540bb442660bdc3992aa"
+    },
+    {
+      "path": "config/clientsort.json",
+      "size": 5781,
+      "sha256": "dcf9bae13eb4ef780071604270dc66d2b54d86fee6ce4ef27c26559ade5320fb",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/dcf9bae13eb4ef780071604270dc66d2b54d86fee6ce4ef27c26559ade5320fb"
+    },
+    {
+      "path": "config/combat_evolution-client.toml",
+      "size": 700,
+      "sha256": "3ed2059d22b772867f84e84bed9fa62c307b43b6f0f808d9b6cdb7fd91682e65",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/3ed2059d22b772867f84e84bed9fa62c307b43b6f0f808d9b6cdb7fd91682e65"
+    },
+    {
+      "path": "config/combat_evolution-common.toml",
+      "size": 577,
+      "sha256": "6d1274419a8c2fc0178e74c68629d6edc2e8c5aba5ac8fe89331d2de2dbfe008",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/6d1274419a8c2fc0178e74c68629d6edc2e8c5aba5ac8fe89331d2de2dbfe008"
+    },
+    {
+      "path": "config/copyl-messages.json",
+      "size": 544,
+      "sha256": "beb9903355ce8adddb56c241cd80b9ca0e513ec95620d9b0ec795f709cfe9e11",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/beb9903355ce8adddb56c241cd80b9ca0e513ec95620d9b0ec795f709cfe9e11"
+    },
+    {
+      "path": "config/copyl.json",
+      "size": 19,
+      "sha256": "0426a63bb5227d418571fc3065aaad7606062b5569141de1ac295ae01e7d970c",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/0426a63bb5227d418571fc3065aaad7606062b5569141de1ac295ae01e7d970c"
+    },
+    {
+      "path": "config/copyl.json.broken-1788920350178",
+      "size": 20,
+      "sha256": "36f25227dacc892665a98a380a61ee96ee0aa34577497e44a07681a79cf0b8ba",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/36f25227dacc892665a98a380a61ee96ee0aa34577497e44a07681a79cf0b8ba"
+    },
+    {
+      "path": "config/copyl.json.broken-1788974969632",
+      "size": 19,
+      "sha256": "0426a63bb5227d418571fc3065aaad7606062b5569141de1ac295ae01e7d970c",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/0426a63bb5227d418571fc3065aaad7606062b5569141de1ac295ae01e7d970c"
+    },
+    {
+      "path": "config/create_pillagers_arise-common.toml",
+      "size": 4188,
+      "sha256": "ee504498c26934cd3c0bcabda19dc117df459aaede515f7e48378b072753cc73",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/ee504498c26934cd3c0bcabda19dc117df459aaede515f7e48378b072753cc73"
+    },
+    {
+      "path": "config/create-client.toml",
+      "size": 4875,
+      "sha256": "dbab2ce4cbaf120a2a465472f3a4db7bc24a9a6259db0deab33aed95c5c03dce",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/dbab2ce4cbaf120a2a465472f3a4db7bc24a9a6259db0deab33aed95c5c03dce"
+    },
+    {
+      "path": "config/create-common.toml",
+      "size": 148,
+      "sha256": "6c0f6254798808bce8079a1cfafe4d6c082cead42c51d1e3121f3580f8a44eca",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/6c0f6254798808bce8079a1cfafe4d6c082cead42c51d1e3121f3580f8a44eca"
+    },
+    {
+      "path": "config/cull-less-leaves.json",
+      "size": 35,
+      "sha256": "6bc92f3695f35c601c2adfa1f51e9f616df379288f2a260fd1f4011c5bad50ee",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/6bc92f3695f35c601c2adfa1f51e9f616df379288f2a260fd1f4011c5bad50ee"
+    },
+    {
+      "path": "config/cullleaves.json",
+      "size": 42,
+      "sha256": "6596cbe9453cc9cf69b4addfb02fe9d1501ffc9254ac047d9cd7a23bc6ce7dcc",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/6596cbe9453cc9cf69b4addfb02fe9d1501ffc9254ac047d9cd7a23bc6ce7dcc"
+    },
+    {
+      "path": "config/curios-client.toml",
+      "size": 683,
+      "sha256": "3903cd1fcf402a8c155f21bb581eb78d26e067537cb8af0b24bb8b8be63b3b30",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/3903cd1fcf402a8c155f21bb581eb78d26e067537cb8af0b24bb8b8be63b3b30"
+    },
+    {
+      "path": "config/curios-common.toml",
+      "size": 156,
+      "sha256": "541ee90994c1cf3d4e132df2ac3ff74004bc3952d3914ae843b5089a4dda8a95",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/541ee90994c1cf3d4e132df2ac3ff74004bc3952d3914ae843b5089a4dda8a95"
+    },
+    {
+      "path": "config/dynamic_fps.json",
+      "size": 3,
+      "sha256": "ca3d163bab055381827226140568f3bef7eaac187cebd76878e0b63e9e442356",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/ca3d163bab055381827226140568f3bef7eaac187cebd76878e0b63e9e442356"
+    },
+    {
+      "path": "config/efbcswitch-client.toml",
+      "size": 701,
+      "sha256": "a9d564d68b48fcbf51e385550eb30992e94cd2878147688d0bfaf4d5c7d702d5",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/a9d564d68b48fcbf51e385550eb30992e94cd2878147688d0bfaf4d5c7d702d5"
+    },
+    {
+      "path": "config/efn_aaa_warning.json",
+      "size": 4,
+      "sha256": "b5bea41b6c623f7c09f1bf24dcae58ebab3c0cdd90ad966bc43a45b44867e12b",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/b5bea41b6c623f7c09f1bf24dcae58ebab3c0cdd90ad966bc43a45b44867e12b"
+    },
+    {
+      "path": "config/efn-client.toml",
+      "size": 8108,
+      "sha256": "da5ccafc15a7b9dd62e597881e785ba2a8a04faab759befbab84ad36c3f3c955",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/da5ccafc15a7b9dd62e597881e785ba2a8a04faab759befbab84ad36c3f3c955"
+    },
+    {
+      "path": "config/efn-common.toml",
+      "size": 7346,
+      "sha256": "8db403dac88e73666721490afd68d76d454f04427437f1415fb21807b8bad64d",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/8db403dac88e73666721490afd68d76d454f04427437f1415fb21807b8bad64d"
+    },
+    {
+      "path": "config/embeddium-fingerprint.json",
+      "size": 427,
+      "sha256": "76bb06c2717c94b28453441f7276333d23bc6708f9749fb6a9e53bdd5a11b609",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/76bb06c2717c94b28453441f7276333d23bc6708f9749fb6a9e53bdd5a11b609"
+    },
+    {
+      "path": "config/embeddium-mixins.properties",
+      "size": 269,
+      "sha256": "09ff183e061d93b79514bc171bf9118497578757e7a5c45946039487656e2619",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/09ff183e061d93b79514bc171bf9118497578757e7a5c45946039487656e2619"
+    },
+    {
+      "path": "config/embeddium-options.json",
+      "size": 846,
+      "sha256": "0363925ab10d5815329d645701cc84ff6d458c0c26e502aa3bd6d802b51645b0",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/0363925ab10d5815329d645701cc84ff6d458c0c26e502aa3bd6d802b51645b0"
+    },
+    {
+      "path": "config/enchdesc.json",
+      "size": 189,
+      "sha256": "69e1df6089b71c3c2fe2c7cf6760937094fd22434111f527229a9fcea3f90bc5",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/69e1df6089b71c3c2fe2c7cf6760937094fd22434111f527229a9fcea3f90bc5"
+    },
+    {
+      "path": "config/enhancedai/common.toml",
+      "size": 43518,
+      "sha256": "e24a5257356c461a96485f218ac5a3d3f5505fabe331b85b1fb80b0573428bde",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/e24a5257356c461a96485f218ac5a3d3f5505fabe331b85b1fb80b0573428bde"
+    },
+    {
+      "path": "config/enhancedai/Mobs/Break Anger/break_anger_config.json",
+      "size": 108,
+      "sha256": "1ef8dc64a4aead2829923f15a78907e94b33ffb70471416fac0b50c10b14165c",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/1ef8dc64a4aead2829923f15a78907e94b33ffb70471416fac0b50c10b14165c"
+    },
+    {
+      "path": "config/enhancedai/Mobs/Flee/custom_flee.json",
+      "size": 2,
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    {
+      "path": "config/enhancedai/Mobs/Targeting/custom_hostile.json",
+      "size": 287,
+      "sha256": "4180b3139d23a32ac8a597b07a613f240a34a82c5040fbbf4d934b996ab29840",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/4180b3139d23a32ac8a597b07a613f240a34a82c5040fbbf4d934b996ab29840"
+    },
+    {
+      "path": "config/entityculling.json",
+      "size": 1897,
+      "sha256": "ceb5b3624c3269bef037b2914da8ab0d1c368abdd466156292a5d82db8803b0e",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/ceb5b3624c3269bef037b2914da8ab0d1c368abdd466156292a5d82db8803b0e"
+    },
+    {
+      "path": "config/epicdeathscreen/client.properties",
+      "size": 319,
+      "sha256": "b72539d31c62af78e337b4be18cea87a7fe6102b473973c66e14579460b8b60e",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/b72539d31c62af78e337b4be18cea87a7fe6102b473973c66e14579460b8b60e"
+    },
+    {
+      "path": "config/epicdeathscreen/phrases/en_us.txt",
+      "size": 164,
+      "sha256": "f54c6c8d1a5831ce9338e4b8d9f7d4350c9b6f3af715a5939adebcaee711c619",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/f54c6c8d1a5831ce9338e4b8d9f7d4350c9b6f3af715a5939adebcaee711c619"
+    },
+    {
+      "path": "config/epicdeathscreen/phrases/README.txt",
+      "size": 1516,
+      "sha256": "f66805c8d9cef8663ddc7ebd5e45627d3e2fc8058ed09810c666b8b3893461be",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/f66805c8d9cef8663ddc7ebd5e45627d3e2fc8058ed09810c666b8b3893461be"
+    },
+    {
+      "path": "config/epicdeathscreen/phrases/ru_ru.txt",
+      "size": 164,
+      "sha256": "3a8589564b872097e7954e58dfa1c5e52720791881b10fc7b2f2946dc7fdb895",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/3a8589564b872097e7954e58dfa1c5e52720791881b10fc7b2f2946dc7fdb895"
+    },
+    {
+      "path": "config/epicfight_dd-common.toml",
+      "size": 491,
+      "sha256": "48d6d3db3a5745338377f7f4c9d3e20390624ef214a4f4fb614d65627b3d293a",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/48d6d3db3a5745338377f7f4c9d3e20390624ef214a4f4fb614d65627b3d293a"
+    },
+    {
+      "path": "config/epicfight-client.toml",
+      "size": 2597,
+      "sha256": "d76101a284dc4e7958e6bcb363d5bf95460b4c2c835142db5c9b52d9986e9ac2",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/d76101a284dc4e7958e6bcb363d5bf95460b4c2c835142db5c9b52d9986e9ac2"
+    },
+    {
+      "path": "config/epicfight-common.toml",
+      "size": 508,
+      "sha256": "3bbe63933611314641de0348a1566f8c45fbba9b3ecef0e982b31c9bcba5fa11",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/3bbe63933611314641de0348a1566f8c45fbba9b3ecef0e982b31c9bcba5fa11"
+    },
+    {
+      "path": "config/epicfight/native/ServerCommunicationHelper.so",
+      "size": 323744,
+      "sha256": "23326c10b6a49bcc01afb2bf3d7cba8ed7ebec95ee15c191e01f9c3d1f1f3569",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/23326c10b6a49bcc01afb2bf3d7cba8ed7ebec95ee15c191e01f9c3d1f1f3569"
+    },
+    {
+      "path": "config/fastquit.toml",
+      "size": 120,
+      "sha256": "e85f39867513fe26179ba3cf7a00d343e9642ceaa96e7ea3cde6a1c3aa69dd4e",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/e85f39867513fe26179ba3cf7a00d343e9642ceaa96e7ea3cde6a1c3aa69dd4e"
+    },
+    {
+      "path": "config/ferritecore-mixin.toml",
+      "size": 1493,
+      "sha256": "b48fa242f155a033ff8752de91fb483268763ce47eadc762db575b76eec53453",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/b48fa242f155a033ff8752de91fb483268763ce47eadc762db575b76eec53453"
+    },
+    {
+      "path": "config/flywheel-client.toml",
+      "size": 266,
+      "sha256": "0a70d58a4a562c2aa2945a3883d35fa3a8e90d80eab9d6b2db3be6103f71b9b2",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/0a70d58a4a562c2aa2945a3883d35fa3a8e90d80eab9d6b2db3be6103f71b9b2"
+    },
+    {
+      "path": "config/fml.toml",
+      "size": 1118,
+      "sha256": "1ed9280977d03a3e6d0661ae5c7217b49a4c40e255c88c6811b12b1b28f69ea5",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/1ed9280977d03a3e6d0661ae5c7217b49a4c40e255c88c6811b12b1b28f69ea5"
+    },
+    {
+      "path": "config/forge-client.toml",
+      "size": 1602,
+      "sha256": "a8448518860cd8b542dadf75521bfab981451775212ee1b51ddc646d998f9311",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/a8448518860cd8b542dadf75521bfab981451775212ee1b51ddc646d998f9311"
+    },
+    {
+      "path": "config/fpsreducer/fpsreducer-client.toml",
+      "size": 3222,
+      "sha256": "a4b349ee1a28920d43bbe64ced2af95f2c1a750fbf6b6c5ff685e382256221f0",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/a4b349ee1a28920d43bbe64ced2af95f2c1a750fbf6b6c5ff685e382256221f0"
+    },
+    {
+      "path": "config/fracturepoint-common.toml",
+      "size": 1183,
+      "sha256": "ba99c7588d5d9a45bfe32878a6777805123dca1101cea4e8d22bf1cf5adc30ab",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/ba99c7588d5d9a45bfe32878a6777805123dca1101cea4e8d22bf1cf5adc30ab"
+    },
+    {
+      "path": "config/fzzy_config/keybinds.toml",
+      "size": 6403,
+      "sha256": "26ac5810c9b5dc5c1968827357f0a58c58ac2b6f7b082630960228e16585062f",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/26ac5810c9b5dc5c1968827357f0a58c58ac2b6f7b082630960228e16585062f"
+    },
+    {
+      "path": "config/gun_scaling/main.toml",
+      "size": 424,
+      "sha256": "c2b9b3e441f04d0e51bf4e9696fbc7a1756e23c069886a2159c850b69e03eed8",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/c2b9b3e441f04d0e51bf4e9696fbc7a1756e23c069886a2159c850b69e03eed8"
+    },
+    {
+      "path": "config/iammusicplayer.toml",
+      "size": 818,
+      "sha256": "2926769a803ad09dd3e278d8aa6d8f77dbaab536eea64035e379fa684fdeea6e",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/2926769a803ad09dd3e278d8aa6d8f77dbaab536eea64035e379fa684fdeea6e"
+    },
+    {
+      "path": "config/illageandspillage-client.toml",
+      "size": 473,
+      "sha256": "06deebc87e40abba7cad00e38ca40656ca2684ce03ca9244d9098680f5ef7222",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/06deebc87e40abba7cad00e38ca40656ca2684ce03ca9244d9098680f5ef7222"
+    },
+    {
+      "path": "config/illageandspillage-common.toml",
+      "size": 12643,
+      "sha256": "34fe7a49b3d394d48bba9fd2fbb69d1cf2d15773f18d22ca1357a21c4c6657a6",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/34fe7a49b3d394d48bba9fd2fbb69d1cf2d15773f18d22ca1357a21c4c6657a6"
+    },
+    {
+      "path": "config/illager-additions-common.toml",
+      "size": 2637,
+      "sha256": "8127f6a1473a9ecf386263097f34da04a2ca8e143f96e5b7a45908fc469a906a",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/8127f6a1473a9ecf386263097f34da04a2ca8e143f96e5b7a45908fc469a906a"
+    },
+    {
+      "path": "config/immediatelyfast.json",
+      "size": 1060,
+      "sha256": "f2b7f219198f0a911d04b09f545f2c1256e8d114951443924878dc10963e16aa",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/f2b7f219198f0a911d04b09f545f2c1256e8d114951443924878dc10963e16aa"
+    },
+    {
+      "path": "config/insanelib.toml",
+      "size": 1178,
+      "sha256": "c600675a89dd7aef277a0ad1184d38a3596c14e2260b1f53503656979bf92148",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/c600675a89dd7aef277a0ad1184d38a3596c14e2260b1f53503656979bf92148"
+    },
+    {
+      "path": "config/invincible-common.toml",
+      "size": 874,
+      "sha256": "69dcb239ed318a34f15fcfc1cc01a2db99d99b6d797790e0cc5cc5958d7b4aa8",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/69dcb239ed318a34f15fcfc1cc01a2db99d99b6d797790e0cc5cc5958d7b4aa8"
+    },
+    {
+      "path": "config/invmove.json",
+      "size": 382,
+      "sha256": "d3c2a43ded45efcd78e73bdadc545b42841172a1e6a9e7d20521ae17f67739fc",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/d3c2a43ded45efcd78e73bdadc545b42841172a1e6a9e7d20521ae17f67739fc"
+    },
+    {
+      "path": "config/invmove/unrecognized.json",
+      "size": 6795,
+      "sha256": "706c01a9b55fa3433cc2b7dc3bcb5f5eee6ed4de14754a7a0b8468ff703874cf",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/706c01a9b55fa3433cc2b7dc3bcb5f5eee6ed4de14754a7a0b8468ff703874cf"
+    },
+    {
+      "path": "config/invmove/vanilla.json",
+      "size": 1092,
+      "sha256": "d1151ee0b7aa54a262ade99ba45014b32bf8774a90040f0b65c733d9ab9e2258",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/d1151ee0b7aa54a262ade99ba45014b32bf8774a90040f0b65c733d9ab9e2258"
+    },
+    {
+      "path": "config/item_obliterator.json5",
+      "size": 2474,
+      "sha256": "554edb2ce54ce7f21ebede3d968d04551fc64fe1d4de5bdc30876dd5ebdf96b6",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/554edb2ce54ce7f21ebede3d968d04551fc64fe1d4de5bdc30876dd5ebdf96b6"
+    },
+    {
+      "path": "config/jade/hide-blocks.json",
+      "size": 191,
+      "sha256": "247df2699ebb5a0d4c9585aeeb267ef9388cd5bee2b13ca340f35124a135b35b",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/247df2699ebb5a0d4c9585aeeb267ef9388cd5bee2b13ca340f35124a135b35b"
+    },
+    {
+      "path": "config/jade/hide-entities.json",
+      "size": 325,
+      "sha256": "22b4560c3dc05da35a70bb6611da0ce04cff295ab8c663afd58e725c396a24b3",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/22b4560c3dc05da35a70bb6611da0ce04cff295ab8c663afd58e725c396a24b3"
+    },
+    {
+      "path": "config/jade/jade.json",
+      "size": 976,
+      "sha256": "56ccc3dbbae7669af78a0ab59fe7bc435f52265438af8ee5d534a96635c3d766",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/56ccc3dbbae7669af78a0ab59fe7bc435f52265438af8ee5d534a96635c3d766"
+    },
+    {
+      "path": "config/jade/plugins.json",
+      "size": 1960,
+      "sha256": "f98f10c2fffe1172eb6f5ff85b89d3fe3e7748db150be10d41796a6d07d2becb",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/f98f10c2fffe1172eb6f5ff85b89d3fe3e7748db150be10d41796a6d07d2becb"
+    },
+    {
+      "path": "config/jade/sort-order.json",
+      "size": 1743,
+      "sha256": "c44899b1d27fe2496562a2daa847b56496b12d799f553b11006c4bc304471383",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/c44899b1d27fe2496562a2daa847b56496b12d799f553b11006c4bc304471383"
+    },
+    {
+      "path": "config/jeg-client.toml",
+      "size": 6143,
+      "sha256": "40efcd5178f046a33983255b0517b553d98642f59bbed0bf4088c65029a38189",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/40efcd5178f046a33983255b0517b553d98642f59bbed0bf4088c65029a38189"
+    },
+    {
+      "path": "config/jeg-common.toml",
+      "size": 15613,
+      "sha256": "58b209af82d6adf7c515645348c7f2a0b24e705066bd1332733dfb3300aaf35a",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/58b209af82d6adf7c515645348c7f2a0b24e705066bd1332733dfb3300aaf35a"
+    },
+    {
+      "path": "config/jeg/data/guns/fire_sweeper.json",
+      "size": 1505,
+      "sha256": "ead4b9d8bdb24b48ff798dd0cc29ae3669e15b5706ae2e99cfb0ff2182eed5cd",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/ead4b9d8bdb24b48ff798dd0cc29ae3669e15b5706ae2e99cfb0ff2182eed5cd"
+    },
+    {
+      "path": "config/jeg/data/guns/primitive_blowpipe.json",
+      "size": 1073,
+      "sha256": "33393d3eaf64c4d36a3f2ec08b7324a3ddab7c3f28d9b7961ad0bc3970adee1a",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/33393d3eaf64c4d36a3f2ec08b7324a3ddab7c3f28d9b7961ad0bc3970adee1a"
+    },
+    {
+      "path": "config/jeg/data/guns/vindicator_smg.json",
+      "size": 1474,
+      "sha256": "a24e5c63177a57acc2604a504a66f4d966b0317e0273858dcba8b7d309f7db53",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/a24e5c63177a57acc2604a504a66f4d966b0317e0273858dcba8b7d309f7db53"
+    },
+    {
+      "path": "config/jeg/pack.mcmeta",
+      "size": 101,
+      "sha256": "82b0bfa6c644e674d31fae1abb7950a9b6ab9442a5509aa50a7e99968d5cd44e",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/82b0bfa6c644e674d31fae1abb7950a9b6ab9442a5509aa50a7e99968d5cd44e"
+    },
+    {
+      "path": "config/jei/blacklist.cfg",
+      "size": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "url": "",
+      "empty": true
+    },
+    {
+      "path": "config/jei/ingredient-list-mod-sort-order.ini",
+      "size": 589,
+      "sha256": "c444e69b85543b9882da21d65d63617cd6a2275263bbba39b8a64c5fa738c7c4",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/c444e69b85543b9882da21d65d63617cd6a2275263bbba39b8a64c5fa738c7c4"
+    },
+    {
+      "path": "config/jei/ingredient-list-type-sort-order.ini",
+      "size": 74,
+      "sha256": "39b5426fb7faf645a83c210d457352b05f64859d4b9adb58242c113c2c8e6878",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/39b5426fb7faf645a83c210d457352b05f64859d4b9adb58242c113c2c8e6878"
+    },
+    {
+      "path": "config/jei/jei-client.ini",
+      "size": 7753,
+      "sha256": "cba337712ed12b05bbbe3c7a046d88cdba7c2b301f4dbcfb47cfd82e3759897e",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/cba337712ed12b05bbbe3c7a046d88cdba7c2b301f4dbcfb47cfd82e3759897e"
+    },
+    {
+      "path": "config/jei/jei-colors.ini",
+      "size": 1330,
+      "sha256": "30ffef1681a9b0255e65a756406f85b1cca8b0bb3c0fab357c2727e325401bd0",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/30ffef1681a9b0255e65a756406f85b1cca8b0bb3c0fab357c2727e325401bd0"
+    },
+    {
+      "path": "config/jei/jei-debug.ini",
+      "size": 886,
+      "sha256": "44e73ad4423c5bf0381da8e934861ac552cca4a12d4a007801cacf6eb85d12e9",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/44e73ad4423c5bf0381da8e934861ac552cca4a12d4a007801cacf6eb85d12e9"
+    },
+    {
+      "path": "config/jei/jei-mod-id-format.ini",
+      "size": 452,
+      "sha256": "07052785400b48d3757dbbcfff0b50899fbaed1ac54ea09bc9024ea7f73b7644",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/07052785400b48d3757dbbcfff0b50899fbaed1ac54ea09bc9024ea7f73b7644"
+    },
+    {
+      "path": "config/jei/recipe-category-sort-order.ini",
+      "size": 1089,
+      "sha256": "5b5241720e3bf868c5f6616cf6fc6c46e90222999d592997335961b64295b375",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/5b5241720e3bf868c5f6616cf6fc6c46e90222999d592997335961b64295b375"
+    },
+    {
+      "path": "config/jei/world/server/Minecraft_Server_c3ca4393/bookmarks.ini",
+      "size": 142,
+      "sha256": "5bf82b29fe80fe53df5b7c1927806f460c53a26634bdfbe4f9ce03646494f352",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/5bf82b29fe80fe53df5b7c1927806f460c53a26634bdfbe4f9ce03646494f352"
+    },
+    {
+      "path": "config/jei/world/server/SIEGE_Official_Server_c3ca4393/bookmarks.ini",
+      "size": 362,
+      "sha256": "755b7b959b746357adeaa3e7fb53f50f8b756c3f14d028074ec55ba57c1941ac",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/755b7b959b746357adeaa3e7fb53f50f8b756c3f14d028074ec55ba57c1941ac"
+    },
+    {
+      "path": "config/jerotes-common.toml",
+      "size": 2691,
+      "sha256": "21d3c33b4fac887958bf4b2bbabfed496ed405b1a101387399613cc79fb1cad4",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/21d3c33b4fac887958bf4b2bbabfed496ed405b1a101387399613cc79fb1cad4"
+    },
+    {
+      "path": "config/jerotesvillage-common.toml",
+      "size": 12547,
+      "sha256": "c73239cecb901b1c229874f0fc5daf330ba922efc6270a40b144fd74748024c8",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/c73239cecb901b1c229874f0fc5daf330ba922efc6270a40b144fd74748024c8"
+    },
+    {
+      "path": "config/lrarmor-common.toml",
+      "size": 121,
+      "sha256": "02d1bfe2959200328a7dd9caacaea106c2e001e182b56ac86ebc8592566b222f",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/02d1bfe2959200328a7dd9caacaea106c2e001e182b56ac86ebc8592566b222f"
+    },
+    {
+      "path": "config/mcreator_mem_fix.json",
+      "size": 288,
+      "sha256": "55743e1a403a806ee16dd27fdeebb359f2dabfa0ddb7b785ec4519106d2f41e8",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/55743e1a403a806ee16dd27fdeebb359f2dabfa0ddb7b785ec4519106d2f41e8"
+    },
+    {
+      "path": "config/midnightlib.json",
+      "size": 34,
+      "sha256": "9bcdd9f5ae6c9fecc3a0dfee7507bf17c56702f14e40db9cdde90148f1d3b387",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/9bcdd9f5ae6c9fecc3a0dfee7507bf17c56702f14e40db9cdde90148f1d3b387"
+    },
+    {
+      "path": "config/mobbattle-client.toml",
+      "size": 98,
+      "sha256": "cc5fa12dd8661d46b54d993709bbc561f198c325d5ef5f7365fb5c96bc43d528",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/cc5fa12dd8661d46b54d993709bbc561f198c325d5ef5f7365fb5c96bc43d528"
+    },
+    {
+      "path": "config/mobbattle.toml",
+      "size": 80,
+      "sha256": "70be4d62a1897496f0e6da7248a4b2c958f7c0dd3c24066f0441c4adb11b7f3a",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/70be4d62a1897496f0e6da7248a4b2c958f7c0dd3c24066f0441c4adb11b7f3a"
+    },
+    {
+      "path": "config/modernfix-common.toml",
+      "size": 104,
+      "sha256": "d40a0510a5eaf56e3c48e881348d7d826c5a1f61aa29b69cf0fc33dd96d6fdcd",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/d40a0510a5eaf56e3c48e881348d7d826c5a1f61aa29b69cf0fc33dd96d6fdcd"
+    },
+    {
+      "path": "config/modernfix-mixins.properties",
+      "size": 5062,
+      "sha256": "45f37f0bbd8f22081a05db076a2e561eb8c682bba3d8208c399ee91c86ab7f04",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/45f37f0bbd8f22081a05db076a2e561eb8c682bba3d8208c399ee91c86ab7f04"
+    },
+    {
+      "path": "config/moreartifacts-client.toml",
+      "size": 174,
+      "sha256": "7520e65ac036718d1bc9f966eeb8bc59e0699cbbc31bd9d688f684a0eee870b9",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/7520e65ac036718d1bc9f966eeb8bc59e0699cbbc31bd9d688f684a0eee870b9"
+    },
+    {
+      "path": "config/moreartifacts-common.toml",
+      "size": 10857,
+      "sha256": "69d7ecc943f7973e11bc82da222e8ebdbb9dfed806974a6eefa184ce278b4180",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/69d7ecc943f7973e11bc82da222e8ebdbb9dfed806974a6eefa184ce278b4180"
+    },
+    {
+      "path": "config/morerelics-client.toml",
+      "size": 1282,
+      "sha256": "61a49b86f7d84a5675db0e5311e3318b525c1d97a9586abaf23cff85961db5b4",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/61a49b86f7d84a5675db0e5311e3318b525c1d97a9586abaf23cff85961db5b4"
+    },
+    {
+      "path": "config/morerelics-common.toml",
+      "size": 2636,
+      "sha256": "808e41665d4611acb4d0ff4f7e3ee32a366cbf772a2747236408cbdef45a520e",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/808e41665d4611acb4d0ff4f7e3ee32a366cbf772a2747236408cbdef45a520e"
+    },
+    {
+      "path": "config/morerelics/relics/axolotl_cream.yaml",
+      "size": 2392,
+      "sha256": "2a6f3921ab9161d1585c0312aef6bdd1389bd39cd602bcdced091c83697c4c90",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/2a6f3921ab9161d1585c0312aef6bdd1389bd39cd602bcdced091c83697c4c90"
+    },
+    {
+      "path": "config/morerelics/relics/biojoint.yaml",
+      "size": 7065,
+      "sha256": "b871b1a923d6750e6d4b702961d0d7bdff5a844dd25959b4963b8a56d04ef610",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/b871b1a923d6750e6d4b702961d0d7bdff5a844dd25959b4963b8a56d04ef610"
+    },
+    {
+      "path": "config/morerelics/relics/bionic_eye.yaml",
+      "size": 8442,
+      "sha256": "01e59d914be7ac01898183f035840c4e593f82cb2819f6e83fa8030d13dc42c4",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/01e59d914be7ac01898183f035840c4e593f82cb2819f6e83fa8030d13dc42c4"
+    },
+    {
+      "path": "config/morerelics/relics/converging_orb.yaml",
+      "size": 864,
+      "sha256": "b843b6b83836595413796332651175e13da99c09bd028859c4b8d7abc0e2b5ef",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/b843b6b83836595413796332651175e13da99c09bd028859c4b8d7abc0e2b5ef"
+    },
+    {
+      "path": "config/morerelics/relics/crown_of_the_legend.yaml",
+      "size": 4201,
+      "sha256": "2c88004ebfc62351dda50f28224c94d1009560f6affce1531bcd81f9bc63c3d3",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/2c88004ebfc62351dda50f28224c94d1009560f6affce1531bcd81f9bc63c3d3"
+    },
+    {
+      "path": "config/morerelics/relics/depleted_spool.yaml",
+      "size": 1044,
+      "sha256": "abc85f013631f29a7a95a4f7157d4e08de62efbf71b55b4ea040d503a5a96d80",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/abc85f013631f29a7a95a4f7157d4e08de62efbf71b55b4ea040d503a5a96d80"
+    },
+    {
+      "path": "config/morerelics/relics/eject_button.yaml",
+      "size": 2561,
+      "sha256": "8007f2dd25301fb429a46cb45b9d7ad8362f25c8d8b0d3501226e7ce476f5545",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/8007f2dd25301fb429a46cb45b9d7ad8362f25c8d8b0d3501226e7ce476f5545"
+    },
+    {
+      "path": "config/morerelics/relics/epoch_apple.yaml",
+      "size": 4020,
+      "sha256": "050ce14ba47ef6816dec5f2d334453a0c8dd8f615d229c5be98763d731bfae39",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/050ce14ba47ef6816dec5f2d334453a0c8dd8f615d229c5be98763d731bfae39"
+    },
+    {
+      "path": "config/morerelics/relics/gravitum_glove.yaml",
+      "size": 5644,
+      "sha256": "3618977f1039fc1f2584a86036af6cd7123b7e3de338eb0b0b56347583b2bbc1",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/3618977f1039fc1f2584a86036af6cd7123b7e3de338eb0b0b56347583b2bbc1"
+    },
+    {
+      "path": "config/morerelics/relics/gravitum_strider.yaml",
+      "size": 4242,
+      "sha256": "ec74ad61ed7b139102b4fb1578804d99b6f236eb3219096a4539b1bd55d09687",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/ec74ad61ed7b139102b4fb1578804d99b6f236eb3219096a4539b1bd55d09687"
+    },
+    {
+      "path": "config/morerelics/relics/guts_orb.yaml",
+      "size": 2531,
+      "sha256": "71559c3e1ee7c8479cf461e626f1d2eae1aadc1c9009b42eb4d83d434093aeb8",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/71559c3e1ee7c8479cf461e626f1d2eae1aadc1c9009b42eb4d83d434093aeb8"
+    },
+    {
+      "path": "config/morerelics/relics/king_crimson.yaml",
+      "size": 7197,
+      "sha256": "5b4d15d87b892a5e06bd05f30ec2f4f01d073ba17bc599c44bcb1f9fb1c70e7a",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/5b4d15d87b892a5e06bd05f30ec2f4f01d073ba17bc599c44bcb1f9fb1c70e7a"
+    },
+    {
+      "path": "config/morerelics/relics/made_in_heaven.yaml",
+      "size": 13249,
+      "sha256": "8e20fb81ccf48b901a1e14ab667828978259cc2f7e2df5f5510658b675669cf0",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/8e20fb81ccf48b901a1e14ab667828978259cc2f7e2df5f5510658b675669cf0"
+    },
+    {
+      "path": "config/morerelics/relics/mass_gauntlet.yaml",
+      "size": 2569,
+      "sha256": "3c379d378bcd0e0e30523f927640d1f638fae178fd56c4e1e8dd5d6e4bc57d3d",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/3c379d378bcd0e0e30523f927640d1f638fae178fd56c4e1e8dd5d6e4bc57d3d"
+    },
+    {
+      "path": "config/morerelics/relics/moodworm.yaml",
+      "size": 4339,
+      "sha256": "eae31164b1b47b902d8ac333c769f3c406cb8e64ad9c2f2af5040a85007040dc",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/eae31164b1b47b902d8ac333c769f3c406cb8e64ad9c2f2af5040a85007040dc"
+    },
+    {
+      "path": "config/morerelics/relics/opal_necklace.yaml",
+      "size": 2525,
+      "sha256": "4e2ee0148a5e7abce7f0abacd334f5923e0400fb0491aa4be022663781cf92eb",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/4e2ee0148a5e7abce7f0abacd334f5923e0400fb0491aa4be022663781cf92eb"
+    },
+    {
+      "path": "config/morerelics/relics/runic_plate.yaml",
+      "size": 7597,
+      "sha256": "886160e70fda69637bb433d9bbb2b39fbf89aeed4b2b4e8c9cac7f005323db68",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/886160e70fda69637bb433d9bbb2b39fbf89aeed4b2b4e8c9cac7f005323db68"
+    },
+    {
+      "path": "config/morerelics/relics/sentient_rust.yaml",
+      "size": 2640,
+      "sha256": "ee1950da012beac5c552d1064da920e8b87374ad4b26cc9632e512d51b87b87c",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/ee1950da012beac5c552d1064da920e8b87374ad4b26cc9632e512d51b87b87c"
+    },
+    {
+      "path": "config/morerelics/relics/shieldweave_cape.yaml",
+      "size": 5873,
+      "sha256": "0eae0dfe46caf626ebe38defd26e542dd94b48c267d36caf2146958a60ccad37",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/0eae0dfe46caf626ebe38defd26e542dd94b48c267d36caf2146958a60ccad37"
+    },
+    {
+      "path": "config/morerelics/relics/slumbering_amulet.yaml",
+      "size": 1222,
+      "sha256": "e8b88807eee29ca16cbe2096042a634b5d3c4ba24cca109380817055d5599f6b",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/e8b88807eee29ca16cbe2096042a634b5d3c4ba24cca109380817055d5599f6b"
+    },
+    {
+      "path": "config/morerelics/relics/swiftedge.yaml",
+      "size": 6167,
+      "sha256": "dc9ad36b5cbd885de0a2843929f95d9a0cd7571e96069f529db7982e5cc7aef0",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/dc9ad36b5cbd885de0a2843929f95d9a0cd7571e96069f529db7982e5cc7aef0"
+    },
+    {
+      "path": "config/morerelics/relics/thermoseismic_heart.yaml",
+      "size": 8678,
+      "sha256": "0f87788b8dfcdec0299aedd555b6258825553ec210133f3e42083883a3cfc171",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/0f87788b8dfcdec0299aedd555b6258825553ec210133f3e42083883a3cfc171"
+    },
+    {
+      "path": "config/morerelics/relics/twin_fangs.yaml",
+      "size": 4058,
+      "sha256": "fd9bf40e656e9763cb8e74a88e21f514a77af4820bae0e84bb6b4411bddbdbe9",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/fd9bf40e656e9763cb8e74a88e21f514a77af4820bae0e84bb6b4411bddbdbe9"
+    },
+    {
+      "path": "config/morerelics/relics/tyrant_mask.yaml",
+      "size": 3358,
+      "sha256": "8cc169bfeed435fde8e446452a607a4a03b2f2264f2719d90cfa9d0d33583926",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/8cc169bfeed435fde8e446452a607a4a03b2f2264f2719d90cfa9d0d33583926"
+    },
+    {
+      "path": "config/morerelics/relics/vertebrax.yaml",
+      "size": 7787,
+      "sha256": "17c1b9e986ea285b1d6adcb66dc7bd21d8f9b82a1dc443a7aa2a0d23f48d9741",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/17c1b9e986ea285b1d6adcb66dc7bd21d8f9b82a1dc443a7aa2a0d23f48d9741"
+    },
+    {
+      "path": "config/morerelics/relics/weavers_spool.yaml",
+      "size": 10418,
+      "sha256": "20ca8d4b3d1e6bd8e6cc17f3ea6819f855746181e0f105fd8eed304cb9033250",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/20ca8d4b3d1e6bd8e6cc17f3ea6819f855746181e0f105fd8eed304cb9033250"
+    },
+    {
+      "path": "config/morerelics/relics/whims_of_fate.yaml",
+      "size": 2420,
+      "sha256": "ecb5ffa9e619af78439b9ff898ed3a6743f5472dab51432690ed6cd8c52c6dd6",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/ecb5ffa9e619af78439b9ff898ed3a6743f5472dab51432690ed6cd8c52c6dd6"
+    },
+    {
+      "path": "config/morerelics/relics/whispering_amulett.yaml",
+      "size": 871,
+      "sha256": "8328c420ae5243bee268ff197591e948169ff5423b248f6ae892a0cf73fe3460",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/8328c420ae5243bee268ff197591e948169ff5423b248f6ae892a0cf73fe3460"
+    },
+    {
+      "path": "config/morerelics/relics/wonder_of_u.yaml",
+      "size": 7206,
+      "sha256": "c123e590fc2fe12681cb567910658e24335cd0013616b4f7bd095f099ae3c79d",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/c123e590fc2fe12681cb567910658e24335cd0013616b4f7bd095f099ae3c79d"
+    },
+    {
+      "path": "config/MouseTweaks.cfg",
+      "size": 135,
+      "sha256": "4069ce1a439d8c37453c1b1e9f2037e0942674c7e48723a39b37eab245792ad4",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/4069ce1a439d8c37453c1b1e9f2037e0942674c7e48723a39b37eab245792ad4"
+    },
+    {
+      "path": "config/mowziesmobs-client.toml",
+      "size": 965,
+      "sha256": "0d0fde65203e5b0a005a62d118623bab1ee2133b60cd4f4db20c20a2e8b9a0e7",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/0d0fde65203e5b0a005a62d118623bab1ee2133b60cd4f4db20c20a2e8b9a0e7"
+    },
+    {
+      "path": "config/mowziesmobs-common.toml",
+      "size": 32044,
+      "sha256": "e55ac205460de59301f22e2d9396c96298b92d3648a16f2588175a0ffaf468e9",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/e55ac205460de59301f22e2d9396c96298b92d3648a16f2588175a0ffaf468e9"
+    },
+    {
+      "path": "config/necronomicon.json5",
+      "size": 266,
+      "sha256": "f97fc5ae7dd7d312e86ecddf2e4491fee3e3a16b7a26cbb3aa078fdd3255c4df",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/f97fc5ae7dd7d312e86ecddf2e4491fee3e3a16b7a26cbb3aa078fdd3255c4df"
+    },
+    {
+      "path": "config/notenoughcrashes.json",
+      "size": 156,
+      "sha256": "e604a3705ca2adf9499a412afefc61fb589448de43e4652db6232f94699e3950",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/e604a3705ca2adf9499a412afefc61fb589448de43e4652db6232f94699e3950"
+    },
+    {
+      "path": "config/offlineskins.json",
+      "size": 271,
+      "sha256": "0dba223eed1460b8e15d0f460b7861f55962fe6e2fb7b2d336297b59bc685e8e",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/0dba223eed1460b8e15d0f460b7861f55962fe6e2fb7b2d336297b59bc685e8e"
+    },
+    {
+      "path": "config/otyacraftengine/client_debug.toml",
+      "size": 101,
+      "sha256": "8f050b5467f258f0b89aac2ccb8149607d9d194ecc0836e701ee1be796084541",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/8f050b5467f258f0b89aac2ccb8149607d9d194ecc0836e701ee1be796084541"
+    },
+    {
+      "path": "config/otyacraftengine/client.toml",
+      "size": 86,
+      "sha256": "296562f31498578124f780431b54e94e722a5a4d9dd3c1453630dd23391ad700",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/296562f31498578124f780431b54e94e722a5a4d9dd3c1453630dd23391ad700"
+    },
+    {
+      "path": "config/packetfixer.properties",
+      "size": 473,
+      "sha256": "81f17ba6bff56571154661f84048e1e33bc5078c0e386204e16ebb3b3fd8f898",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/81f17ba6bff56571154661f84048e1e33bc5078c0e386204e16ebb3b3fd8f898"
+    },
+    {
+      "path": "config/patchouli-client.toml",
+      "size": 1075,
+      "sha256": "3b6236845f6a5ff8804487b63b0d74305b91316dc9a008362838607b0be3bd8e",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/3b6236845f6a5ff8804487b63b0d74305b91316dc9a008362838607b0be3bd8e"
+    },
+    {
+      "path": "config/paulbear-common.toml",
+      "size": 1602,
+      "sha256": "638d3fd36470e2bcf96b733931e6980568510d22b04575266302aaff22f2b51d",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/638d3fd36470e2bcf96b733931e6980568510d22b04575266302aaff22f2b51d"
+    },
+    {
+      "path": "config/pehkui-client.toml",
+      "size": 132,
+      "sha256": "b99f791974a57bce18a9c3bde4b416de180f24df878e985336814e6be4615e0d",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/b99f791974a57bce18a9c3bde4b416de180f24df878e985336814e6be4615e0d"
+    },
+    {
+      "path": "config/pehkui-common.toml",
+      "size": 389,
+      "sha256": "e9a129d0a2dbf13d36d4f3e47ae3b2b01d32a9e872a771633bf356d9cdebc895",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/e9a129d0a2dbf13d36d4f3e47ae3b2b01d32a9e872a771633bf356d9cdebc895"
+    },
+    {
+      "path": "config/playerrevive-client.json",
+      "size": 131,
+      "sha256": "66afd32595b00de5d2837780a5866d600e296d9200a4e4fb1b6a2ef94693c909",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/66afd32595b00de5d2837780a5866d600e296d9200a4e4fb1b6a2ef94693c909"
+    },
+    {
+      "path": "config/playerrevive.json",
+      "size": 1767,
+      "sha256": "7bb3ce3720fd4c2f723e0800ffade9b6bb53d5646f7b357324690e42c4e759cc",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/7bb3ce3720fd4c2f723e0800ffade9b6bb53d5646f7b357324690e42c4e759cc"
+    },
+    {
+      "path": "config/relics/relics/amphibian_boot.yaml",
+      "size": 8786,
+      "sha256": "39b8a55d06987657fc8ef15c6c85ba048544c1b05396312b5f2753d583f3738e",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/39b8a55d06987657fc8ef15c6c85ba048544c1b05396312b5f2753d583f3738e"
+    },
+    {
+      "path": "config/relics/relics/aqua_walker.yaml",
+      "size": 2397,
+      "sha256": "68e3e439dcb721259e3985ce4515ef5260a166212ba63b569f6b648363090dc2",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/68e3e439dcb721259e3985ce4515ef5260a166212ba63b569f6b648363090dc2"
+    },
+    {
+      "path": "config/relics/relics/arrow_quiver.yaml",
+      "size": 13309,
+      "sha256": "524af2f5d9f1a57983936ab75d2042e53d49b657e40114d91b946f3ca78f2bf9",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/524af2f5d9f1a57983936ab75d2042e53d49b657e40114d91b946f3ca78f2bf9"
+    },
+    {
+      "path": "config/relics/relics/bastion_ring.yaml",
+      "size": 2660,
+      "sha256": "78cc299a4c492321823721997f8b90ca5672de63976d267885e084ba5f761ac2",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/78cc299a4c492321823721997f8b90ca5672de63976d267885e084ba5f761ac2"
+    },
+    {
+      "path": "config/relics/relics/blazing_flask.yaml",
+      "size": 5314,
+      "sha256": "8af42f810a66263852c16f8749376346080a5fecef9488bb3bc12912c08cc1a4",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/8af42f810a66263852c16f8749376346080a5fecef9488bb3bc12912c08cc1a4"
+    },
+    {
+      "path": "config/relics/relics/chorus_inhibitor.yaml",
+      "size": 3748,
+      "sha256": "8d0e4663ac5e07ed77f0d5c68d06dc8710d4981b2e0a9dd4e224f7217e341153",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/8d0e4663ac5e07ed77f0d5c68d06dc8710d4981b2e0a9dd4e224f7217e341153"
+    },
+    {
+      "path": "config/relics/relics/drowned_belt.yaml",
+      "size": 9064,
+      "sha256": "b84c6b0e5f89432ac73cd9c294ea44f58927f5f80bc96f71348f5cc824e7f03d",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/b84c6b0e5f89432ac73cd9c294ea44f58927f5f80bc96f71348f5cc824e7f03d"
+    },
+    {
+      "path": "config/relics/relics/elytra_booster.yaml",
+      "size": 3755,
+      "sha256": "21de4aa1b35eb1f6845f78ba0352dc4fd388b79e9ea1279f5c7524fd14282f01",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/21de4aa1b35eb1f6845f78ba0352dc4fd388b79e9ea1279f5c7524fd14282f01"
+    },
+    {
+      "path": "config/relics/relics/enders_hand.yaml",
+      "size": 2672,
+      "sha256": "0e64ec0885a1286814d49af57c791a9b4369382c53a33350828ec8057de2ff1c",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/0e64ec0885a1286814d49af57c791a9b4369382c53a33350828ec8057de2ff1c"
+    },
+    {
+      "path": "config/relics/relics/holy_locket.yaml",
+      "size": 11568,
+      "sha256": "3a5b2a427b9e0de593688b952ad1d0856c1c0fe2076997b65c515badacd9050f",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/3a5b2a427b9e0de593688b952ad1d0856c1c0fe2076997b65c515badacd9050f"
+    },
+    {
+      "path": "config/relics/relics/horse_flute.yaml",
+      "size": 2850,
+      "sha256": "03f0644ebcfbe433139f9aaaf004357c87c249eea7bbd38451984a4f5a59e961",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/03f0644ebcfbe433139f9aaaf004357c87c249eea7bbd38451984a4f5a59e961"
+    },
+    {
+      "path": "config/relics/relics/hunter_belt.yaml",
+      "size": 4065,
+      "sha256": "bc79e132db585506ba69baf0849a6a5aec9e8bd86951f5f5a2fcab28c9ca761e",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/bc79e132db585506ba69baf0849a6a5aec9e8bd86951f5f5a2fcab28c9ca761e"
+    },
+    {
+      "path": "config/relics/relics/ice_breaker.yaml",
+      "size": 5641,
+      "sha256": "ff60615f0d0f7208f04f9b7f2fc07fe350b2a383eb71b3798df722d6105cb1cf",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/ff60615f0d0f7208f04f9b7f2fc07fe350b2a383eb71b3798df722d6105cb1cf"
+    },
+    {
+      "path": "config/relics/relics/ice_skates.yaml",
+      "size": 5646,
+      "sha256": "92400db4163b2cddd59104b0dca35865b9dd9ac30c1b7973aa9e2adce67342ea",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/92400db4163b2cddd59104b0dca35865b9dd9ac30c1b7973aa9e2adce67342ea"
+    },
+    {
+      "path": "config/relics/relics/infinity_ham.yaml",
+      "size": 4079,
+      "sha256": "d8d96d73fa32983adefd3d4d5cf73585237f7fd458108c347689692840a7d186",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/d8d96d73fa32983adefd3d4d5cf73585237f7fd458108c347689692840a7d186"
+    },
+    {
+      "path": "config/relics/relics/jellyfish_necklace.yaml",
+      "size": 4503,
+      "sha256": "f7d63686df01246598f33725ed7a347a6387653b21cee29882b4424465994744",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/f7d63686df01246598f33725ed7a347a6387653b21cee29882b4424465994744"
+    },
+    {
+      "path": "config/relics/relics/leather_belt.yaml",
+      "size": 2306,
+      "sha256": "ff08f2a3ffed4ac5b4e3282d4087055a15d58e722a004e9efa6919fc560bb01d",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/ff08f2a3ffed4ac5b4e3282d4087055a15d58e722a004e9efa6919fc560bb01d"
+    },
+    {
+      "path": "config/relics/relics/magic_mirror.yaml",
+      "size": 3897,
+      "sha256": "b2f48329c46e363dcf406824d3819de86a4abc9d30e50b8f647738cc2416f06c",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/b2f48329c46e363dcf406824d3819de86a4abc9d30e50b8f647738cc2416f06c"
+    },
+    {
+      "path": "config/relics/relics/magma_walker.yaml",
+      "size": 2815,
+      "sha256": "91495c617e65d40cb38610f300374d6ddce426a4cb32f7731280a493fb1fd105",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/91495c617e65d40cb38610f300374d6ddce426a4cb32f7731280a493fb1fd105"
+    },
+    {
+      "path": "config/relics/relics/midnight_robe.yaml",
+      "size": 7055,
+      "sha256": "2dc72fd64caeb846661359085664b578908658104f5674f21ca6c727659eae65",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/2dc72fd64caeb846661359085664b578908658104f5674f21ca6c727659eae65"
+    },
+    {
+      "path": "config/relics/relics/rage_glove.yaml",
+      "size": 14617,
+      "sha256": "a882a417d0654ec75f7ad6d69022a0b39de0d1214f58a3e7cf3a479d388e68aa",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/a882a417d0654ec75f7ad6d69022a0b39de0d1214f58a3e7cf3a479d388e68aa"
+    },
+    {
+      "path": "config/relics/relics/reflection_necklace.yaml",
+      "size": 5332,
+      "sha256": "831de8669d3a87ac0c674a564e854ed76d2159831a083942ae5bbd894f372108",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/831de8669d3a87ac0c674a564e854ed76d2159831a083942ae5bbd894f372108"
+    },
+    {
+      "path": "config/relics/relics/roller_skates.yaml",
+      "size": 3945,
+      "sha256": "cf23559b6acead1187cb717a5c6baec8282022e04593cce0dcbf7b048e43f442",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/cf23559b6acead1187cb717a5c6baec8282022e04593cce0dcbf7b048e43f442"
+    },
+    {
+      "path": "config/relics/relics/shadow_glaive.yaml",
+      "size": 9949,
+      "sha256": "b2c7ded48d76878f5bf7ea69acca460dd46e7460c942e64facafe2128d171de1",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/b2c7ded48d76878f5bf7ea69acca460dd46e7460c942e64facafe2128d171de1"
+    },
+    {
+      "path": "config/relics/relics/space_dissector.yaml",
+      "size": 3902,
+      "sha256": "95b5c8774dc1effb0aed7feca6f02f6a9212c6a405b8d6d7fdf3a9dbd9125417",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/95b5c8774dc1effb0aed7feca6f02f6a9212c6a405b8d6d7fdf3a9dbd9125417"
+    },
+    {
+      "path": "config/relics/relics/spatial_sign.yaml",
+      "size": 2448,
+      "sha256": "79e5e1a2d63e4677142d3254c578bb473f1f5b04bf9c13becfbfb56813f44f8e",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/79e5e1a2d63e4677142d3254c578bb473f1f5b04bf9c13becfbfb56813f44f8e"
+    },
+    {
+      "path": "config/relics/relics/spore_sack.yaml",
+      "size": 16198,
+      "sha256": "1a31566828ba46d2019b9316f29a440da72eb3ce084c3013398ad734d24b926f",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/1a31566828ba46d2019b9316f29a440da72eb3ce084c3013398ad734d24b926f"
+    },
+    {
+      "path": "config/relics/relics/wool_mitten.yaml",
+      "size": 6746,
+      "sha256": "2dc50e02a423d5c2b7b926bc03346abd1cba2bba63875b3f51747d88c3e5fd90",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/2dc50e02a423d5c2b7b926bc03346abd1cba2bba63875b3f51747d88c3e5fd90"
+    },
+    {
+      "path": "config/RelicsOfGaming.toml",
+      "size": 63,
+      "sha256": "1c455b76a785fef208f36de06b21fede4362ab00e1ba6d295f99e0fecc7b2382",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/1c455b76a785fef208f36de06b21fede4362ab00e1ba6d295f99e0fecc7b2382"
+    },
+    {
+      "path": "config/saturn-optimizations.toml",
+      "size": 436,
+      "sha256": "212c1c6b7fa0f671de835a6ac4f67bfb20d9b5bce6de698824b1ebe395ff704b",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/212c1c6b7fa0f671de835a6ac4f67bfb20d9b5bce6de698824b1ebe395ff704b"
+    },
+    {
+      "path": "config/sbr_core-common.toml",
+      "size": 561,
+      "sha256": "28f3811d8bb454d937dad1b4fc80ab18c30a9980818ba0d149ed6a5c1c41440d",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/28f3811d8bb454d937dad1b4fc80ab18c30a9980818ba0d149ed6a5c1c41440d"
+    },
+    {
+      "path": "config/scalinghealth-client.toml",
+      "size": 4363,
+      "sha256": "e3e5c6267b130cfa1661796ecd9e04759732c35e3f530b97b84a0cfe7024949c",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/e3e5c6267b130cfa1661796ecd9e04759732c35e3f530b97b84a0cfe7024949c"
+    },
+    {
+      "path": "config/scguns-client.toml",
+      "size": 5605,
+      "sha256": "37d7e1abf160785d5f86d30da9b5b7a0d1c5641abf470b6828aba8a082f1175f",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/37d7e1abf160785d5f86d30da9b5b7a0d1c5641abf470b6828aba8a082f1175f"
+    },
+    {
+      "path": "config/scguns-common.toml",
+      "size": 10105,
+      "sha256": "812af447e0a0b83576a051f571a0907f10d825999e093d21f4c9eba526b00da9",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/812af447e0a0b83576a051f571a0907f10d825999e093d21f4c9eba526b00da9"
+    },
+    {
+      "path": "config/securitycraft-client.toml",
+      "size": 602,
+      "sha256": "c6bff4c584b77104988b82a2c144bca59987669cdcc9d38c0e05135df664854b",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/c6bff4c584b77104988b82a2c144bca59987669cdcc9d38c0e05135df664854b"
+    },
+    {
+      "path": "config/sexo-common.toml",
+      "size": 306,
+      "sha256": "c5ff2cc6e0454b4b160f101c82e0c366ad84aaf4423c3499c65a0354948abda6",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/c5ff2cc6e0454b4b160f101c82e0c366ad84aaf4423c3499c65a0354948abda6"
+    },
+    {
+      "path": "config/shouldersurfing-client.toml",
+      "size": 12941,
+      "sha256": "39df260a17a51f0750f79bd22cc0fd1a4c11ade02fe89480633cbe9fd351efaa",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/39df260a17a51f0750f79bd22cc0fd1a4c11ade02fe89480633cbe9fd351efaa"
+    },
+    {
+      "path": "config/siege-client.properties",
+      "size": 768,
+      "sha256": "cceb797214bdf5922b9b55a052a6dbbcaecea781bcfb3fc97c9d1523f7515cda",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/cceb797214bdf5922b9b55a052a6dbbcaecea781bcfb3fc97c9d1523f7515cda"
+    },
+    {
+      "path": "config/simplyswords/compatibility.toml",
+      "size": 11974,
+      "sha256": "e7a5c5756ccadd5d968049a8820c83dce700d7d478a843385688d38d135a9217",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/e7a5c5756ccadd5d968049a8820c83dce700d7d478a843385688d38d135a9217"
+    },
+    {
+      "path": "config/simplyswords/gem_powers.toml",
+      "size": 3651,
+      "sha256": "4f911868905452dc01a779d424fe298c583cc31ae57b0c76157c806f70c38727",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/4f911868905452dc01a779d424fe298c583cc31ae57b0c76157c806f70c38727"
+    },
+    {
+      "path": "config/simplyswords/general.toml",
+      "size": 873,
+      "sha256": "0452c273bf163f178c6b03663070a9d732a63e3fecbb28b3fd4fb45dd3c6eafa",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/0452c273bf163f178c6b03663070a9d732a63e3fecbb28b3fd4fb45dd3c6eafa"
+    },
+    {
+      "path": "config/simplyswords/gui.toml",
+      "size": 106,
+      "sha256": "d34c7814baa027aa67fde721f3a437bcb6b3e9a89f0245970fd1489525ef5620",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/d34c7814baa027aa67fde721f3a437bcb6b3e9a89f0245970fd1489525ef5620"
+    },
+    {
+      "path": "config/simplyswords/loot.toml",
+      "size": 1314,
+      "sha256": "d4a49a7f776392a6643171d6b440c0afb897b285ba88c44aa8386b2aa2c9d55a",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/d4a49a7f776392a6643171d6b440c0afb897b285ba88c44aa8386b2aa2c9d55a"
+    },
+    {
+      "path": "config/simplyswords/status_effects.toml",
+      "size": 85,
+      "sha256": "978429e6e9aa6852c38d67cc221d7d71d8502b92df3a5803ff8c3b6966c890ce",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/978429e6e9aa6852c38d67cc221d7d71d8502b92df3a5803ff8c3b6966c890ce"
+    },
+    {
+      "path": "config/simplyswords/unique_effects.toml",
+      "size": 16376,
+      "sha256": "7bc78411abd8406bf6ffd41b4e93adb2b4d2922e71e6c99357b8d0ef666e6792",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/7bc78411abd8406bf6ffd41b4e93adb2b4d2922e71e6c99357b8d0ef666e6792"
+    },
+    {
+      "path": "config/simplyswords/weapon_attributes.toml",
+      "size": 4777,
+      "sha256": "7880be9f01875cd9e99c653c5afb1c41d98a9e649657f08bd47e702895fe133b",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/7880be9f01875cd9e99c653c5afb1c41d98a9e649657f08bd47e702895fe133b"
+    },
+    {
+      "path": "config/simplytooltips/config.toml",
+      "size": 342,
+      "sha256": "3e5b250f6fa5e4ffb246fd04e6dcffde1cbf4da77d424e9d88e115444427cb09",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/3e5b250f6fa5e4ffb246fd04e6dcffde1cbf4da77d424e9d88e115444427cb09"
+    },
+    {
+      "path": "config/skinlayers.json",
+      "size": 497,
+      "sha256": "45162f45aa2db525a0edc483959f35b6d958ba2e54066a4f87e7f3c3f0f99166",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/45162f45aa2db525a0edc483959f35b6d958ba2e54066a4f87e7f3c3f0f99166"
+    },
+    {
+      "path": "config/slashblade-common.toml",
+      "size": 2530,
+      "sha256": "55305ec2b23524317925333ee008d198c9a0745f6f03089a71f3a0454b387c71",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/55305ec2b23524317925333ee008d198c9a0745f6f03089a71f3a0454b387c71"
+    },
+    {
+      "path": "config/smoothboot.json",
+      "size": 198,
+      "sha256": "0dc746fb3afca8b1f21e6fead005760d25e2c73dc006c9cb932364dd2b5d86ea",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/0dc746fb3afca8b1f21e6fead005760d25e2c73dc006c9cb932364dd2b5d86ea"
+    },
+    {
+      "path": "config/sodium-extra-options.json",
+      "size": 1497,
+      "sha256": "3ad259209b609bb135c2c0d9416ff9dfd4af251824b5fc768b02ab23caca672e",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/3ad259209b609bb135c2c0d9416ff9dfd4af251824b5fc768b02ab23caca672e"
+    },
+    {
+      "path": "config/sodium-extra.properties",
+      "size": 360,
+      "sha256": "a2f1b47c1eaa119ab34727f1d43c2506cb3d7f17ba8fb4efb49e20c8e0b58e70",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/a2f1b47c1eaa119ab34727f1d43c2506cb3d7f17ba8fb4efb49e20c8e0b58e70"
+    },
+    {
+      "path": "config/sophisticatedbackpacks-common.toml",
+      "size": 116,
+      "sha256": "b377e97ca3d8ae8560448b92ab820872d7c11bef0ca52dcf3f4901b44c6ddca7",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/b377e97ca3d8ae8560448b92ab820872d7c11bef0ca52dcf3f4901b44c6ddca7"
+    },
+    {
+      "path": "config/sophisticatedcore-client.toml",
+      "size": 342,
+      "sha256": "293088be5b4d13e99f6c12a0aaa7b56f0f9db5f9abbc615086989b689b3827d3",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/293088be5b4d13e99f6c12a0aaa7b56f0f9db5f9abbc615086989b689b3827d3"
+    },
+    {
+      "path": "config/sophisticatedcore-common.toml",
+      "size": 3078,
+      "sha256": "c4b270797a0337e0574614fb38b7dffdcb331d52f53b18a3f16e37bce2d1abe3",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/c4b270797a0337e0574614fb38b7dffdcb331d52f53b18a3f16e37bce2d1abe3"
+    },
+    {
+      "path": "config/superbwarfare-client.toml",
+      "size": 3661,
+      "sha256": "250923fde8e1368ab807d2d84390574c3aed953112f163f58c342655f29b1394",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/250923fde8e1368ab807d2d84390574c3aed953112f163f58c342655f29b1394"
+    },
+    {
+      "path": "config/superbwarfare-common.toml",
+      "size": 456,
+      "sha256": "58d8d17d24f6651690abeb1535b4116f1d255b737541f6a6eba64e5b7da6aa3a",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/58d8d17d24f6651690abeb1535b4116f1d255b737541f6a6eba64e5b7da6aa3a"
+    },
+    {
+      "path": "config/tengosuenowe-common.toml",
+      "size": 306,
+      "sha256": "c5ff2cc6e0454b4b160f101c82e0c366ad84aaf4423c3499c65a0354948abda6",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/c5ff2cc6e0454b4b160f101c82e0c366ad84aaf4423c3499c65a0354948abda6"
+    },
+    {
+      "path": "config/terrablender.toml",
+      "size": 534,
+      "sha256": "70da8cd57cd321ae43ec3774995de812116c67163c0ae8859965a3599e3aeefa",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/70da8cd57cd321ae43ec3774995de812116c67163c0ae8859965a3599e3aeefa"
+    },
+    {
+      "path": "config/terramity-client-config.toml",
+      "size": 91,
+      "sha256": "ad5af1eaf16b29252f8733de6fa41d5546062571b269b59cfcaeea5754633810",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/ad5af1eaf16b29252f8733de6fa41d5546062571b269b59cfcaeea5754633810"
+    },
+    {
+      "path": "config/TerramityCommonConfig.toml",
+      "size": 895,
+      "sha256": "32e5e800d23bfc0a5a1cedb4b01d634904bbc20ba153217802bd3f7a7f1a5670",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/32e5e800d23bfc0a5a1cedb4b01d634904bbc20ba153217802bd3f7a7f1a5670"
+    },
+    {
+      "path": "config/timeout_fixes-common.toml",
+      "size": 77,
+      "sha256": "766a230ab7a67152ea11164a6c37133a14590db25ff6eec1e05208637d494366",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/766a230ab7a67152ea11164a6c37133a14590db25ff6eec1e05208637d494366"
+    },
+    {
+      "path": "config/toolleveling/command_config.json",
+      "size": 314,
+      "sha256": "13ceaf797cd6e576888596558a7e7f69ec4a9e5a9424d31e6eec75151f0fabab",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/13ceaf797cd6e576888596558a7e7f69ec4a9e5a9424d31e6eec75151f0fabab"
+    },
+    {
+      "path": "config/toolleveling/README.txt",
+      "size": 360,
+      "sha256": "8818696fb5251b78eb712f839acabc38e42a81bd9bb1993adfb60250037e20c5",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/8818696fb5251b78eb712f839acabc38e42a81bd9bb1993adfb60250037e20c5"
+    },
+    {
+      "path": "config/toolleveling/tool_leveling_table.json",
+      "size": 415,
+      "sha256": "497cd9a13d81189105b9ec53d833e5a349ec8f54eb0a33d08046583bf441d780",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/497cd9a13d81189105b9ec53d833e5a349ec8f54eb0a33d08046583bf441d780"
+    },
+    {
+      "path": "config/transition.json",
+      "size": 97,
+      "sha256": "60420a41571a4658b91babfa2b47d6fefb7c1766eeea969f51ff98ab34c2431c",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/60420a41571a4658b91babfa2b47d6fefb7c1766eeea969f51ff98ab34c2431c"
+    },
+    {
+      "path": "config/trender.json",
+      "size": 44,
+      "sha256": "fe0bed19bd0927b3d519816c73378730689080a8f07e66a6167c266ffde29dd2",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/fe0bed19bd0927b3d519816c73378730689080a8f07e66a6167c266ffde29dd2"
+    },
+    {
+      "path": "config/velthoric/velthoric-client.json",
+      "size": 426,
+      "sha256": "13d5fb7d6214b6870ccdff45e35c7b6c7862b8b7c65b5599a14845d70721b083",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/13d5fb7d6214b6870ccdff45e35c7b6c7862b8b7c65b5599a14845d70721b083"
+    },
+    {
+      "path": "config/velthoric/velthoric-common.json",
+      "size": 1580,
+      "sha256": "362762a94e34596e1e2972d8940b9a5ed254aafbb0d41357515b0684d6383f6f",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/362762a94e34596e1e2972d8940b9a5ed254aafbb0d41357515b0684d6383f6f"
+    },
+    {
+      "path": "config/visuality/config.toml",
+      "size": 249,
+      "sha256": "c3896d3971b99a6b36bb1ba94e82dca634566f250147df25a52f8987876a1a5e",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/c3896d3971b99a6b36bb1ba94e82dca634566f250147df25a52f8987876a1a5e"
+    },
+    {
+      "path": "config/visuality/particle_emitters/block_ambient.json",
+      "size": 1293,
+      "sha256": "734a10c828571b65d71d2f27ff2d3350603d097e96c5d0dd5f49319fe21b803b",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/734a10c828571b65d71d2f27ff2d3350603d097e96c5d0dd5f49319fe21b803b"
+    },
+    {
+      "path": "config/visuality/particle_emitters/block_step.json",
+      "size": 219,
+      "sha256": "54d4448f6c45ba1ad311f6c35b55b9b800ad4ae664f075707e05cd798b6eab7b",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/54d4448f6c45ba1ad311f6c35b55b9b800ad4ae664f075707e05cd798b6eab7b"
+    },
+    {
+      "path": "config/visuality/particle_emitters/entity_armor.json",
+      "size": 737,
+      "sha256": "4fea5a33cd09a91423bf58e9404ded2edd4ba3faff2d41543c5366adab92a73a",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/4fea5a33cd09a91423bf58e9404ded2edd4ba3faff2d41543c5366adab92a73a"
+    },
+    {
+      "path": "config/visuality/particle_emitters/entity_hit.json",
+      "size": 683,
+      "sha256": "db1fe2d772c0ed136c2d1da0c315bc50ba9760032a60253be6f37ce1d7e38ead",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/db1fe2d772c0ed136c2d1da0c315bc50ba9760032a60253be6f37ce1d7e38ead"
+    },
+    {
+      "path": "config/warborn-armor.toml",
+      "size": 1176,
+      "sha256": "1eaa896a4b37dc53ecaa84a1b5cd34a760958e50d7008f9ba3109704db6cbe6b",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/1eaa896a4b37dc53ecaa84a1b5cd34a760958e50d7008f9ba3109704db6cbe6b"
+    },
+    {
+      "path": "config/watermedia/custom_vlc_path.txt",
+      "size": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "url": "",
+      "empty": true
+    },
+    {
+      "path": "config/where_are_my_items-client.toml",
+      "size": 308,
+      "sha256": "2f292b837656aa6cebab884da65838e085e0bc387c8c44cda30dcded0174a718",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/2f292b837656aa6cebab884da65838e085e0bc387c8c44cda30dcded0174a718"
+    },
+    {
+      "path": "config/xray-client.toml",
+      "size": 611,
+      "sha256": "f7823af587a18b84fb255bba35468af2d6bf5226f64ba3884d1c499957764748",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/f7823af587a18b84fb255bba35468af2d6bf5226f64ba3884d1c499957764748"
+    },
+    {
+      "path": "config/xray/block_store.json",
+      "size": 1519,
+      "sha256": "1206aefaf7f243029e80b2f099838401f03693f322b09f568df295e9a6897e23",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/1206aefaf7f243029e80b2f099838401f03693f322b09f568df295e9a6897e23"
+    },
+    {
+      "path": "config/zillagersweararmor-client.toml",
+      "size": 183,
+      "sha256": "9b9014c57c5f1abf2f8fea7e46dfc31729a0972dbfc64cbeb44e739a0588d2b2",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/9b9014c57c5f1abf2f8fea7e46dfc31729a0972dbfc64cbeb44e739a0588d2b2"
+    },
+    {
+      "path": "config/zillagersweararmor-common.toml",
+      "size": 897,
+      "sha256": "647988a0852dd8dad7fabb00d7fdd2a470308a151bb58c6cc34554b267086aeb",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/647988a0852dd8dad7fabb00d7fdd2a470308a151bb58c6cc34554b267086aeb"
+    },
+    {
+      "path": "config/zylob-client.toml",
+      "size": 329,
+      "sha256": "c47a084b09fa6ef5b998b509961a912ef4424aaa3a00c82b9212957835783e68",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/c47a084b09fa6ef5b998b509961a912ef4424aaa3a00c82b9212957835783e68"
+    },
+    {
+      "path": "iammusicplayerrenewed/lavaplayer_natives/linux-x86-64/libconnector.so",
+      "size": 3350712,
+      "sha256": "7429b83f0c861d6e76d158426bdc9012ce00514ecee4274fefde2120c25b71a2",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/7429b83f0c861d6e76d158426bdc9012ce00514ecee4274fefde2120c25b71a2"
+    },
+    {
+      "path": "iammusicplayerrenewed/lavaplayer_natives/win-x86-64/connector.dll",
+      "size": 2411008,
+      "sha256": "eb5d3707fffe6c7f1a2528d7c5dffcce5579148d22b29ef02cbc5b2fd23f5673",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/eb5d3707fffe6c7f1a2528d7c5dffcce5579148d22b29ef02cbc5b2fd23f5673"
+    },
+    {
+      "path": "iammusicplayerrenewed/lavaplayer_natives/win-x86-64/libmpg123-0.dll",
+      "size": 338067,
+      "sha256": "8970c7f6be33fc78f7d48d8ff8568da779ab6cecb31e9485fb28f2cf58d9a727",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/8970c7f6be33fc78f7d48d8ff8568da779ab6cecb31e9485fb28f2cf58d9a727"
+    },
+    {
+      "path": "modernfix/structureCacheV1/create_easy_structures_camp_2_4e05777a54.nbt",
+      "size": 1205,
+      "sha256": "034708c5390c2379fd1f955858654ff819b356e866751566219753f9beb17184",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/034708c5390c2379fd1f955858654ff819b356e866751566219753f9beb17184"
+    },
+    {
+      "path": "modernfix/structureCacheV1/create_easy_structures_camp_4_93be7c4c17.nbt",
+      "size": 1422,
+      "sha256": "638665c60d8f96d842aa7be882d21dda66624b83002988fefcf0f087dcfd52c8",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/638665c60d8f96d842aa7be882d21dda66624b83002988fefcf0f087dcfd52c8"
+    },
+    {
+      "path": "modernfix/structureCacheV1/create_easy_structures_forest_tracks_651f502d85.nbt",
+      "size": 15316,
+      "sha256": "ecc31a4571b263231882ca5379c1806c93140c0b09e3f63b80cd584c59fbd8e1",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/ecc31a4571b263231882ca5379c1806c93140c0b09e3f63b80cd584c59fbd8e1"
+    },
+    {
+      "path": "modernfix/structureCacheV1/minecraft_village_desert_town_centers_well_1_6b542605c6.nbt",
+      "size": 1050,
+      "sha256": "e9b6314e8c5224fae59620a73acf9d8b26b826f5027d1429a00e8c35d20fe391",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/e9b6314e8c5224fae59620a73acf9d8b26b826f5027d1429a00e8c35d20fe391"
+    },
+    {
+      "path": "modernfix/structureCacheV1/minecraft_village_savanna_town_centers_well_1_183cd47abb.nbt",
+      "size": 1081,
+      "sha256": "d61f0bf314f10cc75b1feccf174465cb891e6013005f1472bc82398e7d8e1861",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/d61f0bf314f10cc75b1feccf174465cb891e6013005f1472bc82398e7d8e1861"
+    },
+    {
+      "path": "modernfix/structureCacheV1/mowziesmobs_wroughtnaut_chamber_cd6bf85741.nbt",
+      "size": 5636,
+      "sha256": "d183971b45021bb84dbc23cfc9d45db857d8996533d0360f4c114fd35ad4148e",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/d183971b45021bb84dbc23cfc9d45db857d8996533d0360f4c114fd35ad4148e"
+    },
+    {
+      "path": "mods/[1.20.1] SecurityCraft v1.9.12.jar",
+      "size": 4553681,
+      "sha256": "4f749406931e71b2d5cb005e8ccf795806d89e0dd4029724308e0cc72f3b5ae3",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/4f749406931e71b2d5cb005e8ccf795806d89e0dd4029724308e0cc72f3b5ae3"
+    },
+    {
+      "path": "mods/advanced-xray-forge-1.20.1-2.18.1-build.22.jar",
+      "size": 146862,
+      "sha256": "d8894b190024135b706fb228e5f29336afc877d701b1690ec8df470ab3f35f77",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/d8894b190024135b706fb228e5f29336afc877d701b1690ec8df470ab3f35f77"
+    },
+    {
+      "path": "mods/alltheleaks-0.0.2-beta+1.20.1-forge.jar",
+      "size": 464886,
+      "sha256": "1ac737e678b474c9f072a94865eab67649e456d0359e694c3af3af8938aa9fc9",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/1ac737e678b474c9f072a94865eab67649e456d0359e694c3af3af8938aa9fc9"
+    },
+    {
+      "path": "mods/AmbientSounds_FORGE_v6.1.4_mc1.20.1.jar",
+      "size": 83885724,
+      "sha256": "701e90966b207c6362daf4446cfac72eed550b7d9b16df3a5154e38615c55547",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/701e90966b207c6362daf4446cfac72eed550b7d9b16df3a5154e38615c55547"
+    },
+    {
+      "path": "mods/ApothicAttributes-1.20.1-1.3.7.jar",
+      "size": 227511,
+      "sha256": "68487b11c0d4e2f67a85f2b04bf65e99ac15294f2923f4391f83e9542293187a",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/68487b11c0d4e2f67a85f2b04bf65e99ac15294f2923f4391f83e9542293187a"
+    },
+    {
+      "path": "mods/appleskin-forge-mc1.20.1-2.5.1.jar",
+      "size": 47428,
+      "sha256": "e12419e43e3babc810af289403c5cd96bd7f09809b389acc6bb2f122b4b2a426",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/e12419e43e3babc810af289403c5cd96bd7f09809b389acc6bb2f122b4b2a426"
+    },
+    {
+      "path": "mods/architectury-9.2.14-forge.jar",
+      "size": 580602,
+      "sha256": "218b471d0b8a1f6cda14cfc1beb9eeb0df54304500acc6c5613d9b88ec65d9af",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/218b471d0b8a1f6cda14cfc1beb9eeb0df54304500acc6c5613d9b88ec65d9af"
+    },
+    {
+      "path": "mods/Aurora's-Arsenal-1.0.0-1.20.1.jar",
+      "size": 1585834,
+      "sha256": "56a69011206e49527f6c8357f49d581a54bee4f3c8bd43e1ee5f7fce9323882b",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/56a69011206e49527f6c8357f49d581a54bee4f3c8bd43e1ee5f7fce9323882b"
+    },
+    {
+      "path": "mods/BadMobs-1.20.1-19.0.4.jar",
+      "size": 10425,
+      "sha256": "b36e64f510404c0984d7d5358e6e99937516d0eeab3ec534eaa638c8b29dfd85",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/b36e64f510404c0984d7d5358e6e99937516d0eeab3ec534eaa638c8b29dfd85"
+    },
+    {
+      "path": "mods/bagus_lib-1.20.1-5.6.1.jar",
+      "size": 185510,
+      "sha256": "aeca001b9692235beb2a7c46cb110d55fc9ada0dbc8acff61dfa2f9e39158ffb",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/aeca001b9692235beb2a7c46cb110d55fc9ada0dbc8acff61dfa2f9e39158ffb"
+    },
+    {
+      "path": "mods/BagusMob-1.20.1-4.0.2.jar",
+      "size": 410510,
+      "sha256": "61e1935f50444cb8592ca0f79ccb1dddbf722a1527c62db31795dbd80630ab77",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/61e1935f50444cb8592ca0f79ccb1dddbf722a1527c62db31795dbd80630ab77"
+    },
+    {
+      "path": "mods/BetterClouds-1.1.jar",
+      "size": 416098,
+      "sha256": "791c7ae54521423e70d8c69a686184b2d2bf8fab76284a494d9c5670db817397",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/791c7ae54521423e70d8c69a686184b2d2bf8fab76284a494d9c5670db817397"
+    },
+    {
+      "path": "mods/bettercombat-forge-1.9.0+1.20.1.jar",
+      "size": 1054339,
+      "sha256": "49c69dccf2c641246b4e3deca81ebac21f0ee119e81fc713b838b8e33569eea1",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/49c69dccf2c641246b4e3deca81ebac21f0ee119e81fc713b838b8e33569eea1"
+    },
+    {
+      "path": "mods/BetterPingDisplay-1.20.1-1.1.jar",
+      "size": 15889,
+      "sha256": "055e30e18e836f41879093e9e60842019d529a0205a6fa0c05e607a3cc9815db",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/055e30e18e836f41879093e9e60842019d529a0205a6fa0c05e607a3cc9815db"
+    },
+    {
+      "path": "mods/Bookshelf-Forge-1.20.1-20.2.15.jar",
+      "size": 343925,
+      "sha256": "7980d4a0beed1dcd2c283cf65f3c93f6b0085833f3ac490014979c95f1dfaf67",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/7980d4a0beed1dcd2c283cf65f3c93f6b0085833f3ac490014979c95f1dfaf67"
+    },
+    {
+      "path": "mods/Brutality-TERMINADITO.jar",
+      "size": 42771314,
+      "sha256": "59e0b9e84efda460f1c12b484629986babd037117235a55ad939acc3eb9be9bc",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/59e0b9e84efda460f1c12b484629986babd037117235a55ad939acc3eb9be9bc"
+    },
+    {
+      "path": "mods/caelus-forge-3.2.0+1.20.1.jar",
+      "size": 40125,
+      "sha256": "37495445e79df8b30a3a038a0051f3c8aa8447f91a9d0aa0d20baef69dda9368",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/37495445e79df8b30a3a038a0051f3c8aa8447f91a9d0aa0d20baef69dda9368"
+    },
+    {
+      "path": "mods/canary-mc1.20.1-0.3.3.jar",
+      "size": 594191,
+      "sha256": "51f6d78dd6c7874657e5757fd2f5d780aa3cd415052ad071077b8894c6430942",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/51f6d78dd6c7874657e5757fd2f5d780aa3cd415052ad071077b8894c6430942"
+    },
+    {
+      "path": "mods/celestisynth-1.20.1-1.3.3-all.jar",
+      "size": 2664846,
+      "sha256": "d6b561504d27c42801fcef1bac86dc7486034ed54a04d33f502bd3826bba84e6",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/d6b561504d27c42801fcef1bac86dc7486034ed54a04d33f502bd3826bba84e6"
+    },
+    {
+      "path": "mods/CerbonsAPI-Forge-1.20.1-1.1.0.jar",
+      "size": 241148,
+      "sha256": "54a0a20da56ab1af2d0d7f5cf1133c059a7523485d567521084f822e81505dfb",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/54a0a20da56ab1af2d0d7f5cf1133c059a7523485d567521084f822e81505dfb"
+    },
+    {
+      "path": "mods/chat_heads-0.15.3-forge-1.20.jar",
+      "size": 722325,
+      "sha256": "a6690085e43aab04f3f6fa758f4d32d79b7617d16e502c3ffdd640bc518755aa",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/a6690085e43aab04f3f6fa758f4d32d79b7617d16e502c3ffdd640bc518755aa"
+    },
+    {
+      "path": "mods/citadel-2.6.0-1.20.1.jar",
+      "size": 3173174,
+      "sha256": "549596de295d90a84ee70625076087a9724dabca1de0567ef6ef03435aab7d5d",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/549596de295d90a84ee70625076087a9724dabca1de0567ef6ef03435aab7d5d"
+    },
+    {
+      "path": "mods/clientsort-forge-2.2.2+1.20.1.jar",
+      "size": 944538,
+      "sha256": "5b355cd62843d471082d605f7347cfdf6ab987435a628923ba5925e43dc25a65",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/5b355cd62843d471082d605f7347cfdf6ab987435a628923ba5925e43dc25a65"
+    },
+    {
+      "path": "mods/cloth-config-11.1.136-forge.jar",
+      "size": 1181413,
+      "sha256": "1e895e85cf5b1e1905ef3178ec155c8badfe22a1577b92c09143a5aa1f4ce0f2",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/1e895e85cf5b1e1905ef3178ec155c8badfe22a1577b92c09143a5aa1f4ce0f2"
+    },
+    {
+      "path": "mods/CombatEvolution-2.2.8.jar",
+      "size": 2763367,
+      "sha256": "a95035b00f49a4defd935df6db5847377f2183a3e36d738075ec0a5de8fde9e0",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/a95035b00f49a4defd935df6db5847377f2183a3e36d738075ec0a5de8fde9e0"
+    },
+    {
+      "path": "mods/Controlling-forge-1.20.1-12.0.2.jar",
+      "size": 115280,
+      "sha256": "cff8c3426a77f9e7412262b6d79e423979eff3831e010b3b1ea9677e1ecd74cd",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/cff8c3426a77f9e7412262b6d79e423979eff3831e010b3b1ea9677e1ecd74cd"
+    },
+    {
+      "path": "mods/copyl-3.3.0.jar",
+      "size": 43375,
+      "sha256": "b1c2bf9ebd32c259442f1abb30b658daff8c4b5d09decef3c73342a77373741b",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/b1c2bf9ebd32c259442f1abb30b658daff8c4b5d09decef3c73342a77373741b"
+    },
+    {
+      "path": "mods/create_botanic_-0.2-forge-1.20.1.jar",
+      "size": 473508,
+      "sha256": "b8303eaa03edc0b86034505d61452a2cee168ba56af8b3c8db969d2cce9dfb3b",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/b8303eaa03edc0b86034505d61452a2cee168ba56af8b3c8db969d2cce9dfb3b"
+    },
+    {
+      "path": "mods/create_enhanced- Forge 1.20.1-132.34.jar",
+      "size": 1779473,
+      "sha256": "8d8bc952fc59a36092e90572b21877a174e93c3cb837befcbb17560af00ca181",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/8d8bc952fc59a36092e90572b21877a174e93c3cb837befcbb17560af00ca181"
+    },
+    {
+      "path": "mods/create-1.20.1-0.5.1.j.jar",
+      "size": 15583566,
+      "sha256": "a18763be04f6a7921d2e3bc5e9150b0bb5bc89b5ef45a607e93939972021f932",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/a18763be04f6a7921d2e3bc5e9150b0bb5bc89b5ef45a607e93939972021f932"
+    },
+    {
+      "path": "mods/CreativeCore_FORGE_v2.12.32_mc1.20.1.jar",
+      "size": 1158417,
+      "sha256": "3d2271f7d9d2e32fca46d19f3b6ab4372d30e0ea3eb26c809c23366e8d503e16",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/3d2271f7d9d2e32fca46d19f3b6ab4372d30e0ea3eb26c809c23366e8d503e16"
+    },
+    {
+      "path": "mods/curios-forge-5.14.1+1.20.1.jar",
+      "size": 398066,
+      "sha256": "1e817919a35b37cf30524aaec73f0ca5130452f23f168f844854df282eb8e51f",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/1e817919a35b37cf30524aaec73f0ca5130452f23f168f844854df282eb8e51f"
+    },
+    {
+      "path": "mods/CurioSlot.jar",
+      "size": 489720,
+      "sha256": "99035d46500d104f0cd24f523de6bdb15c291b49aee45fb28d63fd17c91ec9c6",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/99035d46500d104f0cd24f523de6bdb15c291b49aee45fb28d63fd17c91ec9c6"
+    },
+    {
+      "path": "mods/dancables1.20.1_1.0.jar",
+      "size": 1770383,
+      "sha256": "c77211d6f289df6688ea3ac321206e041d596eaacf616611fcc46298a9ec9d26",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/c77211d6f289df6688ea3ac321206e041d596eaacf616611fcc46298a9ec9d26"
+    },
+    {
+      "path": "mods/Darkesthours-8.0.jar",
+      "size": 84879290,
+      "sha256": "08c9abe357b74d87fb1f85932cedd34ce557d41b0346bbb8f6fa4b1f2c0109e6",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/08c9abe357b74d87fb1f85932cedd34ce557d41b0346bbb8f6fa4b1f2c0109e6"
+    },
+    {
+      "path": "mods/dynamic-fps-3.11.4+minecraft-1.20.0-forge.jar",
+      "size": 402345,
+      "sha256": "b0ecdf3a0619208441062ceeebce79256223ac4e341844a09a6859170d671920",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/b0ecdf3a0619208441062ceeebce79256223ac4e341844a09a6859170d671920"
+    },
+    {
+      "path": "mods/embeddium-0.3.31+mc1.20.1.jar",
+      "size": 1320675,
+      "sha256": "eed3d1325f2acc2fd4e69bb495e5ccb91d962126ac5330f0582ebc2a3daf47fb",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/eed3d1325f2acc2fd4e69bb495e5ccb91d962126ac5330f0582ebc2a3daf47fb"
+    },
+    {
+      "path": "mods/EnchantmentDescriptions-Forge-1.20.1-17.1.21.jar",
+      "size": 66883,
+      "sha256": "909d1941d4ef6e4b7336738ee31380d6e1117c3c22feb70b64fed47f1cba2b07",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/909d1941d4ef6e4b7336738ee31380d6e1117c3c22feb70b64fed47f1cba2b07"
+    },
+    {
+      "path": "mods/enhancedai-2.6.8.jar",
+      "size": 1212915,
+      "sha256": "5d76aee1fb0a7ddf256c8eb4126674b634375fb61653e8097e94a6aa25f99617",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/5d76aee1fb0a7ddf256c8eb4126674b634375fb61653e8097e94a6aa25f99617"
+    },
+    {
+      "path": "mods/entityculling-forge-1.10.1-mc1.20.1.jar",
+      "size": 1583021,
+      "sha256": "1231bb17e3db1a7d4e98800bb070ec1e7e7c016b934e1eb11c1cc63d11d0aa2d",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/1231bb17e3db1a7d4e98800bb070ec1e7e7c016b934e1eb11c1cc63d11d0aa2d"
+    },
+    {
+      "path": "mods/epic-fight-20.14.16-mc1.20.1-forge.jar",
+      "size": 8196866,
+      "sha256": "1022dbb16f5a1b6fd1909fddbad78b0db6c0b3ee95c45ba7d4520b62af079c2f",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/1022dbb16f5a1b6fd1909fddbad78b0db6c0b3ee95c45ba7d4520b62af079c2f"
+    },
+    {
+      "path": "mods/farsighted-mobs-forge-1.1-1.20.1.jar",
+      "size": 12335,
+      "sha256": "792ea152d7c061de4c0fa3f6df87c284b65bd408905357c89850392878af7e88",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/792ea152d7c061de4c0fa3f6df87c284b65bd408905357c89850392878af7e88"
+    },
+    {
+      "path": "mods/fastplace-1.0.1.jar",
+      "size": 5843,
+      "sha256": "9563d6c2c8d18d4808460451cfc6b404f1e1e7ff17131403f198965a2af33ca0",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/9563d6c2c8d18d4808460451cfc6b404f1e1e7ff17131403f198965a2af33ca0"
+    },
+    {
+      "path": "mods/Fastquit-3.0.1+1.20.1forge.jar",
+      "size": 316223,
+      "sha256": "bd427354b03d92606062844ddf3ba1543711fbe68d4e68c7371cef9e1121f814",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/bd427354b03d92606062844ddf3ba1543711fbe68d4e68c7371cef9e1121f814"
+    },
+    {
+      "path": "mods/ferritecore-6.0.1-forge.jar",
+      "size": 123034,
+      "sha256": "9c2c9396a49e796d88497758caa4637d2bcbb433c318e2dd9cebcffbaf0f6c54",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/9c2c9396a49e796d88497758caa4637d2bcbb433c318e2dd9cebcffbaf0f6c54"
+    },
+    {
+      "path": "mods/FpsReducer2-forge-1.20.1-2.5.1.jar",
+      "size": 125660,
+      "sha256": "997f034210e0fca20fa5a0e6ddd370c5444854fc97e69910161104160cea41ce",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/997f034210e0fca20fa5a0e6ddd370c5444854fc97e69910161104160cea41ce"
+    },
+    {
+      "path": "mods/fracturepoint-1.20.1-3.0.0-PT2-all.jar",
+      "size": 2465304,
+      "sha256": "0ec243efe680c4fb5303fb91620ecf68bf7232752f52af525641e07aec1b01f9",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/0ec243efe680c4fb5303fb91620ecf68bf7232752f52af525641e07aec1b01f9"
+    },
+    {
+      "path": "mods/framework-forge-1.20.1-0.7.15.jar",
+      "size": 309560,
+      "sha256": "0c29b9bab2ca7209a6cc8d80b2cd06daa4be2da81b636f7292cebebfaaea6c08",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/0c29b9bab2ca7209a6cc8d80b2cd06daa4be2da81b636f7292cebebfaaea6c08"
+    },
+    {
+      "path": "mods/geckolib-forge-1.20.1-4.8.4.jar",
+      "size": 1038209,
+      "sha256": "c04abba4fd354dd8c0e8a732f1f05f4dca893d2e1d962b2ab128bbd411478747",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/c04abba4fd354dd8c0e8a732f1f05f4dca893d2e1d962b2ab128bbd411478747"
+    },
+    {
+      "path": "mods/gpumemleakfix-1.20.1-1.8.jar",
+      "size": 7997,
+      "sha256": "a7019442f1b07b1a4a875fe404d04d162905cc7fd42e0b3c843aefc7b39efc46",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/a7019442f1b07b1a4a875fe404d04d162905cc7fd42e0b3c843aefc7b39efc46"
+    },
+    {
+      "path": "mods/illageandspillageNEWRELEASE.jar",
+      "size": 33593278,
+      "sha256": "dc47d6a57cef74ff13ae4f8ca546c4fbae93b7377eb4ab5f9e5f4e61c1e0c5f3",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/dc47d6a57cef74ff13ae4f8ca546c4fbae93b7377eb4ab5f9e5f4e61c1e0c5f3"
+    },
+    {
+      "path": "mods/illager_additions-1.20.1-0.1.0-beta.jar",
+      "size": 1056265,
+      "sha256": "3f39a4713958a5e588102899041df94c9090be61b78e3d5a558c99ece469f393",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/3f39a4713958a5e588102899041df94c9090be61b78e3d5a558c99ece469f393"
+    },
+    {
+      "path": "mods/illagerstructures-forge-1.20.1-0.0.2.jar",
+      "size": 1358264,
+      "sha256": "919dbad017011e3a2ea3e11ec29b19174a776bff5ef974119b71bda5bfbcefb9",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/919dbad017011e3a2ea3e11ec29b19174a776bff5ef974119b71bda5bfbcefb9"
+    },
+    {
+      "path": "mods/illagersweararmor-1.20.1-1.5.0.jar",
+      "size": 46477,
+      "sha256": "7e912c2d472c263ce0b0742439b009177cbac63eba0df1887013af9a4c60432c",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/7e912c2d472c263ce0b0742439b009177cbac63eba0df1887013af9a4c60432c"
+    },
+    {
+      "path": "mods/ImmediatelyFast-Forge-1.5.5+1.20.4.jar",
+      "size": 532063,
+      "sha256": "82db19cc65b5c11a444498fb4b8cbcb0393c043e794cb5bf368631a0af765035",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/82db19cc65b5c11a444498fb4b8cbcb0393c043e794cb5bf368631a0af765035"
+    },
+    {
+      "path": "mods/IMPR-Forge-3_485_10-1.20.1.jar",
+      "size": 10190584,
+      "sha256": "6f527d914e1a1fffa9649eba78cfa155f5d6281fbb8a465c87b1640f2fc28f31",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/6f527d914e1a1fffa9649eba78cfa155f5d6281fbb8a465c87b1640f2fc28f31"
+    },
+    {
+      "path": "mods/insanelib-1.21.3.jar",
+      "size": 340525,
+      "sha256": "c7bceca33177f49838926ced2c7aefae30b9209fee30d2d5b89c861ae1936488",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/c7bceca33177f49838926ced2c7aefae30b9209fee30d2d5b89c861ae1936488"
+    },
+    {
+      "path": "mods/InvMove-0.9.0+1.20.1-Forge.jar",
+      "size": 312084,
+      "sha256": "cb2ebdfd8e70b959ae0b63f6e327496b5a94c5ef96a9bfc2996e8bcc5e4e2c07",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/cb2ebdfd8e70b959ae0b63f6e327496b5a94c5ef96a9bfc2996e8bcc5e4e2c07"
+    },
+    {
+      "path": "mods/irons_lib-1.20.1-2.1.0.jar",
+      "size": 428969,
+      "sha256": "db4c7cc853c0ffb1d36a0f19af22c224a8608b2a55c747adc70fb44455baf097",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/db4c7cc853c0ffb1d36a0f19af22c224a8608b2a55c747adc70fb44455baf097"
+    },
+    {
+      "path": "mods/Item-Obliterator-NeoForge-MC1.20.1-2.3.1 (1).jar",
+      "size": 22930,
+      "sha256": "a0de109d3405fbf4290e10df4f812eadd5125debb16ea7e9d908acbbabcb516b",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/a0de109d3405fbf4290e10df4f812eadd5125debb16ea7e9d908acbbabcb516b"
+    },
+    {
+      "path": "mods/Jade-1.20.1-Forge-11.12.3.jar",
+      "size": 547769,
+      "sha256": "c8fc883acd8a7b1a10cad75dd06529d2bedec8c4efe1e64ce279126120c792cc",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/c8fc883acd8a7b1a10cad75dd06529d2bedec8c4efe1e64ce279126120c792cc"
+    },
+    {
+      "path": "mods/jei-1.20.1-forge-15.20.0.112.jar",
+      "size": 1385600,
+      "sha256": "2d3a86f503dbde51afa5142951525c37e227016ce8d9e7dfd10bbdd9233f0204",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/2d3a86f503dbde51afa5142951525c37e227016ce8d9e7dfd10bbdd9233f0204"
+    },
+    {
+      "path": "mods/journeymap-1.20.1-5.10.3-forge.jar",
+      "size": 7160405,
+      "sha256": "8b2679b7b4881e0aa430fd24345ea446de919faf8a45bd2a71d37c7e8ff6ae1e",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/8b2679b7b4881e0aa430fd24345ea446de919faf8a45bd2a71d37c7e8ff6ae1e"
+    },
+    {
+      "path": "mods/JustEnoughGuns-0.13.1-1.20.1.jar",
+      "size": 9752625,
+      "sha256": "cca6517009d614080e3aeab81a2748649ed40dfd3f156fed11bfab8b9bd12d1e",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/cca6517009d614080e3aeab81a2748649ed40dfd3f156fed11bfab8b9bd12d1e"
+    },
+    {
+      "path": "mods/kogtyv-TownyAndVillage-1.4-Forge-1.20.jar",
+      "size": 6031637,
+      "sha256": "5f1d485ef1ab44903f7ed239504229c3ec2f244abd1985c78c04a9e2a369fc4f",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/5f1d485ef1ab44903f7ed239504229c3ec2f244abd1985c78c04a9e2a369fc4f"
+    },
+    {
+      "path": "mods/kotlinforforge-4.11.0-all.jar",
+      "size": 7193768,
+      "sha256": "ef988f86d170af499d147ea8a5c34c99dbd6d8f4a5ad236a4b43818dc4470a10",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/ef988f86d170af499d147ea8a5c34c99dbd6d8f4a5ad236a4b43818dc4470a10"
+    },
+    {
+      "path": "mods/ldlib-forge-1.20.1-1.0.52.a.jar",
+      "size": 3125867,
+      "sha256": "a9b0827d264e0d15f90482de0d4783a28fc2dad9dfb477f344dc5e959168838d",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/a9b0827d264e0d15f90482de0d4783a28fc2dad9dfb477f344dc5e959168838d"
+    },
+    {
+      "path": "mods/lethality_0.4.0_1.20.1.jar",
+      "size": 3538368,
+      "sha256": "863357f292e19deccd2f9b0b174f9c878f3a59ddffcec56337156718a5785c49",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/863357f292e19deccd2f9b0b174f9c878f3a59ddffcec56337156718a5785c49"
+    },
+    {
+      "path": "mods/locker_mod.jar",
+      "size": 341503,
+      "sha256": "b49247a79f1defb963021a85e6dea986a4f0a31287242b5115a46597bb444f4a",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/b49247a79f1defb963021a85e6dea986a4f0a31287242b5115a46597bb444f4a"
+    },
+    {
+      "path": "mods/lrarmor-1.20.1-0.1.4.4.jar",
+      "size": 887220,
+      "sha256": "cae5f556c1722de1b1cc3ff112eef9cd6054fdc16e77d879eaabadb6bf0a1670",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/cae5f556c1722de1b1cc3ff112eef9cd6054fdc16e77d879eaabadb6bf0a1670"
+    },
+    {
+      "path": "mods/M'TEG-1.1.2-1.20.1.jar",
+      "size": 2010086,
+      "sha256": "b3af157b829fb79fd33f4228f7eb063ca78c2f6a0c269e98bb581bb42a975a67",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/b3af157b829fb79fd33f4228f7eb063ca78c2f6a0c269e98bb581bb42a975a67"
+    },
+    {
+      "path": "mods/magicevolved-1.20.1-ver9patch1.jar",
+      "size": 134213544,
+      "sha256": "f2f0e01451cf79a02952cdd56d0f7359693347d23fd3b77dd0dc27dd643e229b",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/f2f0e01451cf79a02952cdd56d0f7359693347d23fd3b77dd0dc27dd643e229b"
+    },
+    {
+      "path": "mods/MCreatorMemFix-1.0.4.jar",
+      "size": 230374,
+      "sha256": "3eb2bab5ac5a8b451623918a589b5dd6e60909764b76ac521a69790eb6062088",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/3eb2bab5ac5a8b451623918a589b5dd6e60909764b76ac521a69790eb6062088"
+    },
+    {
+      "path": "mods/memguard-1.0.3.jar",
+      "size": 9130,
+      "sha256": "410eaf38597777f84f2f4d65fb944e9e76d49e323da54325eefa8f66f53b32d9",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/410eaf38597777f84f2f4d65fb944e9e76d49e323da54325eefa8f66f53b32d9"
+    },
+    {
+      "path": "mods/mobbattle-1.20.1-2.5.3-forge.jar",
+      "size": 519518,
+      "sha256": "15d25638577b28871c40d02dee61a5f6dae2761cc4c68ff332865f8388801556",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/15d25638577b28871c40d02dee61a5f6dae2761cc4c68ff332865f8388801556"
+    },
+    {
+      "path": "mods/modernfix-forge-5.19.7+mc1.20.1.jar",
+      "size": 779424,
+      "sha256": "fdbd1b6c161b37d493c708fbbd23ced4217d512545980e9ab06ae1f303e03a45",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/fdbd1b6c161b37d493c708fbbd23ced4217d512545980e9ab06ae1f303e03a45"
+    },
+    {
+      "path": "mods/MouseTweaks-forge-mc1.20.1-2.25.1.jar",
+      "size": 76237,
+      "sha256": "6c27d16aa715ac6613a55fc463739e2c7b78279e4e4c4cede299e4a2d4a70f08",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/6c27d16aa715ac6613a55fc463739e2c7b78279e4e4c4cede299e4a2d4a70f08"
+    },
+    {
+      "path": "mods/mrqxs_Slashblade_Core-1.20.1-1.4.1.jar",
+      "size": 1097328,
+      "sha256": "b98299b01ade077d06436f2d8794b9c63b1eca9d1a334a49c0571cf69bc028ba",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/b98299b01ade077d06436f2d8794b9c63b1eca9d1a334a49c0571cf69bc028ba"
+    },
+    {
+      "path": "mods/mteg-lib_1.20.1.jar",
+      "size": 3605082,
+      "sha256": "36566d9cec0decc76884616bf7934b153ce6f463168a8cc9a1ac51873300c554",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/36566d9cec0decc76884616bf7934b153ce6f463168a8cc9a1ac51873300c554"
+    },
+    {
+      "path": "mods/NaN_fixer-1.0.1.jar",
+      "size": 5086,
+      "sha256": "ded54029203f0bf5f6564216ff76052b46970dd9c583080566c9e0f33cddf11f",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/ded54029203f0bf5f6564216ff76052b46970dd9c583080566c9e0f33cddf11f"
+    },
+    {
+      "path": "mods/Necronomicon-Forge-1.6.0+1.20.1.jar",
+      "size": 33251,
+      "sha256": "403b23457288c624a55feb90d5e813c88c23a611bc42cda397c4bfac94b4c3a3",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/403b23457288c624a55feb90d5e813c88c23a611bc42cda397c4bfac94b4c3a3"
+    },
+    {
+      "path": "mods/NexusLayer-1.1.4.jar",
+      "size": 656026,
+      "sha256": "a60be992445036f469597e032fdf5992d892cf432e10c6a5219695e79a9b59c6",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/a60be992445036f469597e032fdf5992d892cf432e10c6a5219695e79a9b59c6"
+    },
+    {
+      "path": "mods/notenoughcrashes-4.4.9+1.20.1-forge.jar",
+      "size": 134885,
+      "sha256": "e944656f2671b87d52af9756c48bcfb5b90956bef1a40bf1b5fcae731a367518",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/e944656f2671b87d52af9756c48bcfb5b90956bef1a40bf1b5fcae731a367518"
+    },
+    {
+      "path": "mods/OctoLib-FORGE-0.5.0.1+1.20.1.jar",
+      "size": 424035,
+      "sha256": "5bb146c691f2c5054752f006a61aab6335ecb1cd9718a9643733de5367971047",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/5bb146c691f2c5054752f006a61aab6335ecb1cd9718a9643733de5367971047"
+    },
+    {
+      "path": "mods/offlineskins-1.20.1-v1.jar",
+      "size": 93967,
+      "sha256": "ac4eb2a373b83a0383cd89e5dbb763f61776415ccb6371ec168365a8ea1bcddf",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/ac4eb2a373b83a0383cd89e5dbb763f61776415ccb6371ec168365a8ea1bcddf"
+    },
+    {
+      "path": "mods/otyacraftengine-forge-mc1.20.1-3.7.0-1.20.1.jar",
+      "size": 649724,
+      "sha256": "a7c86f15c909cc728b2e7986dc697f3aa89def7ea2cd01134981ebf0c750a6b8",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/a7c86f15c909cc728b2e7986dc697f3aa89def7ea2cd01134981ebf0c750a6b8"
+    },
+    {
+      "path": "mods/packetfixer-3.3.1-1.18-1.20.4-merged.jar",
+      "size": 188673,
+      "sha256": "4f641e4e204315a55b3f5a33e3039076ba08c95b68ac9280ea0081fb27470c13",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/4f641e4e204315a55b3f5a33e3039076ba08c95b68ac9280ea0081fb27470c13"
+    },
+    {
+      "path": "mods/Patchouli-1.20.1-85-FORGE.jar",
+      "size": 642732,
+      "sha256": "05f7b5d52f6b8f0fd7f8b4822fa07a192d1394d83a264309c9d221d6d4fd21c5",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/05f7b5d52f6b8f0fd7f8b4822fa07a192d1394d83a264309c9d221d6d4fd21c5"
+    },
+    {
+      "path": "mods/Pehkui-3.8.2+1.20.1-forge.jar",
+      "size": 671605,
+      "sha256": "54210f454c166f65a1bcbbfe4ea52e6f73e07844a793c7132f1af4076a0f42fc",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/54210f454c166f65a1bcbbfe4ea52e6f73e07844a793c7132f1af4076a0f42fc"
+    },
+    {
+      "path": "mods/photon-forge-1.20.1-1.1.17.jar",
+      "size": 5078005,
+      "sha256": "3bd09a759744e9e3b3e7315eaafa9dcd27945ef13331148e8b8169950560e5fb",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/3bd09a759744e9e3b3e7315eaafa9dcd27945ef13331148e8b8169950560e5fb"
+    },
+    {
+      "path": "mods/Placebo-1.20.1-8.6.2.jar",
+      "size": 285351,
+      "sha256": "1fcacfb17c4f5f3880d99a1bf29c76bc2d6bf6ed6e02ca8051a3b6eee4c99c5a",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/1fcacfb17c4f5f3880d99a1bf29c76bc2d6bf6ed6e02ca8051a3b6eee4c99c5a"
+    },
+    {
+      "path": "mods/player-animation-lib-forge-1.0.2-rc1+1.20.jar",
+      "size": 181437,
+      "sha256": "90d9965cb9efdbda29fdc5610be3914cf7008bf5c392ff34f7ab25f96a852691",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/90d9965cb9efdbda29fdc5610be3914cf7008bf5c392ff34f7ab25f96a852691"
+    },
+    {
+      "path": "mods/PlayerRevive_FORGE_v2.0.31_mc1.20.1.jar",
+      "size": 5298162,
+      "sha256": "beeb560232c8ee691ea446d53194358902eed8ed38d198515906ac724bdde1fb",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/beeb560232c8ee691ea446d53194358902eed8ed38d198515906ac724bdde1fb"
+    },
+    {
+      "path": "mods/pyro_and_twins-1.0.0.jar",
+      "size": 582108,
+      "sha256": "db7e33acc00e3dd8f02c5ad7ec74126c81cc8e0fb689658095ee60106278375d",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/db7e33acc00e3dd8f02c5ad7ec74126c81cc8e0fb689658095ee60106278375d"
+    },
+    {
+      "path": "mods/relics-1.20.1-0.8.0.9.jar",
+      "size": 1520280,
+      "sha256": "03ed32063a3be26f8c58ae9e9645016ecdc659569f8b1efd5f5bf54fa8444352",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/03ed32063a3be26f8c58ae9e9645016ecdc659569f8b1efd5f5bf54fa8444352"
+    },
+    {
+      "path": "mods/saturn-mc1.20.1-0.1.3.jar",
+      "size": 92319,
+      "sha256": "7e6dcc7c2b0db19ec2f965fac91a49e13dcc611f2d86f6bb56d7d68da901aaf8",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/7e6dcc7c2b0db19ec2f965fac91a49e13dcc611f2d86f6bb56d7d68da901aaf8"
+    },
+    {
+      "path": "mods/ScalingHealth-1.20.1-8.0.2+9.jar",
+      "size": 535471,
+      "sha256": "6639d197f36d43973526f4832b24b1a2feaba4c9576bfc208a62de8cb0743481",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/6639d197f36d43973526f4832b24b1a2feaba4c9576bfc208a62de8cb0743481"
+    },
+    {
+      "path": "mods/screenlib-forge-1.20.1-1.1.0-beta.2.jar",
+      "size": 1626869,
+      "sha256": "a54e337cd4879c410aa67a4bfb4d158268880dec49f11ee14ca61971c6a35107",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/a54e337cd4879c410aa67a4bfb4d158268880dec49f11ee14ca61971c6a35107"
+    },
+    {
+      "path": "mods/Searchables-forge-1.20.1-1.0.3.jar",
+      "size": 77732,
+      "sha256": "461add180eb595004d3c9f5ac0ce337752e403077f96b38304800eadf01fb825",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/461add180eb595004d3c9f5ac0ce337752e403077f96b38304800eadf01fb825"
+    },
+    {
+      "path": "mods/Sexo-lanuevaseriequesalioennetflixesunamierda.jar",
+      "size": 6264353,
+      "sha256": "384a314824890a5aacbc80094ef12dcfb8c8fb982738ea8352a275846b8330d9",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/384a314824890a5aacbc80094ef12dcfb8c8fb982738ea8352a275846b8330d9"
+    },
+    {
+      "path": "mods/ShoulderSurfing-Forge-1.20.1-4.6.3.jar",
+      "size": 246698,
+      "sha256": "123d0f130fb2306eba02992ed4b6e62fba605dbade7f55c1955e0b5df6a1b1b8",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/123d0f130fb2306eba02992ed4b6e62fba605dbade7f55c1955e0b5df6a1b1b8"
+    },
+    {
+      "path": "mods/SIEGE-5.30.0.jar",
+      "size": 105173150,
+      "sha256": "0de7f4fd7620e6bd405922964fd481b288885f41157cbbe9cd5b8bf1f22a0c4b",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/0de7f4fd7620e6bd405922964fd481b288885f41157cbbe9cd5b8bf1f22a0c4b"
+    },
+    {
+      "path": "mods/silent-lib-1.20.1-8.0.0.jar",
+      "size": 225949,
+      "sha256": "9ca45fb6d723474d145227bed27dd1791cca30ac96fd8f05084417b0779e0e01",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/9ca45fb6d723474d145227bed27dd1791cca30ac96fd8f05084417b0779e0e01"
+    },
+    {
+      "path": "mods/SimpleLogin-1.20.1-1.0.2-all.jar",
+      "size": 99700,
+      "sha256": "1e923563c4d85793ef59849114c0a7c51ba1e1446e1976eeedb58acb81f52b44",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/1e923563c4d85793ef59849114c0a7c51ba1e1446e1976eeedb58acb81f52b44"
+    },
+    {
+      "path": "mods/skinlayers3d-forge-1.11.2-mc1.20.1.jar",
+      "size": 2168901,
+      "sha256": "2d35eff3e2642e8a6f7fb4cc7461211699ee2e32b9644e0d3b3bd6ba1574551c",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/2d35eff3e2642e8a6f7fb4cc7461211699ee2e32b9644e0d3b3bd6ba1574551c"
+    },
+    {
+      "path": "mods/SlashBladeResharped-1.20.1-1.9.65.jar",
+      "size": 3852898,
+      "sha256": "2a6eb8d2ead295cb3838b551b9f3cf0e81de97966dbc91b84cf2c7589f3a4361",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/2a6eb8d2ead295cb3838b551b9f3cf0e81de97966dbc91b84cf2c7589f3a4361"
+    },
+    {
+      "path": "mods/SmartBrainLib-forge-1.20.1-1.15.jar",
+      "size": 362338,
+      "sha256": "665f65f77cc36379a9ae11c09db5d9efa1ad4f8d017edc8f65903ff27cacdb1d",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/665f65f77cc36379a9ae11c09db5d9efa1ad4f8d017edc8f65903ff27cacdb1d"
+    },
+    {
+      "path": "mods/smoothboot(reloaded)-mc1.20.1-0.0.4.jar",
+      "size": 41044,
+      "sha256": "5a0d2682493ffa7b140a7b81f0d1e70c7536c97969397cf9e718e31391b5b9d5",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/5a0d2682493ffa7b140a7b81f0d1e70c7536c97969397cf9e718e31391b5b9d5"
+    },
+    {
+      "path": "mods/sophisticatedbackpacks-1.20.1-3.23.23.1289.jar",
+      "size": 930761,
+      "sha256": "a611a7c1d0d8e8d0d4705da8097c94d5767bd2ce21f74352b29222202e03d1a5",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/a611a7c1d0d8e8d0d4705da8097c94d5767bd2ce21f74352b29222202e03d1a5"
+    },
+    {
+      "path": "mods/sophisticatedcore-1.20.1-1.2.78.1059.jar",
+      "size": 1338184,
+      "sha256": "e351fe882d764106130644c92980bcfc2f5ede863f99acfb6b2587fabcd8031a",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/e351fe882d764106130644c92980bcfc2f5ede863f99acfb6b2587fabcd8031a"
+    },
+    {
+      "path": "mods/spark-2.3.2-1.20.1-forge.jar",
+      "size": 246641,
+      "sha256": "3f7bdb2bb665968f6d3a6ffa6bc1d782145e6e6a1f0d74a11e8530cb98368e50",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/3f7bdb2bb665968f6d3a6ffa6bc1d782145e6e6a1f0d74a11e8530cb98368e50"
+    },
+    {
+      "path": "mods/superbwarfare-0.8.9-mc1.20.1-95d7cfe4e-all.jar",
+      "size": 31294323,
+      "sha256": "3c7d6c13b903dc337d8eecab47ef9ce84c7aa2b30c313d73b6fca2569ee67d0a",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/3c7d6c13b903dc337d8eecab47ef9ce84c7aa2b30c313d73b6fca2569ee67d0a"
+    },
+    {
+      "path": "mods/survival_instinct-1.0.1-forge-1.20.1.jar",
+      "size": 1721085,
+      "sha256": "5f8b0d4d85b28ec1816f56a1e2e559949b24ef09c08e1ad888e556ea17fc5079",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/5f8b0d4d85b28ec1816f56a1e2e559949b24ef09c08e1ad888e556ea17fc5079"
+    },
+    {
+      "path": "mods/tengosuenowe-1.0.0.jar",
+      "size": 1477791,
+      "sha256": "b1f6b9a95b6c374660f50208f53751579306091daf3e6ffee2864cf264742fe1",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/b1f6b9a95b6c374660f50208f53751579306091daf3e6ffee2864cf264742fe1"
+    },
+    {
+      "path": "mods/TerraBlender-forge-1.20.1-3.0.1.7.jar",
+      "size": 107534,
+      "sha256": "8f00e766f5a75aa52809cf9825817e874ac4b21b5d3f52fb02d40a19ec0b759b",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/8f00e766f5a75aa52809cf9825817e874ac4b21b5d3f52fb02d40a19ec0b759b"
+    },
+    {
+      "path": "mods/terramity-0.9.8-forge-1.20.1.jar",
+      "size": 26896860,
+      "sha256": "2d4f4c436530e99b59c37ece75af81d14b48eecc9c4759dd10fecd8d143d0d3f",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/2d4f4c436530e99b59c37ece75af81d14b48eecc9c4759dd10fecd8d143d0d3f"
+    },
+    {
+      "path": "mods/timeout_fixes-1.20.1-1.0.0.jar",
+      "size": 10209,
+      "sha256": "6c925a6b252f742b686619c8bfd1bf00ff72fc0c435c2a403cbe28a611ec271f",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/6c925a6b252f742b686619c8bfd1bf00ff72fc0c435c2a403cbe28a611ec271f"
+    },
+    {
+      "path": "mods/toolleveling-forge-1.20.1-2.0.0.jar",
+      "size": 125055,
+      "sha256": "b950167cedd4574be80e80441b1e77bd9981d97b06f27daa8c3844421aeca51a",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/b950167cedd4574be80e80441b1e77bd9981d97b06f27daa8c3844421aeca51a"
+    },
+    {
+      "path": "mods/turbopaja-13.0.0.jar",
+      "size": 24126089,
+      "sha256": "527f312077e5c9f0d270f441242b65986717318c4e7ef1c617d1f754f93e97cc",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/527f312077e5c9f0d270f441242b65986717318c4e7ef1c617d1f754f93e97cc"
+    },
+    {
+      "path": "mods/velthoric-forge-0.6.0.jar",
+      "size": 10145056,
+      "sha256": "fae98161b64c3a2aa723f8a9a9cbbf47081e223aacba1b96000efe08c4a71506",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/fae98161b64c3a2aa723f8a9a9cbbf47081e223aacba1b96000efe08c4a71506"
+    },
+    {
+      "path": "mods/visuality-forge-2.0.2.jar",
+      "size": 215750,
+      "sha256": "336a9f11f9d55f2d600c56ec1a8dcba93b80534fc749b143096e129c9c9c985d",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/336a9f11f9d55f2d600c56ec1a8dcba93b80534fc749b143096e129c9c9c985d"
+    },
+    {
+      "path": "mods/zergatul.freecam-2.0.1-forge-1.20.1.jar",
+      "size": 52223,
+      "sha256": "c10ed01385afa76b1b86fd6dbb89dced862bdce05e7372dd73c52523755eaca4",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/c10ed01385afa76b1b86fd6dbb89dced862bdce05e7372dd73c52523755eaca4"
+    },
+    {
+      "path": "mods/zylob-forge1.20.1-20.14.12.jar",
+      "size": 3974484,
+      "sha256": "f54cebb2da928fab9c36c4a37f332069416130949f1217f1cc340ecdbe1b645e",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/f54cebb2da928fab9c36c4a37f332069416130949f1217f1cc340ecdbe1b645e"
+    },
+    {
+      "path": "otyacraftengine/url_texture_cache/0fa660e9f0c345eb8e458f6385ee5ecd",
+      "size": 116065,
+      "sha256": "89f37ec8aad2ecfcde485b865ca927050e697b9fbcf9c0c4101a4842d5853720",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/89f37ec8aad2ecfcde485b865ca927050e697b9fbcf9c0c4101a4842d5853720"
+    },
+    {
+      "path": "otyacraftengine/url_texture_cache/134a5892844d4ef2960706f81a64946a",
+      "size": 88267,
+      "sha256": "0bc0c189249b76bc3c77d48875805b28ca2b68cfaeb98f2faeaaa8797758b13c",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/0bc0c189249b76bc3c77d48875805b28ca2b68cfaeb98f2faeaaa8797758b13c"
+    },
+    {
+      "path": "otyacraftengine/url_texture_cache/3d8cee6fb64b48229dd720f29c14f7a5",
+      "size": 18562,
+      "sha256": "6c18b05b6734802024215bb02f9408e7ed2425d419fa06c993502d448fe46224",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/6c18b05b6734802024215bb02f9408e7ed2425d419fa06c993502d448fe46224"
+    },
+    {
+      "path": "otyacraftengine/url_texture_cache/46b743e81858475384b8e291c36df94e",
+      "size": 19849,
+      "sha256": "baab5308ee424788df0a01b543cc2a0fd0e94675829ad3af35962fba90e1174c",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/baab5308ee424788df0a01b543cc2a0fd0e94675829ad3af35962fba90e1174c"
+    },
+    {
+      "path": "otyacraftengine/url_texture_cache/a1897ce4e89a487bae6633193834f26f",
+      "size": 195861,
+      "sha256": "c2f3c159c11e10f538dc03a7be99f5553f4c3f480fd50346db5afd67e30fe9e7",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/c2f3c159c11e10f538dc03a7be99f5553f4c3f480fd50346db5afd67e30fe9e7"
+    },
+    {
+      "path": "otyacraftengine/url_texture_cache/da8cd0bf2b5e47feb1742c9d6da26d7f",
+      "size": 288170,
+      "sha256": "00aed1e678578032750971f395c24d19d27f370d6b9de9f1784ef6e40bc92e72",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/00aed1e678578032750971f395c24d19d27f370d6b9de9f1784ef6e40bc92e72"
+    },
+    {
+      "path": "otyacraftengine/url_texture_cache/edeb8f05fc6845d791e9c452e8da97c6",
+      "size": 76421,
+      "sha256": "19bce82893473d9c9f8281ac87477fb08e5998d7da57b5bea104495beb97f761",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/19bce82893473d9c9f8281ac87477fb08e5998d7da57b5bea104495beb97f761"
+    },
+    {
+      "path": "otyacraftengine/url_texture_cache/fd78700299044afc9dd20b2555d76d7c",
+      "size": 11887,
+      "sha256": "a95256a2782b4efee921ed0c28bb6fa62bd0942a5b0be031a777eed140167c7e",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/a95256a2782b4efee921ed0c28bb6fa62bd0942a5b0be031a777eed140167c7e"
+    },
+    {
+      "path": "otyacraftengine/url_textures_index.json",
+      "size": 561,
+      "sha256": "06536bad1febbc91245c759cfbdcdc1ec644c3c129ff28cfb0a59658843222db",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/06536bad1febbc91245c759cfbdcdc1ec644c3c129ff28cfb0a59658843222db"
+    },
+    {
+      "path": "patchouli_data.json",
+      "size": 70,
+      "sha256": "0d6f8bff5d59d58e2ddda36b742394251afe308cb8cf96fac6c6c06144e28a15",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/0d6f8bff5d59d58e2ddda36b742394251afe308cb8cf96fac6c6c06144e28a15"
+    },
+    {
+      "path": "shaderpacks/§lE-LITE shaders 5.1.1.zip",
+      "size": 537839,
+      "sha256": "d9904d435be1e5a2246213a82c6bd4b730dcd3d36141e6e09161f892b1050093",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/d9904d435be1e5a2246213a82c6bd4b730dcd3d36141e6e09161f892b1050093"
+    },
+    {
+      "path": "shaderpacks/Glimmer-v1.3-hotfix.zip",
+      "size": 4490891,
+      "sha256": "ffadacc4e06bbcc5ab778ff98bb649cb544f717af0a374d31e982972395743e0",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/ffadacc4e06bbcc5ab778ff98bb649cb544f717af0a374d31e982972395743e0"
+    },
+    {
+      "path": "shaderpacks/Glimmer-v1.3-hotfix.zip.txt",
+      "size": 261,
+      "sha256": "22635654e00f2bbc83e5c652097c54f5cd16b8eb42c97d26dc986bb1f4c4a98f",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/22635654e00f2bbc83e5c652097c54f5cd16b8eb42c97d26dc986bb1f4c4a98f"
+    },
+    {
+      "path": "shaderpacks/MakeUp-UltraFast-9.5d.zip",
+      "size": 400386,
+      "sha256": "b26b8eb9b23fbba41e3b16dc6b8ef4d2c7c645b3f6621aa414cdade68ad48966",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/b26b8eb9b23fbba41e3b16dc6b8ef4d2c7c645b3f6621aa414cdade68ad48966"
+    },
+    {
+      "path": "shaderpacks/MakeUp-UltraFast-9.5d.zip.txt",
+      "size": 100,
+      "sha256": "00a62551706a35b7eba01b44939c06c106271d757a3284a47bfb20bf88073b1f",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/00a62551706a35b7eba01b44939c06c106271d757a3284a47bfb20bf88073b1f"
+    },
+    {
+      "path": "waypoints/Death-18-25-57-09-17-2026_213-100-70.json",
+      "size": 476,
+      "sha256": "54415270673a0d3f73cbe27929a6793fbc9829077fb31ed1257e76c571cbd9d0",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/54415270673a0d3f73cbe27929a6793fbc9829077fb31ed1257e76c571cbd9d0"
+    },
+    {
+      "path": "where_are_my_items-cache/New World.txt",
+      "size": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "url": "",
+      "empty": true
+    },
+    {
+      "path": "where_are_my_items-cache/SiegeLacontinuacion.exaroton.me",
+      "size": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "url": "",
+      "empty": true
+    }
+  ],
+  "remove": []
+}
