@@ -1045,8 +1045,10 @@ async function completeOnboarding(){
 async function maybeShowWhatsNew(){if(!appState)return;const current=String(appState.appVersion||'');const seen=String(appState.config?.launcher?.lastSeenVersion||'');if(current&&current!==seen){$('whatsNewOverlay')?.classList.remove('hidden')}}
 async function closeWhatsNew(){if(!$('whatsNewOverlay'))return;$('whatsNewOverlay').classList.add('hidden');try{const cfg=await api.saveSettings({launcher:{lastSeenVersion:String(appState?.appVersion||'')}});if(appState)appState.config=cfg}catch(_){}}
 async function init(){
-  bind();
   try{
+    // Bindings are part of boot: if a stale build is missing one optional
+    // control, recover to the home shell instead of leaving every page blank.
+    bind();
     const state=await api.getState();fillBaseState(state);if(state.configRecovery)toast('La configuración local estaba dañada. El launcher inició con valores seguros y guardó una copia para recuperación.','warn');if(state.manifestStale)toast('Sin conexión al canal del pack: usando la última versión conocida en caché.','warn');
     // Refresh an existing Microsoft session after the first paint. A stale
     // profile must not block the launcher boot or make the rest of the UI
@@ -1055,7 +1057,12 @@ async function init(){
     if(state.needsOnboarding){$('onboardingUsername').value='';$('onboarding').classList.remove('hidden');setTimeout(()=>$('onboardingUsername').focus(),50)}
     const bootResults=await Promise.allSettled([refreshPack(false),refreshMods(false),refreshHealth(false),refreshRecovery(),refreshModAudit(false),refreshCrashGuard(false),refreshChangeHistory(),refreshVault(false),refreshClips(false)]);const bootFailures=bootResults.filter(result=>result.status==='rejected').length;if(bootFailures)toast(`${bootFailures} comprobación(es) no respondieron; el launcher sigue disponible.`,'warn');renderBackgroundGallery(state.config.launcher?.background||'frontline');renderNotifications();setSettingsGroup('game');const remembered=state.config.launcher?.rememberLastPage?state.config.launcher?.lastPage:'';const preferred=remembered||state.config.launcher?.startPage;const firstPage=['home','mods','updates','modpack','gallery','support','settings'].includes(preferred)?preferred:'home';setPage(firstPage);refreshStorage(false).catch(()=>{});if(state.config.launcher?.autoConnectivityCheck!==false)setTimeout(()=>refreshConnectivity(false).catch(()=>{}),700);setTimeout(()=>maybeShowWhatsNew(),420);setTimeout(()=>refreshUpdateCenter(false).catch(()=>{}),1200);runQuickDiagnostic().catch(()=>{});footer('LISTO');
     if(state.packaged&&state.config.launcher.autoUpdate&&state.launcherUpdateConfigured)api.checkLauncherUpdate().catch(()=>{});
-  }catch(err){toast(err.message||String(err),'error');footer('ERROR DE INICIO')}
+  }catch(err){
+    setPage('home');
+    showPageRuntimeError('home',err?.message||String(err));
+    toast(err.message||String(err),'error');
+    footer('MODO RECUPERACIÓN');
+  }
   finally{setTimeout(()=>$('bootScreen')?.classList.add('done'),160)}
 }
 init();
