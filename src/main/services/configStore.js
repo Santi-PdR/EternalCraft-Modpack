@@ -56,7 +56,15 @@ class ConfigStore {
     }
   }
   load() {
-    const merged = deepMerge(this.readDefaults(), this.readUser());
+    const defaults = this.readDefaults();
+    const merged = deepMerge(defaults, this.readUser());
+    // Older installs may have persisted an empty updater feed. An empty feed
+    // is not a useful preference: it silently disables release notifications
+    // and makes the launcher look permanently up to date. Restore the bundled
+    // official feed while leaving explicit non-empty custom feeds untouched.
+    if (!String(merged.launcher?.updateFeedUrl || '').trim() && String(defaults.launcher?.updateFeedUrl || '').trim()) {
+      merged.launcher = { ...(merged.launcher || {}), updateFeedUrl: defaults.launcher.updateFeedUrl };
+    }
     // Drop integrations removed from the launcher so old installs do not keep
     // stale provider credentials, proxies or remote-mod preferences alive.
     if (merged.mods && typeof merged.mods === 'object') {
