@@ -144,9 +144,13 @@ async function removalPlan(root, manifest) {
   const userAdded = await readUserAddedPaths(root);
   const explicit = Array.isArray(manifest?.remove) ? manifest.remove : [];
   const staleOfficial = [...previousOfficial].filter((file) => !current.has(file));
-  const paths = [...new Set([...explicit, ...staleOfficial])]
+  const candidates = [...new Set([...explicit, ...staleOfficial])]
     .map((file) => String(file || '').replace(/\\/g, '/'))
     .filter((file) => file && !current.has(file) && !userAdded.has(file));
+  const paths = [];
+  for (const file of candidates) {
+    if (await fsp.lstat(safeTarget(root, file)).catch(() => null)) paths.push(file);
+  }
   return { paths, previousOfficial, userAdded };
 }
 
@@ -165,14 +169,15 @@ async function checkInstallation(root, manifest, onProgress = () => {}) {
   for (const key of Object.keys(index.files)) if (!validPaths.has(key)) delete index.files[key];
   await writeIndex(root, index);
   const state = await readState(root);
+  const removals = await removalPlan(root, manifest);
   const missing = statuses.filter((f) => f.status === 'missing');
   const changed = statuses.filter((f) => f.status === 'changed' || f.status === 'error');
   return {
     state, expectedVersion: manifest.version, versionMatches: state.version === manifest.version,
     total: files.length, ok: statuses.filter((f) => f.status === 'ok').length, missing, changed,
-    remove: Array.isArray(manifest.remove) ? manifest.remove : [],
+    remove: removals.paths,
     bytesRequired: [...missing, ...changed].reduce((sum, f) => sum + Number(f.size || 0), 0),
-    healthy: missing.length === 0 && changed.length === 0 && (files.length === 0 || state.version === manifest.version)
+    healthy: missing.length === 0 && changed.length === 0 && removals.paths.length === 0 && (files.length === 0 || state.version === manifest.version)
   };
 }
 
