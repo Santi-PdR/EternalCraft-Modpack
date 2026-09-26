@@ -82,6 +82,18 @@ async function updateChannel(repo, branch, manifest) {
   try { gh(['api', '--method', 'PUT', `repos/${repo}/contents/channel/stable.json`, '--input', bodyFile]); }
   finally { await fsp.rm(bodyFile, { force:true }).catch(() => {}); }
 }
+async function verifyPublishedChannel(repo, branch, expectedManifest) {
+  const raw = gh(['api', `repos/${repo}/contents/channel/stable.json?ref=${branch}`]);
+  const payload = JSON.parse(raw || '{}');
+  const encoded = String(payload.content || '').replace(/\s+/g, '');
+  if (!encoded) throw new Error('GitHub no devolvió el manifest estable después de publicarlo.');
+  let remote;
+  try { remote = JSON.parse(Buffer.from(encoded, 'base64').toString('utf8')); }
+  catch (_) { throw new Error('El manifest estable remoto no es JSON válido.'); }
+  if (String(remote.version || '') !== String(expectedManifest.version || '')) throw new Error(`El manifest remoto quedó en ${remote.version || 'una versión desconocida'} y se esperaba ${expectedManifest.version}.`);
+  if (Number(remote.files?.length || 0) !== Number(expectedManifest.files?.length || 0)) throw new Error('El manifest remoto no contiene la misma cantidad de archivos que la publicación local.');
+  return remote;
+}
 async function main() {
   const args = parseArgs(process.argv.slice(2));
   const repo = String(args.repo || process.env.ETERNAL_PACK_REPO || '').trim();
@@ -109,14 +121,17 @@ async function main() {
   await fsp.rm(out, { recursive: true, force: true });
 
   const initialVersion = requestedVersion || (previous?.version || '1.0.0');
-  let result = await buildPack({ source, out, version: initialVersion, baseUrl: `https://github.com/${repo}/releases/download/pack-v${initialVersion}`, previousManifest: previous, notes: args.notes || '' });
+  const reportBuildProgress = ({ current, total, file }) => {
+    if (current === 1 || current === total || current % 25 === 0) console.log(`Preparando publicación: ${current}/${total} · ${file}`);
+  };
+  let result = await buildPack({ source, out, version: initialVersion, baseUrl: `https://github.com/${repo}/releases/download/pack-v${initialVersion}`, previousManifest: previous, notes: args.notes || '', onProgress: reportBuildProgress });
   const changeCount=(result.changes.added?.length||0)+(result.changes.changed?.length||0)+(result.changes.removed?.length||0);
   if(previous && changeCount===0) throw new Error('No hay cambios nuevos en la instancia SIEGE para publicar.');
   const version = requestedVersion || nextVersion(previous?.version || '', result.changes);
   const tag = `pack-v${version}`;
   if (version !== initialVersion) {
     await fsp.rm(out, { recursive: true, force: true });
-    result = await buildPack({ source, out, version, baseUrl: `https://github.com/${repo}/releases/download/${tag}`, previousManifest: previous, notes: args.notes || '' });
+    result = await buildPack({ source, out, version, baseUrl: `https://github.com/${repo}/releases/download/${tag}`, previousManifest: previous, notes: args.notes || '', onProgress: reportBuildProgress });
   }
   result.manifest.releaseName = twoWordReleaseName(result.changes);
   result.manifest.releaseNotes.title = `${version} — ${result.manifest.releaseName}`;
@@ -168,9 +183,14 @@ async function main() {
       console.log(`Blobs subidos en esta ejecución: ${uploaded}/${pendingHashes.length} · ${Math.round((Date.now() - uploadStarted) / 1000)} s`);
     }
   }
+  const uploadedAssets = await existingReleaseAssetNames(repo, tag);
+  const missingAssets = newHashes.filter((sha) => !uploadedAssets.has(sha));
+  if (missingAssets.length) throw new Error(`GitHub no confirmó ${missingAssets.length} blob(s) después de la subida.`);
   const manifestAsset = path.join(out, 'channel', 'stable.json');
   await uploadAssetWithRetry(tag, repo, manifestAsset, 'manifest.json');
   await updateChannel(repo, branch, result.manifest);
+  await verifyPublishedChannel(repo, branch, result.manifest);
+  console.log(`Publicación verificada · ${result.manifest.files.length} archivos en channel/stable.json.`);
 
   console.log('\nPUBLICACIÓN COMPLETA');
   console.log(`Manifest estable: https://raw.githubusercontent.com/${repo}/${branch}/channel/stable.json`);

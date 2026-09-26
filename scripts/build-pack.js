@@ -5,6 +5,7 @@ const path = require('path');
 const os = require('os');
 const crypto = require('crypto');
 const { twoWordReleaseName } = require('./release-name');
+const launcherVersion = String(require('../package.json').version || '0.0.0');
 
 const FORGE_URL = 'https://maven.minecraftforge.net/net/minecraftforge/forge/1.20.1-47.4.10/forge-1.20.1-47.4.10-installer.jar';
 
@@ -12,13 +13,16 @@ const SKIP_DIRS = new Set([
   'saves', 'screenshots', 'logs', 'crash-reports', 'backups',
   'libraries', 'assets', 'versions', 'runtime', 'natives',
   '.cache', '.launcher', 'webcache', 'downloads', 'server-resource-packs',
-  'journeymap', 'XaeroWaypoints', 'XaeroWorldMap', 'replay_recordings'
+  'journeymap', 'XaeroWaypoints', 'XaeroWorldMap', 'replay_recordings',
+  '.git', '.github'
 ]);
 const SKIP_FILES = new Set([
   'options.txt', 'optionsof.txt', 'servers.dat', 'servers.dat_old',
   'launcher_profiles.json', 'launcher_accounts.json', 'launcher_log.txt',
   'usercache.json', 'usernamecache.json', 'realms_persistence.json',
-  '.eternal-pack.json', '.DS_Store', 'knownkeys.txt'
+  '.eternal-pack.json', '.DS_Store', 'knownkeys.txt', '.env',
+  '.env.local', '.env.production', 'credentials.json', 'secrets.json',
+  'client_token.json', 'launcher_accounts.json'
 ]);
 
 function parseArgs(argv) {
@@ -60,6 +64,8 @@ function shouldSkip(relative, entry) {
   const parts = normalized.split('/');
   if (parts.some((part) => SKIP_DIRS.has(part))) return true;
   if (!entry.isDirectory() && SKIP_FILES.has(entry.name)) return true;
+  if (!entry.isDirectory() && /(?:^|[._-])(secret|token|credential|password|private)[^/]*$/i.test(entry.name)) return true;
+  if (!entry.isDirectory() && /\.(pem|key|p12|pfx|jks|keystore)$/i.test(entry.name)) return true;
   if (!entry.isDirectory() && /\.(log|lock|tmp|part)$/i.test(entry.name)) return true;
   if (entry.name.startsWith('.nfs')) return true;
   return false;
@@ -114,6 +120,7 @@ async function buildPack(options = {}) {
   }
 
   const files = await walk(source);
+  if (!files.length) throw new Error(`La instancia ${source} no contiene archivos publicables después de aplicar los filtros de seguridad.`);
   const blobsDir = path.join(out, 'blobs');
   const channelDir = path.join(out, 'channel');
   await fsp.mkdir(blobsDir, { recursive: true });
@@ -135,7 +142,7 @@ async function buildPack(options = {}) {
     }
     manifestFiles.push({ path: file.relative, size: stat.size, sha256, url, ...(empty ? { empty: true } : {}) });
     done++;
-    if (options.onProgress) options.onProgress({ current: done, total: files.length, file: file.relative });
+    if (options.onProgress) options.onProgress({ current: done, total: files.length, file: file.relative, bytes: stat.size, sha256 });
   }
   manifestFiles.sort((a, b) => a.path.localeCompare(b.path));
 
@@ -161,7 +168,7 @@ async function buildPack(options = {}) {
     releaseName,
     minecraft: '1.20.1',
     forge: '47.4.10',
-    minimumLauncher: '0.25.0',
+    minimumLauncher: launcherVersion,
     generatedAt: new Date().toISOString(),
     releaseNotes: {
       title: `${version} — ${releaseName}`,
