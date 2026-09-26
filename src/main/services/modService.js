@@ -165,3 +165,15 @@ async function auditMods(root, manifest) {
   const counts = { bad:issues.filter(x=>x.severity==='bad').length, warn:issues.filter(x=>x.severity==='warn').length, info:issues.filter(x=>x.severity==='info').length };
   return { ok:counts.bad===0 && counts.warn===0, counts, issues, checkedAt:new Date().toISOString(), total:listing.mods.length, user:listing.counts.user };
 }
+
+module.exports = {
+  listMods,
+  addMods,
+  toggleMod,
+  removeMod,
+  toggleFavorite,
+  togglePin,
+  setAllUserModsEnabled,
+  copyModToRoot,
+  auditMods
+};
