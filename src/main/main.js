@@ -313,7 +313,7 @@ async function statePayload() {
     minimumLauncher, launcherCompatible: versionAtLeast(app.getVersion(), minimumLauncher),
     needsOnboarding: !config.onboarding?.completed || !validMinecraftUsername(username) || username.toLowerCase() === 'player',
     launcherUpdateConfigured: Boolean(config.launcher?.updateFeedUrl),
-    developer: developerService ? developerService.status() : { configured:false, unlocked:false },
+    developer: developerService ? await developerService.statusAsync() : { configured:false, unlocked:false },
     account,
     operation: activeOperation || '', configRecovery: store.recoveryInfo ? store.recoveryInfo() : null
   };
@@ -726,7 +726,7 @@ function registerIpc() {
     return shell.openPath(path.resolve(file));
   });
   ipcMain.handle('clips:clear-folder', async () => store.save({ launcher:{ clipsDirectory:'' } }));
-  ipcMain.handle('developer:status', async () => developerService.status());
+  ipcMain.handle('developer:status', async () => developerService.statusAsync());
   ipcMain.handle('developer:preflight', async () => { const cfg=store.load(); return developerService.preflightAsync(cfg.developer?.sourceDirectory, cfg.developer?.testDirectory, cfg.developer?.githubRepo); });
   ipcMain.handle('developer:backup-source', async () => { const cfg=store.load(); return developerService.backupSourceMods(cfg.developer?.sourceDirectory); });
   ipcMain.handle('developer:setup', async (_event, password) => developerService.setup(password));

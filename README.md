@@ -1,4 +1,4 @@
-# Eternal Craft Launcher 0.65.0
+# Eternal Craft Launcher 0.65.1
 
 Official launcher for **Eternal Craft // SIEGE**.
 
@@ -10,7 +10,7 @@ Official launcher for **Eternal Craft // SIEGE**.
 
 Eternal Craft Launcher is intentionally not a generic multi-instance launcher. It manages one official SIEGE installation and aims to make installing, repairing, updating and launching that pack safe and simple.
 
-## 0.65.0 — Instalación local y publicación sin bloqueos
+## 0.65.1 — Estado de Developer sin bloqueos
 
 - La biblioteca de Mods administra exclusivamente archivos instalados localmente; se retiraron los catálogos, API keys, proxies y comprobaciones de proveedores externos.
 - El modo desarrollador ya no contiene credenciales de servicios de mods: solo publica el modpack mediante GitHub CLI en la build privada de mantenimiento.

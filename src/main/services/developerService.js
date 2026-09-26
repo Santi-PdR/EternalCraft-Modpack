@@ -71,30 +71,34 @@ class DeveloperService {
   }
   load() { try { const value = JSON.parse(fs.readFileSync(this.file, 'utf8')); if (value && Object.prototype.hasOwnProperty.call(value, 'curseforgeApiKey')) { delete value.curseforgeApiKey; try { this.save(value); } catch (_) {} } return value || {}; } catch (_) { return {}; } }
   save(data) { fs.mkdirSync(path.dirname(this.file), { recursive: true }); fs.writeFileSync(this.file, JSON.stringify(data, null, 2), { mode: 0o600 }); }
-  status() {
-    const s = this.load(); let githubReady = false, githubLogin = '';
+  buildStatus(s, githubReady = false, githubLogin = '') {
     const developerAllowed = this.isMaintenanceBuild();
-    if (developerAllowed) {
-      const cacheFresh = Date.now() - this.githubStatusCache.at < 5000;
-      if (cacheFresh) {
-        githubReady = this.githubStatusCache.ready;
-        githubLogin = this.githubStatusCache.login;
-      } else {
-        try {
-          const v = spawnSync('gh', ['--version'], { encoding: 'utf8' });
-          if (v.status === 0) {
-            const auth = spawnSync('gh', ['auth', 'status'], { encoding: 'utf8' }); githubReady = auth.status === 0;
-            if (githubReady) { const me = spawnSync('gh', ['api', 'user', '--jq', '.login'], { encoding: 'utf8' }); if (me.status === 0) githubLogin = String(me.stdout || '').trim(); }
-          }
-        } catch (_) {}
-        this.githubStatusCache = { at: Date.now(), ready: githubReady, login: githubLogin };
-      }
-    }
     return {
       configured: developerAllowed && Boolean(s.passwordSalt && s.passwordHash), unlocked: developerAllowed && this.unlocked,
-      githubReady, githubLogin,
+      githubReady: developerAllowed && Boolean(githubReady), githubLogin: developerAllowed ? githubLogin : '',
       canSetup: developerAllowed, developerAllowed, maintenancePlatform: process.platform
     };
+  }
+  status() {
+    const s = this.load();
+    const cacheFresh = Date.now() - this.githubStatusCache.at < 5000;
+    return this.buildStatus(s, cacheFresh && this.githubStatusCache.ready, cacheFresh ? this.githubStatusCache.login : '');
+  }
+  async statusAsync() {
+    const s = this.load();
+    const developerAllowed = this.isMaintenanceBuild();
+    if (!developerAllowed) return this.buildStatus(s);
+    const cacheFresh = Date.now() - this.githubStatusCache.at < 5000;
+    if (cacheFresh) return this.buildStatus(s, this.githubStatusCache.ready, this.githubStatusCache.login);
+    let githubReady = false; let githubLogin = '';
+    try {
+      await execFileAsync('gh', ['--version'], { encoding: 'utf8', timeout: 15000 });
+      await execFileAsync('gh', ['auth', 'status'], { encoding: 'utf8', timeout: 15000 });
+      githubReady = true;
+      try { const me = await execFileAsync('gh', ['api', 'user', '--jq', '.login'], { encoding: 'utf8', timeout: 15000 }); githubLogin = String(me.stdout || '').trim(); } catch (_) {}
+    } catch (_) {}
+    this.githubStatusCache = { at: Date.now(), ready: githubReady, login: githubLogin };
+    return this.buildStatus(s, githubReady, githubLogin);
   }
   requireAvailable() { if (!this.isMaintenanceBuild()) throw new Error('El modo desarrollador solo está disponible en la build privada de mantenimiento.'); }
   setup(password) {
