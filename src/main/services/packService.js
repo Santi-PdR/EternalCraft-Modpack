@@ -45,9 +45,22 @@ async function readIndex(root) {
   try { return JSON.parse(await fsp.readFile(path.join(root, INDEX_FILE), 'utf8')); }
   catch (_) { return { files: {} }; }
 }
+async function writeJsonAtomic(file, value) {
+  const temporary = `${file}.tmp-${process.pid}-${Date.now()}`;
+  const serialized = JSON.stringify(value, null, 2);
+  await fsp.mkdir(path.dirname(file), { recursive: true });
+  await fsp.writeFile(temporary, serialized, 'utf8');
+  try {
+    await fsp.rename(temporary, file);
+  } catch (error) {
+    // Windows cannot replace an existing file with rename(). Keep the safe
+    // temporary write, then fall back to a normal replacement there.
+    await fsp.writeFile(file, serialized, 'utf8');
+    await fsp.rm(temporary, { force: true }).catch(() => {});
+  }
+}
 async function writeIndex(root, index) {
-  await fsp.mkdir(path.join(root, INTERNAL_DIR), { recursive: true });
-  await fsp.writeFile(path.join(root, INDEX_FILE), JSON.stringify(index));
+  await writeJsonAtomic(path.join(root, INDEX_FILE), index);
 }
 
 async function fileStatus(root, entry, index) {
@@ -82,9 +95,8 @@ async function readState(root) {
   catch (_) { return { version: null, updatedAt: null }; }
 }
 async function writeState(root, manifest) {
-  await fsp.mkdir(root, { recursive: true });
   const state = { version: manifest.version, minecraft: manifest.minecraft, forge: manifest.forge, updatedAt: new Date().toISOString() };
-  await fsp.writeFile(path.join(root, STATE_FILE), JSON.stringify(state, null, 2));
+  await writeJsonAtomic(path.join(root, STATE_FILE), state);
   return state;
 }
 
@@ -114,15 +126,27 @@ async function checkInstallation(root, manifest, onProgress = () => {}) {
   };
 }
 
-async function fetchWithRetry(url, options = {}, attempts = 3) {
+async function fetchWithRetry(url, options = {}, attempts = 3, timeoutMs = 120000) {
   let last;
   for (let attempt = 1; attempt <= attempts; attempt++) {
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), timeoutMs);
     try {
-      const response = await fetch(url, options);
+      const response = await fetch(url, { ...options, signal: options.signal || controller.signal });
       if (response.ok) return response;
       last = new Error(`HTTP ${response.status}`);
-      if (response.status < 500 && response.status !== 429) throw last;
-    } catch (err) { last = err; if (attempt >= attempts) break; }
+      last.retryable = response.status === 408 || response.status === 425 || response.status === 429 || response.status >= 500;
+      if (!last.retryable) throw last;
+    } catch (err) {
+      last = err?.name === 'AbortError' ? new Error(`La descarga superó el tiempo de espera (${Math.round(timeoutMs / 1000)} s).`) : err;
+      const transient = Boolean(last?.retryable)
+        || ['ECONNRESET', 'ETIMEDOUT', 'EAI_AGAIN', 'UND_ERR_CONNECT_TIMEOUT', 'UND_ERR_SOCKET'].includes(err?.code)
+        || err?.name === 'TypeError'
+        || /fetch failed|network|socket|connect/i.test(String(err?.message || ''));
+      if (!transient) throw last;
+      if (attempt >= attempts) break;
+    } finally { clearTimeout(timer); }
+    if (attempt >= attempts) break;
     await new Promise((resolve) => setTimeout(resolve, 450 * attempt));
   }
   throw last || new Error('No se pudo descargar el archivo.');
@@ -147,7 +171,7 @@ async function downloadFile(url, destination, expectedSha256, onChunk = () => {}
     await fsp.rename(temp, destination);
     return;
   }
-  const response = await fetchWithRetry(url, { headers: { 'User-Agent': 'EternalCraftLauncher/0.25.0' } }, 3);
+  const response = await fetchWithRetry(url, { headers: { 'User-Agent': 'EternalCraftLauncher/0.64.0', Accept: '*/*' } }, 3, 120000);
   if (!response.body) throw new Error(`Respuesta vacía al descargar ${url}`);
   const total = Number(response.headers.get('content-length') || 0); let received = 0;
   const reader = response.body.getReader();
