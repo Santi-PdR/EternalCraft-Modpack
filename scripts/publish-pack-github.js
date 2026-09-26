@@ -119,6 +119,11 @@ async function main() {
   const requestedVersion = String(args.version || '').trim();
   const source = args.source || path.join(os.homedir(), '.sklauncher', 'instances', 'siege');
   const out = path.resolve(args.out || path.join(process.cwd(), 'pack-dist-publish'));
+  // Keep failed publishes from leaving hundreds of blobs in the working tree.
+  // The child publisher is deliberately resumable, but a later run should
+  // rebuild its staging directory from the current source instead of silently
+  // reusing a half-written manifest.
+  process.env.ETERNAL_PUBLISH_OUT = out;
   await fsp.rm(out, { recursive: true, force: true });
 
   const initialVersion = requestedVersion || (previous?.version || '1.0.0');
@@ -200,4 +205,11 @@ async function main() {
   console.log(`Tiempo de carga: ${Math.round((Date.now() - uploadStarted) / 1000)} s`);
   console.log('Los jugadores solo descargarán archivos nuevos, cambiados o faltantes.');
 }
-main().catch((err) => { console.error(`ERROR: ${err.message}`); process.exit(1); });
+main().catch((err) => {
+  const failedOut = process.env.ETERNAL_PUBLISH_OUT;
+  if (failedOut) {
+    try { fs.rmSync(failedOut, { recursive: true, force: true }); } catch (_) {}
+  }
+  console.error(`ERROR: ${err.message}`);
+  process.exit(1);
+});
