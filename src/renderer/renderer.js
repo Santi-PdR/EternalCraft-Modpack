@@ -532,7 +532,7 @@ function applySettingsSearch(){
 function clearSettingsSearch(){if($('settingsSearch'))$('settingsSearch').value='';applySettingsSearch();}
 
 function renderServer(status){
-  serverState=status; const lobby=Boolean(status?.providerLobby); const online=Boolean(status?.online)&&!lobby; const label=lobby?'NO CONFIRMADO':online?'ONLINE':'OFFLINE'; $('serverOnline').textContent=label; $('serverStateBadge').textContent=label; statusClass($('serverStateBadge'),lobby?'warn':online?'ok':'bad');
+  serverState=status; const lobby=Boolean(status?.providerLobby); const verified=status?.confidence==='verified'; const online=Boolean(status?.online)&&verified&&!lobby; const uncertain=!online&&(lobby||status?.confidence==='unknown'); const label=uncertain?'NO CONFIRMADO':online?'ONLINE':'OFFLINE'; $('serverOnline').textContent=label; $('serverStateBadge').textContent=label; statusClass($('serverStateBadge'),uncertain?'warn':online?'ok':'bad');
   $('serverPlayers').textContent=online?`${status.players?.online??0} / ${status.players?.max??'—'}`:'—'; $('serverPing').textContent=online&&Number.isFinite(status.latency)?`${status.latency} ms`:'—';
   const latency=Number(status?.latency||0); if(online&&Number.isFinite(latency)){pingHistory.push(latency);pingHistory=pingHistory.slice(-12);renderPingTrend();} const quality=!online?'OFFLINE':latency<=70?'EXCELENTE':latency<=130?'BUENA':latency<=220?'ACEPTABLE':'ALTA';
   if(lobby){if($('homeQuickConnection'))$('homeQuickConnection').textContent='NO CONFIRMADA';if($('homeQuickConnectionMeta'))$('homeQuickConnectionMeta').textContent='Exaroton respondió con su lobby';}

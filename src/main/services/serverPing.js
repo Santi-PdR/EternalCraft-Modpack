@@ -93,12 +93,18 @@ function pingMinecraftServer(host, port, timeout = 3500) {
         const data = JSON.parse(json);
         const description = textFromDescription(data.description);
         const version = data.version?.name || 'Desconocida';
+        const hasStatusPayload = Boolean(
+          data && typeof data.version === 'object' && data.version &&
+          Number.isFinite(Number(data.version.protocol)) &&
+          data.players && Number.isFinite(Number(data.players.online)) && Number.isFinite(Number(data.players.max))
+        );
         const lobbyText = `${description} ${version}`.toLowerCase();
         // Exaroton can answer with its lobby while the configured instance is stopped.
         // Treat the provider's generic lobby/offline responses as offline to avoid a false positive.
         const exarotonLobby = /exaroton|server\s*(is\s*)?(offline|stopped)|start\s*(your|the)\s*server|lobby|waiting\s*for\s*server|server\s*starting/.test(lobbyText);
         done({
-          online: !exarotonLobby,
+          online: !exarotonLobby && hasStatusPayload,
+          confidence: hasStatusPayload && !exarotonLobby ? 'verified' : 'unknown',
           latency: Date.now() - started,
           players: {
             online: data.players?.online ?? 0,

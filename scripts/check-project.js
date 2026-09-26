@@ -35,6 +35,7 @@ const mainSource = fs.readFileSync(path.join(root,'src','main','main.js'),'utf8'
 const publisherSource = fs.readFileSync(path.join(root,'scripts','publish-pack-github.js'),'utf8');
 const packBuilderSource = fs.readFileSync(path.join(root,'scripts','build-pack.js'),'utf8');
 const manifestServiceSource = fs.readFileSync(path.join(root,'src','main','services','manifestService.js'),'utf8');
+const serverPingSource = fs.readFileSync(path.join(root,'src','main','services','serverPing.js'),'utf8');
 const updateServiceSource = fs.readFileSync(path.join(root,'src','main','services','updateService.js'),'utf8');
 const developerServiceSource = fs.readFileSync(path.join(root,'src','main','services','developerService.js'),'utf8');
 if (!packBuilderSource.includes('ETERNAL_LAUNCHER_VERSION')) throw new Error('El constructor del pack no tiene fallback de versión para builds empaquetadas.');
@@ -44,6 +45,7 @@ if (!publisherSource.includes('includeUserMods')) throw new Error('El publicador
 if (!packBuilderSource.includes("Boolean(args['include-user-mods'])")) throw new Error('El constructor debe aceptar la política explícita de publicación de mods personales.');
 if (!packServiceSource.includes('function normalizeModMetadataPath') || !packServiceSource.includes("replace(/^mods\\//i, '')")) throw new Error('Los metadatos de mods deben normalizar rutas antiguas y archivos desactivados.');
 if (!manifestServiceSource.includes('Ruta fuera del payload administrado')) throw new Error('El validador debe limitar el manifiesto a los directorios administrados.');
+if (!serverPingSource.includes("confidence: hasStatusPayload && !exarotonLobby ? 'verified' : 'unknown'")) throw new Error('El ping del servidor debe distinguir respuestas verificadas de estados ambiguos.');
 if (!updateServiceSource.includes('if (availableInfo) emit({ type: \'available\'')) throw new Error('El updater debe conservar el reintento después de un fallo de descarga.');
 if (!updateServiceSource.includes('if (downloadPromise) return { configured: true')) throw new Error('El updater debe evitar comprobaciones concurrentes durante una descarga.');
 if (!updateServiceSource.includes('if (checkPromise) await checkPromise')) throw new Error('El updater debe esperar la comprobación antes de descargar.');
