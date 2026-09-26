@@ -51,6 +51,7 @@ if (!developerServiceSource.includes("child.kill('SIGTERM')")) throw new Error('
 if (!developerServiceSource.includes('const hasCache = this.githubStatusCache.at > 0')) throw new Error('El estado del developer no debe ocultar una conexión GitHub conocida durante el desbloqueo.');
 if (!developerServiceSource.includes('this.githubStatusInFlight')) throw new Error('El estado de GitHub del developer debe deduplicar comprobaciones simultáneas.');
 if (!developerServiceSource.includes('publisherChildren')) throw new Error('Los procesos de publicación deben registrarse para terminarlos al salir.');
+if (!developerServiceSource.includes("child.kill('SIGKILL')")) throw new Error('El cierre del launcher debe forzar procesos de publicación que no respondan.');
 if (!mainSource.includes('runtimeCacheGeneration')) throw new Error('Las cachés de runtime deben descartar respuestas iniciadas antes de una invalidación.');
 if (!mainSource.includes('rendererLoadAttempts < 3')) throw new Error('La carga del renderer debe reintentar fallos iniciales sin entrar en un bucle infinito.');
 const configStoreSource = fs.readFileSync(path.join(root,'src','main','services','configStore.js'),'utf8');

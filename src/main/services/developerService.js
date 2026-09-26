@@ -9,7 +9,17 @@ const publisherChildren = new Set();
 
 function terminatePublisherProcesses() {
   for (const child of publisherChildren) {
-    try { if (child.exitCode === null && !child.killed) child.kill('SIGTERM'); } catch (_) {}
+    try {
+      if (child.exitCode === null && !child.killed) {
+        child.kill('SIGTERM');
+        setTimeout(() => {
+          // `child.killed` only means a signal was sent; the process may still
+          // be alive. Use exitCode so an unresponsive publisher is really
+          // reaped before the launcher exits.
+          if (child.exitCode === null) { try { child.kill('SIGKILL'); } catch (_) {} }
+        }, 2500).unref?.();
+      }
+    } catch (_) {}
   }
 }
 
