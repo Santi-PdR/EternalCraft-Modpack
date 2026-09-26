@@ -12,7 +12,7 @@ const mockConfig = {
   onboarding:{completed:true},links:{}
 };
 const mockManifest = {
-  schema:2,version:'1.0.0',releaseName:'Siege Origin',minecraft:'1.20.1',forge:'47.4.10',minimumLauncher:'0.65.4',files:[],remove:[],
+  schema:2,version:'1.0.0',releaseName:'Siege Origin',minecraft:'1.20.1',forge:'47.4.10',minimumLauncher:'0.65.5',files:[],remove:[],
   releaseNotes:{title:'SIEGE DEV',summary:'Base del launcher renovada y sistema de actualización segura.',addedCount:2,changedCount:4,removedCount:0,highlights:[{type:'changed',path:'mods/siege-menu.jar'},{type:'added',path:'config/eternal-client.toml'}]}
 };
 
@@ -23,7 +23,7 @@ function merge(target, patch){
 }
 
 const previewApi = {
-  getState:async()=>({appVersion:'0.65.4',platform:'preview',packaged:false,config:mockConfig,manifest:mockManifest,manifestConfigured:true,manifestSource:'development',java:{found:true,major:17,version:'17.0.x',path:'java'},needsOnboarding:false,launcherUpdateConfigured:false,minimumLauncher:'0.65.4',launcherCompatible:true,developer:{configured:false,unlocked:false,developerAllowed:false},account:{authenticated:false,name:'',id:'',skins:[]},system:{recommendedRamGb:6,maxRamGb:11,totalMemoryBytes:16*1024**3,gpus:[{vendor:'NVIDIA',name:'NVIDIA GeForce GTX 1050'}],display:{width:1920,height:1080,workWidth:1920,workHeight:1040,scaleFactor:1,label:'Monitor principal'},disk:{available:true,freeBytes:180*1024**3,totalBytes:480*1024**3,requiredBytes:512*1024**2}}}),
+  getState:async()=>({appVersion:'0.65.5',platform:'preview',packaged:false,config:mockConfig,manifest:mockManifest,manifestConfigured:true,manifestSource:'development',java:{found:true,major:17,version:'17.0.x',path:'java'},needsOnboarding:false,launcherUpdateConfigured:false,minimumLauncher:'0.65.5',launcherCompatible:true,developer:{configured:false,unlocked:false,developerAllowed:false},account:{authenticated:false,name:'',id:'',skins:[]},system:{recommendedRamGb:6,maxRamGb:11,totalMemoryBytes:16*1024**3,gpus:[{vendor:'NVIDIA',name:'NVIDIA GeForce GTX 1050'}],display:{width:1920,height:1080,workWidth:1920,workHeight:1040,scaleFactor:1,label:'Monitor principal'},disk:{available:true,freeBytes:180*1024**3,totalBytes:480*1024**3,requiredBytes:512*1024**2}}}),
   completeOnboarding:async(p)=>{mockConfig.minecraft.username=p.username;mockConfig.onboarding.completed=true;return previewApi.getState()},
   pingServer:async()=>({online:true,latency:57,players:{online:12,max:40},version:'Forge 1.20.1',favicon:null}),
   checkPack:async()=>({configured:true,state:{version:'SIEGE-DEV',updatedAt:new Date().toISOString()},expectedVersion:'SIEGE-DEV',versionMatches:true,total:247,ok:247,missing:[],changed:[],remove:[],bytesRequired:0,healthy:true}),
@@ -433,7 +433,12 @@ function renderPackInfo(){
   if($('packInfoSummary'))$('packInfoSummary').textContent=notes.summary||'El launcher conserva tus mods personales y solo reemplaza archivos administrados por el pack.';
 }
 
+function normalizePackStatus(status){
+  if(status&&typeof status==='object')return status;
+  return {configured:false,healthy:false,total:0,ok:0,missing:[],changed:[],remove:[],bytesRequired:0,system:{disk:{available:false}},cache:{bytes:0},error:'No se recibió el estado del modpack.'};
+}
 function renderPack(status){
+  status=normalizePackStatus(status);
   packState=status; const total=Number(status.total||0),ok=Number(status.ok||0),missing=status.missing||[],changed=status.changed||[],removed=status.remove||[];
   if($('packLastChecked'))$('packLastChecked').textContent=status.checkedAt?timeAgo(status.checkedAt):'Ahora';
   const pct=total?Math.round(ok/total*100):(status.healthy?100:0); $('packRing').style.setProperty('--p',String(pct)); $('packRingValue').textContent=`${pct}%`;
@@ -704,7 +709,7 @@ function renderUpdateCenter(){
 
   if($('updatesModsTitle'))$('updatesModsTitle').textContent=modCount?`${modCount} actualización${modCount===1?'':'es'}`:'Al día';
   if($('updatesModsText'))$('updatesModsText').textContent='Los mods instalados se administran localmente; las versiones oficiales llegan con el modpack.';
-  if($('updatesLauncherTitle'))$('updatesLauncherTitle').textContent=launcherNeeds?'Nueva versión disponible':`v${appState?.appVersion||'0.65.4'}`;
+  if($('updatesLauncherTitle'))$('updatesLauncherTitle').textContent=launcherNeeds?'Nueva versión disponible':`v${appState?.appVersion||'0.65.5'}`;
   if($('updatesLauncherText'))$('updatesLauncherText').textContent=launcherNeeds?'Podés descargarla sin tocar el modpack.':appState?.packaged?'Canal del launcher comprobado.':'Modo desarrollo · updater desactivado.';
   const javaOk=Boolean(appState?.java?.found&&Number(appState?.java?.major)>=17);if($('updatesRuntimeTitle'))$('updatesRuntimeTitle').textContent=javaOk?`Java ${appState.java.version||17}`:'Java compatible pendiente';if($('updatesRuntimeText'))$('updatesRuntimeText').textContent=javaOk?(appState.java.managed?'Runtime administrado por Eternal Craft.':'Runtime detectado en el sistema.'):'Elegí un Java 17 o superior en tu sistema.';
   if($('updatesHeroMark'))$('updatesHeroMark').textContent=total?'!':'✓';if($('updatesHero'))$('updatesHero').classList.toggle('has-updates',total>0);if($('updatesHeroTitle'))$('updatesHeroTitle').textContent=total?`${total} actualización${total===1?'':'es'} pendiente${total===1?'':'s'}`:'Todo está actualizado';if($('updatesHeroText'))$('updatesHeroText').textContent=total?'Podés revisar cada componente o aplicar las actualizaciones disponibles.':'Launcher, modpack y mods personales están listos.';
@@ -715,7 +720,7 @@ async function refreshUpdateCenter(showToast=false){
   updateCenterInFlight=(async()=>{
   if($('updatesHeroTitle'))$('updatesHeroTitle').textContent='Comprobando actualizaciones…';
   try{
-    const [pack]=await Promise.all([api.checkPack()]); const mods={count:0,updates:[]};
+    const [packResult]=await Promise.all([api.checkPack()]); const pack=normalizePackStatus(packResult); const mods={count:0,updates:[]};
     updateCenterState.pack=pack;updateCenterState.mods=mods;updateCenterState.lastChecked=new Date().toISOString();renderPack(pack);
     renderMods(modsState);
     if(appState?.packaged&&appState?.launcherUpdateConfigured)await api.checkLauncherUpdate().catch(()=>{});
@@ -790,7 +795,7 @@ async function performPackRefresh(showOverlay=false){
   const started=performance.now();
   try{
     if(ownsBusy){setBusy(true,'COMPROBANDO MODPACK');showOperation('COMPROBANDO MODPACK');}
-    const status=await api.checkPack();
+    const status=normalizePackStatus(await api.checkPack());
     renderPack(status);
     if(ownsBusy){
       const configured=status?.configured!==false;

@@ -1,4 +1,4 @@
-# Eternal Craft Launcher 0.65.4
+# Eternal Craft Launcher 0.65.5
 
 Official launcher for **Eternal Craft // SIEGE**.
 
@@ -10,7 +10,7 @@ Official launcher for **Eternal Craft // SIEGE**.
 
 Eternal Craft Launcher is intentionally not a generic multi-instance launcher. It manages one official SIEGE installation and aims to make installing, repairing, updating and launching that pack safe and simple.
 
-## 0.65.4 — Páginas recuperables y errores IPC aislados
+## 0.65.5 — Páginas recuperables y errores IPC aislados
 
 - Las páginas de Mods, Modpack, Actualizaciones, Galería, Soporte y Ajustes siguen renderizando aunque no exista un canal remoto publicado.
 - Los errores IPC y las salidas cerradas de terminal ya no pueden cerrar el proceso principal por un EPIPE.
