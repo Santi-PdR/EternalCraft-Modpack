@@ -35,6 +35,15 @@ for (const match of mainSource.matchAll(/const\s*\{([^}]+)\}\s*=\s*require\('\.\
   const exportBlocks = [...serviceSource.matchAll(/module\.exports\s*=\s*\{([\s\S]*?)\}/g)].map(item => item[1]).join('\n');
   for (const name of names) if (!new RegExp(`\\b${name.replace(/[.*+?^${}()|[\\]\\]/g, '\\$&')}\\b`).test(exportBlocks)) throw new Error(`${match[2]} no exporta ${name}()`);
 }
+// Keep the preload bridge and main-process IPC contract in sync. A missing
+// handler is particularly damaging here: the renderer can show a blank page
+// after one rejected invoke while the rest of the launcher still appears
+// healthy.
+const preloadSource = fs.readFileSync(path.join(root,'src','main','preload.js'),'utf8');
+const mainChannels = new Set([...mainSource.matchAll(/ipcMain\.handle\(['"]([^'"]+)['"]/g)].map(m => m[1]));
+const preloadChannels = new Set([...preloadSource.matchAll(/ipcRenderer\.invoke\(['"]([^'"]+)['"]/g)].map(m => m[1]));
+for (const channel of preloadChannels) if (!mainChannels.has(channel)) throw new Error(`preload.js invoca un canal sin handler: ${channel}`);
+for (const channel of mainChannels) if (!preloadChannels.has(channel)) throw new Error(`main.js registra un handler sin puente preload: ${channel}`);
 if (manifest.minimumLauncher !== packageJson.version) throw new Error(`minimumLauncher ${manifest.minimumLauncher} no coincide con launcher ${packageJson.version}`);
 if (packageJson.build?.appId !== 'uy.eternalcraft.launcher') throw new Error('appId del launcher cambió inesperadamente.');
 if (!defaults.minecraft?.preferDedicatedGpu) throw new Error('La GPU dedicada debe venir activada por defecto.');
@@ -50,6 +59,9 @@ const renderer = fs.readFileSync(path.join(root,'src','renderer','renderer.js'),
 for (const ref of [...renderer.matchAll(/\$\(['"]([^'"]+)['"]\)/g)].map(m=>m[1])) {
   if (/^[.#\[]/.test(ref) || /[ >:+~]/.test(ref)) continue;
   if (!ids.includes(ref)) throw new Error(`renderer.js referencia un ID inexistente: ${ref}`);
+}
+for (const ref of [...renderer.matchAll(/\$\(['"]([^'"#.[\]]+)['"]\)\s*\.addEventListener/g)].map(m => m[1])) {
+  if (!ids.includes(ref)) throw new Error(`renderer.js enlaza un listener a un ID inexistente: ${ref}`);
 }
 
 console.log(`OK // ${jsFiles.length} archivos JS · ${ids.length} IDs UI · configuración v${packageJson.version} verificada`);
