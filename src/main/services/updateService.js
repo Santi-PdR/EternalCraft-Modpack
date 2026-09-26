@@ -72,7 +72,13 @@ async function downloadLauncherUpdate(config, onEvent) {
   }
   if (downloadPromise) return downloadPromise;
   downloadPromise = autoUpdater.downloadUpdate()
-    .then(() => ({ downloaded: true, state: lastState }))
+    .then((files) => {
+      // electron-updater versions differ on whether the promise resolves
+      // before or after `update-downloaded`. Normalize the state so the
+      // renderer can always enable “Reiniciar e instalar” after success.
+      if (lastState.type !== 'downloaded') emit({ type: 'downloaded', info: availableInfo, files });
+      return { downloaded: true, state: lastState };
+    })
     .catch((error) => {
       const message = error?.message || String(error);
       // Keep the retry path usable after a transient download failure. The
