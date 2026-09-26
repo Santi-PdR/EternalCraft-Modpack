@@ -10,6 +10,7 @@ const { fileURLToPath } = require('url');
 const STATE_FILE = '.eternal-pack.json';
 const INTERNAL_DIR = '.launcher';
 const INDEX_FILE = path.join(INTERNAL_DIR, 'file-index.json');
+const OFFICIAL_FILES_FILE = path.join(INTERNAL_DIR, 'official-files.json');
 const CACHE_DIR = path.join(INTERNAL_DIR, 'cache');
 const STAGING_DIR = path.join(INTERNAL_DIR, 'staging');
 const ROLLBACK_DIR = path.join(INTERNAL_DIR, 'rollback');
@@ -98,6 +99,55 @@ async function writeState(root, manifest) {
   const state = { version: manifest.version, minecraft: manifest.minecraft, forge: manifest.forge, updatedAt: new Date().toISOString() };
   await writeJsonAtomic(path.join(root, STATE_FILE), state);
   return state;
+}
+
+function manifestPaths(manifest) {
+  return (Array.isArray(manifest?.files) ? manifest.files : [])
+    .map((entry) => String(entry?.path || '').replace(/\\/g, '/'))
+    .filter(Boolean);
+}
+
+async function readOfficialFiles(root) {
+  try {
+    const data = JSON.parse(await fsp.readFile(path.join(root, OFFICIAL_FILES_FILE), 'utf8'));
+    const files = Array.isArray(data) ? data : data?.files;
+    return new Set((Array.isArray(files) ? files : [])
+      .map((file) => String(file || '').replace(/\\/g, '/'))
+      .filter(Boolean));
+  } catch (_) {
+    return new Set();
+  }
+}
+
+async function writeOfficialFiles(root, manifest) {
+  await writeJsonAtomic(path.join(root, OFFICIAL_FILES_FILE), {
+    version: String(manifest?.version || ''),
+    updatedAt: new Date().toISOString(),
+    files: manifestPaths(manifest)
+  });
+}
+
+async function readUserAddedPaths(root) {
+  try {
+    const data = JSON.parse(await fsp.readFile(path.join(root, path.join(INTERNAL_DIR, 'user-mods.json')), 'utf8'));
+    return new Set(Object.keys(data?.mods || {})
+      .map((name) => `mods/${String(name).replace(/\\/g, '/')}`)
+      .filter((file) => /^mods\/[^/]+\.jar$/i.test(file)));
+  } catch (_) {
+    return new Set();
+  }
+}
+
+async function removalPlan(root, manifest) {
+  const current = new Set(manifestPaths(manifest));
+  const previousOfficial = await readOfficialFiles(root);
+  const userAdded = await readUserAddedPaths(root);
+  const explicit = Array.isArray(manifest?.remove) ? manifest.remove : [];
+  const staleOfficial = [...previousOfficial].filter((file) => !current.has(file));
+  const paths = [...new Set([...explicit, ...staleOfficial])]
+    .map((file) => String(file || '').replace(/\\/g, '/'))
+    .filter((file) => file && !current.has(file) && !userAdded.has(file));
+  return { paths, previousOfficial, userAdded };
 }
 
 async function checkInstallation(root, manifest, onProgress = () => {}) {
@@ -290,10 +340,17 @@ async function cleanupInterruptedTransactions(root, maxAgeMs = 60 * 60 * 1000) {
 async function repairInstallation(root, manifest, onProgress = () => {}) {
   await cleanupInterruptedTransactions(root);
   const check = await checkInstallation(root, manifest, onProgress);
+  const removals = await removalPlan(root, manifest);
   const priorState = check.state || { version: null, updatedAt: null };
   const targets = [...check.missing, ...check.changed];
   await ensureFreeSpace(root, check.bytesRequired);
-  if (targets.length === 0 && (!manifest.remove || manifest.remove.length === 0) && check.versionMatches) {
+  if (targets.length === 0 && removals.paths.length === 0 && check.versionMatches) {
+    // Migrate existing installations that predate the official inventory.
+    // This records the current pack without reclassifying or deleting any
+    // local files, so future updates can remove only retired official files.
+    if (!(await fsp.stat(path.join(root, OFFICIAL_FILES_FILE)).catch(() => null))) {
+      await writeOfficialFiles(root, manifest);
+    }
     return { ...check, repaired: 0, removed: 0, cacheHits: 0, downloaded: 0 };
   }
 
@@ -341,7 +398,7 @@ async function repairInstallation(root, manifest, onProgress = () => {}) {
     }
 
     let removed = 0;
-    for (const relativePath of manifest.remove || []) {
+    for (const relativePath of removals.paths) {
       const target = safeTarget(root, relativePath);
       const backupRel = `removed/${relativePath}`;
       const backup = safeInside(rollbackRoot, backupRel);
@@ -349,7 +406,7 @@ async function repairInstallation(root, manifest, onProgress = () => {}) {
       records.push({ path: relativePath, hadOriginal, backupPath: backupRel });
       await fsp.rm(target, { recursive: true, force: true });
       removed++;
-      onProgress({ phase: 'removing', current: removed, total: (manifest.remove || []).length, file: relativePath });
+      onProgress({ phase: 'removing', current: removed, total: removals.paths.length, file: relativePath });
     }
 
     const forgeInstaller = await ensureForgeInstaller(root, manifest, onProgress);
@@ -357,6 +414,11 @@ async function repairInstallation(root, manifest, onProgress = () => {}) {
     await fsp.rm(path.join(root, INDEX_FILE), { force: true }).catch(() => {});
     const after = await checkInstallation(root, manifest, onProgress);
     if (!after.healthy) throw new Error('La verificación final falló. Se restauró la instalación anterior.');
+
+    // Persist the exact official inventory only after the transaction verifies
+    // successfully. This lets the next update remove retired official files
+    // without touching mods installed through “Agregar .jar”.
+    await writeOfficialFiles(root, manifest);
 
     await fsp.rm(stagingRoot, { recursive: true, force: true }).catch(() => {});
     await fsp.rm(rollbackRoot, { recursive: true, force: true }).catch(() => {});
@@ -424,4 +486,4 @@ async function clearCache(root) {
   return { clearedFiles:Number(before.files||0), clearedBytes:Number(before.bytes||0) };
 }
 
-module.exports = { checkInstallation, repairInstallation, ensureForgeInstaller, safeTarget, sha256File, readState, cacheStats, pruneCache, clearCache };
+module.exports = { checkInstallation, repairInstallation, ensureForgeInstaller, safeTarget, sha256File, readState, cacheStats, pruneCache, clearCache, readOfficialFiles };
