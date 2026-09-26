@@ -375,6 +375,13 @@ async function runExclusive(name, fn) {
   finally { activeOperation = ''; if (mainWindow && !mainWindow.isDestroyed()) mainWindow.setProgressBar(-1); }
 }
 
+function withDeadline(promise, fallback, timeoutMs = 2500) {
+  let timer;
+  const guarded = Promise.resolve(promise).catch(() => fallback);
+  const timeout = new Promise((resolve) => { timer = setTimeout(() => resolve(fallback), timeoutMs); });
+  return Promise.race([guarded, timeout]).finally(() => clearTimeout(timer));
+}
+
 async function statePayload() {
   const config = store.load();
   let manifestInfo;
@@ -385,10 +392,17 @@ async function statePayload() {
       configured: false, source: 'error', error: err.message
     };
   }
-  const java = await resolveJava17(config.minecraft.javaPath || '', managedJavaRoot());
   const username = String(config.minecraft.username || '').trim();
   const minimumLauncher = String(manifestInfo.manifest?.minimumLauncher || '0.0.0');
-  const system = await cachedSystemProfile(config.pack.installDirectory).catch(() => null);
+  const developerFallback = developerService ? developerService.status() : { configured:false, unlocked:false };
+  const developerProbe = developerService
+    ? withDeadline(developerService.statusAsync(), developerFallback, 2500)
+    : Promise.resolve(developerFallback);
+  const [java, system, developer] = await Promise.all([
+    resolveJava17(config.minecraft.javaPath || '', managedJavaRoot()).catch(() => ({ found:false, major:0, version:'', path:'' })),
+    cachedSystemProfile(config.pack.installDirectory).catch(() => null),
+    developerProbe
+  ]);
   if (system) system.display = primaryDisplayInfo();
   const account = authService ? authService.status() : { authenticated:false, name:'', id:'' };
   const effectiveConfig = configWithDisplay(config);
@@ -400,7 +414,7 @@ async function statePayload() {
     minimumLauncher, launcherCompatible: versionAtLeast(app.getVersion(), minimumLauncher),
     needsOnboarding: !config.onboarding?.completed || !validMinecraftUsername(username) || username.toLowerCase() === 'player',
     launcherUpdateConfigured: Boolean(config.launcher?.updateFeedUrl),
-    developer: developerService ? await developerService.statusAsync() : { configured:false, unlocked:false },
+    developer,
     account,
     operation: activeOperation || '', configRecovery: store.recoveryInfo ? store.recoveryInfo() : null
   };
