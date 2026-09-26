@@ -29,6 +29,10 @@ for (const name of ['listMods','addMods','toggleMod','removeMod','toggleFavorite
   if (typeof modService[name] !== 'function') throw new Error(`modService no exporta ${name}()`);
 }
 const mainSource = fs.readFileSync(path.join(root,'src','main','main.js'),'utf8');
+const publisherSource = fs.readFileSync(path.join(root,'scripts','publish-pack-github.js'),'utf8');
+if (!publisherSource.includes("String(output || '').trim()")) throw new Error('El publicador debe normalizar la salida nula de gh antes de trim().');
+if (!publisherSource.includes("'--input', bodyFile")) throw new Error('El publicador debe enviar el manifest por archivo y no por argumentos de gh.');
+if (/--(?:raw-)?field['\"`][^\n]*(?:manifest|content|body)/i.test(publisherSource)) throw new Error('El publicador volvió a pasar contenido grande del manifest por argumentos de gh.');
 for (const match of mainSource.matchAll(/const\s*\{([^}]+)\}\s*=\s*require\('\.\/services\/([^']+)'\)/g)) {
   const names = match[1].split(',').map(value => value.trim()).filter(Boolean);
   const serviceSource = fs.readFileSync(path.join(root,'src','main','services',`${match[2]}.js`),'utf8');
