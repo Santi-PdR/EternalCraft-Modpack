@@ -43,6 +43,8 @@ if (!publisherSource.includes('includeUserMods')) throw new Error('El publicador
 if (!packBuilderSource.includes("Boolean(args['include-user-mods'])")) throw new Error('El constructor debe aceptar la política explícita de publicación de mods personales.');
 if (!manifestServiceSource.includes('Ruta fuera del payload administrado')) throw new Error('El validador debe limitar el manifiesto a los directorios administrados.');
 if (!updateServiceSource.includes('if (availableInfo) emit({ type: \'available\'')) throw new Error('El updater debe conservar el reintento después de un fallo de descarga.');
+if (!updateServiceSource.includes('if (downloadPromise) return { configured: true')) throw new Error('El updater debe evitar comprobaciones concurrentes durante una descarga.');
+if (!updateServiceSource.includes('if (checkPromise) await checkPromise')) throw new Error('El updater debe esperar la comprobación antes de descargar.');
 if (!developerServiceSource.includes("output = `${output}${text}`.slice(-maxCapture)")) throw new Error('El publicador debe conservar el final del log para diagnosticar fallos.');
 if (!developerServiceSource.includes('async cleanupStalePublishWorkDir')) throw new Error('La limpieza de temporales del publicador debe ser asíncrona.');
 if (!developerServiceSource.includes("child.kill('SIGTERM')")) throw new Error('El publicador debe terminar el proceso hijo cuando falla su canal de salida.');

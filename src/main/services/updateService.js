@@ -47,6 +47,10 @@ function configureLauncherUpdates({ feedUrl, onEvent = () => {} }) {
 async function checkLauncherUpdate(config, onEvent) {
   const setup = configureLauncherUpdates({ feedUrl: config.launcher?.updateFeedUrl, onEvent });
   if (!setup.configured) return { configured: false, currentVersion: app.getVersion(), state: lastState };
+  // electron-updater does not support a check racing with an active download.
+  // Return the current state and let the download event drive the UI instead
+  // of resetting the banner while the installer is being written.
+  if (downloadPromise) return { configured: true, currentVersion: app.getVersion(), state: lastState };
   if (checkPromise) return checkPromise;
   checkPromise = autoUpdater.checkForUpdates()
     .then((result) => ({ configured: true, currentVersion: app.getVersion(), updateInfo: result?.updateInfo || null, state: lastState }))
@@ -57,6 +61,11 @@ async function checkLauncherUpdate(config, onEvent) {
 async function downloadLauncherUpdate(config, onEvent) {
   const setup = configureLauncherUpdates({ feedUrl: config.launcher?.updateFeedUrl, onEvent });
   if (!setup.configured) throw new Error('No hay un canal de actualizaciones del launcher configurado.');
+  if (lastState.type === 'downloaded') return { downloaded: true, state: lastState };
+  // Wait for an in-flight check to publish the available version before
+  // deciding whether downloadUpdate() is allowed. This avoids the renderer
+  // seeing “primero comprobá” during the short checking/available transition.
+  if (checkPromise) await checkPromise;
   if (lastState.type === 'downloaded') return { downloaded: true, state: lastState };
   if (!['available', 'progress'].includes(lastState.type)) {
     throw new Error('Primero comprobá si hay una actualización disponible.');
