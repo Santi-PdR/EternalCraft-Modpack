@@ -115,6 +115,12 @@ function runPublisherProcess({ args, cwd, onLine = () => {}, timeoutMs, label, e
       settled = true;
       clearTimeout(timer);
       clearInterval(heartbeat);
+      // A broken stdout/stderr pipe or an IPC-side failure must not leave the
+      // publisher alive in the background holding the work directory open.
+      if (error && child.exitCode === null && !child.killed) {
+        try { child.kill('SIGTERM'); } catch (_) {}
+        setTimeout(() => { if (child.exitCode === null && !child.killed) { try { child.kill('SIGKILL'); } catch (_) {} } }, 2500).unref?.();
+      }
       error ? reject(error) : resolve(value);
     };
     const collect = (buf) => {
