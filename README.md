@@ -18,6 +18,7 @@ Eternal Craft Launcher is intentionally not a generic multi-instance launcher. I
 - La instalación administrada de Java 17 usa timeout, reintentos y validación de integridad antes de extraer el runtime.
 - Developer Mode mantiene el progreso en vivo sin guardar una salida ilimitada en memoria durante publicaciones grandes.
 - Apariencia añade intensidad del fondo (70–120%), integrada en perfiles, autoguardado, importación/exportación y restauración segura.
+- La colección DVN incluye los temas Pulse, Ember, Sandline y Night Ops, más las escenas Training Grounds, Outpost Assault, Warehouse Raid y Neon Extraction, todas empaquetadas localmente.
 - El publicador filtra secretos, muestra progreso de preparación, evita argumentos gigantes y verifica el manifest remoto y todos los blobs antes de confirmar una publicación.
 - Las actualizaciones de jugadores reutilizan caché por SHA-256, descargan solo diferencias y aplican cambios mediante staging/rollback para no dejar instalaciones a medias.
 - La versión conserva la revisión global, filtros persistentes, perfiles visuales, login Microsoft, galería local y protección de contenido oficial de 0.63.

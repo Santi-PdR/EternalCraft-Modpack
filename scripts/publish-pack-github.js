@@ -92,6 +92,7 @@ async function verifyPublishedChannel(repo, branch, expectedManifest) {
   catch (_) { throw new Error('El manifest estable remoto no es JSON válido.'); }
   if (String(remote.version || '') !== String(expectedManifest.version || '')) throw new Error(`El manifest remoto quedó en ${remote.version || 'una versión desconocida'} y se esperaba ${expectedManifest.version}.`);
   if (Number(remote.files?.length || 0) !== Number(expectedManifest.files?.length || 0)) throw new Error('El manifest remoto no contiene la misma cantidad de archivos que la publicación local.');
+  if (manifestFingerprint(remote) !== manifestFingerprint(expectedManifest)) throw new Error('El manifest remoto no coincide con la huella SHA-256 de la publicación local.');
   return remote;
 }
 async function main() {

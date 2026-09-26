@@ -223,13 +223,14 @@ function setBusy(value,label='PROCESANDO'){
   footer(value?label:'LISTO'); updatePlayAvailability();
 }
 function applyBackground(name){
-  const names=['frontline','night','canyon','anniversary','cyborg','dummies','orbit','laststand','vought','nightop','rooftop','tempest','urban'];
+  const names=['frontline','night','canyon','anniversary','cyborg','dummies','orbit','laststand','vought','nightop','rooftop','tempest','urban','dvn-training','dvn-outpost','dvn-warehouse','dvn-neon'];
   const safe=names.includes(name)?name:'frontline'; const bg=$('background');
   names.forEach(n=>bg.classList.remove(`scene-${n}`)); bg.classList.add(`scene-${safe}`);
   document.body.dataset.background=safe;
   const hero=document.querySelector('.play-card-bg'); if(hero){
-    const fallback=['night','orbit','cyborg'].includes(safe)?'night':['canyon','laststand'].includes(safe)?'canyon':'frontline';
-    hero.style.backgroundImage=`url('assets/siege/${safe}.png'), url('assets/${fallback}.svg')`;
+    const fallback=['night','orbit','cyborg','dvn-neon'].includes(safe)?'night':['canyon','laststand','dvn-outpost'].includes(safe)?'canyon':'frontline';
+    const extension=safe.startsWith('dvn-')? 'svg':'png';
+    hero.style.backgroundImage=`url('assets/siege/${safe}.${extension}'), url('assets/${fallback}.svg')`;
   }
   if($('backgroundSelect') && $('backgroundSelect').value!==safe)$('backgroundSelect').value=safe;
   $$('#backgroundGallery .background-thumb').forEach(btn=>btn.classList.toggle('active',btn.dataset.background===safe));
@@ -247,7 +248,7 @@ function applyVisuals(config={}){
   if(/^#[0-9a-f]{6}$/i.test(String(config.accent2||''))) document.documentElement.style.setProperty('--themeAccent2',config.accent2);
   else document.documentElement.style.removeProperty('--themeAccent2');
   const radius=Number(config.cardRadius); document.documentElement.style.setProperty('--radius-lg',`${clamp(Number.isFinite(radius)?radius:16,8,28)}px`); const brightness=clamp(Number(config.backgroundBrightness)||1,.7,1.2); document.documentElement.style.setProperty('--backgroundBrightness',String(brightness));
-  const names=['frontline','night','canyon','anniversary','cyborg','dummies','orbit','laststand','vought','nightop','rooftop','tempest','urban'];
+  const names=['frontline','night','canyon','anniversary','cyborg','dummies','orbit','laststand','vought','nightop','rooftop','tempest','urban','dvn-training','dvn-outpost','dvn-warehouse','dvn-neon'];
   let selected=config.background||'frontline';
   if(config.backgroundMode==='randomStartup'&&!startupBackgroundApplied){selected=names[Math.floor(Math.random()*names.length)];startupBackgroundApplied=true;}
   applyBackground(selected);
@@ -261,9 +262,9 @@ function applyVisuals(config={}){
 }
 function renderBackgroundGallery(selected='frontline'){
   const host=$('backgroundGallery');if(!host)return;
-  const items=[['frontline','Frontline'],['night','Night Battle'],['canyon','Canyon'],['anniversary','Anniversary'],['cyborg','Cyborg'],['dummies','Dummies'],['orbit','Earth Orbit'],['laststand','Last Stand'],['vought','Vought'],['nightop','Night Operation'],['rooftop','Rooftop'],['tempest','Tempest'],['urban','Urban']];
+  const items=[['frontline','Frontline'],['night','Night Battle'],['canyon','Canyon'],['anniversary','Anniversary'],['cyborg','Cyborg'],['dummies','Dummies'],['orbit','Earth Orbit'],['laststand','Last Stand'],['vought','Vought'],['nightop','Night Operation'],['rooftop','Rooftop'],['tempest','Tempest'],['urban','Urban'],['dvn-training','DVN Training'],['dvn-outpost','DVN Outpost'],['dvn-warehouse','DVN Warehouse'],['dvn-neon','DVN Neon']];
   host.innerHTML='';
-  for(const [id,label] of items){const b=document.createElement('button');b.type='button';b.dataset.background=id;b.className=`background-thumb ${id===selected?'active':''}`;b.innerHTML=`<img src="assets/siege/${id}.png" alt=""><span>${label}</span>`;const img=b.querySelector('img');if(img)img.addEventListener('error',()=>{img.src=`assets/${['night','orbit','cyborg'].includes(id)?'night':['canyon','laststand'].includes(id)?'canyon':'frontline'}.svg`;},{once:true});b.addEventListener('click',()=>{if($('backgroundSelect'))$('backgroundSelect').value=id;applyBackground(id);$$('.background-thumb').forEach(x=>x.classList.toggle('active',x===b));queueSettingsSave();});host.appendChild(b);}
+  for(const [id,label] of items){const b=document.createElement('button');b.type='button';b.dataset.background=id;b.className=`background-thumb ${id===selected?'active':''}`;const extension=id.startsWith('dvn-')?'svg':'png';b.innerHTML=`<img src="assets/siege/${id}.${extension}" alt=""><span>${label}</span>`;const img=b.querySelector('img');if(img)img.addEventListener('error',()=>{img.src=`assets/${['night','orbit','cyborg','dvn-neon'].includes(id)?'night':['canyon','laststand','dvn-outpost'].includes(id)?'canyon':'frontline'}.svg`;},{once:true});b.addEventListener('click',()=>{if($('backgroundSelect'))$('backgroundSelect').value=id;applyBackground(id);$$('.background-thumb').forEach(x=>x.classList.toggle('active',x===b));queueSettingsSave();});host.appendChild(b);}
 }
 
 function showOperation(title='SINCRONIZANDO'){

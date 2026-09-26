@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 900" role="img" aria-label="Dummies vs Noobs training grounds">
+  <defs>
+    <linearGradient id="sky" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#b9e2e8"/><stop offset=".58" stop-color="#6aa3b4"/><stop offset="1" stop-color="#243e55"/></linearGradient>
+    <linearGradient id="ground" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#526f70"/><stop offset="1" stop-color="#162534"/></linearGradient>
+    <linearGradient id="light" x1="0" y1="0" x2="1" y2="0"><stop stop-color="#f7d77b" stop-opacity=".95"/><stop offset="1" stop-color="#ef8d58" stop-opacity="0"/></linearGradient>
+  </defs>
+  <rect width="1600" height="900" fill="url(#sky)"/><path d="M0 510 240 380 420 470 640 330 880 480 1110 350 1370 470 1600 360V900H0Z" fill="url(#ground)"/>
+  <path d="M0 560h1600" stroke="#9dc2b9" stroke-opacity=".3" stroke-width="7"/><path d="M0 680 620 540 1600 640" fill="none" stroke="#203447" stroke-width="130" opacity=".8"/>
+  <g fill="#d8e8e4" stroke="#29465b" stroke-width="12"><path d="M180 510V285h210v225Z"/><path d="M1220 475V230h230v245Z"/><path d="m520 520 110-190 110 190Z"/></g>
+  <g fill="#f3b75c"><rect x="225" y="330" width="50" height="55"/><rect x="295" y="330" width="50" height="55"/><rect x="1265" y="285" width="50" height="55"/><rect x="1335" y="285" width="50" height="55"/></g>
+  <path d="M0 790 720 560 1600 720V900H0Z" fill="#0f1d2b" opacity=".62"/><path d="M80 730h580" stroke="url(#light)" stroke-width="18"/><g fill="#f0cf68" stroke="#25384d" stroke-width="10"><circle cx="930" cy="610" r="34"/><path d="M884 700q46-84 92 0v85h-92Z"/><circle cx="1080" cy="570" r="28"/><path d="M1042 650q38-66 76 0v72h-76Z"/></g>
+</svg>
