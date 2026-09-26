@@ -93,6 +93,17 @@ for (const stream of [process.stdout, process.stderr]) {
   }
 }
 
+// A rejected IPC call can be reported after the terminal/parent process has
+// already closed its pipe. Electron surfaces that write as an uncaught
+// exception even though it is unrelated to the launcher state. Treat only
+// this transport failure as recoverable; every other exception keeps the
+// normal crash path and is recorded by the handler installed during startup.
+process.on('uncaughtException', (error) => {
+  if (error?.code === 'EPIPE') return;
+  void appendLauncherError('uncaughtException', error);
+  setTimeout(() => { if (app.isReady() && !isQuitting) app.quit(); }, 0);
+});
+
 function resourcesDir() {
   return app.isPackaged ? path.join(process.resourcesPath, 'resources') : path.join(__dirname, '..', '..', 'resources');
 }
