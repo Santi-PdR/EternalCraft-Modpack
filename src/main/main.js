@@ -13,7 +13,7 @@ const { ensurePreset } = require('./services/gamePresetService');
 const { systemProfile } = require('./services/systemService');
 const { checkLauncherUpdate, downloadLauncherUpdate, installLauncherUpdate } = require('./services/updateService');
 const { listMods, addMods, toggleMod, removeMod, toggleFavorite, togglePin, setAllUserModsEnabled, copyModToRoot, auditMods } = require('./services/modService');
-const { DeveloperService } = require('./services/developerService');
+const { DeveloperService, terminatePublisherProcesses } = require('./services/developerService');
 const { AuthService } = require('./services/authService');
 const { listSnapshots, createSnapshot, restoreSnapshot, deleteSnapshot } = require('./services/recoveryService');
 const { prepareSafeMode, restoreSafeMode } = require('./services/safeModeService');
@@ -1035,5 +1035,5 @@ if (!gotSingleInstanceLock) {
     app.on('activate', () => { if (BrowserWindow.getAllWindows().length === 0) createWindow(); });
   });
 }
-app.on('before-quit', () => { isQuitting = true; });
+app.on('before-quit', () => { isQuitting = true; terminatePublisherProcesses(); });
 app.on('window-all-closed', () => { const keep=Boolean(tray && store?.load?.().launcher?.closeToTray !== false); if (process.platform !== 'darwin' && !keep) app.quit(); });

@@ -5,6 +5,13 @@ const os = require('os');
 const crypto = require('crypto');
 const { spawn, spawnSync, execFile } = require('child_process');
 const execFileAsync = require('util').promisify(execFile);
+const publisherChildren = new Set();
+
+function terminatePublisherProcesses() {
+  for (const child of publisherChildren) {
+    try { if (child.exitCode === null && !child.killed) child.kill('SIGTERM'); } catch (_) {}
+  }
+}
 
 function hashPassword(password, saltHex) {
   return crypto.scryptSync(String(password), Buffer.from(saltHex, 'hex'), 32).toString('hex');
@@ -102,6 +109,7 @@ function runPublisherProcess({ args, cwd, onLine = () => {}, timeoutMs, label, e
       stdio: ['ignore', 'pipe', 'pipe'],
       windowsHide: true
     });
+    publisherChildren.add(child);
     let output = '';
     let settled = false;
     const maxCapture = 2 * 1024 * 1024;
@@ -115,6 +123,7 @@ function runPublisherProcess({ args, cwd, onLine = () => {}, timeoutMs, label, e
       settled = true;
       clearTimeout(timer);
       clearInterval(heartbeat);
+      publisherChildren.delete(child);
       // A broken stdout/stderr pipe or an IPC-side failure must not leave the
       // publisher alive in the background holding the work directory open.
       if (error && child.exitCode === null && !child.killed) {
@@ -367,4 +376,4 @@ class DeveloperService {
       .then(({ output }) => ({ ok: true, output, manifestPath: path.join(this.publishWorkDir, 'channel', 'stable.json') }));
   }
 }
-module.exports = { DeveloperService };
+module.exports = { DeveloperService, terminatePublisherProcesses };
