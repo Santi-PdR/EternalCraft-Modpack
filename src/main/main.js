@@ -491,7 +491,7 @@ async function updatePack(config, force = false) {
   if (changeCount > 0 && config.pack.autoSnapshot !== false) {
     await createSnapshot(config.pack.installDirectory, info.manifest, `Antes de actualizar a ${info.manifest.version || 'nueva versión'}`).catch(() => null);
   }
-  const repaired = await repairInstallation(config.pack.installDirectory, info.manifest, (p) => packProgress(p));
+  const repaired = await repairInstallation(config.pack.installDirectory, info.manifest, (p) => packProgress(p), before);
   const system = await cachedSystemProfile(config.pack.installDirectory, 0).catch(() => null);
   const cache = await cacheStats(config.pack.installDirectory).catch(() => ({ files: 0, bytes: 0 }));
   return { configured: true, updated: true, ...repaired, system, cache };

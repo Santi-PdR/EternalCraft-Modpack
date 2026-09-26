@@ -391,9 +391,12 @@ async function cleanupInterruptedTransactions(root, maxAgeMs = 60 * 60 * 1000) {
   }
 }
 
-async function repairInstallation(root, manifest, onProgress = () => {}) {
+async function repairInstallation(root, manifest, onProgress = () => {}, existingCheck = null) {
   await cleanupInterruptedTransactions(root);
-  const check = await checkInstallation(root, manifest, onProgress);
+  // An update flow often checks the same manifest immediately before repair
+  // to decide whether a snapshot is needed. Reuse that result instead of
+  // hashing every installed JAR a second time.
+  const check = existingCheck || await checkInstallation(root, manifest, onProgress);
   const removals = await removalPlan(root, manifest);
   const priorState = check.state || { version: null, updatedAt: null };
   const targets = [...check.missing, ...check.changed];

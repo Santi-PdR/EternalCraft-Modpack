@@ -44,6 +44,7 @@ if (!publisherSource.includes("'--input', bodyFile")) throw new Error('El public
 if (!publisherSource.includes('includeUserMods')) throw new Error('El publicador debe declarar la política de mods personales.');
 if (!packBuilderSource.includes("Boolean(args['include-user-mods'])")) throw new Error('El constructor debe aceptar la política explícita de publicación de mods personales.');
 if (!packServiceSource.includes('function normalizeModMetadataPath') || !packServiceSource.includes("replace(/^mods\\//i, '')")) throw new Error('Los metadatos de mods deben normalizar rutas antiguas y archivos desactivados.');
+if (!packServiceSource.includes('existingCheck = null') || !mainSource.includes('packProgress(p), before)')) throw new Error('La actualización debe reutilizar la comprobación previa antes de reparar.');
 if (!manifestServiceSource.includes('Ruta fuera del payload administrado')) throw new Error('El validador debe limitar el manifiesto a los directorios administrados.');
 if (!serverPingSource.includes("confidence: hasStatusPayload && !exarotonLobby ? 'verified' : 'unknown'")) throw new Error('El ping del servidor debe distinguir respuestas verificadas de estados ambiguos.');
 if (!serverPingSource.includes('onlinePlayers <= maxPlayers')) throw new Error('El ping del servidor debe validar la coherencia de jugadores.');
