@@ -132,25 +132,52 @@ async function readUserAddedPaths(root) {
     const data = JSON.parse(await fsp.readFile(path.join(root, path.join(INTERNAL_DIR, 'user-mods.json')), 'utf8'));
     return new Set(Object.entries(data?.mods || {})
       .filter(([, metadata]) => String(metadata?.provider || '').toLowerCase() === 'local')
-      .map(([name]) => `mods/${String(name).replace(/\\/g, '/')}`)
+      .map(([name]) => `mods/${String(name).replace(/\\/g, '/')}`.toLowerCase())
       .filter((file) => /^mods\/[^/]+\.jar$/i.test(file)));
   } catch (_) {
     return new Set();
   }
 }
 
+async function reconcileOfficialModMetadata(root, manifest) {
+  const file = path.join(root, INTERNAL_DIR, 'user-mods.json');
+  let data;
+  try { data = JSON.parse(await fsp.readFile(file, 'utf8')); } catch (_) { return false; }
+  if (!data || typeof data !== 'object' || !data.mods || typeof data.mods !== 'object') return false;
+  const official = new Set(manifestPaths(manifest)
+    .map((entry) => entry.toLowerCase())
+    .filter((entry) => entry.startsWith('mods/') && entry.endsWith('.jar')));
+  let changed = false;
+  for (const [name, metadata] of Object.entries(data.mods)) {
+    const key = `mods/${String(name).replace(/\\/g, '/')}`.toLowerCase();
+    if (!official.has(key) || !metadata || typeof metadata !== 'object') continue;
+    if (String(metadata.provider || '').toLowerCase() === 'local') {
+      data.mods[name] = { ...metadata, provider: 'official' };
+      changed = true;
+    }
+  }
+  if (changed) await writeJsonAtomic(file, data);
+  return changed;
+}
+
 async function removalPlan(root, manifest) {
   const current = new Set(manifestPaths(manifest));
+  const currentKeys = new Set([...current].map((file) => file.toLowerCase()));
   const previousOfficial = await readOfficialFiles(root);
   const userAdded = await readUserAddedPaths(root);
+  const previousOfficialKeys = new Set([...previousOfficial].map((file) => file.toLowerCase()));
   const explicit = Array.isArray(manifest?.remove) ? manifest.remove : [];
-  const staleOfficial = [...previousOfficial].filter((file) => !current.has(file));
+  const staleOfficial = [...previousOfficial].filter((file) => !currentKeys.has(file.toLowerCase()));
   const candidates = [...new Set([...explicit, ...staleOfficial])]
     .map((file) => String(file || '').replace(/\\/g, '/'))
-    .filter((file) => file && !current.has(file) && !userAdded.has(file));
+    // A mod that was official in the previous manifest must be removed even
+    // if old metadata still says provider=local. Only genuinely personal
+    // files are protected from the pack's removal list.
+    .filter((file) => file && !currentKeys.has(file.toLowerCase()) && (previousOfficialKeys.has(file.toLowerCase()) || !userAdded.has(file.toLowerCase())));
   const paths = [];
   for (const file of candidates) {
     if (await fsp.lstat(safeTarget(root, file)).catch(() => null)) paths.push(file);
+    if (/\.jar$/i.test(file) && await fsp.lstat(safeTarget(root, `${file}.disabled`)).catch(() => null)) paths.push(`${file}.disabled`);
   }
   return { paths, previousOfficial, userAdded };
 }
@@ -357,6 +384,7 @@ async function repairInstallation(root, manifest, onProgress = () => {}) {
     if (!(await fsp.stat(path.join(root, OFFICIAL_FILES_FILE)).catch(() => null))) {
       await writeOfficialFiles(root, manifest);
     }
+    await reconcileOfficialModMetadata(root, manifest);
     return { ...check, repaired: 0, removed: 0, cacheHits: 0, downloaded: 0 };
   }
 
@@ -425,6 +453,7 @@ async function repairInstallation(root, manifest, onProgress = () => {}) {
     // successfully. This lets the next update remove retired official files
     // without touching mods installed through “Agregar .jar”.
     await writeOfficialFiles(root, manifest);
+    await reconcileOfficialModMetadata(root, manifest);
 
     await fsp.rm(stagingRoot, { recursive: true, force: true }).catch(() => {});
     await fsp.rm(rollbackRoot, { recursive: true, force: true }).catch(() => {});
@@ -492,4 +521,4 @@ async function clearCache(root) {
   return { clearedFiles:Number(before.files||0), clearedBytes:Number(before.bytes||0) };
 }
 
-module.exports = { checkInstallation, repairInstallation, ensureForgeInstaller, safeTarget, sha256File, readState, cacheStats, pruneCache, clearCache, readOfficialFiles };
+module.exports = { checkInstallation, repairInstallation, ensureForgeInstaller, safeTarget, sha256File, readState, cacheStats, pruneCache, clearCache, readOfficialFiles, removalPlan, reconcileOfficialModMetadata };
