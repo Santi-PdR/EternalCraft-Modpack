@@ -147,6 +147,8 @@ async function main() {
   result.manifest.releaseNotes.title = `${version} — ${result.manifest.releaseName}`;
   const sourceFingerprint=manifestFingerprint(result.manifest);
   if(args['expected-fingerprint'] && String(args['expected-fingerprint'])!==sourceFingerprint) throw new Error('La instancia SIEGE cambió después del preview. Hacé una nueva previsualización antes de publicar.');
+  console.log(`Fuente verificada: ${result.source}`);
+  console.log(`Payload verificado: ${result.payload.mods} mods + ${result.payload.iammusicplayerrenewed} archivos de iammusicplayerrenewed (${result.payload.total} total)`);
 
   if (previewOnly) {
     const preview = {
@@ -155,7 +157,7 @@ async function main() {
       totalFiles: result.manifest.files.length,
       added: result.changes.added || [], changed: result.changes.changed || [], removed: result.changes.removed || [],
       unchanged: result.changes.unchanged || 0,
-      newBlobCount: result.changes.uniqueNewBlobs || 0, sourceFingerprint
+      newBlobCount: result.changes.uniqueNewBlobs || 0, sourceFingerprint, payload: result.payload
     };
     console.log(`PREVIEW_JSON:${JSON.stringify(preview)}`);
     await fsp.rm(out, { recursive: true, force: true }).catch(() => {});

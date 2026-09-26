@@ -97,6 +97,13 @@ function isPublishedPath(relative) {
     || normalized === 'iammusicplayerrenewed' || normalized.startsWith('iammusicplayerrenewed/');
 }
 
+function publishedPathKind(relative) {
+  const normalized = String(relative || '').replace(/\\/g, '/').replace(/^\.\//, '');
+  if (normalized === 'mods' || normalized.startsWith('mods/')) return 'mods';
+  if (normalized === 'iammusicplayerrenewed' || normalized.startsWith('iammusicplayerrenewed/')) return 'iammusicplayerrenewed';
+  return null;
+}
+
 async function walk(root, dir = root, prefix = '') {
   let entries = [];
   try { entries = await fsp.readdir(dir, { withFileTypes: true }); } catch (_) { return []; }
@@ -128,6 +135,30 @@ async function resolveNotes(value) {
     if (stat.isFile()) return (await fsp.readFile(path.resolve(raw), 'utf8')).trim();
   } catch (_) {}
   return raw;
+}
+
+/**
+ * Keep the publisher honest about its payload boundary. This is intentionally
+ * checked from the source tree a second time instead of trusting the array
+ * that was used to build the manifest. It catches future regressions where a
+ * filter, a staging step, or a hand-edited manifest drops a SIEGE file.
+ */
+async function validatePublishedPayload(source, manifest) {
+  const sourceFiles = (await walk(source)).filter((file) => isPublishedPath(file.relative));
+  const expected = new Map(sourceFiles.map((file) => [file.relative, publishedPathKind(file.relative)]));
+  const actual = new Map((manifest?.files || []).map((file) => [String(file.path || '').replace(/\\/g, '/'), publishedPathKind(file.path)]));
+  const missing = [...expected.keys()].filter((file) => !actual.has(file));
+  const unexpected = [...actual.keys()].filter((file) => !expected.has(file) || !actual.get(file));
+  if (missing.length || unexpected.length) {
+    const details = [
+      missing.length ? `faltan ${missing.length}: ${missing.slice(0, 5).join(', ')}` : '',
+      unexpected.length ? `sobran ${unexpected.length}: ${unexpected.slice(0, 5).join(', ')}` : ''
+    ].filter(Boolean).join(' · ');
+    throw new Error(`El manifest no coincide con el payload de SIEGE (${details}). La publicación fue detenida.`);
+  }
+  const payload = { total: expected.size, mods: [...expected.values()].filter((kind) => kind === 'mods').length, iammusicplayerrenewed: [...expected.values()].filter((kind) => kind === 'iammusicplayerrenewed').length };
+  if (!payload.mods) throw new Error(`La instancia ${source} no contiene mods publicables.`);
+  return payload;
 }
 
 async function buildPack(options = {}) {
@@ -215,6 +246,8 @@ async function buildPack(options = {}) {
     files: manifestFiles,
     remove
   };
+  const payload = await validatePublishedPayload(source, manifest);
+  manifest.payload = payload;
   const changes = {
     version,
     generatedAt: manifest.generatedAt,
@@ -223,12 +256,13 @@ async function buildPack(options = {}) {
     added,
     changed,
     removed: remove,
-    unchanged: unchanged.length
+    unchanged: unchanged.length,
+    payload
   };
 
   await fsp.writeFile(path.join(channelDir, 'stable.json'), JSON.stringify(manifest, null, 2));
   await fsp.writeFile(path.join(out, 'changes.json'), JSON.stringify(changes, null, 2));
-  return { source, out, manifest, changes, uniqueNew: [...uniqueNew] };
+  return { source, out, manifest, changes, payload, uniqueNew: [...uniqueNew] };
 }
 
 async function main() {
@@ -246,6 +280,7 @@ async function main() {
   });
   console.log('\nETERNAL CRAFT // PACK BUILD READY');
   console.log(`Fuente: ${result.source}`);
+  console.log(`Payload verificado: ${result.payload.mods} mods + ${result.payload.iammusicplayerrenewed} archivos de iammusicplayerrenewed`);
   console.log(`Versión: ${result.manifest.version}`);
   console.log(`Archivos: ${result.manifest.files.length}`);
   console.log(`Nuevos blobs: ${result.changes.uniqueNewBlobs}`);
@@ -254,4 +289,4 @@ async function main() {
 }
 
 if (require.main === module) main().catch((err) => { console.error(`ERROR: ${err.message}`); process.exit(1); });
-module.exports = { buildPack, parseArgs, resolveGameRoot, sha256File, walk };
+module.exports = { buildPack, parseArgs, resolveGameRoot, sha256File, walk, isPublishedPath, validatePublishedPayload };
