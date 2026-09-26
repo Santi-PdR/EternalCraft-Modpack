@@ -178,15 +178,17 @@ async function removalPlan(root, manifest) {
   const userAdded = await readUserAddedPaths(root);
   const previousOfficialKeys = new Set([...previousOfficial].map((file) => file.toLowerCase()));
   const explicit = Array.isArray(manifest?.remove) ? manifest.remove : [];
-  const explicitKeys = new Set(explicit.map((file) => String(file || '').replace(/\\/g, '/').toLowerCase()));
   const staleOfficial = [...previousOfficial].filter((file) => !currentKeys.has(file.toLowerCase()));
   const candidates = [...new Set([...explicit, ...staleOfficial])]
     .map((file) => String(file || '').replace(/\\/g, '/'))
-    // An explicit remove entry is the developer's authoritative retirement
-    // instruction, including for legacy installs without official-files.json.
-    // Stale inventory entries also win over old provider=local metadata; only
-    // genuinely personal files outside the pack's removal list are protected.
-    .filter((file) => file && !currentKeys.has(file.toLowerCase()) && (explicitKeys.has(file.toLowerCase()) || previousOfficialKeys.has(file.toLowerCase()) || !userAdded.has(file.toLowerCase())));
+    // Retire only files owned by the pack. A personal jar must survive even if
+    // an old manifest accidentally listed the same path in `remove`; the
+    // persisted official inventory is the stronger signal when metadata is
+    // stale and still says `local`.
+    .filter((file) => {
+      const key = file.toLowerCase();
+      return file && !currentKeys.has(key) && (previousOfficialKeys.has(key) || !userAdded.has(key));
+    });
   const paths = [];
   for (const file of candidates) {
     if (await fsp.lstat(safeTarget(root, file)).catch(() => null)) paths.push(file);
