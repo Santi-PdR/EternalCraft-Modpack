@@ -48,6 +48,44 @@ function safeEqualHex(a, b) {
   } catch (_) { return false; }
 }
 
+function runPublisherProcess({ args, cwd, onLine = () => {}, timeoutMs, label }) {
+  return new Promise((resolve, reject) => {
+    const child = spawn(process.execPath, args, {
+      cwd,
+      env: { ...process.env, ELECTRON_RUN_AS_NODE: '1' },
+      stdio: ['ignore', 'pipe', 'pipe'],
+      windowsHide: true
+    });
+    let output = '';
+    let settled = false;
+    const maxCapture = 2 * 1024 * 1024;
+    const finish = (error, value) => {
+      if (settled) return;
+      settled = true;
+      clearTimeout(timer);
+      error ? reject(error) : resolve(value);
+    };
+    const collect = (buf) => {
+      const text = String(buf || '');
+      if (output.length < maxCapture) output += text.slice(0, Math.max(0, maxCapture - output.length));
+      for (const line of text.split(/\r?\n/).filter(Boolean)) onLine(line);
+    };
+    const timer = setTimeout(() => {
+      child.kill('SIGTERM');
+      setTimeout(() => { if (!settled) child.kill('SIGKILL'); }, 2500).unref?.();
+      finish(new Error(`${label} superó el tiempo límite de ${Math.round(timeoutMs / 60000)} minutos y fue detenido.`));
+    }, timeoutMs);
+    child.stdout.on('data', collect);
+    child.stderr.on('data', collect);
+    child.once('error', (error) => finish(error));
+    child.once('close', (code, signal) => {
+      if (settled) return;
+      if (code !== 0) return finish(new Error(output.trim() || `${label} falló${signal ? ` (${signal})` : ` (${code})`}.`));
+      finish(null, { output });
+    });
+  });
+}
+
 class DeveloperService {
   constructor(userDataDir, scriptRoot) {
     this.file = path.join(userDataDir, 'developer-secrets.json');
@@ -218,17 +256,12 @@ class DeveloperService {
     fs.mkdirSync(this.publishWorkDir, { recursive: true });
     const args = [script, '--preview', '--repo', repo, '--source', normalizePathInput(source, path.join(os.homedir(), '.sklauncher', 'instances', 'siege')), '--out', this.publishWorkDir];
     if (version) args.push('--version', version); if (notes) args.push('--notes', notes);
-    return new Promise((resolve, reject) => {
-      const child = spawn(process.execPath, args, { cwd: this.publishWorkDir, env: { ...process.env, ELECTRON_RUN_AS_NODE: '1' }, stdio: ['ignore','pipe','pipe'] });
-      let output=''; const MAX_CAPTURE=2*1024*1024; const collect=(buf)=>{const text=String(buf);if(output.length<MAX_CAPTURE)output+=(output+text).length>MAX_CAPTURE?text.slice(0,MAX_CAPTURE-output.length):text;text.split(/\r?\n/).filter(Boolean).forEach(onLine);};
-      child.stdout.on('data',collect); child.stderr.on('data',collect); child.on('error',reject);
-      child.on('close',code=>{
-        if(code!==0) return reject(new Error(output.trim()||`Preview falló (${code})`));
-        const line=output.split(/\r?\n/).find((x)=>x.startsWith('PREVIEW_JSON:'));
-        if(!line) return reject(new Error('No pude leer el resumen previo de publicación.'));
-        try{return resolve(JSON.parse(line.slice('PREVIEW_JSON:'.length)));}catch(err){return reject(err);}
+    return runPublisherProcess({ args, cwd: this.publishWorkDir, onLine, timeoutMs: 10 * 60 * 1000, label: 'La previsualización' })
+      .then(({ output }) => {
+        const line = output.split(/\r?\n/).find((x) => x.startsWith('PREVIEW_JSON:'));
+        if (!line) throw new Error('No pude leer el resumen previo de publicación.');
+        return JSON.parse(line.slice('PREVIEW_JSON:'.length));
       });
-    });
   }
 
   publish({ repo, source, version = '', notes = '', expectedFingerprint = '', onLine = () => {} }) {
@@ -238,12 +271,8 @@ class DeveloperService {
     fs.mkdirSync(this.publishWorkDir, { recursive: true });
     const args = [script, '--repo', repo, '--source', normalizePathInput(source, path.join(os.homedir(), '.sklauncher', 'instances', 'siege')), '--out', this.publishWorkDir];
     if (version) args.push('--version', version); if (notes) args.push('--notes', notes); if(expectedFingerprint) args.push('--expected-fingerprint', expectedFingerprint);
-    return new Promise((resolve, reject) => {
-      const child = spawn(process.execPath, args, { cwd: this.publishWorkDir, env: { ...process.env, ELECTRON_RUN_AS_NODE: '1' }, stdio: ['ignore', 'pipe', 'pipe'] });
-      let output = ''; const MAX_CAPTURE = 2 * 1024 * 1024; const collect = (buf) => { const text = String(buf); if (output.length < MAX_CAPTURE) output += (output + text).length > MAX_CAPTURE ? text.slice(0, MAX_CAPTURE - output.length) : text; text.split(/\r?\n/).filter(Boolean).forEach(onLine); };
-      child.stdout.on('data', collect); child.stderr.on('data', collect); child.on('error', reject);
-      child.on('close', code => code === 0 ? resolve({ ok: true, output }) : reject(new Error(output.trim() || `Publicación falló (${code})`)));
-    });
+    return runPublisherProcess({ args, cwd: this.publishWorkDir, onLine, timeoutMs: 45 * 60 * 1000, label: 'La publicación' })
+      .then(({ output }) => ({ ok: true, output }));
   }
 }
 module.exports = { DeveloperService };

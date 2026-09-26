@@ -148,7 +148,7 @@ async function fetchWithRetry(url, options = {}, attempts = 3, timeoutMs = 12000
     const controller = new AbortController();
     const timer = setTimeout(() => controller.abort(), timeoutMs);
     try {
-      const response = await fetch(url, { ...options, signal: options.signal || controller.signal, headers: { 'User-Agent': 'EternalCraftLauncher/0.65.8', ...(options.headers || {}) } });
+      const response = await fetch(url, { ...options, signal: options.signal || controller.signal, headers: { 'User-Agent': 'EternalCraftLauncher/0.65.9', ...(options.headers || {}) } });
       if (response.ok) return response;
       last = new Error(`HTTP ${response.status}`);
       last.retryable = response.status === 408 || response.status === 425 || response.status === 429 || response.status >= 500;
