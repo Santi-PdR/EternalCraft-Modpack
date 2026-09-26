@@ -973,7 +973,16 @@ function registerIpc() {
     let publishedManifest = null;
     try {
       publishedManifest = JSON.parse(await fsp.readFile(result.manifestPath, 'utf8'));
-      await markPublishedOfficial(developerService.resolveRoot(source), publishedManifest);
+      const publishedRoot = developerService.resolveRoot(source);
+      await markPublishedOfficial(publishedRoot, publishedManifest);
+      // The developer may publish from a separate SIEGE checkout while the
+      // launcher is pointed at another linked instance. Promote that active
+      // root too, so the jar just included in the verified manifest is shown
+      // as official immediately instead of waiting for the next repair.
+      const activeRoot = current.pack?.installDirectory ? developerService.resolveRoot(current.pack.installDirectory) : '';
+      if (activeRoot && path.resolve(activeRoot) !== path.resolve(publishedRoot)) {
+        await markPublishedOfficial(activeRoot, publishedManifest);
+      }
     } catch (error) {
       // The GitHub publication is already verified. Keep that success visible,
       // while retaining a diagnostic if the local metadata sync is unavailable.
