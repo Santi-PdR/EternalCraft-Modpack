@@ -44,7 +44,6 @@
     "accent2": "",
     "cardRadius": 16,
     "clipsDirectory": "",
-    "profiles": [],
     "galleryView": {"query":"", "type":"all", "sort":"newest"},
     "backgroundMode": "fixed",
     "backgroundBrightness": 1,

@@ -223,13 +223,13 @@ function setBusy(value,label='PROCESANDO'){
   footer(value?label:'LISTO'); updatePlayAvailability();
 }
 function applyBackground(name){
-  const names=['frontline','night','canyon','anniversary','cyborg','dummies','orbit','laststand','vought','nightop','rooftop','tempest','urban','dvn-training','dvn-outpost','dvn-warehouse','dvn-neon'];
+  const names=['frontline','night','canyon','anniversary','cyborg','dummies','orbit','laststand','vought','nightop','rooftop','tempest','urban','dvn-official-01','dvn-official-02','dvn-official-03','dvn-official-04','dvn-official-05','dvn-official-06'];
   const safe=names.includes(name)?name:'frontline'; const bg=$('background');
   names.forEach(n=>bg.classList.remove(`scene-${n}`)); bg.classList.add(`scene-${safe}`);
   document.body.dataset.background=safe;
   const hero=document.querySelector('.play-card-bg'); if(hero){
-    const fallback=['night','orbit','cyborg','dvn-neon'].includes(safe)?'night':['canyon','laststand','dvn-outpost'].includes(safe)?'canyon':'frontline';
-    const extension=safe.startsWith('dvn-')? 'svg':'png';
+    const fallback=['night','orbit','cyborg','dvn-official-05','dvn-official-06'].includes(safe)?'night':['canyon','laststand','dvn-official-02','dvn-official-04'].includes(safe)?'canyon':'frontline';
+    const extension='png';
     hero.style.backgroundImage=`url('assets/siege/${safe}.${extension}'), url('assets/${fallback}.svg')`;
   }
   if($('backgroundSelect') && $('backgroundSelect').value!==safe)$('backgroundSelect').value=safe;
@@ -248,7 +248,7 @@ function applyVisuals(config={}){
   if(/^#[0-9a-f]{6}$/i.test(String(config.accent2||''))) document.documentElement.style.setProperty('--themeAccent2',config.accent2);
   else document.documentElement.style.removeProperty('--themeAccent2');
   const radius=Number(config.cardRadius); document.documentElement.style.setProperty('--radius-lg',`${clamp(Number.isFinite(radius)?radius:16,8,28)}px`); const brightness=clamp(Number(config.backgroundBrightness)||1,.7,1.2); document.documentElement.style.setProperty('--backgroundBrightness',String(brightness));
-  const names=['frontline','night','canyon','anniversary','cyborg','dummies','orbit','laststand','vought','nightop','rooftop','tempest','urban','dvn-training','dvn-outpost','dvn-warehouse','dvn-neon'];
+  const names=['frontline','night','canyon','anniversary','cyborg','dummies','orbit','laststand','vought','nightop','rooftop','tempest','urban','dvn-official-01','dvn-official-02','dvn-official-03','dvn-official-04','dvn-official-05','dvn-official-06'];
   let selected=config.background||'frontline';
   if(config.backgroundMode==='randomStartup'&&!startupBackgroundApplied){selected=names[Math.floor(Math.random()*names.length)];startupBackgroundApplied=true;}
   applyBackground(selected);
@@ -262,9 +262,9 @@ function applyVisuals(config={}){
 }
 function renderBackgroundGallery(selected='frontline'){
   const host=$('backgroundGallery');if(!host)return;
-  const items=[['frontline','Frontline'],['night','Night Battle'],['canyon','Canyon'],['anniversary','Anniversary'],['cyborg','Cyborg'],['dummies','Dummies'],['orbit','Earth Orbit'],['laststand','Last Stand'],['vought','Vought'],['nightop','Night Operation'],['rooftop','Rooftop'],['tempest','Tempest'],['urban','Urban'],['dvn-training','DVN Training'],['dvn-outpost','DVN Outpost'],['dvn-warehouse','DVN Warehouse'],['dvn-neon','DVN Neon']];
+  const items=[['frontline','Frontline'],['night','Night Battle'],['canyon','Canyon'],['anniversary','Anniversary'],['cyborg','Cyborg'],['dummies','Dummies'],['orbit','Earth Orbit'],['laststand','Last Stand'],['vought','Vought'],['nightop','Night Operation'],['rooftop','Rooftop'],['tempest','Tempest'],['urban','Urban'],['dvn-official-01','DVN Official 01'],['dvn-official-02','DVN Official 02'],['dvn-official-03','DVN Official 03'],['dvn-official-04','DVN Official 04'],['dvn-official-05','DVN Official 05'],['dvn-official-06','DVN Official 06']];
   host.innerHTML='';
-  for(const [id,label] of items){const b=document.createElement('button');b.type='button';b.dataset.background=id;b.className=`background-thumb ${id===selected?'active':''}`;const extension=id.startsWith('dvn-')?'svg':'png';b.innerHTML=`<img src="assets/siege/${id}.${extension}" alt=""><span>${label}</span>`;const img=b.querySelector('img');if(img)img.addEventListener('error',()=>{img.src=`assets/${['night','orbit','cyborg','dvn-neon'].includes(id)?'night':['canyon','laststand','dvn-outpost'].includes(id)?'canyon':'frontline'}.svg`;},{once:true});b.addEventListener('click',()=>{if($('backgroundSelect'))$('backgroundSelect').value=id;applyBackground(id);$$('.background-thumb').forEach(x=>x.classList.toggle('active',x===b));queueSettingsSave();});host.appendChild(b);}
+  for(const [id,label] of items){const b=document.createElement('button');b.type='button';b.dataset.background=id;b.className=`background-thumb ${id===selected?'active':''}`;b.title='Miniatura oficial de Dummies vs Noobs';b.innerHTML=`<img src="assets/siege/${id}.png" alt="${label}"><span>${label}</span>`;const img=b.querySelector('img');if(img)img.addEventListener('error',()=>{img.src='assets/frontline.svg';},{once:true});b.addEventListener('click',()=>{if($('backgroundSelect'))$('backgroundSelect').value=id;applyBackground(id);$$('.background-thumb').forEach(x=>x.classList.toggle('active',x===b));queueSettingsSave();});host.appendChild(b);}
 }
 
 function showOperation(title='SINCRONIZANDO'){
@@ -360,26 +360,6 @@ function resetClipsView(){clipsView={query:'',type:'all',sort:'newest'};renderCl
 async function refreshClips(showToast=false){
   if(!api.clipsList)return null;try{clipsState=await api.clipsList();renderClips(clipsState);if(showToast)toast(`${clipsState.total||0} archivos encontrados.`,'success');return clipsState;}catch(err){if(showToast)toast(err.message||String(err),'error');return null;}
 }
-function profilePatch(){
-  return {launcher:{theme:$('themeSelect')?.value||'aurora',background:$('backgroundSelect')?.value||'frontline',backgroundMode:$('backgroundModeSelect')?.value||'fixed',backgroundBrightness:clamp(Number($('backgroundBrightnessRange')?.value||100)/100,.7,1.2),density:$('densitySelect')?.value||'comfortable',uiScale:$('uiScaleSelect')?.value||'normal',accent:$('accentColorInput')?.value||'',accent2:$('accent2ColorInput')?.value||'',cardRadius:clamp(Number($('cardRadiusRange')?.value||16),8,28),glassEffects:$('glassEffectsToggle')?.checked!==false,scanlines:$('scanlinesToggle')?.checked===true,noise:$('noiseToggle')?.checked===true,reducedMotion:$('reducedMotionToggle')?.checked===true}};
-}
-function renderVisualProfiles(){
-  const host=$('visualProfiles');if(!host)return;const profiles=Array.isArray(appState?.config?.launcher?.profiles)?appState.config.launcher.profiles:[];host.innerHTML='';
-  if(!profiles.length){host.innerHTML='<div class="empty-state">Todavía no guardaste perfiles.</div>';return;}
-  profiles.forEach(profile=>{const item=document.createElement('article');item.className='visual-profile-item';const copy=document.createElement('div');const title=document.createElement('b');title.textContent=profile.name;const meta=document.createElement('small');meta.textContent=`${profile.patch?.launcher?.theme||'aurora'} · ${profile.patch?.launcher?.background||'frontline'}`;copy.append(title,meta);const actions=document.createElement('div');actions.className='visual-profile-actions';const apply=document.createElement('button');apply.className='ghost';apply.type='button';apply.textContent='APLICAR';apply.addEventListener('click',()=>applyVisualProfile(profile));const remove=document.createElement('button');remove.className='ghost danger';remove.type='button';remove.textContent='BORRAR';remove.addEventListener('click',()=>deleteVisualProfile(profile.id));actions.append(apply,remove);item.append(copy,actions);host.appendChild(item);});
-}
-async function saveVisualProfile(){
-  const name=String($('visualProfileName')?.value||'').trim();if(!name){toast('Escribí un nombre para el perfil.','warn');return;}
-  const current=Array.isArray(appState?.config?.launcher?.profiles)?appState.config.launcher.profiles:[];const profile={id:`profile-${Date.now()}`,name,patch:profilePatch()};const profiles=[...current.filter(x=>x.name.toLowerCase()!==name.toLowerCase()),profile].slice(-8);
-  try{const cfg=await api.saveSettings({launcher:{profiles}});appState.config=cfg;$('visualProfileName').value='';renderVisualProfiles();toast(`Perfil “${name}” guardado.`,'success');}catch(err){toast(err.message||String(err),'error');}
-}
-async function applyVisualProfile(profile){
-  try{const cfg=await api.saveSettings(profile.patch);appState.config=cfg;fillBaseState({...appState,config:cfg});toast(`Perfil “${profile.name}” aplicado.`,'success');}catch(err){toast(err.message||String(err),'error');}
-}
-async function deleteVisualProfile(id){
-  const profile=(appState?.config?.launcher?.profiles||[]).find(x=>x.id===id);if(!profile)return;if(!await askConfirm({title:'Borrar perfil',message:`Se eliminará “${profile.name}” de este equipo.`,confirmText:'Borrar',danger:true}))return;
-  try{const profiles=(appState.config.launcher.profiles||[]).filter(x=>x.id!==id);const cfg=await api.saveSettings({launcher:{profiles}});appState.config=cfg;renderVisualProfiles();toast('Perfil eliminado.','success');}catch(err){toast(err.message||String(err),'error');}
-}
 async function loginMicrosoft(){
   if(busy)return; setBusy(true,'ABRIENDO MICROSOFT');
   try{const account=await api.accountLogin();const cfg=await api.saveSettings({minecraft:{username:account.name||appState?.config?.minecraft?.username||'',accountMode:'premium'}});renderAccount(account);if(appState){appState.account=account;appState.config=cfg;}await refreshSkins(false);toast(`Sesión iniciada como ${account.name||'cuenta Microsoft'}.`,'success');}
@@ -418,7 +398,7 @@ function fillBaseState(state){
   const disk=state.system?.disk; $('storageReadout').textContent=disk?.available?`Espacio libre: ${formatStorage(disk.freeBytes)} · el launcher reserva margen temporal para actualizar con seguridad.`:'No pude calcular el espacio libre de esta unidad.';
   setHealth('sideJava',javaOk?'OK':config.minecraft.autoInstallJava!==false?'AUTO':'REVISAR',javaOk?'ok':config.minecraft.autoInstallJava!==false?'warn':'bad'); setHealth('sidePack',state.manifestStale?'CACHÉ':state.manifestConfigured?'LINKED':'DEV',state.manifestStale?'warn':state.manifestConfigured?'ok':'warn');
   setHealth('readyJava',javaOk?'LISTO':config.minecraft.autoInstallJava!==false?'AUTOMÁTICO':'REVISAR',javaOk?'ok':config.minecraft.autoInstallJava!==false?'warn':'bad'); setHealth('readyLauncher',state.launcherCompatible?'LISTO':`v${state.minimumLauncher}+`,state.launcherCompatible?'ok':'bad');
-  renderDeveloper(state.developer||{configured:false,unlocked:false,curseforgeConfigured:false}); renderAccount(state.account||{}); renderClips(clipsState); renderVisualProfiles(); renderReleaseNotes(); renderDiscordChannels(); renderSession(); updatePlayAvailability(); renderReadiness();
+  renderDeveloper(state.developer||{configured:false,unlocked:false,curseforgeConfigured:false}); renderAccount(state.account||{}); renderClips(clipsState); renderReleaseNotes(); renderDiscordChannels(); renderSession(); updatePlayAvailability(); renderReadiness();
 }
 
 function renderPackInfo(){
@@ -997,7 +977,6 @@ function bind(){
   $('installJavaBtn').addEventListener('click',installJava);$('saveSettingsBtn').addEventListener('click',saveSettings);$('resetPresetBtn').addEventListener('click',async()=>{try{await api.resetGamePreset($('gamePresetSelect').value);toast('Ajustes recomendados restaurados.','success')}catch(err){toast(err.message||String(err),'error')}});
   $('minecraftLoginBtn')?.addEventListener('click',loginMicrosoft);$('minecraftLogoutBtn')?.addEventListener('click',logoutMicrosoft);$('refreshSkinsBtn')?.addEventListener('click',()=>refreshSkins(true));$('uploadSkinBtn')?.addEventListener('click',uploadSkin);
   $('clipsChooseBtn')?.addEventListener('click',async()=>{try{const result=await api.clipsChooseFolder();if(result){clipsState=result;renderClips(result);toast('Carpeta de clips configurada.','success');}}catch(err){toast(err.message||String(err),'error')}});$('clipsRefreshBtn')?.addEventListener('click',()=>refreshClips(true));$('clipsOpenFolderBtn')?.addEventListener('click',()=>api.clipsOpenFolder().catch(err=>toast(err.message||String(err),'error')));$('clipsClearBtn')?.addEventListener('click',async()=>{try{await api.clipsClearFolder();clipsState={configured:false,directory:'',items:[],total:0,images:0,videos:0};renderClips(clipsState);toast('Carpeta de clips quitada.','success')}catch(err){toast(err.message||String(err),'error')}});$('clipsResetBtn')?.addEventListener('click',resetClipsView);$('clipsSearch')?.addEventListener('input',e=>{clipsView.query=e.target.value;renderClips(clipsState);queueClipsViewSave()});$('clipsTypeFilter')?.addEventListener('change',e=>{clipsView.type=e.target.value;renderClips(clipsState);queueClipsViewSave()});$('clipsSort')?.addEventListener('change',e=>{clipsView.sort=e.target.value;renderClips(clipsState);queueClipsViewSave()});
-  $('saveVisualProfileBtn')?.addEventListener('click',saveVisualProfile);$('visualProfileName')?.addEventListener('keydown',e=>{if(e.key==='Enter')saveVisualProfile()});
   $('autoConfigureBtn')?.addEventListener('click',autoConfigureRecommended);$('exportSettingsBtn')?.addEventListener('click',exportSettingsAction);$('importSettingsBtn')?.addEventListener('click',importSettingsAction);
   $('vaultChooseBtn')?.addEventListener('click',chooseVault);$('vaultPushBtn')?.addEventListener('click',pushVaultAction);$('vaultPullBtn')?.addEventListener('click',pullVaultAction);
   $('changeInstallBtn').addEventListener('click',async()=>{try{const folder=await api.chooseInstallDirectory();if(folder){appState.config.pack.installDirectory=folder;$('instancePath').textContent=folder;$('settingsInstallPath').textContent=folder;toast('Carpeta actualizada.','success')}}catch(err){toast(err.message||String(err),'error')}});
