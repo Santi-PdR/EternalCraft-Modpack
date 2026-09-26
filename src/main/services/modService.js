@@ -6,8 +6,9 @@ const META = path.join('.launcher', 'user-mods.json');
 
 function safeName(name) { return String(name || '').replace(/[^A-Za-z0-9._+()\-\[\] ]/g, '_').trim(); }
 function displayName(filename) { return filename.replace(/\.jar\.disabled$/i, '').replace(/\.jar$/i, '').replace(/[_-]+/g, ' ').replace(/\s+/g, ' ').trim(); }
+function normalizeModPath(value) { return String(value || '').replace(/\\/g, '/').replace(/^\.\//, '').toLowerCase(); }
 function officialSet(manifest) {
-  return new Set((manifest?.files || []).map(e => String(e.path || '').replace(/\\/g, '/')).filter(p => p.toLowerCase().startsWith('mods/') && p.toLowerCase().endsWith('.jar')));
+  return new Set((manifest?.files || []).map(e => normalizeModPath(e.path)).filter(p => p.startsWith('mods/') && p.endsWith('.jar')));
 }
 async function readMeta(root) { try { return JSON.parse(await fsp.readFile(path.join(root, META), 'utf8')); } catch (_) { return { mods: {} }; } }
 async function writeMeta(root, meta) { const file = path.join(root, META); await fsp.mkdir(path.dirname(file), { recursive: true }); await fsp.writeFile(file, JSON.stringify(meta, null, 2)); }
@@ -28,7 +29,7 @@ async function listMods(root, manifest, sort = 'recent') {
     const enabled = !/\.disabled$/i.test(entry.name);
     const base = entry.name.replace(/\.disabled$/i, '');
     const relative = `mods/${base}`;
-    const isOfficial = official.has(relative);
+    const isOfficial = official.has(normalizeModPath(relative));
     const m = meta.mods?.[base] || {};
     const installedAt = m.installedAt || stat.birthtime?.toISOString?.() || stat.mtime.toISOString();
     mods.push({
@@ -67,7 +68,7 @@ async function addMods(root, filePaths, manifest) {
   for (const input of filePaths || []) {
     if (!/\.jar$/i.test(input)) continue;
     const name = safeName(path.basename(input)); if (!name) continue;
-    if (official.has(`mods/${name}`)) throw new Error(`${name} ya forma parte del modpack oficial.`);
+    if (official.has(normalizeModPath(`mods/${name}`))) throw new Error(`${name} ya forma parte del modpack oficial.`);
     const target = path.join(modsDir, name);
     try { await fsp.access(target); throw new Error(`${name} ya está instalado.`); } catch (err) { if (err.code !== 'ENOENT') throw err; }
     await fsp.copyFile(input, target);
