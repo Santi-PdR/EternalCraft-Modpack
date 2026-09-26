@@ -29,7 +29,7 @@
     "autoSnapshot": true
   },
   "launcher": {
-    "hideOnGameStart": false,
+    "hideOnGameStart": true,
     "refocusOnGameExit": true,
     "background": "frontline",
     "scanlines": false,

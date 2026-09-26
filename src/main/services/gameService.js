@@ -13,6 +13,9 @@ async function launchGame({ config, manifest, resourcesDir, managedJavaRoot = ''
 
   const java = javaInfo && javaInfo.found ? javaInfo : await resolveJava17(config.minecraft.javaPath || '', managedJavaRoot);
   if (!java.found || Number(java.major) < 17) throw new Error(`Eternal Craft necesita Java 17 o superior. Detectado: ${java.version || 'ninguno'}.`);
+  // Seed options.txt only for new instances. Existing player settings are
+  // preserved, while every fresh pack starts with Minecraft GUI scale 3.
+  await ensurePreset(root, resourcesDir, config.minecraft.preset || 'balanced', false);
   const forgeInstaller = await ensureForgeInstaller(root, manifest, onProgress);
 
   const launcher = new Client();

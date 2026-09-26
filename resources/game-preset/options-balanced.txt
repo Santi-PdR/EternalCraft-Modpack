@@ -15,7 +15,7 @@ simulationDistance:6
 entityDistanceScaling:0.9
 particles:1
 mipmapLevels:4
-guiScale:0
+guiScale:3
 bobView:true
 ao:true
 biomeBlendRadius:2
