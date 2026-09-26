@@ -41,6 +41,7 @@ let developerService;
 let authService;
 let isQuitting = false;
 let nativeUpdateNotified = false;
+let packCheckInFlight = null;
 
 // Several renderer panels ask for the same data during boot. Keep a very
 // short-lived cache and share in-flight requests so those panels do not race
@@ -447,10 +448,15 @@ function registerIpc() {
   });
 
   ipcMain.handle('pack:check', async () => {
-    const config = store.load(); const info = await currentManifest(config); return checkPack(config, info);
+    if (packCheckInFlight) return packCheckInFlight;
+    const task = (async () => {
+      const config = store.load(); const info = await currentManifest(config); return checkPack(config, info);
+    })();
+    packCheckInFlight = task;
+    try { return await task; } finally { if (packCheckInFlight === task) packCheckInFlight = null; }
   });
-  ipcMain.handle('pack:update', async (_event, force = false) => runExclusive('actualización del modpack', async () => { const result = await updatePack(store.load(), Boolean(force)); invalidateRuntimeCaches(); if (result.updated !== false) notifyNative('Eternal Craft actualizado', 'El modpack quedó listo para jugar.'); return result; }));
-  ipcMain.handle('pack:repair', async () => runExclusive('reparación del modpack', async () => { const result = await updatePack(store.load(), true); invalidateRuntimeCaches(); notifyNative('Reparación completa', 'La instalación de Eternal Craft fue verificada.'); return result; }));
+  ipcMain.handle('pack:update', async (_event, force = false) => runExclusive('actualización del modpack', async () => { if (packCheckInFlight) await packCheckInFlight; const result = await updatePack(store.load(), Boolean(force)); invalidateRuntimeCaches(); if (result.updated !== false) notifyNative('Eternal Craft actualizado', 'El modpack quedó listo para jugar.'); return result; }));
+  ipcMain.handle('pack:repair', async () => runExclusive('reparación del modpack', async () => { if (packCheckInFlight) await packCheckInFlight; const result = await updatePack(store.load(), true); invalidateRuntimeCaches(); notifyNative('Reparación completa', 'La instalación de Eternal Craft fue verificada.'); return result; }));
 
   ipcMain.handle('mods:list', async () => {
     const config = store.load(); const info = await currentManifest(config);
