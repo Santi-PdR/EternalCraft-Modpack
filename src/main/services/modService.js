@@ -144,10 +144,13 @@ async function auditMods(root, manifest) {
   const issues = [];
   const byProject = new Map();
   for (const mod of listing.mods) {
+    // Personal mods are intentionally outside pack health/update checks. They
+    // remain visible as user-added, but only real compatibility failures or a
+    // duplicate official project should create an actionable warning.
     if (mod.projectId) {
       const key = `${mod.provider}:${mod.projectId}`;
       const prior = byProject.get(key);
-      if (prior) issues.push({ severity:'bad', type:'duplicate-project', mod:mod.displayName, filename:mod.filename, text:`Duplicado con ${prior.filename}` });
+      if (prior && (prior.official || mod.official || !prior.userAdded || !mod.userAdded)) issues.push({ severity:'bad', type:'duplicate-project', mod:mod.displayName, filename:mod.filename, text:`Duplicado con ${prior.filename}` });
       else byProject.set(key, mod);
     }
     if (!mod.official && mod.enabled && mod.environment?.client === 'unsupported') {

@@ -91,6 +91,12 @@ function shouldSkip(relative, entry) {
   return false;
 }
 
+function isPublishedPath(relative) {
+  const normalized = String(relative || '').replace(/\\/g, '/').replace(/^\.\//, '');
+  return normalized === 'mods' || normalized.startsWith('mods/')
+    || normalized === 'iammusicplayerrenewed' || normalized.startsWith('iammusicplayerrenewed/');
+}
+
 async function walk(root, dir = root, prefix = '') {
   let entries = [];
   try { entries = await fsp.readdir(dir, { withFileTypes: true }); } catch (_) { return []; }
@@ -139,7 +145,10 @@ async function buildPack(options = {}) {
     if (entry.sha256 && entry.url && !previousByHash.has(entry.sha256)) previousByHash.set(entry.sha256, entry.url);
   }
 
-  const files = await walk(source);
+  // The SIEGE instance is also used for development and contains saves,
+  // options, logs and other personal state. Only the pack payload is
+  // publishable: mods plus the iammusicplayerrenewed resource.
+  const files = (await walk(source)).filter((file) => isPublishedPath(file.relative));
   if (!files.length) throw new Error(`La instancia ${source} no contiene archivos publicables después de aplicar los filtros de seguridad.`);
   const blobsDir = path.join(out, 'blobs');
   const channelDir = path.join(out, 'channel');
