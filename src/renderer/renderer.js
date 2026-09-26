@@ -12,7 +12,7 @@ const mockConfig = {
   onboarding:{completed:true},links:{}
 };
 const mockManifest = {
-  schema:2,version:'1.0.0',releaseName:'Siege Origin',minecraft:'1.20.1',forge:'47.4.10',minimumLauncher:'0.70.0',files:[],remove:[],
+  schema:2,version:'1.0.0',releaseName:'Siege Origin',minecraft:'1.20.1',forge:'47.4.10',minimumLauncher:'0.70.1',files:[],remove:[],
   releaseNotes:{title:'SIEGE DEV',summary:'Base del launcher renovada y sistema de actualización segura.',addedCount:2,changedCount:4,removedCount:0,highlights:[{type:'changed',path:'mods/siege-menu.jar'},{type:'added',path:'config/eternal-client.toml'}]}
 };
 
@@ -23,7 +23,7 @@ function merge(target, patch){
 }
 
 const previewApi = {
-  getState:async()=>({appVersion:'0.70.0',platform:'preview',packaged:false,config:mockConfig,manifest:mockManifest,manifestConfigured:true,manifestSource:'development',java:{found:true,major:17,version:'17.0.x',path:'java'},needsOnboarding:false,launcherUpdateConfigured:false,minimumLauncher:'0.70.0',launcherCompatible:true,developer:{configured:false,unlocked:false,developerAllowed:false},account:{authenticated:false,name:'',id:'',skins:[]},system:{recommendedRamGb:6,maxRamGb:11,totalMemoryBytes:16*1024**3,gpus:[{vendor:'NVIDIA',name:'NVIDIA GeForce GTX 1050'}],display:{width:1920,height:1080,workWidth:1920,workHeight:1040,scaleFactor:1,label:'Monitor principal'},disk:{available:true,freeBytes:180*1024**3,totalBytes:480*1024**3,requiredBytes:512*1024**2}}}),
+  getState:async()=>({appVersion:'0.70.1',platform:'preview',packaged:false,config:mockConfig,manifest:mockManifest,manifestConfigured:true,manifestSource:'development',java:{found:true,major:17,version:'17.0.x',path:'java'},needsOnboarding:false,launcherUpdateConfigured:false,minimumLauncher:'0.70.1',launcherCompatible:true,developer:{configured:false,unlocked:false,developerAllowed:false},account:{authenticated:false,name:'',id:'',skins:[]},system:{recommendedRamGb:6,maxRamGb:11,totalMemoryBytes:16*1024**3,gpus:[{vendor:'NVIDIA',name:'NVIDIA GeForce GTX 1050'}],display:{width:1920,height:1080,workWidth:1920,workHeight:1040,scaleFactor:1,label:'Monitor principal'},disk:{available:true,freeBytes:180*1024**3,totalBytes:480*1024**3,requiredBytes:512*1024**2}}}),
   completeOnboarding:async(p)=>{mockConfig.minecraft.username=p.username;mockConfig.onboarding.completed=true;return previewApi.getState()},
   pingServer:async()=>({online:true,latency:57,players:{online:12,max:40},version:'Forge 1.20.1',favicon:null}),
   checkPack:async()=>({configured:true,state:{version:'SIEGE-DEV',updatedAt:new Date().toISOString()},expectedVersion:'SIEGE-DEV',versionMatches:true,total:247,ok:247,missing:[],changed:[],remove:[],bytesRequired:0,healthy:true}),
@@ -761,7 +761,7 @@ function renderUpdateCenter(){
 
   if($('updatesModsTitle'))$('updatesModsTitle').textContent=modCount?`${modCount} actualización${modCount===1?'':'es'}`:'Al día';
   if($('updatesModsText'))$('updatesModsText').textContent='Los mods instalados se administran localmente; las versiones oficiales llegan con el modpack.';
-  if($('updatesLauncherTitle'))$('updatesLauncherTitle').textContent=launcherNeeds?'Nueva versión disponible':`v${appState?.appVersion||'0.70.0'}`;
+  if($('updatesLauncherTitle'))$('updatesLauncherTitle').textContent=launcherNeeds?'Nueva versión disponible':`v${appState?.appVersion||'0.70.1'}`;
   if($('updatesLauncherText'))$('updatesLauncherText').textContent=launcherNeeds?'Podés descargarla sin tocar el modpack.':appState?.packaged?'Canal del launcher comprobado.':'Modo desarrollo · updater desactivado.';
   const javaOk=Boolean(appState?.java?.found&&Number(appState?.java?.major)>=17);if($('updatesRuntimeTitle'))$('updatesRuntimeTitle').textContent=javaOk?`Java ${appState.java.version||17}`:'Java compatible pendiente';if($('updatesRuntimeText'))$('updatesRuntimeText').textContent=javaOk?(appState.java.managed?'Runtime administrado por Eternal Craft.':'Runtime detectado en el sistema.'):'Elegí un Java 17 o superior en tu sistema.';
   if($('updatesHeroMark'))$('updatesHeroMark').textContent=total?'!':'✓';if($('updatesHero'))$('updatesHero').classList.toggle('has-updates',total>0);if($('updatesHeroTitle'))$('updatesHeroTitle').textContent=total?`${total} actualización${total===1?'':'es'} pendiente${total===1?'':'s'}`:'Todo está actualizado';if($('updatesHeroText'))$('updatesHeroText').textContent=total?'Podés revisar cada componente o aplicar las actualizaciones disponibles.':'Launcher, modpack y mods personales están listos.';
@@ -834,10 +834,9 @@ async function runDeveloperPreflight(){
   }catch(err){toast(err.message||String(err),'error')}
 }
 function updatePlayAvailability(){
-  if(!$('playBtn')||!appState)return; const javaOk=Boolean(appState.java?.found&&Number(appState.java?.major)>=17),javaAuto=appState.config.minecraft.autoInstallJava!==false,configured=Boolean(appState.manifestConfigured),compatible=appState.launcherCompatible!==false,healthy=packState?.healthy;
+  if(!$('playBtn')||!appState)return; const javaOk=Boolean(appState.java?.found&&Number(appState.java?.major)>=17),javaAuto=appState.config.minecraft.autoInstallJava!==false,configured=Boolean(appState.manifestConfigured),compatible=appState.launcherCompatible!==false;
   let disabled=busy||!configured||(!javaOk&&!javaAuto)||!compatible; let caption='INICIAR';
-  const neverInstalled=packState&& !packState.state?.version;
-  if(!configured)caption='PACK NO PUBLICADO'; else if(!compatible)caption='ACTUALIZÁ EL LAUNCHER'; else if(!javaOk&&javaAuto)caption=neverInstalled?'PREPARAR E INSTALAR':'PREPARAR JAVA Y JUGAR'; else if(!javaOk)caption='JAVA 17 REQUERIDO'; else if(packState&&healthy===false){caption=neverInstalled?'INSTALAR Y JUGAR':appState.config.pack.autoUpdate?'ACTUALIZAR Y JUGAR':'REQUIERE ACTUALIZACIÓN';if(!appState.config.pack.autoUpdate)disabled=true;}
+  if(!configured)caption='PACK NO PUBLICADO'; else if(!compatible)caption='ACTUALIZÁ EL LAUNCHER'; else if(!javaOk&&javaAuto)caption='PREPARAR JAVA Y JUGAR'; else if(!javaOk)caption='JAVA 17 REQUERIDO';
   if(!javaOk&&!javaAuto)caption='JAVA 17+ REQUERIDO'; $('playBtn').disabled=disabled; $('playCaption').textContent=caption;
 }
 
@@ -884,12 +883,8 @@ async function runPackAction(mode='update'){
 }
 async function launch(){
   if(busy)return;
-  try{
-    const health=await api.healthCheck().catch(()=>null);
-    const critical=health?.issues?.find(x=>x.severity==='bad');
-    if(critical){toast(`No conviene iniciar todavía: ${critical.text}.`,'error');setPage('support');return;}
-  }catch(_){}
-  setBusy(true,'PREPARANDO JUEGO');showOperation(packState?.healthy===false?'ACTUALIZANDO ANTES DE JUGAR':'INICIANDO MINECRAFT');
+  if(!await askConfirm({title:'Iniciar Minecraft',message:'¿Querés iniciar Eternal Craft // SIEGE ahora?',confirmText:'Iniciar'}))return;
+  setBusy(true,'INICIANDO JUEGO');showOperation('INICIANDO MINECRAFT');
   try{await api.launchGame();hideOperation();toast('Minecraft iniciado.','success');appState.config.launcher.lastPlayedAt=new Date().toISOString();renderSession();}
   catch(err){hideOperation();toast(err.message||String(err),'error');}
   finally{setBusy(false)}

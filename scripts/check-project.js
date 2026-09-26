@@ -32,6 +32,7 @@ const packService = require(path.join(root,'src','main','services','packService'
 if (typeof packService.markPublishedOfficial !== 'function') throw new Error('packService no exporta markPublishedOfficial()');
 const packServiceSource = fs.readFileSync(path.join(root,'src','main','services','packService.js'),'utf8');
 const mainSource = fs.readFileSync(path.join(root,'src','main','main.js'),'utf8');
+const gameServiceSource = fs.readFileSync(path.join(root,'src','main','services','gameService.js'),'utf8');
 const publisherSource = fs.readFileSync(path.join(root,'scripts','publish-pack-github.js'),'utf8');
 const packBuilderSource = fs.readFileSync(path.join(root,'scripts','build-pack.js'),'utf8');
 const manifestServiceSource = fs.readFileSync(path.join(root,'src','main','services','manifestService.js'),'utf8');
@@ -68,6 +69,9 @@ if (!mainSource.includes('function withDeadline(') || !mainSource.includes('cons
 if (!mainSource.includes('PRIMED_MANIFEST_TTL_MS') || !mainSource.includes('primeManifestCache(store.load(), publishedManifest')) throw new Error('La publicación debe usar el manifiesto verificado mientras GitHub propaga stable.json.');
 if (!mainSource.includes('rendererLoadAttempts < 3')) throw new Error('La carga del renderer debe reintentar fallos iniciales sin entrar en un bucle infinito.');
 if (!mainSource.includes("isQuitting = true;\n    try { installLauncherUpdate();")) throw new Error('La instalación de actualizaciones debe omitir el cierre a la bandeja.');
+const launchHandler = mainSource.match(/ipcMain\.handle\('game:launch',[\s\S]*?\n\s*ipcMain\.handle\('game:safe-launch'/)?.[0] || '';
+if (!launchHandler || /updatePack\(|checkInstallation\(/.test(launchHandler)) throw new Error('Jugar no debe comprobar, reparar ni actualizar el modpack.');
+if (/quickPlay\s*:/.test(gameServiceSource)) throw new Error('El inicio normal no debe conectar al servidor automáticamente.');
 const configStoreSource = fs.readFileSync(path.join(root,'src','main','services','configStore.js'),'utf8');
 const authServiceSource = fs.readFileSync(path.join(root,'src','main','services','authService.js'),'utf8');
 if (!authServiceSource.includes('function isAuthFailure') || !authServiceSource.includes('error.reauthRequired = true')) throw new Error('La sesión Microsoft debe diferenciar tokens inválidos de fallos de red.');
@@ -135,6 +139,8 @@ const duplicateIds = ids.filter((id,i)=>ids.indexOf(id)!==i);
 if (duplicateIds.length) throw new Error(`IDs HTML duplicados: ${[...new Set(duplicateIds)].join(', ')}`);
 
 const renderer = fs.readFileSync(path.join(root,'src','renderer','renderer.js'),'utf8');
+const playAction = renderer.match(/async function launch\(\)\s*\{[\s\S]*?\n\}/)?.[0] || '';
+if (!playAction.includes('askConfirm(') || playAction.includes('healthCheck(')) throw new Error('Jugar debe pedir confirmación sin ejecutar el diagnóstico completo.');
 if (!renderer.includes('s.hidden=!active') || !renderer.includes("s.setAttribute('aria-hidden',String(!active))")) throw new Error('La navegación debe controlar la visibilidad nativa de cada página.');
 if (!renderer.includes('const retry=banner.querySelector(\'button\')') || !renderer.includes('if(title) title.textContent')) throw new Error('El banner de errores del renderer debe tolerar un DOM parcial.');
 for (const ref of [...renderer.matchAll(/\$\(['"]([^'"]+)['"]\)/g)].map(m=>m[1])) {

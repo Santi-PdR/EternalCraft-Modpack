@@ -47,10 +47,10 @@ cat > "$WRAPPER" <<WRAPPER
 #!/usr/bin/env bash
 set -euo pipefail
 export ETERNAL_DEVELOPER_BUILD=1
-if [[ -x "$APP_HOME/app/EternalCraftLauncher" ]]; then
-  exec "$APP_HOME/app/EternalCraftLauncher" --developer-build "\$@"
+if [[ -x "$APPIMAGE" ]]; then
+  exec "$APPIMAGE" --developer-build "\$@"
 fi
-exec "$APPIMAGE" "\$@"
+exec "$APP_HOME/app/EternalCraftLauncher" --developer-build "\$@"
 WRAPPER
 chmod +x "$WRAPPER"
 

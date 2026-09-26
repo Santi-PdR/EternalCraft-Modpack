@@ -35,8 +35,7 @@ async function launchGame({ config, manifest, resourcesDir, managedJavaRoot = ''
       height: String(config.minecraft.height || 720),
       fullscreen: Boolean(config.minecraft.fullscreen)
     },
-    javaPath: java.path,
-    quickPlay: { type: 'multiplayer', identifier: `${config.server.host}:${config.server.port}` }
+    javaPath: java.path
   };
   if (forgeInstaller && fs.existsSync(forgeInstaller)) options.forge = forgeInstaller;
 

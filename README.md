@@ -1,6 +1,12 @@
-# Eternal Craft Launcher 0.70.0
+# Eternal Craft Launcher 0.70.1
 
 Official launcher for **Eternal Craft // SIEGE**.
+
+## 0.70.1 — Inicio directo al menú
+
+- Jugar pide confirmación y abre Minecraft sin ejecutar una verificación, reparación ni actualización del modpack.
+- Minecraft abre en el menú principal; ya no se conecta automáticamente al servidor.
+- La revisión y actualización del modpack quedan en la sección **Modpack**.
 
 - Minecraft **1.20.1**
 - Forge **47.4.10**

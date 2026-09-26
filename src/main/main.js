@@ -699,14 +699,7 @@ function registerIpc() {
 
     const java = await ensurePlayableJava(config);
     config = store.load();
-    if (config.pack.autoUpdate) await updatePack(config, false);
-    else if (config.pack.repairBeforeLaunch) {
-      const status = await checkInstallation(config.pack.installDirectory, info.manifest, (p) => packProgress(p));
-      if (!status.healthy) await repairInstallation(config.pack.installDirectory, info.manifest, (p) => packProgress(p));
-    }
-
     config = store.save({ launcher: { lastPlayedAt: new Date().toISOString() } });
-    const latest = await currentManifest(config);
     const premium = await authService.getAuthorization().catch((err) => {
       if (err?.reauthRequired) {
         store.save({ minecraft: { accountMode: 'offline' } });
@@ -717,7 +710,7 @@ function registerIpc() {
     });
     if (premium) config = { ...config, minecraft: { ...config.minecraft, username: premium.profile.name, accountMode:'premium', authorization:premium.authorization } };
     const launched = await launchGame({
-      config, manifest: latest.manifest, resourcesDir: resourcesDir(), managedJavaRoot: managedJavaRoot(), javaInfo: java,
+      config, manifest: info.manifest, resourcesDir: resourcesDir(), managedJavaRoot: managedJavaRoot(), javaInfo: java,
       onLog: (line) => emit('game:log', line), onProgress: (p) => packProgress(p),
       onExit: (session) => {
         const current = store.load(); const stats = current.launcher?.playStats || { totalMs:0, sessions:0, days:{} };
