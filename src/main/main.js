@@ -208,8 +208,22 @@ function createWindow() {
   if (Number.isFinite(saved?.x)) opts.x = saved.x;
   if (Number.isFinite(saved?.y)) opts.y = saved.y;
   mainWindow = new BrowserWindow(opts);
+  let rendererLoadAttempts = 0;
+  const loadRenderer = () => {
+    rendererLoadAttempts += 1;
+    mainWindow.loadFile(rendererPath('index.html')).catch((error) => {
+      appendLauncherError('renderer load-file', { attempt: rendererLoadAttempts, error });
+    });
+  };
+  mainWindow.webContents.on('did-finish-load', () => { rendererLoadAttempts = 0; });
   mainWindow.webContents.on('did-fail-load', (_event, code, description, url, isMainFrame) => {
     if (isMainFrame) appendLauncherError('renderer did-fail-load', { code, description, url });
+    if (isMainFrame && rendererLoadAttempts < 3 && !mainWindow.isDestroyed()) {
+      const attempt = rendererLoadAttempts;
+      setTimeout(() => {
+        if (mainWindow && !mainWindow.isDestroyed()) loadRenderer();
+      }, 250 * attempt);
+    }
   });
   mainWindow.webContents.on('render-process-gone', (_event, details) => {
     appendLauncherError('renderer render-process-gone', details);
@@ -220,9 +234,7 @@ function createWindow() {
       }, 250);
     }
   });
-  mainWindow.loadFile(rendererPath('index.html')).catch((error) => {
-    appendLauncherError('renderer load-file', error);
-  });
+  loadRenderer();
   mainWindow.once('ready-to-show', () => { if (cfg.launcher?.windowMaximized) mainWindow.maximize(); const startup=process.argv.includes('--startup'); if(startup && cfg.launcher?.startMinimized) mainWindow.hide(); else mainWindow.show(); });
   let saveTimer = null;
   const saveWindowState = () => {
