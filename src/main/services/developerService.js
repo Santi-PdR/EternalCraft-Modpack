@@ -105,10 +105,16 @@ function runPublisherProcess({ args, cwd, onLine = () => {}, timeoutMs, label })
     let output = '';
     let settled = false;
     const maxCapture = 2 * 1024 * 1024;
+    const startedAt = Date.now();
+    const heartbeat = setInterval(() => {
+      if (!settled) onLine(`${label} sigue en curso… ${Math.floor((Date.now() - startedAt) / 1000)} s`);
+    }, 15000);
+    heartbeat.unref?.();
     const finish = (error, value) => {
       if (settled) return;
       settled = true;
       clearTimeout(timer);
+      clearInterval(heartbeat);
       error ? reject(error) : resolve(value);
     };
     const collect = (buf) => {
@@ -123,6 +129,8 @@ function runPublisherProcess({ args, cwd, onLine = () => {}, timeoutMs, label })
     }, timeoutMs);
     child.stdout.on('data', collect);
     child.stderr.on('data', collect);
+    child.stdout.on('error', (error) => finish(error));
+    child.stderr.on('error', (error) => finish(error));
     child.once('error', (error) => finish(error));
     child.once('close', (code, signal) => {
       if (settled) return;
