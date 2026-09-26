@@ -28,6 +28,13 @@ const modService = require(path.join(root,'src','main','services','modService'))
 for (const name of ['listMods','addMods','toggleMod','removeMod','toggleFavorite','togglePin','setAllUserModsEnabled','copyModToRoot','auditMods']) {
   if (typeof modService[name] !== 'function') throw new Error(`modService no exporta ${name}()`);
 }
+const mainSource = fs.readFileSync(path.join(root,'src','main','main.js'),'utf8');
+for (const match of mainSource.matchAll(/const\s*\{([^}]+)\}\s*=\s*require\('\.\/services\/([^']+)'\)/g)) {
+  const names = match[1].split(',').map(value => value.trim()).filter(Boolean);
+  const serviceSource = fs.readFileSync(path.join(root,'src','main','services',`${match[2]}.js`),'utf8');
+  const exportBlocks = [...serviceSource.matchAll(/module\.exports\s*=\s*\{([\s\S]*?)\}/g)].map(item => item[1]).join('\n');
+  for (const name of names) if (!new RegExp(`\\b${name.replace(/[.*+?^${}()|[\\]\\]/g, '\\$&')}\\b`).test(exportBlocks)) throw new Error(`${match[2]} no exporta ${name}()`);
+}
 if (manifest.minimumLauncher !== packageJson.version) throw new Error(`minimumLauncher ${manifest.minimumLauncher} no coincide con launcher ${packageJson.version}`);
 if (packageJson.build?.appId !== 'uy.eternalcraft.launcher') throw new Error('appId del launcher cambió inesperadamente.');
 if (!defaults.minecraft?.preferDedicatedGpu) throw new Error('La GPU dedicada debe venir activada por defecto.');
