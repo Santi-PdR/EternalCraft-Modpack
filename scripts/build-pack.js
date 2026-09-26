@@ -137,6 +137,26 @@ async function resolveNotes(value) {
   return raw;
 }
 
+async function readLocalUserModPaths(source) {
+  try {
+    const data = JSON.parse(await fsp.readFile(path.join(source, '.launcher', 'user-mods.json'), 'utf8'));
+    return new Set(Object.entries(data?.mods || {})
+      .filter(([, metadata]) => String(metadata?.provider || '').toLowerCase() === 'local')
+      .map(([name]) => `mods/${String(name).replace(/\\/g, '/')}`)
+      .filter((file) => /^mods\/[^/]+\.jar$/i.test(file))
+      .map((file) => file.toLowerCase()));
+  } catch (_) {
+    return new Set();
+  }
+}
+
+async function listPublishableFiles(source) {
+  const localUserMods = await readLocalUserModPaths(source);
+  const files = (await walk(source)).filter((file) => isPublishedPath(file.relative));
+  const publishable = files.filter((file) => !localUserMods.has(file.relative.toLowerCase()));
+  return { files: publishable, excludedUserMods: files.length - publishable.length };
+}
+
 /**
  * Keep the publisher honest about its payload boundary. This is intentionally
  * checked from the source tree a second time instead of trusting the array
@@ -144,7 +164,7 @@ async function resolveNotes(value) {
  * filter, a staging step, or a hand-edited manifest drops a SIEGE file.
  */
 async function validatePublishedPayload(source, manifest) {
-  const sourceFiles = (await walk(source)).filter((file) => isPublishedPath(file.relative));
+  const { files: sourceFiles, excludedUserMods } = await listPublishableFiles(source);
   const expected = new Map(sourceFiles.map((file) => [file.relative, publishedPathKind(file.relative)]));
   const actual = new Map((manifest?.files || []).map((file) => [String(file.path || '').replace(/\\/g, '/'), publishedPathKind(file.path)]));
   const missing = [...expected.keys()].filter((file) => !actual.has(file));
@@ -156,7 +176,7 @@ async function validatePublishedPayload(source, manifest) {
     ].filter(Boolean).join(' · ');
     throw new Error(`El manifest no coincide con el payload de SIEGE (${details}). La publicación fue detenida.`);
   }
-  const payload = { total: expected.size, mods: [...expected.values()].filter((kind) => kind === 'mods').length, iammusicplayerrenewed: [...expected.values()].filter((kind) => kind === 'iammusicplayerrenewed').length };
+  const payload = { total: expected.size, mods: [...expected.values()].filter((kind) => kind === 'mods').length, iammusicplayerrenewed: [...expected.values()].filter((kind) => kind === 'iammusicplayerrenewed').length, personalModsExcluded: excludedUserMods };
   if (!payload.mods) throw new Error(`La instancia ${source} no contiene mods publicables.`);
   return payload;
 }
@@ -179,7 +199,7 @@ async function buildPack(options = {}) {
   // The SIEGE instance is also used for development and contains saves,
   // options, logs and other personal state. Only the pack payload is
   // publishable: mods plus the iammusicplayerrenewed resource.
-  const files = (await walk(source)).filter((file) => isPublishedPath(file.relative));
+  const { files } = await listPublishableFiles(source);
   if (!files.length) throw new Error(`La instancia ${source} no contiene archivos publicables después de aplicar los filtros de seguridad.`);
   const blobsDir = path.join(out, 'blobs');
   const channelDir = path.join(out, 'channel');
@@ -280,7 +300,7 @@ async function main() {
   });
   console.log('\nETERNAL CRAFT // PACK BUILD READY');
   console.log(`Fuente: ${result.source}`);
-  console.log(`Payload verificado: ${result.payload.mods} mods + ${result.payload.iammusicplayerrenewed} archivos de iammusicplayerrenewed`);
+  console.log(`Payload verificado: ${result.payload.mods} mods + ${result.payload.iammusicplayerrenewed} archivos de iammusicplayerrenewed · ${result.payload.personalModsExcluded} personales omitidos`);
   console.log(`Versión: ${result.manifest.version}`);
   console.log(`Archivos: ${result.manifest.files.length}`);
   console.log(`Nuevos blobs: ${result.changes.uniqueNewBlobs}`);
@@ -289,4 +309,4 @@ async function main() {
 }
 
 if (require.main === module) main().catch((err) => { console.error(`ERROR: ${err.message}`); process.exit(1); });
-module.exports = { buildPack, parseArgs, resolveGameRoot, sha256File, walk, isPublishedPath, validatePublishedPayload };
+module.exports = { buildPack, parseArgs, resolveGameRoot, sha256File, walk, isPublishedPath, validatePublishedPayload, readLocalUserModPaths, listPublishableFiles };

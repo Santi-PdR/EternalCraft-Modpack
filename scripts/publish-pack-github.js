@@ -148,7 +148,7 @@ async function main() {
   const sourceFingerprint=manifestFingerprint(result.manifest);
   if(args['expected-fingerprint'] && String(args['expected-fingerprint'])!==sourceFingerprint) throw new Error('La instancia SIEGE cambió después del preview. Hacé una nueva previsualización antes de publicar.');
   console.log(`Fuente verificada: ${result.source}`);
-  console.log(`Payload verificado: ${result.payload.mods} mods + ${result.payload.iammusicplayerrenewed} archivos de iammusicplayerrenewed (${result.payload.total} total)`);
+  console.log(`Payload verificado: ${result.payload.mods} mods + ${result.payload.iammusicplayerrenewed} archivos de iammusicplayerrenewed (${result.payload.total} total) · ${result.payload.personalModsExcluded} personales omitidos`);
 
   if (previewOnly) {
     const preview = {
