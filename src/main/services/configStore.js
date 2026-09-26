@@ -57,7 +57,8 @@ class ConfigStore {
   }
   load() {
     const defaults = this.readDefaults();
-    const merged = deepMerge(defaults, this.readUser());
+    const user = this.readUser();
+    const merged = deepMerge(defaults, user);
     // Older installs may have persisted an empty updater feed. An empty feed
     // is not a useful preference: it silently disables release notifications
     // and makes the launcher look permanently up to date. Restore the bundled
@@ -67,11 +68,25 @@ class ConfigStore {
     }
     // Drop integrations removed from the launcher so old installs do not keep
     // stale provider credentials, proxies or remote-mod preferences alive.
+    let legacyRemoved = false;
     if (merged.mods && typeof merged.mods === 'object') {
-      for (const key of ['provider','category','environment','releaseChannel','curseforgeProxyUrl','autoCheckUpdates','autoUpdateUserMods']) delete merged.mods[key];
+      for (const key of ['provider','category','environment','releaseChannel','curseforgeProxyUrl','autoCheckUpdates','autoUpdateUserMods']) {
+        if (Object.prototype.hasOwnProperty.call(merged.mods, key)) { delete merged.mods[key]; legacyRemoved = true; }
+      }
     }
-    delete merged.visualProfiles;
+    if (Object.prototype.hasOwnProperty.call(merged, 'visualProfiles')) { delete merged.visualProfiles; legacyRemoved = true; }
     if (!merged.pack.installDirectory) merged.pack.installDirectory = defaultInstallDirectory(this.userDataDir);
+    // Persist the migration immediately so removed provider credentials and
+    // visual profiles do not remain on disk after a read-only startup.
+    if (legacyRemoved && fs.existsSync(this.configPath)) {
+      const migrationTmp = `${this.configPath}.migration-${process.pid}-${Date.now()}`;
+      try {
+        fs.writeFileSync(migrationTmp, JSON.stringify(merged, null, 2), { encoding:'utf8', mode:0o600 });
+        fs.renameSync(migrationTmp, this.configPath);
+      } catch (_) {
+        try { fs.rmSync(migrationTmp, { force:true }); } catch (_) {}
+      }
+    }
     return merged;
   }
   save(patch) {
