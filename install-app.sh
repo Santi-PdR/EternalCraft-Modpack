@@ -41,16 +41,30 @@ mkdir -p "$APP_HOME" "$(dirname "$DESKTOP")" "$ICON_DIR" "$HOME/.local/bin"
 if [[ -f "$APPIMAGE" ]]; then cp -f "$APPIMAGE" "$APPIMAGE.previous" || true; fi
 cp -f "$BUILT" "$APPIMAGE"
 chmod +x "$APPIMAGE"
+
+# Keep the extracted AppDir in sync too. Fedora systems without /dev/fuse use
+# this copy directly, so refreshing only the AppImage would keep launching the
+# previous build forever.
+APP_STAGING="$APP_HOME/app.new"
+rm -rf "$APP_STAGING"
+mkdir -p "$APP_STAGING"
+cp -a dist/linux-unpacked/. "$APP_STAGING/"
+if [[ -d "$APP_HOME/app" ]]; then
+  APP_BACKUP="$APP_HOME/app.previous-${VERSION}-$(date +%Y%m%d-%H%M%S)"
+  mv "$APP_HOME/app" "$APP_BACKUP"
+fi
+mv "$APP_STAGING" "$APP_HOME/app"
+
 cp -f resources/icons/icon.png "$ICON_DIR/$APP_ID.png"
 
 cat > "$WRAPPER" <<WRAPPER
 #!/usr/bin/env bash
 set -euo pipefail
 export ETERNAL_DEVELOPER_BUILD=1
-if [[ -x "$APPIMAGE" ]]; then
-  exec "$APPIMAGE" --developer-build "\$@"
+if [[ -x "$APP_HOME/app/EternalCraftLauncher" ]]; then
+  exec "$APP_HOME/app/EternalCraftLauncher" --developer-build "\$@"
 fi
-exec "$APP_HOME/app/EternalCraftLauncher" --developer-build "\$@"
+exec "$APPIMAGE" --appimage-extract-and-run --developer-build "\$@"
 WRAPPER
 chmod +x "$WRAPPER"
 
