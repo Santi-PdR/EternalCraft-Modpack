@@ -40,8 +40,19 @@ class AuthService {
   }
   save(data) {
     fs.mkdirSync(path.dirname(this.file), { recursive: true });
-    fs.writeFileSync(this.file, JSON.stringify(data, null, 2), { mode: 0o600 });
-    try { fs.chmodSync(this.file, 0o600); } catch (_) {}
+    const temporary = `${this.file}.tmp-${process.pid}`;
+    const serialized = JSON.stringify(data, null, 2);
+    fs.writeFileSync(temporary, serialized, { mode: 0o600 });
+    try { fs.chmodSync(temporary, 0o600); } catch (_) {}
+    try {
+      fs.renameSync(temporary, this.file);
+    } catch (_) {
+      // Windows may refuse replacing an existing file with rename(). Keep the
+      // safe temporary write and fall back to a normal replacement there.
+      fs.writeFileSync(this.file, serialized, { mode: 0o600 });
+      try { fs.chmodSync(this.file, 0o600); } catch (_) {}
+      try { fs.rmSync(temporary, { force: true }); } catch (_) {}
+    }
     this.account = data;
   }
   status() {
