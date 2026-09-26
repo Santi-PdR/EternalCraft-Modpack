@@ -58,6 +58,31 @@ if (!defaults.minecraft?.useSystemResolution) throw new Error('La resolución de
 for (const legacy of ['provider','category','environment','releaseChannel','curseforgeProxyUrl','autoCheckUpdates','autoUpdateUserMods']) if (Object.prototype.hasOwnProperty.call(defaults.mods || {}, legacy)) throw new Error(`La configuración conserva una clave retirada: ${legacy}`);
 
 const html = fs.readFileSync(path.join(root,'src','renderer','index.html'),'utf8');
+// A prematurely closed .content container makes every page after the first
+// one render below the viewport while the sidebar still appears healthy. Keep
+// a small structural check here so an extra closing div cannot regress the UI.
+const voidTags = new Set(['area','base','br','col','embed','hr','img','input','link','meta','param','source','track','wbr']);
+const htmlStack = [];
+const htmlToken = /<!--[\s\S]*?-->|<\/?[A-Za-z][^>]*>/g;
+for (const match of html.matchAll(htmlToken)) {
+  const token = match[0];
+  if (token.startsWith('<!--') || /^<\s*!/u.test(token)) continue;
+  const close = /^<\//u.test(token);
+  const name = token.match(/^<\/?\s*([A-Za-z][\w:-]*)/u)?.[1]?.toLowerCase();
+  if (!name || voidTags.has(name) || /\/\s*>$/u.test(token)) continue;
+  if (close) {
+    const open = htmlStack.pop();
+    if (!open || open.name !== name) throw new Error(`HTML malformado: se esperaba cerrar ${open?.name || 'nada'} y apareció </${name}> en offset ${match.index}`);
+  } else htmlStack.push({name, token, index:match.index});
+}
+if (htmlStack.length) throw new Error(`HTML malformado: quedan etiquetas abiertas (${htmlStack.map(item => item.name).join(', ')})`);
+const contentOpen = html.indexOf('<main class="content">');
+const contentClose = html.indexOf('</main>', contentOpen);
+if (contentOpen < 0 || contentClose < 0) throw new Error('No se encontró el contenedor principal .content.');
+for (const page of ['home','mods','modpack','updates','gallery','support','settings']) {
+  const pageIndex = html.indexOf(`<section id="page-${page}"`);
+  if (pageIndex < contentOpen || pageIndex > contentClose) throw new Error(`La página ${page} quedó fuera de main.content.`);
+}
 const ids = [...html.matchAll(/\bid=["']([^"']+)["']/g)].map(m=>m[1]);
 const duplicateIds = ids.filter((id,i)=>ids.indexOf(id)!==i);
 if (duplicateIds.length) throw new Error(`IDs HTML duplicados: ${[...new Set(duplicateIds)].join(', ')}`);
