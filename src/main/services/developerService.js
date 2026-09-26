@@ -138,7 +138,7 @@ function runPublisherProcess({ args, cwd, onLine = () => {}, timeoutMs, label, e
       // publisher alive in the background holding the work directory open.
       if (error && child.exitCode === null && !child.killed) {
         try { child.kill('SIGTERM'); } catch (_) {}
-        setTimeout(() => { if (child.exitCode === null && !child.killed) { try { child.kill('SIGKILL'); } catch (_) {} } }, 2500).unref?.();
+        setTimeout(() => { if (child.exitCode === null) { try { child.kill('SIGKILL'); } catch (_) {} } }, 2500).unref?.();
       }
       error ? reject(error) : resolve(value);
     };
