@@ -12,7 +12,7 @@ const mockConfig = {
   onboarding:{completed:true},links:{}
 };
 const mockManifest = {
-  schema:2,version:'1.0.0',releaseName:'Siege Origin',minecraft:'1.20.1',forge:'47.4.10',minimumLauncher:'0.65.31',files:[],remove:[],
+  schema:2,version:'1.0.0',releaseName:'Siege Origin',minecraft:'1.20.1',forge:'47.4.10',minimumLauncher:'0.65.32',files:[],remove:[],
   releaseNotes:{title:'SIEGE DEV',summary:'Base del launcher renovada y sistema de actualización segura.',addedCount:2,changedCount:4,removedCount:0,highlights:[{type:'changed',path:'mods/siege-menu.jar'},{type:'added',path:'config/eternal-client.toml'}]}
 };
 
@@ -23,7 +23,7 @@ function merge(target, patch){
 }
 
 const previewApi = {
-  getState:async()=>({appVersion:'0.65.31',platform:'preview',packaged:false,config:mockConfig,manifest:mockManifest,manifestConfigured:true,manifestSource:'development',java:{found:true,major:17,version:'17.0.x',path:'java'},needsOnboarding:false,launcherUpdateConfigured:false,minimumLauncher:'0.65.31',launcherCompatible:true,developer:{configured:false,unlocked:false,developerAllowed:false},account:{authenticated:false,name:'',id:'',skins:[]},system:{recommendedRamGb:6,maxRamGb:11,totalMemoryBytes:16*1024**3,gpus:[{vendor:'NVIDIA',name:'NVIDIA GeForce GTX 1050'}],display:{width:1920,height:1080,workWidth:1920,workHeight:1040,scaleFactor:1,label:'Monitor principal'},disk:{available:true,freeBytes:180*1024**3,totalBytes:480*1024**3,requiredBytes:512*1024**2}}}),
+  getState:async()=>({appVersion:'0.65.32',platform:'preview',packaged:false,config:mockConfig,manifest:mockManifest,manifestConfigured:true,manifestSource:'development',java:{found:true,major:17,version:'17.0.x',path:'java'},needsOnboarding:false,launcherUpdateConfigured:false,minimumLauncher:'0.65.32',launcherCompatible:true,developer:{configured:false,unlocked:false,developerAllowed:false},account:{authenticated:false,name:'',id:'',skins:[]},system:{recommendedRamGb:6,maxRamGb:11,totalMemoryBytes:16*1024**3,gpus:[{vendor:'NVIDIA',name:'NVIDIA GeForce GTX 1050'}],display:{width:1920,height:1080,workWidth:1920,workHeight:1040,scaleFactor:1,label:'Monitor principal'},disk:{available:true,freeBytes:180*1024**3,totalBytes:480*1024**3,requiredBytes:512*1024**2}}}),
   completeOnboarding:async(p)=>{mockConfig.minecraft.username=p.username;mockConfig.onboarding.completed=true;return previewApi.getState()},
   pingServer:async()=>({online:true,latency:57,players:{online:12,max:40},version:'Forge 1.20.1',favicon:null}),
   checkPack:async()=>({configured:true,state:{version:'SIEGE-DEV',updatedAt:new Date().toISOString()},expectedVersion:'SIEGE-DEV',versionMatches:true,total:247,ok:247,missing:[],changed:[],remove:[],bytesRequired:0,healthy:true}),
@@ -73,6 +73,7 @@ const ignoredModWarnings=new Set();
 let updateCenterState={pack:null,mods:null,launcher:'unknown',lastChecked:null};
 let launcherUpdateAvailable=false;
 let autoSaveTimer=null;
+let settingsSaveTail=Promise.resolve();
 let operationMinimized=false;
 let pingHistory=[];
 let settingsGroup='game';
@@ -718,7 +719,7 @@ function renderUpdateCenter(){
 
   if($('updatesModsTitle'))$('updatesModsTitle').textContent=modCount?`${modCount} actualización${modCount===1?'':'es'}`:'Al día';
   if($('updatesModsText'))$('updatesModsText').textContent='Los mods instalados se administran localmente; las versiones oficiales llegan con el modpack.';
-  if($('updatesLauncherTitle'))$('updatesLauncherTitle').textContent=launcherNeeds?'Nueva versión disponible':`v${appState?.appVersion||'0.65.31'}`;
+  if($('updatesLauncherTitle'))$('updatesLauncherTitle').textContent=launcherNeeds?'Nueva versión disponible':`v${appState?.appVersion||'0.65.32'}`;
   if($('updatesLauncherText'))$('updatesLauncherText').textContent=launcherNeeds?'Podés descargarla sin tocar el modpack.':appState?.packaged?'Canal del launcher comprobado.':'Modo desarrollo · updater desactivado.';
   const javaOk=Boolean(appState?.java?.found&&Number(appState?.java?.major)>=17);if($('updatesRuntimeTitle'))$('updatesRuntimeTitle').textContent=javaOk?`Java ${appState.java.version||17}`:'Java compatible pendiente';if($('updatesRuntimeText'))$('updatesRuntimeText').textContent=javaOk?(appState.java.managed?'Runtime administrado por Eternal Craft.':'Runtime detectado en el sistema.'):'Elegí un Java 17 o superior en tu sistema.';
   if($('updatesHeroMark'))$('updatesHeroMark').textContent=total?'!':'✓';if($('updatesHero'))$('updatesHero').classList.toggle('has-updates',total>0);if($('updatesHeroTitle'))$('updatesHeroTitle').textContent=total?`${total} actualización${total===1?'':'es'} pendiente${total===1?'':'s'}`:'Todo está actualizado';if($('updatesHeroText'))$('updatesHeroText').textContent=total?'Podés revisar cada componente o aplicar las actualizaciones disponibles.':'Launcher, modpack y mods personales están listos.';
@@ -858,7 +859,15 @@ function problemHelp(type){
   }; const [title,text]=map[type]||['SOPORTE','Generá un diagnóstico.']; $('helpTitle').textContent=title;$('helpText').textContent=text;$('helpStrip').classList.remove('hidden');
 }
 function validUsername(value){return /^[A-Za-z0-9_]{3,16}$/.test(String(value||'').trim())}
-async function saveSettings(silent=false){
+function saveSettings(silent=false){
+  // Serialize writes so a slow IPC response cannot apply an older snapshot
+  // after a newer settings change.
+  const run=()=>saveSettingsNow(silent);
+  const next=settingsSaveTail.then(run,run);
+  settingsSaveTail=next.catch(()=>{});
+  return next;
+}
+async function saveSettingsNow(silent=false){
   clearTimeout(autoSaveTimer); autoSaveTimer=null;
   if(silent&&$('settingsSaved'))$('settingsSaved').textContent='GUARDANDO…';
   const typedUsername=$('usernameInput').value.trim(); const username=validUsername(typedUsername)?typedUsername:String(appState?.config?.minecraft?.username||'').trim(); if(!validUsername(username)){if(!silent)toast('El nick debe tener entre 3 y 16 caracteres.','error');return;}
