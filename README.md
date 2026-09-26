@@ -14,6 +14,8 @@ Eternal Craft Launcher is intentionally not a generic multi-instance launcher. I
 
 - Las consultas de canal, Modrinth y CurseForge reintentan cortes transitorios, timeouts y respuestas 429/5xx antes de mostrar un error.
 - Las descargas de mods tienen timeout, reintentos y mensajes de error más claros.
+- La conectividad distingue servicios críticos de integraciones opcionales, reintenta cortes breves y muestra el estado real en la interfaz.
+- La instalación administrada de Java 17 usa timeout, reintentos y validación de integridad antes de extraer el runtime.
 - Developer Mode mantiene el progreso en vivo sin guardar una salida ilimitada en memoria durante publicaciones grandes.
 - La versión conserva la revisión global, filtros persistentes, perfiles visuales, login Microsoft, galería local y protección de contenido oficial de 0.63.
 

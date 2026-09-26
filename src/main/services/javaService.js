@@ -142,8 +142,30 @@ async function sha256File(file) {
   });
 }
 
+async function fetchWithRetry(url, options = {}, attempts = 3, timeoutMs = 120000) {
+  let last;
+  for (let attempt = 1; attempt <= attempts; attempt++) {
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), timeoutMs);
+    try {
+      const response = await fetch(url, { ...options, signal: options.signal || controller.signal, headers: { 'User-Agent': 'EternalCraftLauncher/0.64.0', ...(options.headers || {}) } });
+      if (response.ok) return response;
+      last = new Error(`HTTP ${response.status}`);
+      last.retryable = response.status === 408 || response.status === 425 || response.status === 429 || response.status >= 500;
+      if (!last.retryable) throw last;
+    } catch (error) {
+      last = error?.name === 'AbortError' ? new Error(`La conexión superó el tiempo de espera (${Math.round(timeoutMs / 1000)} s).`) : error;
+      const transient = Boolean(last?.retryable) || ['ECONNRESET', 'ETIMEDOUT', 'EAI_AGAIN', 'UND_ERR_CONNECT_TIMEOUT', 'UND_ERR_SOCKET'].includes(error?.code) || error?.name === 'TypeError' || /fetch failed|network|socket|connect/i.test(String(error?.message || ''));
+      if (!transient) throw last;
+      if (attempt >= attempts) break;
+    } finally { clearTimeout(timer); }
+    if (attempt < attempts) await new Promise(resolve => setTimeout(resolve, 500 * attempt));
+  }
+  throw last || new Error('No se pudo conectar con el proveedor de Java.');
+}
+
 async function download(url, destination, onProgress = () => {}) {
-  const response = await fetch(url, { headers: { 'User-Agent': 'EternalCraftLauncher/0.25.0' } });
+  const response = await fetchWithRetry(url, {}, 3, 120000);
   if (!response.ok || !response.body) throw new Error(`No se pudo descargar Java 17 (HTTP ${response.status}).`);
   const total = Number(response.headers.get('content-length') || 0); let received = 0;
   const reader = response.body.getReader();
@@ -191,7 +213,7 @@ async function installManagedJava17(managedRoot, onProgress = () => {}) {
   await fsp.mkdir(managedRoot, { recursive: true });
   onProgress({ phase: 'java-resolving', current: 0, total: 1, file: 'Java 17' });
   const apiUrl = `https://api.adoptium.net/v3/assets/latest/17/hotspot?architecture=${encodeURIComponent(arch)}&image_type=jre&os=${encodeURIComponent(osName)}&vendor=eclipse`;
-  const response = await fetch(apiUrl, { headers: { 'User-Agent': 'EternalCraftLauncher/0.25.0' } });
+  const response = await fetchWithRetry(apiUrl, { headers: { Accept: 'application/json' } }, 3, 15000);
   if (!response.ok) throw new Error(`No se pudo consultar Java 17 (HTTP ${response.status}).`);
   const assets = await response.json();
   const pkg = assets?.[0]?.binary?.package;
