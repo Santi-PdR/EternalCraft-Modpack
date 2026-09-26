@@ -24,6 +24,10 @@ for (const file of jsFiles) execFileSync(process.execPath, ['--check', file], { 
 const packageJson = JSON.parse(fs.readFileSync(path.join(root,'package.json'),'utf8'));
 const defaults = JSON.parse(fs.readFileSync(path.join(root,'resources','default-config.json'),'utf8'));
 const manifest = JSON.parse(fs.readFileSync(path.join(root,'resources','manifest.example.json'),'utf8'));
+const modService = require(path.join(root,'src','main','services','modService'));
+for (const name of ['listMods','addMods','toggleMod','removeMod','toggleFavorite','togglePin','setAllUserModsEnabled','copyModToRoot','auditMods']) {
+  if (typeof modService[name] !== 'function') throw new Error(`modService no exporta ${name}()`);
+}
 if (manifest.minimumLauncher !== packageJson.version) throw new Error(`minimumLauncher ${manifest.minimumLauncher} no coincide con launcher ${packageJson.version}`);
 if (packageJson.build?.appId !== 'uy.eternalcraft.launcher') throw new Error('appId del launcher cambió inesperadamente.');
 if (!defaults.minecraft?.preferDedicatedGpu) throw new Error('La GPU dedicada debe venir activada por defecto.');
