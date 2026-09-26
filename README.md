@@ -1,4 +1,4 @@
-# Eternal Craft Launcher 0.65.32
+# Eternal Craft Launcher 0.65.33
 
 Official launcher for **Eternal Craft // SIEGE**.
 
@@ -10,14 +10,14 @@ Official launcher for **Eternal Craft // SIEGE**.
 
 Eternal Craft Launcher is intentionally not a generic multi-instance launcher. It manages one official SIEGE installation and aims to make installing, repairing, updating and launching that pack safe and simple.
 
-## 0.65.32 — Páginas recuperables y errores IPC aislados
+## 0.65.33 — Páginas recuperables y errores IPC aislados
 
 - Las páginas de Mods, Modpack, Actualizaciones, Galería, Soporte y Ajustes siguen renderizando aunque no exista un canal remoto publicado.
 - Los errores IPC y las salidas cerradas de terminal ya no pueden cerrar el proceso principal por un EPIPE.
 - El modo desarrollador ya no contiene credenciales de servicios de mods: solo publica el modpack mediante GitHub CLI en la build privada de mantenimiento.
 - La publicación se ejecuta en un proceso asíncrono con registro de progreso, sin bloquear la ventana mientras prepara o sube blobs grandes.
 - El actualizador del launcher usa el feed de GitHub Releases y requiere una acción explícita para descargar y reiniciar con la nueva versión.
-- Apariencia suma temas Graphite, Slate, Smoke e Iron para configuraciones oscuras y grises, con guardado automático y sin perfiles visuales acumulados.
+- Apariencia suma temas Graphite, Slate, Smoke e Iron para configuraciones oscuras y grises, con guardado automático directo y sin perfiles visuales acumulados.
 - Se conserva la colección de fondos oficiales de Dummies vs Noobs y la protección de archivos oficiales del pack.
 
 ## 0.63.0 — Revisión integral del launcher
@@ -33,12 +33,11 @@ Eternal Craft Launcher is intentionally not a generic multi-instance launcher. I
 - Se añadió un botón para restablecer todos los filtros sin perder la carpeta elegida.
 - Las preferencias se limitan y validan al importar o exportar ajustes para mantener el archivo seguro y portable.
 
-## 0.61.0 — Galería filtrable, perfiles visuales y publicación con preflight
+## 0.61.0 — Galería filtrable y publicación con preflight
 
 - La Galería permite buscar por nombre, filtrar imágenes o videos y ordenar por fecha, nombre o tamaño.
-- Ajustes permite guardar hasta ocho perfiles locales de tema, fondo, colores, densidad y efectos para aplicarlos con un clic.
 - La publicación del modpack ejecuta un preflight obligatorio: valida GitHub CLI, repositorio, instancia SIEGE y carpeta `mods` antes de comenzar la subida.
-- Los perfiles exportados solo contienen preferencias visuales; nunca incluyen contraseñas, API keys, tokens ni rutas privadas.
+- Los ajustes exportados solo contienen preferencias visuales y de juego; nunca incluyen contraseñas, API keys, tokens ni rutas privadas.
 
 ## 0.60.0 — Personalization studio, Microsoft skins and media vault
 
