@@ -66,16 +66,23 @@ class ConfigStore {
       merged.configSchemaVersion = 1;
       merged.launcher = { ...(merged.launcher || {}), hideOnGameStart: true };
     }
+    // Keep launcher updates independent from modpack releases. GitHub's
+    // /releases/latest endpoint can select a pack-v release, which has no
+    // electron-updater metadata and strands older launcher builds.
+    let legacyRemoved = migrationRequired;
+    const configuredFeed = String(merged.launcher?.updateFeedUrl || '').trim();
+    if (/\/releases\/latest\/download\/?$/i.test(configuredFeed)) {
+      merged.launcher = { ...(merged.launcher || {}), updateFeedUrl: configuredFeed.replace(/\/releases\/latest\/download\/?$/i, '/releases/download/launcher-latest/') };
+      legacyRemoved = true;
+    }
     // Older installs may have persisted an empty updater feed. An empty feed
-    // is not a useful preference: it silently disables release notifications
-    // and makes the launcher look permanently up to date. Restore the bundled
-    // official feed while leaving explicit non-empty custom feeds untouched.
+    // silently disables release notifications, so restore the bundled feed.
     if (!String(merged.launcher?.updateFeedUrl || '').trim() && String(defaults.launcher?.updateFeedUrl || '').trim()) {
       merged.launcher = { ...(merged.launcher || {}), updateFeedUrl: defaults.launcher.updateFeedUrl };
+      legacyRemoved = true;
     }
     // Drop integrations removed from the launcher so old installs do not keep
     // stale provider credentials, proxies or remote-mod preferences alive.
-    let legacyRemoved = migrationRequired;
     if (merged.mods && typeof merged.mods === 'object') {
       for (const key of ['provider','category','environment','releaseChannel','curseforgeProxyUrl','autoCheckUpdates','autoUpdateUserMods']) {
         if (Object.prototype.hasOwnProperty.call(merged.mods, key)) { delete merged.mods[key]; legacyRemoved = true; }

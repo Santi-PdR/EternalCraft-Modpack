@@ -36,7 +36,7 @@
     "noise": false,
     "reducedMotion": false,
     "autoUpdate": true,
-    "updateFeedUrl": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/latest/download/",
+    "updateFeedUrl": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/launcher-latest/",
     "lastPlayedAt": "",
     "lastSession": null,
     "theme": "aurora",

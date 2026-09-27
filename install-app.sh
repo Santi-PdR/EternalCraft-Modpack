@@ -107,10 +107,20 @@ cat > "$WRAPPER" <<WRAPPER
 #!/usr/bin/env bash
 set -euo pipefail
 export ETERNAL_DEVELOPER_BUILD=1
+if [[ -x "$APPIMAGE" ]]; then
+  # AppImageUpdater needs APPIMAGE to identify and replace this exact file.
+  # Use FUSE when available; otherwise AppImage's built-in extraction mode.
+  if [[ -r /dev/fuse && -w /dev/fuse ]]; then
+    exec "$APPIMAGE" --developer-build "\$@"
+  fi
+  exec "$APPIMAGE" --appimage-extract-and-run --developer-build "\$@"
+fi
 if [[ -x "$APP_HOME/app/EternalCraftLauncher" ]]; then
+  # Recovery fallback only: extracted AppDir installs cannot self-update.
   exec "$APP_HOME/app/EternalCraftLauncher" --developer-build "\$@"
 fi
-exec "$APPIMAGE" --appimage-extract-and-run --developer-build "\$@"
+echo "No se encontró Eternal Craft Launcher en $APPIMAGE ni en $APP_HOME/app." >&2
+exit 1
 WRAPPER
 chmod +x "$WRAPPER"
 
@@ -141,4 +151,8 @@ echo
 echo "✓ Eternal Craft Launcher quedó instalado como aplicación propia."
 echo "  Buscalo en el menú de aplicaciones; no uses npm start para el uso normal."
 echo
-nohup "$WRAPPER" >/tmp/eternal-craft-launcher.log 2>&1 &
+if [[ "${1:-}" != "--no-launch" ]]; then
+  nohup "$WRAPPER" >/tmp/eternal-craft-launcher.log 2>&1 &
+else
+  echo "El launcher quedó cerrado, tal como se solicitó."
+fi

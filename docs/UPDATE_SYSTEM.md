@@ -43,13 +43,22 @@ Si el equipo no tiene Java 17, el launcher puede descargar un runtime Eclipse Te
 
 El launcher usa `electron-updater` para su propia actualización. El programa y el modpack son canales separados: actualizar el launcher no obliga a descargar el modpack otra vez.
 
-Para un feed genérico basado en GitHub Releases se puede usar:
+El launcher tiene un canal de release dedicado (`launcher-latest`), separado de
+las releases `pack-v…` del modpack. El workflow copia a ese canal solo los
+metadatos y binarios del launcher, y marca como “latest” la release
+`launcher-v…`. Las publicaciones del modpack se crean con `--latest=false` para
+que nunca reemplacen las actualizaciones del launcher.
+
+El feed configurado es:
 
 ```text
-https://github.com/USUARIO/REPO/releases/latest/download/
+https://github.com/USUARIO/REPO/releases/download/launcher-latest/
 ```
 
-Las builds de Electron Builder generan la metadata necesaria para AppImage/NSIS cuando corresponde.
+Las builds de Electron Builder generan `latest-linux.yml` y `latest.yml` para
+AppImage/NSIS. El workflow valida la versión del tag, ejecuta las pruebas y
+actualiza el canal estable. Las instalaciones antiguas migran automáticamente
+desde `/releases/latest/download/` al nuevo feed dedicado.
 
 ## Mods personales
 

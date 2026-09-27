@@ -39,6 +39,11 @@ const packBuilderSource = readText(path.join(root,'scripts','build-pack.js'));
 const manifestServiceSource = readText(path.join(root,'src','main','services','manifestService.js'));
 const serverPingSource = readText(path.join(root,'src','main','services','serverPing.js'));
 const updateServiceSource = readText(path.join(root,'src','main','services','updateService.js'));
+const releaseWorkflow = readText(path.join(root,'.github','workflows','build.yml'));
+const configStoreSource = readText(path.join(root,'src','main','services','configStore.js'));
+const authServiceSource = readText(path.join(root,'src','main','services','authService.js'));
+const installerSource = readText(path.join(root,'install-app.sh'));
+const verifyReleaseTagSource = readText(path.join(root,'scripts','verify-launcher-release.js'));
 const developerServiceSource = readText(path.join(root,'src','main','services','developerService.js'));
 if (!packBuilderSource.includes('ETERNAL_LAUNCHER_VERSION')) throw new Error('El constructor del pack no tiene fallback de versión para builds empaquetadas.');
 if (!publisherSource.includes("String(output || '').trim()")) throw new Error('El publicador debe normalizar la salida nula de gh antes de trim().');
@@ -73,9 +78,6 @@ if (!mainSource.includes("isQuitting = true;\n    try { installLauncherUpdate();
 const launchHandler = mainSource.match(/ipcMain\.handle\('game:launch',[\s\S]*?\n\s*ipcMain\.handle\('game:safe-launch'/)?.[0] || '';
 if (!launchHandler || /updatePack\(|checkInstallation\(/.test(launchHandler)) throw new Error('Jugar no debe comprobar, reparar ni actualizar el modpack.');
 if (/quickPlay\s*:/.test(gameServiceSource)) throw new Error('El inicio normal no debe conectar al servidor automáticamente.');
-const configStoreSource = readText(path.join(root,'src','main','services','configStore.js'));
-const authServiceSource = readText(path.join(root,'src','main','services','authService.js'));
-const installerSource = readText(path.join(root,'install-app.sh'));
 if (defaults.launcher?.hideOnGameStart !== true) throw new Error('El launcher debe ocultarse al abrir Minecraft de forma predeterminada.');
 if (!configStoreSource.includes('merged.configSchemaVersion = 1') || !configStoreSource.includes('hideOnGameStart: true')) throw new Error('Las configuraciones existentes deben migrarse una sola vez al ocultar el launcher al iniciar Minecraft.');
 if (!mainSource.includes('hideOnGameStart:config.launcher?.hideOnGameStart!==false') || !mainSource.includes('hideOnGameStart:l.hideOnGameStart!==false')) throw new Error('La configuración debe conservar habilitado el comportamiento predeterminado y permitir desactivarlo explícitamente.');
@@ -84,6 +86,9 @@ if (!authServiceSource.includes('const temporary = `${this.file}.tmp-${process.p
 const stopLauncherIndex = installerSource.indexOf('\nstop_existing_launcher\n');
 const replaceAppImageIndex = installerSource.indexOf('cp -f "$BUILT" "$APPIMAGE"');
 if (stopLauncherIndex < 0 || replaceAppImageIndex < 0 || stopLauncherIndex > replaceAppImageIndex || !installerSource.includes('kill -TERM') || !installerSource.includes('No se reemplazaron los archivos')) throw new Error('El instalador debe cerrar limpiamente el launcher anterior antes de reemplazar archivos.');
+const installedWrapper = installerSource.slice(installerSource.indexOf('cat > "$WRAPPER"'), installerSource.indexOf('\nWRAPPER\n'));
+if (!installedWrapper.includes('if [[ -x "$APPIMAGE" ]]') || !installedWrapper.includes('--appimage-extract-and-run') || installedWrapper.indexOf('if [[ -x "$APPIMAGE" ]]') > installedWrapper.indexOf('if [[ -x "$APP_HOME/app/EternalCraftLauncher" ]]')) throw new Error('El wrapper debe priorizar el AppImage actualizable y dejar AppDir solo como recuperación.');
+if (!installedWrapper.includes('ETERNAL_DEVELOPER_BUILD=1') || !installedWrapper.includes('--developer-build')) throw new Error('El wrapper local debe conservar el acceso a herramientas de mantenimiento.');
 if (!mainSource.includes('else if (result.reauthRequired) store.save({ minecraft: { accountMode: \'offline\' } });')) throw new Error('El launcher debe salir del modo premium cuando Microsoft invalida la sesión.');
 if (!mainSource.includes("if (err?.reauthRequired) {\n        store.save({ minecraft: { accountMode: 'offline' } });")) throw new Error('El inicio del juego debe convertir una sesión premium vencida en una acción recuperable.');
 if (!configStoreSource.includes('Persist the migration immediately')) throw new Error('La limpieza de configuración heredada debe persistirse al migrar.');
@@ -114,6 +119,13 @@ for (const file of runtimeFiles) {
 }
 if (!defaults.minecraft?.preferDedicatedGpu) throw new Error('La GPU dedicada debe venir activada por defecto.');
 if (!defaults.minecraft?.useSystemResolution) throw new Error('La resolución del sistema debe venir activada por defecto.');
+if (/\/releases\/latest\/download\/?$/i.test(defaults.launcher?.updateFeedUrl || '')) throw new Error('El updater del launcher debe apuntar al canal estable independiente de las releases del modpack.');
+if (packageJson.build?.publish?.[0]?.url !== defaults.launcher?.updateFeedUrl) throw new Error('El feed de electron-builder y la configuración del launcher deben coincidir.');
+if (!configStoreSource.includes('/releases/download/launcher-latest/') || !configStoreSource.includes('configuredFeed.replace')) throw new Error('Las instalaciones existentes deben migrar el feed latest al canal estable del launcher.');
+if (!releaseWorkflow.includes('npm test') || !releaseWorkflow.includes('make_latest: true') || !releaseWorkflow.includes('gh release upload launcher-latest')) throw new Error('El workflow debe probar los cambios y publicar el canal estable del updater.');
+if (!releaseWorkflow.includes('scripts/verify-launcher-release.js')) throw new Error('El workflow debe validar que el tag del launcher coincida con package.json.');
+if (!verifyReleaseTagSource.includes('launcher-v${version}')) throw new Error('La validación de tag debe exigir launcher-v seguido de la versión exacta.');
+if (!publisherSource.includes("'--latest=false'")) throw new Error('Las releases de mods no deben reemplazar la release latest del launcher.');
 for (const legacy of ['provider','category','environment','releaseChannel','curseforgeProxyUrl','autoCheckUpdates','autoUpdateUserMods']) if (Object.prototype.hasOwnProperty.call(defaults.mods || {}, legacy)) throw new Error(`La configuración conserva una clave retirada: ${legacy}`);
 
 const html = readText(path.join(root,'src','renderer','index.html'));

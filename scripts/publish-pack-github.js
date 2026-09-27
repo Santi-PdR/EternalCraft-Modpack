@@ -179,7 +179,7 @@ async function main() {
   await fsp.writeFile(notes, `# ${version} — ${result.manifest.releaseName}\n\n${customNotes?customNotes+'\n\n':''}- Añadidos: ${result.changes.added.length}\n- Cambiados: ${result.changes.changed.length}\n- Eliminados: ${result.changes.removed.length}\n- Archivos del pack: ${result.manifest.files.length}\n`);
 
   try { gh(['release', 'view', tag, '--repo', repo]); }
-  catch (_) { gh(['release', 'create', tag, '--repo', repo, '--title', `${version} — ${result.manifest.releaseName}`, '--notes-file', notes]); }
+  catch (_) { gh(['release', 'create', tag, '--repo', repo, '--latest=false', '--title', `${version} — ${result.manifest.releaseName}`, '--notes-file', notes]); }
 
   const uploadStarted = Date.now();
   const batchSize = 8;
