@@ -2,26 +2,22 @@
   "schema": 2,
   "pack": "Eternal Craft",
   "channel": "stable",
-  "version": "1.0.5",
-  "releaseName": "Steel Surge",
+  "version": "1.0.6",
+  "releaseName": "Content Drop",
   "minecraft": "1.20.1",
   "forge": "47.4.10",
   "minimumLauncher": "0.70.0",
-  "generatedAt": "2026-09-26T23:11:03.776Z",
+  "generatedAt": "2026-09-27T00:29:49.829Z",
   "releaseNotes": {
-    "title": "1.0.5 — Steel Surge",
-    "summary": "1 archivos nuevos · 1 actualizados · 0 eliminados",
+    "title": "1.0.6 — Content Drop",
+    "summary": "1 archivos nuevos · 0 actualizados · 0 eliminados",
     "addedCount": 1,
-    "changedCount": 1,
+    "changedCount": 0,
     "removedCount": 0,
     "highlights": [
       {
         "type": "added",
-        "path": "mods/.fuse_hidden000000d100000015"
-      },
-      {
-        "type": "changed",
-        "path": "mods/siege-menu-20.0.0.jar"
+        "path": "mods/ketchup-1.0.0.jar"
       }
     ]
   },
@@ -439,6 +435,12 @@
       "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/cca6517009d614080e3aeab81a2748649ed40dfd3f156fed11bfab8b9bd12d1e"
     },
     {
+      "path": "mods/ketchup-1.0.0.jar",
+      "size": 124388,
+      "sha256": "1a585e702437714c50ff55de1bf8d1456fa3e501d7534a7cfeb38146f13d2ca9",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.6/1a585e702437714c50ff55de1bf8d1456fa3e501d7534a7cfeb38146f13d2ca9"
+    },
+    {
       "path": "mods/kogtyv-TownyAndVillage-1.4-Forge-1.20.jar",
       "size": 6031637,
       "sha256": "5f1d485ef1ab44903f7ed239504229c3ec2f244abd1985c78c04a9e2a369fc4f",
@@ -795,8 +797,8 @@
   ],
   "remove": [],
   "payload": {
-    "total": 127,
-    "mods": 124,
+    "total": 128,
+    "mods": 125,
     "iammusicplayerrenewed": 3,
     "personalModsExcluded": 0
   }
