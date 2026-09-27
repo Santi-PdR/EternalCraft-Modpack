@@ -59,6 +59,13 @@ class ConfigStore {
     const defaults = this.readDefaults();
     const user = this.readUser();
     const merged = deepMerge(defaults, user);
+    // The launcher should get out of the way when Minecraft opens by default.
+    // Older installs persisted false from the former default, so migrate once.
+    let migrationRequired = Number(merged.configSchemaVersion || 0) < 1;
+    if (migrationRequired) {
+      merged.configSchemaVersion = 1;
+      merged.launcher = { ...(merged.launcher || {}), hideOnGameStart: true };
+    }
     // Older installs may have persisted an empty updater feed. An empty feed
     // is not a useful preference: it silently disables release notifications
     // and makes the launcher look permanently up to date. Restore the bundled
@@ -68,7 +75,7 @@ class ConfigStore {
     }
     // Drop integrations removed from the launcher so old installs do not keep
     // stale provider credentials, proxies or remote-mod preferences alive.
-    let legacyRemoved = false;
+    let legacyRemoved = migrationRequired;
     if (merged.mods && typeof merged.mods === 'object') {
       for (const key of ['provider','category','environment','releaseChannel','curseforgeProxyUrl','autoCheckUpdates','autoUpdateUserMods']) {
         if (Object.prototype.hasOwnProperty.call(merged.mods, key)) { delete merged.mods[key]; legacyRemoved = true; }

@@ -75,8 +75,15 @@ if (!launchHandler || /updatePack\(|checkInstallation\(/.test(launchHandler)) th
 if (/quickPlay\s*:/.test(gameServiceSource)) throw new Error('El inicio normal no debe conectar al servidor automáticamente.');
 const configStoreSource = readText(path.join(root,'src','main','services','configStore.js'));
 const authServiceSource = readText(path.join(root,'src','main','services','authService.js'));
+const installerSource = readText(path.join(root,'install-app.sh'));
+if (defaults.launcher?.hideOnGameStart !== true) throw new Error('El launcher debe ocultarse al abrir Minecraft de forma predeterminada.');
+if (!configStoreSource.includes('merged.configSchemaVersion = 1') || !configStoreSource.includes('hideOnGameStart: true')) throw new Error('Las configuraciones existentes deben migrarse una sola vez al ocultar el launcher al iniciar Minecraft.');
+if (!mainSource.includes('hideOnGameStart:config.launcher?.hideOnGameStart!==false') || !mainSource.includes('hideOnGameStart:l.hideOnGameStart!==false')) throw new Error('La configuración debe conservar habilitado el comportamiento predeterminado y permitir desactivarlo explícitamente.');
 if (!authServiceSource.includes('function isAuthFailure') || !authServiceSource.includes('error.reauthRequired = true')) throw new Error('La sesión Microsoft debe diferenciar tokens inválidos de fallos de red.');
 if (!authServiceSource.includes('const temporary = `${this.file}.tmp-${process.pid}-${Date.now()}-') || !authServiceSource.includes('fs.renameSync(temporary, this.file)')) throw new Error('La cuenta premium debe guardarse con reemplazo atómico y temporal único.');
+const stopLauncherIndex = installerSource.indexOf('\nstop_existing_launcher\n');
+const replaceAppImageIndex = installerSource.indexOf('cp -f "$BUILT" "$APPIMAGE"');
+if (stopLauncherIndex < 0 || replaceAppImageIndex < 0 || stopLauncherIndex > replaceAppImageIndex || !installerSource.includes('kill -TERM') || !installerSource.includes('No se reemplazaron los archivos')) throw new Error('El instalador debe cerrar limpiamente el launcher anterior antes de reemplazar archivos.');
 if (!mainSource.includes('else if (result.reauthRequired) store.save({ minecraft: { accountMode: \'offline\' } });')) throw new Error('El launcher debe salir del modo premium cuando Microsoft invalida la sesión.');
 if (!mainSource.includes("if (err?.reauthRequired) {\n        store.save({ minecraft: { accountMode: 'offline' } });")) throw new Error('El inicio del juego debe convertir una sesión premium vencida en una acción recuperable.');
 if (!configStoreSource.includes('Persist the migration immediately')) throw new Error('La limpieza de configuración heredada debe persistirse al migrar.');

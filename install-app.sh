@@ -13,6 +13,48 @@ ICON_DIR="$HOME/.local/share/icons/hicolor/512x512/apps"
 SOURCE="$HOME/.sklauncher/instances/siege"
 VERSION="$(node -p "require('./package.json').version" 2>/dev/null || echo 0.25.0)"
 
+launcher_pids() {
+  ps -eo pid=,args= | awk -v executable="$APP_HOME/app/EternalCraftLauncher" -v appimage="$APPIMAGE" \
+    '$2 == executable || $2 == appimage { print $1 }'
+}
+
+launcher_main_pids() {
+  ps -eo pid=,args= | awk -v executable="$APP_HOME/app/EternalCraftLauncher" -v appimage="$APPIMAGE" \
+    '($2 == executable || $2 == appimage) && $0 !~ /--type=/ { print $1 }'
+}
+
+stop_existing_launcher() {
+  local main_pids all_pids pid attempt
+  main_pids="$(launcher_main_pids)"
+  all_pids="$(launcher_pids)"
+  if [[ -z "$main_pids" && -z "$all_pids" ]]; then return 0; fi
+
+  echo "→ Cerrando la versión abierta antes de reemplazar sus archivos..."
+  while IFS= read -r pid; do
+    [[ -n "$pid" ]] && kill -TERM "$pid" 2>/dev/null || true
+  done <<< "$main_pids"
+
+  for attempt in {1..15}; do
+    all_pids="$(launcher_pids)"
+    [[ -z "$all_pids" ]] && { echo "✓ Launcher cerrado."; return 0; }
+    sleep 1
+  done
+
+  # A main process may have exited while a Chromium helper remained behind.
+  # Ask only those exact launcher processes to exit; never force-kill them.
+  while IFS= read -r pid; do
+    [[ -n "$pid" ]] && kill -TERM "$pid" 2>/dev/null || true
+  done <<< "$all_pids"
+  for attempt in {1..5}; do
+    all_pids="$(launcher_pids)"
+    [[ -z "$all_pids" ]] && { echo "✓ Procesos auxiliares cerrados."; return 0; }
+    sleep 1
+  done
+
+  echo "ERROR: el launcher no terminó de cerrarse. No se reemplazaron los archivos para evitar una instalación mezclada."
+  return 1
+}
+
 printf '\n══════════════════════════════════════════════\n'
 printf '  ETERNAL CRAFT · INSTALAR LAUNCHER v%s\n' "$VERSION"
 printf '══════════════════════════════════════════════\n\n'
@@ -36,6 +78,10 @@ if [[ -z "$BUILT" ]]; then
   find dist -maxdepth 1 -type f -name '*.AppImage' -print | sort -V
   exit 1
 fi
+
+# A single-instance lock can route a fresh desktop launch to the old process.
+# Stop it only after the new build is ready, and before touching installed files.
+stop_existing_launcher
 
 mkdir -p "$APP_HOME" "$(dirname "$DESKTOP")" "$ICON_DIR" "$HOME/.local/bin"
 if [[ -f "$APPIMAGE" ]]; then cp -f "$APPIMAGE" "$APPIMAGE.previous" || true; fi
