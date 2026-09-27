@@ -163,6 +163,8 @@ const duplicateIds = ids.filter((id,i)=>ids.indexOf(id)!==i);
 if (duplicateIds.length) throw new Error(`IDs HTML duplicados: ${[...new Set(duplicateIds)].join(', ')}`);
 
 const renderer = readText(path.join(root,'src','renderer','renderer.js'));
+const modListRenderSource = renderer.match(/function renderMods\([\s\S]*?\n\}\nfunction handleModsListClick/)?.[0] || '';
+if (!renderer.includes("$('modsList')?.addEventListener('click',handleModsListClick)") || !renderer.includes('function handleModsListClick(event)') || /addEventListener\('click'/.test(modListRenderSource)) throw new Error('La biblioteca de mods debe usar delegación de eventos para evitar listeners por fila en cada búsqueda.');
 const playAction = renderer.match(/async function launch\(\)\s*\{[\s\S]*?\n\}/)?.[0] || '';
 if (!playAction.includes('askConfirm(') || playAction.includes('healthCheck(')) throw new Error('Jugar debe pedir confirmación sin ejecutar el diagnóstico completo.');
 if (!renderer.includes('s.hidden=!active') || !renderer.includes("s.setAttribute('aria-hidden',String(!active))")) throw new Error('La navegación debe controlar la visibilidad nativa de cada página.');

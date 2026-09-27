@@ -12,7 +12,7 @@ const mockConfig = {
   onboarding:{completed:true},links:{}
 };
 const mockManifest = {
-  schema:2,version:'1.0.0',releaseName:'Siege Origin',minecraft:'1.20.1',forge:'47.4.10',minimumLauncher:'0.70.8',files:[],remove:[],
+  schema:2,version:'1.0.0',releaseName:'Siege Origin',minecraft:'1.20.1',forge:'47.4.10',minimumLauncher:'0.70.9',files:[],remove:[],
   releaseNotes:{title:'SIEGE DEV',summary:'Base del launcher renovada y sistema de actualización segura.',addedCount:2,changedCount:4,removedCount:0,highlights:[{type:'changed',path:'mods/siege-menu.jar'},{type:'added',path:'config/eternal-client.toml'}]}
 };
 
@@ -23,7 +23,7 @@ function merge(target, patch){
 }
 
 const previewApi = {
-  getState:async()=>({appVersion:'0.70.8',platform:'preview',packaged:false,config:mockConfig,manifest:mockManifest,manifestConfigured:true,manifestSource:'development',java:{found:true,major:17,version:'17.0.x',path:'java'},needsOnboarding:false,launcherUpdateConfigured:false,minimumLauncher:'0.70.8',launcherCompatible:true,developer:{configured:false,unlocked:false,developerAllowed:false},account:{authenticated:false,name:'',id:'',skins:[]},system:{recommendedRamGb:6,maxRamGb:11,totalMemoryBytes:16*1024**3,gpus:[{vendor:'NVIDIA',name:'NVIDIA GeForce GTX 1050'}],display:{width:1920,height:1080,workWidth:1920,workHeight:1040,scaleFactor:1,label:'Monitor principal'},disk:{available:true,freeBytes:180*1024**3,totalBytes:480*1024**3,requiredBytes:512*1024**2}}}),
+  getState:async()=>({appVersion:'0.70.9',platform:'preview',packaged:false,config:mockConfig,manifest:mockManifest,manifestConfigured:true,manifestSource:'development',java:{found:true,major:17,version:'17.0.x',path:'java'},needsOnboarding:false,launcherUpdateConfigured:false,minimumLauncher:'0.70.9',launcherCompatible:true,developer:{configured:false,unlocked:false,developerAllowed:false},account:{authenticated:false,name:'',id:'',skins:[]},system:{recommendedRamGb:6,maxRamGb:11,totalMemoryBytes:16*1024**3,gpus:[{vendor:'NVIDIA',name:'NVIDIA GeForce GTX 1050'}],display:{width:1920,height:1080,workWidth:1920,workHeight:1040,scaleFactor:1,label:'Monitor principal'},disk:{available:true,freeBytes:180*1024**3,totalBytes:480*1024**3,requiredBytes:512*1024**2}}}),
   completeOnboarding:async(p)=>{mockConfig.minecraft.username=p.username;mockConfig.onboarding.completed=true;return previewApi.getState()},
   pingServer:async()=>({online:true,latency:57,players:{online:12,max:40},version:'Forge 1.20.1',favicon:null}),
   checkPack:async()=>({configured:true,state:{version:'SIEGE-DEV',updatedAt:new Date().toISOString()},expectedVersion:'SIEGE-DEV',versionMatches:true,total:247,ok:247,missing:[],changed:[],remove:[],bytesRequired:0,healthy:true}),
@@ -573,11 +573,17 @@ function renderMods(state=modsState){
     row.innerHTML=`${icon}<div class="mod-info"><b></b><small></small><div class="mod-tags">${tagOfficial}${tagDisabled}${provider}${envTag}${updateTag}${favoriteTag}${pinnedTag}${trustTag}</div></div><div class="mod-actions">${actions}</div>`;
     row.querySelector('.mod-info b').textContent=mod.displayName||mod.filename; row.querySelector('.mod-info small').textContent=`${mod.versionName?mod.versionName+' · ':''}${formatBytes(mod.size||0)}${date} · ${mod.filename}`; const localTag=row.querySelector('.mod-tag.untrusted');if(localTag){localTag.className='mod-tag';localTag.textContent='LOCAL · MANUAL';} host.appendChild(row);
   }
-  $$('[data-mod-toggle]').forEach(btn=>btn.addEventListener('click',()=>toggleUserMod(decodeURIComponent(btn.dataset.modToggle))));
-  $$('[data-mod-remove]').forEach(btn=>btn.addEventListener('click',()=>removeUserMod(decodeURIComponent(btn.dataset.modRemove))));
-  $$('[data-mod-test]').forEach(btn=>btn.addEventListener('click',()=>copyUserModToTest(decodeURIComponent(btn.dataset.modTest))));
-  $$('[data-mod-favorite]').forEach(btn=>btn.addEventListener('click',()=>toggleFavoriteMod(decodeURIComponent(btn.dataset.modFavorite))));
-  $$('[data-mod-pin]').forEach(btn=>btn.addEventListener('click',()=>togglePinnedMod(decodeURIComponent(btn.dataset.modPin))));
+}
+function handleModsListClick(event){
+  const button=event.target?.closest?.('[data-mod-toggle],[data-mod-remove],[data-mod-test],[data-mod-favorite],[data-mod-pin]');
+  if(!button)return;
+  const actions=[['modToggle',toggleUserMod],['modRemove',removeUserMod],['modTest',copyUserModToTest],['modFavorite',toggleFavoriteMod],['modPin',togglePinnedMod]];
+  for(const [key,action] of actions){
+    const encoded=button.dataset[key];
+    if(encoded===undefined)continue;
+    try{void action(decodeURIComponent(encoded));}catch(error){toast('No se pudo leer el nombre del mod.','error')}
+    return;
+  }
 }
 function resetModsFilters(){
   modFilter='all';
@@ -761,7 +767,7 @@ function renderUpdateCenter(){
 
   if($('updatesModsTitle'))$('updatesModsTitle').textContent=modCount?`${modCount} actualización${modCount===1?'':'es'}`:'Al día';
   if($('updatesModsText'))$('updatesModsText').textContent='Los mods instalados se administran localmente; las versiones oficiales llegan con el modpack.';
-  if($('updatesLauncherTitle'))$('updatesLauncherTitle').textContent=launcherNeeds?'Nueva versión disponible':launcherUnverified?({checking:'Comprobando…',error:'No se pudo comprobar',unconfigured:'Canal no configurado'}[launcherStatus]||'Comprobación pendiente'):`v${appState?.appVersion||'0.70.8'}`;
+  if($('updatesLauncherTitle'))$('updatesLauncherTitle').textContent=launcherNeeds?'Nueva versión disponible':launcherUnverified?({checking:'Comprobando…',error:'No se pudo comprobar',unconfigured:'Canal no configurado'}[launcherStatus]||'Comprobación pendiente'):`v${appState?.appVersion||'0.70.9'}`;
   if($('updatesLauncherText'))$('updatesLauncherText').textContent=launcherNeeds?'Podés descargarla sin tocar el modpack.':launcherStatus==='current'?'Canal revisado · estás en la versión actual.':launcherStatus==='error'?'No se pudo consultar el canal del launcher. Probá de nuevo.':launcherStatus==='unconfigured'?'No hay un canal de actualizaciones configurado.':appState?.packaged?'Todavía no se verificó el canal del launcher.':'Modo desarrollo · updater desactivado.';
   const javaOk=Boolean(appState?.java?.found&&Number(appState?.java?.major)>=17);if($('updatesRuntimeTitle'))$('updatesRuntimeTitle').textContent=javaOk?`Java ${appState.java.version||17}`:'Java compatible pendiente';if($('updatesRuntimeText'))$('updatesRuntimeText').textContent=javaOk?(appState.java.managed?'Runtime administrado por Eternal Craft.':'Runtime detectado en el sistema.'):'Elegí un Java 17 o superior en tu sistema.';
   if($('updatesHeroMark'))$('updatesHeroMark').textContent=total?'!':launcherUnverified?'?':'✓';if($('updatesHero'))$('updatesHero').classList.toggle('has-updates',total>0||launcherUnverified);if($('updatesHeroTitle'))$('updatesHeroTitle').textContent=total?`${total} actualización${total===1?'':'es'} pendiente${total===1?'':'s'}`:launcherUnverified?'No se verificó el launcher':'Todo está actualizado';if($('updatesHeroText'))$('updatesHeroText').textContent=total?'Podés revisar cada componente o aplicar las actualizaciones disponibles.':launcherUnverified?($('updatesLauncherText')?.textContent||'Comprobá el canal del launcher.'):'Launcher y modpack verificados; los mods personales se administran localmente.';
@@ -1017,7 +1023,7 @@ function bind(){
   $('playBtn').addEventListener('click',launch);$('safeLaunchBtn')?.addEventListener('click',launchSafeGameAction);$('repairQuickBtn').addEventListener('click',()=>runPackAction('repair'));$('quickFolder').addEventListener('click',()=>runUiAction(()=>api.openInstance()));
   $('homeRecommendedBtn')?.addEventListener('click',autoConfigureRecommended);$('settingsSearch')?.addEventListener('input',applySettingsSearch);$('settingsSearch')?.addEventListener('keydown',e=>{if(e.key==='Escape'){e.currentTarget.value='';applySettingsSearch();e.currentTarget.blur();}});
   $('homeConnectionCard')?.addEventListener('click',()=>refreshServer(true));$('refreshServerBtn').addEventListener('click',()=>refreshServer(true));$('copyServerBtn').addEventListener('click',async()=>{try{await api.copyServerAddress();toast('IP del servidor copiada.','success')}catch(err){toast(err.message||String(err),'error')}});$('quickSupport').addEventListener('click',()=>setPage('support'));$('sessionAlertSupport').addEventListener('click',()=>setPage('support'));$('sessionAlertClose').addEventListener('click',()=>$('sessionAlert').classList.add('hidden'));$('sessionAlertSafe')?.addEventListener('click',()=>{ $('sessionAlert').classList.add('hidden'); launchSafeGameAction(); });
-  $('modsEnableAllBtn')?.addEventListener('click',()=>setAllPersonalModsEnabled(true));$('modsDisableAllBtn')?.addEventListener('click',()=>setAllPersonalModsEnabled(false));$('openModsFolderBtn')?.addEventListener('click',()=>runUiAction(()=>api.openInstance()));$('modsSearch')?.addEventListener('input',()=>renderMods(modsState));$$('[data-mod-filter]').forEach(btn=>btn.addEventListener('click',()=>{modFilter=btn.dataset.modFilter;$$('[data-mod-filter]').forEach(x=>x.classList.toggle('active',x===btn));renderMods(modsState)}));
+  $('modsList')?.addEventListener('click',handleModsListClick);$('modsEnableAllBtn')?.addEventListener('click',()=>setAllPersonalModsEnabled(true));$('modsDisableAllBtn')?.addEventListener('click',()=>setAllPersonalModsEnabled(false));$('openModsFolderBtn')?.addEventListener('click',()=>runUiAction(()=>api.openInstance()));$('modsSearch')?.addEventListener('input',()=>renderMods(modsState));$$('[data-mod-filter]').forEach(btn=>btn.addEventListener('click',()=>{modFilter=btn.dataset.modFilter;$$('[data-mod-filter]').forEach(x=>x.classList.toggle('active',x===btn));renderMods(modsState)}));
   $('modsSort')?.addEventListener('change',()=>runUiAction(async()=>{const sort=$('modsSort').value;const cfg=await api.saveSettings({mods:{sort}});if(appState)appState.config.mods={...(appState.config.mods||{}),sort:cfg.mods?.sort||sort};await refreshMods(false)}));$('modsResetFiltersBtn')?.addEventListener('click',resetModsFilters);
   $('checkPackBtn').addEventListener('click',()=>refreshPack(true).catch(()=>{}));$('quickCheck').addEventListener('click',()=>refreshPack(true).catch(()=>{}));$('updatePackBtn').addEventListener('click',()=>runPackAction('update'));$('openInstanceBtn').addEventListener('click',()=>runUiAction(()=>api.openInstance()));
   $('clearCacheBtn')?.addEventListener('click',clearPackCacheAction);$('modsAuditBtn')?.addEventListener('click',()=>refreshModAudit(true));$('modsAuditIgnoreBtn')?.addEventListener('click',()=>ignoreModWarning('audit'));$('modsHideWarningsBtn')?.addEventListener('click',hideAllModWarnings);$('modWarningsToggle')?.addEventListener('change',async()=>{ignoredModWarnings.clear();await saveSettings(true);if($('modWarningsToggle').checked){refreshModAudit(false).catch(()=>{});}});$('openLastLogMaintenanceBtn')?.addEventListener('click',()=>runUiAction(()=>api.openLatestLog?api.openLatestLog():api.openLogs()));
