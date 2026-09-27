@@ -3,7 +3,7 @@ const assert = require('node:assert/strict');
 const fs = require('node:fs/promises');
 const os = require('node:os');
 const path = require('node:path');
-const { auditMods } = require('../src/main/services/modService');
+const { auditMods, listMods } = require('../src/main/services/modService');
 
 async function createInstance(t, mods) {
   const root = await fs.mkdtemp(path.join(os.tmpdir(), 'ecl-mod-audit-'));
@@ -49,4 +49,21 @@ test('audit reports real personal incompatibility and duplicate personal project
   assert.equal(result.issues.some((issue) => issue.type === 'server-only'), true);
   assert.equal(result.issues.some((issue) => issue.type === 'duplicate-project'), true);
   assert.equal(result.counts.bad, 2);
+});
+
+test('manifest ownership overrides stale third-party provider metadata', async (t) => {
+  const root = await createInstance(t, {
+    'published.jar': { provider: 'curseforge', projectName: 'Published mod', projectId: 'old-project' },
+    'personal.jar': { provider: 'local', projectName: 'Personal mod' }
+  });
+  const listing = await listMods(root, { files: [{ path: 'mods/published.jar' }] });
+  const published = listing.mods.find((mod) => mod.filename === 'published.jar');
+  const personal = listing.mods.find((mod) => mod.filename === 'personal.jar');
+
+  assert.equal(published.official, true);
+  assert.equal(published.userAdded, false);
+  assert.equal(published.provider, 'official');
+  assert.equal(personal.official, false);
+  assert.equal(personal.userAdded, true);
+  assert.equal(personal.provider, 'local');
 });

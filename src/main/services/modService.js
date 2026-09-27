@@ -36,7 +36,10 @@ async function listMods(root, manifest, sort = 'recent') {
       id: entry.name, filename: entry.name, baseFilename: base,
       displayName: m.projectName || displayName(entry.name), enabled, official: isOfficial, userAdded: !isOfficial,
       size: stat.size, modifiedAt: stat.mtime.toISOString(), installedAt,
-      provider: m.provider || (isOfficial ? 'official' : 'local'), projectId: m.projectId || '', versionId: m.versionId || '', iconUrl: m.iconUrl || '',
+      // The installed manifest is the source of truth for ownership. Older
+      // metadata can still contain retired catalog labels after a jar is
+      // promoted into SIEGE; never let that stale provider override `official`.
+      provider: isOfficial ? 'official' : (m.provider || 'local'), projectId: m.projectId || '', versionId: m.versionId || '', iconUrl: m.iconUrl || '',
       category: m.category || '', categories: m.categories || [], environment: m.environment || {}, versionName: m.versionName || '', updatedAt: m.updatedAt || '', sourceUrl: m.sourceUrl || '', favorite: Boolean(m.favorite), pinned: Boolean(m.pinned)
     });
   }
