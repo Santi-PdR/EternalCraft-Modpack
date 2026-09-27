@@ -144,27 +144,26 @@ async function auditMods(root, manifest) {
   const listing = await listMods(root, manifest, 'recent');
   const issues = [];
   const byProject = new Map();
-  for (const mod of listing.mods) {
+  const enabledMods = listing.mods.filter((mod) => mod.enabled);
+  for (const mod of enabledMods) {
     // Personal mods are intentionally outside pack health/update checks. They
     // remain visible as user-added, but only real compatibility failures or a
-    // duplicate official project should create an actionable warning.
+    // duplicate project should create an actionable warning. Use project id
+    // rather than display-name guesses, and ignore disabled jars because they
+    // cannot create a runtime conflict until enabled.
     if (mod.projectId) {
-      const key = `${mod.provider}:${mod.projectId}`;
+      let sourceNamespace = '';
+      try { sourceNamespace = new URL(mod.sourceUrl).hostname.toLowerCase().replace(/^www\./, ''); } catch (_) {}
+      const provider = String(mod.provider || '').toLowerCase();
+      const namespace = sourceNamespace || (provider && !['local', 'official'].includes(provider) ? provider : '');
+      const key = `${namespace}:${String(mod.projectId).trim().toLowerCase()}`;
       const prior = byProject.get(key);
-      if (prior && (prior.official || mod.official || !prior.userAdded || !mod.userAdded)) issues.push({ severity:'bad', type:'duplicate-project', mod:mod.displayName, filename:mod.filename, text:`Duplicado con ${prior.filename}` });
+      if (prior) issues.push({ severity:'bad', type:'duplicate-project', mod:mod.displayName, filename:mod.filename, text:`Duplicado con ${prior.filename}` });
       else byProject.set(key, mod);
     }
-    if (!mod.official && mod.enabled && mod.environment?.client === 'unsupported') {
+    if (!mod.official && mod.environment?.client === 'unsupported') {
       issues.push({ severity:'bad', type:'server-only', mod:mod.displayName, filename:mod.filename, text:'Este proyecto marca el cliente como no compatible.' });
     }
-  }
-  const fileKeys = new Map();
-  for (const mod of listing.mods) {
-    const key = String(mod.displayName || '').toLowerCase().replace(/\b(?:forge|mc|minecraft|mod)\b/g,'').replace(/[0-9._+\-]+/g,'').replace(/\s+/g,' ').trim();
-    if (!key || key.length < 4) continue;
-    const prior = fileKeys.get(key);
-    if (prior && prior.filename !== mod.filename && !prior.projectId && !mod.projectId) issues.push({ severity:'warn', type:'possible-duplicate', mod:mod.displayName, filename:mod.filename, text:`Posible duplicado de ${prior.filename}` });
-    else if (!prior) fileKeys.set(key, mod);
   }
   const counts = { bad:issues.filter(x=>x.severity==='bad').length, warn:issues.filter(x=>x.severity==='warn').length, info:issues.filter(x=>x.severity==='info').length };
   return { ok:counts.bad===0 && counts.warn===0, counts, issues, checkedAt:new Date().toISOString(), total:listing.mods.length, user:listing.counts.user };
