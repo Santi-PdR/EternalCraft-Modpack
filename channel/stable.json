@@ -2,26 +2,34 @@
   "schema": 2,
   "pack": "Eternal Craft",
   "channel": "stable",
-  "version": "1.0.7",
-  "releaseName": "Steel Surge",
+  "version": "1.0.8",
+  "releaseName": "Content Drop",
   "minecraft": "1.20.1",
   "forge": "47.4.10",
   "minimumLauncher": "0.80.0",
-  "generatedAt": "2026-09-27T06:51:52.162Z",
+  "generatedAt": "2026-09-27T20:26:46.721Z",
   "releaseNotes": {
-    "title": "1.0.7 — Steel Surge",
-    "summary": "1 archivos nuevos · 1 actualizados · 0 eliminados",
-    "addedCount": 1,
-    "changedCount": 1,
-    "removedCount": 0,
+    "title": "1.0.8 — Content Drop",
+    "summary": "3 archivos nuevos · 0 actualizados · 1 eliminados",
+    "addedCount": 3,
+    "changedCount": 0,
+    "removedCount": 1,
     "highlights": [
       {
         "type": "added",
-        "path": "mods/better-whips-forge-1.20.1-1.0.0-forge.1.20.1 (1).jar"
+        "path": "mods/better-whips-forge-1.20.1-actualizado.jar"
       },
       {
-        "type": "changed",
-        "path": "mods/siege-menu-20.0.0.jar"
+        "type": "added",
+        "path": "mods/sourcefical-forge-1.20.1.jar"
+      },
+      {
+        "type": "added",
+        "path": "mods/thefeature-1.2.3.3-forge-1.20.1.jar"
+      },
+      {
+        "type": "removed",
+        "path": "mods/better-whips-forge-1.20.1-1.0.0-forge.1.20.1 (1).jar"
       }
     ]
   },
@@ -127,10 +135,10 @@
       "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/61e1935f50444cb8592ca0f79ccb1dddbf722a1527c62db31795dbd80630ab77"
     },
     {
-      "path": "mods/better-whips-forge-1.20.1-1.0.0-forge.1.20.1 (1).jar",
-      "size": 4046945,
-      "sha256": "14b2755ba1d7a28e1fc8234bbd38c22650f0da432f30e7e6ce154fdf65ecf65e",
-      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.7/14b2755ba1d7a28e1fc8234bbd38c22650f0da432f30e7e6ce154fdf65ecf65e"
+      "path": "mods/better-whips-forge-1.20.1-actualizado.jar",
+      "size": 4047617,
+      "sha256": "8c201dcdbd2f26739d74c7c823255101f35f14f845caed7ffdfd397f374860d1",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.8/8c201dcdbd2f26739d74c7c823255101f35f14f845caed7ffdfd397f374860d1"
     },
     {
       "path": "mods/BetterClouds-1.1.jar",
@@ -727,6 +735,12 @@
       "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/e351fe882d764106130644c92980bcfc2f5ede863f99acfb6b2587fabcd8031a"
     },
     {
+      "path": "mods/sourcefical-forge-1.20.1.jar",
+      "size": 112229,
+      "sha256": "53519a87ef5a01eb7b2d960347ea912bd663bf2e43ef3d83ef4ab6a117cd42df",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.8/53519a87ef5a01eb7b2d960347ea912bd663bf2e43ef3d83ef4ab6a117cd42df"
+    },
+    {
       "path": "mods/spark-2.3.2-1.20.1-forge.jar",
       "size": 246641,
       "sha256": "3f7bdb2bb665968f6d3a6ffa6bc1d782145e6e6a1f0d74a11e8530cb98368e50",
@@ -761,6 +775,12 @@
       "size": 26896860,
       "sha256": "2d4f4c436530e99b59c37ece75af81d14b48eecc9c4759dd10fecd8d143d0d3f",
       "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/2d4f4c436530e99b59c37ece75af81d14b48eecc9c4759dd10fecd8d143d0d3f"
+    },
+    {
+      "path": "mods/thefeature-1.2.3.3-forge-1.20.1.jar",
+      "size": 3049784,
+      "sha256": "3af1793e8f45b3545ed0195a2f0f076a8d55f9ac85116ed56ff9d1c0b5b0480e",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.8/3af1793e8f45b3545ed0195a2f0f076a8d55f9ac85116ed56ff9d1c0b5b0480e"
     },
     {
       "path": "mods/timeout_fixes-1.20.1-1.0.0.jar",
@@ -805,10 +825,12 @@
       "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/f54cebb2da928fab9c36c4a37f332069416130949f1217f1cc340ecdbe1b645e"
     }
   ],
-  "remove": [],
+  "remove": [
+    "mods/better-whips-forge-1.20.1-1.0.0-forge.1.20.1 (1).jar"
+  ],
   "payload": {
-    "total": 129,
-    "mods": 126,
+    "total": 131,
+    "mods": 128,
     "iammusicplayerrenewed": 3,
     "personalModsExcluded": 0
   }
