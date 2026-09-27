@@ -1,6 +1,7 @@
 const fs = require('fs');
 const path = require('path');
 const { fileURLToPath } = require('url');
+const launcherVersion = require('../../../package.json').version;
 
 async function fetchJson(url, timeoutMs = 12000) {
   const value = String(url || '').trim();
@@ -14,7 +15,7 @@ async function fetchJson(url, timeoutMs = 12000) {
       const response = await fetch(value, {
         signal: controller.signal,
         cache: 'no-store',
-        headers: { Accept: 'application/json', 'User-Agent': 'EternalCraftLauncher/0.70.10' }
+        headers: { Accept: 'application/json', 'User-Agent': `EternalCraftLauncher/${launcherVersion}` }
       });
       if (!response.ok) {
         const retryable = response.status === 408 || response.status === 425 || response.status === 429 || response.status >= 500;
@@ -43,11 +44,13 @@ function validateManifest(manifest) {
   const seen=new Set();
   const validatePath=(value)=>{
     const p=String(value||'').replace(/\\/g,'/');
-    if(!p||p.startsWith('/')||p.includes('\0')||p.split('/').includes('..')) throw new Error(`Ruta insegura en manifest: ${value||'vacía'}`);
+    const parts=p.split('/');
+    if(!p||p.startsWith('/')||p.includes('\0')||/[\u0000-\u001f\u007f:]/.test(p)||parts.some((part)=>!part||part==='.'||part==='..')) throw new Error(`Ruta insegura en manifest: ${value||'vacía'}`);
     return p;
   };
   const managedPath=(value)=>{
     const p=validatePath(value);
+    if(p.split('/').length<2) throw new Error(`Ruta de carpeta inválida en manifest: ${p}`);
     const normalized=p.toLowerCase();
     if (!(normalized.startsWith('mods/') || normalized.startsWith('iammusicplayerrenewed/'))) {
       throw new Error(`Ruta fuera del payload administrado: ${p}`);
@@ -56,10 +59,11 @@ function validateManifest(manifest) {
   };
   for (const entry of manifest.files) {
     const p=managedPath(entry?.path);
-    if(seen.has(p)) throw new Error(`Ruta duplicada en manifest: ${p}`); seen.add(p);
+    const pathKey=p.toLowerCase();
+    if(seen.has(pathKey)) throw new Error(`Ruta duplicada o incompatible entre sistemas en manifest: ${p}`); seen.add(pathKey);
     if(!/^[a-f0-9]{64}$/i.test(String(entry?.sha256||''))) throw new Error(`SHA-256 inválido: ${p}`);
-    const size=Number(entry.size||0);
-    if(size<0||size>8*1024*1024*1024) throw new Error(`Tamaño inválido: ${p}`);
+    const size=Number(entry.size);
+    if(!Number.isSafeInteger(size)||size<0||size>8*1024*1024*1024) throw new Error(`Tamaño inválido: ${p}`);
     const empty=Boolean(entry?.empty) && size===0;
     if (empty && String(entry.sha256).toLowerCase() !== 'e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855') {
       throw new Error(`SHA-256 incorrecto para archivo vacío: ${p}`);
@@ -72,7 +76,14 @@ function validateManifest(manifest) {
       if(!['https:','file:'].includes(parsed.protocol)&&!localHttp) throw new Error(`URL no segura en manifest: ${p}`);
     }
   }
-  if(Array.isArray(manifest.remove)) manifest.remove.forEach(managedPath);
+  if(manifest.remove!==undefined&&!Array.isArray(manifest.remove)) throw new Error('La lista de archivos a quitar en el manifest es inválida');
+  const removals=new Set();
+  for(const value of manifest.remove||[]){
+    const p=managedPath(value); const key=p.toLowerCase();
+    if(removals.has(key)) throw new Error(`Ruta duplicada en la lista de eliminación: ${p}`);
+    if(seen.has(key)) throw new Error(`El manifest intenta conservar y eliminar el mismo archivo: ${p}`);
+    removals.add(key);
+  }
   return manifest;
 }
 

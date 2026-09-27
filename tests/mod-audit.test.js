@@ -3,7 +3,7 @@ const assert = require('node:assert/strict');
 const fs = require('node:fs/promises');
 const os = require('node:os');
 const path = require('node:path');
-const { auditMods, listMods } = require('../src/main/services/modService');
+const { addMods, auditMods, listMods } = require('../src/main/services/modService');
 
 async function createInstance(t, mods) {
   const root = await fs.mkdtemp(path.join(os.tmpdir(), 'ecl-mod-audit-'));
@@ -66,4 +66,19 @@ test('manifest ownership overrides stale third-party provider metadata', async (
   assert.equal(personal.official, false);
   assert.equal(personal.userAdded, true);
   assert.equal(personal.provider, 'local');
+});
+
+test('malformed user-mod metadata does not break listing or adding local jars', async (t) => {
+  const root = await createInstance(t, {});
+  const input = path.join(root, 'new-local.jar');
+  await fs.writeFile(input, 'jar');
+  const metadataFile = path.join(root, '.launcher', 'user-mods.json');
+  await fs.writeFile(metadataFile, 'null');
+
+  const listing = await listMods(root, { files: [] });
+  assert.deepEqual(listing.mods, []);
+  const added = await addMods(root, [input], { files: [] });
+  assert.equal(added.mods.length, 1);
+  assert.equal(added.mods[0].userAdded, true);
+  assert.equal(JSON.parse(await fs.readFile(metadataFile, 'utf8')).mods['new-local.jar'].provider, 'local');
 });

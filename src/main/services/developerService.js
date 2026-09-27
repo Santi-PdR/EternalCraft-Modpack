@@ -119,6 +119,13 @@ function safeEqualHex(a, b) {
   } catch (_) { return false; }
 }
 
+function parseRefreshedPublishPreview(error) {
+  const line = String(error?.output || error?.message || '').split(/\r?\n/).find((entry) => entry.startsWith('PUBLISH_PREVIEW_REFRESH_JSON:'));
+  if (!line) return null;
+  try { return JSON.parse(line.slice('PUBLISH_PREVIEW_REFRESH_JSON:'.length)); }
+  catch (_) { return null; }
+}
+
 function runPublisherProcess({ args, cwd, onLine = () => {}, timeoutMs, label, env = {} }) {
   return new Promise((resolve, reject) => {
     const child = spawn(process.execPath, args, {
@@ -156,7 +163,12 @@ function runPublisherProcess({ args, cwd, onLine = () => {}, timeoutMs, label, e
       // Keep the tail: long publishes emit hundreds of progress lines and the
       // useful failure (HTTP status, E2BIG, auth error, etc.) is at the end.
       output = `${output}${text}`.slice(-maxCapture);
-      for (const line of text.split(/\r?\n/).filter(Boolean)) onLine(line);
+      for (const line of text.split(/\r?\n/).filter(Boolean)) {
+        // Internal preview transport can contain hundreds of changed paths;
+        // keep it out of the visible progress log (the same captured output
+        // is parsed after the child exits).
+        if (!line.startsWith('PUBLISH_PREVIEW_REFRESH_JSON:')) onLine(line);
+      }
     };
     const timer = setTimeout(() => {
       child.kill('SIGTERM');
@@ -170,7 +182,11 @@ function runPublisherProcess({ args, cwd, onLine = () => {}, timeoutMs, label, e
     child.once('error', (error) => finish(error));
     child.once('close', (code, signal) => {
       if (settled) return;
-      if (code !== 0) return finish(new Error(output.trim() || `${label} falló${signal ? ` (${signal})` : ` (${code})`}.`));
+      if (code !== 0) {
+        const error = new Error(output.trim() || `${label} falló${signal ? ` (${signal})` : ` (${code})`}.`);
+        error.output = output;
+        return finish(error);
+      }
       finish(null, { output });
     });
   });
@@ -405,7 +421,14 @@ class DeveloperService {
     const args = [script, '--repo', repo, '--source', normalizePathInput(source, path.join(os.homedir(), '.sklauncher', 'instances', 'siege')), '--out', this.publishWorkDir];
     if (version) args.push('--version', version); if (notes) args.push('--notes', notes); args.push('--include-user-mods'); if(expectedFingerprint) args.push('--expected-fingerprint', expectedFingerprint);
     return runPublisherProcess({ args, cwd: this.publishWorkDir, onLine, timeoutMs: 45 * 60 * 1000, label: 'La publicación', env: { ETERNAL_LAUNCHER_VERSION: this.launcherVersion } })
-      .then(({ output }) => ({ ok: true, output, manifestPath: path.join(this.publishWorkDir, 'channel', 'stable.json') }));
+      .then(({ output }) => ({ ok: true, output, manifestPath: path.join(this.publishWorkDir, 'channel', 'stable.json') }))
+      .catch((error) => {
+        const preview = parseRefreshedPublishPreview(error);
+        if (!preview) throw error;
+        const message = String(error.message || '').split(/\r?\n/).reverse().find((line) => line.startsWith('ERROR: '))?.slice('ERROR: '.length)
+          || 'SIEGE cambió después de la previsualización. Se actualizó el resumen.';
+        return { ok: false, sourceChanged: true, preview, message };
+      });
   }
 }
-module.exports = { DeveloperService, terminatePublisherProcesses };
+module.exports = { DeveloperService, terminatePublisherProcesses, parseRefreshedPublishPreview };

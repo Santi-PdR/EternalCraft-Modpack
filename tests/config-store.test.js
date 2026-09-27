@@ -15,7 +15,7 @@ async function createStore(t, user) {
   const userDataDir = path.join(root, 'user-data');
   await fs.writeFile(defaultsPath, JSON.stringify({ launcher: { updateFeedUrl: stableFeed }, pack: { installDirectory: path.join(root, 'instance') } }));
   await fs.mkdir(userDataDir, { recursive: true });
-  if (user) await fs.writeFile(path.join(userDataDir, 'config.json'), JSON.stringify(user));
+  if (user !== undefined) await fs.writeFile(path.join(userDataDir, 'config.json'), JSON.stringify(user));
   return { store: new ConfigStore({ defaultsPath, userDataDir }), userDataDir };
 }
 
@@ -32,4 +32,14 @@ test('keeps an explicitly configured custom launcher feed', async (t) => {
   const customFeed = 'https://updates.example.net/eternal/';
   const { store } = await createStore(t, { configSchemaVersion: 1, launcher: { updateFeedUrl: customFeed } });
   assert.equal(store.load().launcher.updateFeedUrl, customFeed);
+});
+
+test('quarantines syntactically valid but invalid root config shapes instead of crashing startup', async (t) => {
+  for (const invalid of [null, [], 'settings']) {
+    const { store, userDataDir } = await createStore(t, invalid);
+    const loaded = store.load();
+    assert.equal(path.isAbsolute(loaded.pack.installDirectory), true);
+    assert.equal(Boolean(store.recoveryInfo()?.backupPath), true);
+    assert.equal((await fs.readdir(userDataDir)).some((name) => name.startsWith('config.corrupt-')), true);
+  }
 });

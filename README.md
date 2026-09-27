@@ -1,6 +1,13 @@
-# Eternal Craft Launcher 0.70.2
+# Eternal Craft Launcher 0.80.0
 
 Official launcher for **Eternal Craft // SIEGE**.
+
+## 0.80.0 — Publicación más rápida y segura
+
+- La publicación del modpack escanea y calcula hashes del payload una sola vez, evitando repetir el trabajo y duplicar líneas de progreso cuando asigna la versión automática.
+- Si SIEGE cambia después del preview, el launcher conserva la protección de huella, muestra el resumen nuevo y exige revisarlo antes de reintentar.
+- Cambiar repositorio, instancia, versión o notas invalida el preview anterior.
+- Los textos de build, compatibilidad, manifest de ejemplo y User-Agent del launcher siguen la versión actual.
 
 ## 0.70.2 — Inicio directo al menú
 

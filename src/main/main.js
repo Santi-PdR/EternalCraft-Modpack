@@ -717,9 +717,10 @@ function registerIpc() {
         const duration = Math.max(0, Number(session?.durationMs || 0)); const day = new Date().toISOString().slice(0,10);
         const days = { ...(stats.days || {}) }; days[day] = Number(days[day] || 0) + duration;
         const cutoff = new Date(); cutoff.setDate(cutoff.getDate()-35); for(const key of Object.keys(days)){ const d=new Date(`${key}T00:00:00`); if(Number.isFinite(d.getTime())&&d<cutoff)delete days[key]; }
-        const crashStreak = (session && Number.isInteger(session.code) && session.code!==0) ? Math.min(9,Number(current.launcher?.crashStreak||0)+1) : 0;
+        const crashed = Boolean(session?.error) || (Number.isInteger(session?.code) && session.code !== 0);
+        const crashStreak = crashed ? Math.min(9,Number(current.launcher?.crashStreak||0)+1) : 0;
         const next = store.save({ launcher: { lastSession: session, crashStreak, playStats:{ totalMs:Number(stats.totalMs||0)+duration, sessions:Number(stats.sessions||0)+1, days } } });
-        recordUserChange(next,{type:session?.code===0?'game-success':'game-crash',title:session?.code===0?'Sesión finalizada correctamente':'Minecraft se cerró inesperadamente',detail:`Código ${session?.code ?? '—'} · ${Math.round(duration/60000)} min`,filenames:[],risk:session?.code===0?'low':'high',source:'game'}).catch(()=>null);
+        recordUserChange(next,{type:!crashed?'game-success':'game-crash',title:!crashed?'Sesión finalizada correctamente':'Minecraft se cerró inesperadamente',detail:session?.error||`Código ${session?.code ?? '—'} · ${Math.round(duration/60000)} min`,filenames:[],risk:crashed?'high':'low',source:'game'}).catch(()=>null);
         emit('game:exit', session);
         if (next.launcher?.refocusOnGameExit !== false && mainWindow && !mainWindow.isDestroyed()) {
           mainWindow.show(); mainWindow.restore(); mainWindow.focus();
@@ -868,7 +869,7 @@ function registerIpc() {
   });
   ipcMain.handle('clips:open', async (_event, file) => {
     const directory = store.load().launcher?.clipsDirectory || '';
-    if (!directory || !isAllowedFile(directory, file)) throw new Error('El archivo no pertenece a la carpeta de clips configurada.');
+    if (!directory || !await isAllowedFile(directory, file)) throw new Error('El archivo no pertenece a la carpeta de clips configurada.');
     return shell.openPath(path.resolve(file));
   });
   ipcMain.handle('clips:clear-folder', async () => store.save({ launcher:{ clipsDirectory:'' } }));
@@ -963,6 +964,9 @@ function registerIpc() {
     emit('developer:publish-log', `Preflight OK · ${preflight.sourceMods} mods detectados · GitHub ${preflight.githubLogin || 'conectado'}`);
     const cfg = store.save({ developer: { githubRepo: repo, sourceDirectory: source } });
     const result = await developerService.publish({ repo, source, version: String(payload.version || '').trim(), notes: String(payload.notes || ''), expectedFingerprint: String(payload.expectedFingerprint || ''), onLine: (line) => emit('developer:publish-log', line) });
+    // A refreshed preview means the source changed after review. Return it to
+    // the renderer, but do not touch local official-mod metadata or caches.
+    if (result.sourceChanged) return result;
     let publishedManifest = null;
     try {
       publishedManifest = JSON.parse(await fsp.readFile(result.manifestPath, 'utf8'));

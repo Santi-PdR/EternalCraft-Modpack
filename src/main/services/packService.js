@@ -6,6 +6,7 @@ const { Readable } = require('stream');
 const { pipeline } = require('stream/promises');
 const { ensureFreeSpace } = require('./systemService');
 const { fileURLToPath } = require('url');
+const launcherVersion = require('../../../package.json').version;
 
 const STATE_FILE = '.eternal-pack.json';
 const INTERNAL_DIR = '.launcher';
@@ -14,6 +15,7 @@ const OFFICIAL_FILES_FILE = path.join(INTERNAL_DIR, 'official-files.json');
 const CACHE_DIR = path.join(INTERNAL_DIR, 'cache');
 const STAGING_DIR = path.join(INTERNAL_DIR, 'staging');
 const ROLLBACK_DIR = path.join(INTERNAL_DIR, 'rollback');
+const blobJobs = new Map();
 
 function safeTarget(root, relativePath) {
   const cleaned = String(relativePath || '').replace(/\\/g, '/').replace(/^\/+/, '');
@@ -43,8 +45,11 @@ async function sha256File(filePath) {
 }
 
 async function readIndex(root) {
-  try { return JSON.parse(await fsp.readFile(path.join(root, INDEX_FILE), 'utf8')); }
-  catch (_) { return { files: {} }; }
+  try {
+    const value = JSON.parse(await fsp.readFile(path.join(root, INDEX_FILE), 'utf8'));
+    if (!value || typeof value !== 'object' || Array.isArray(value)) return { files: {} };
+    return { ...value, files: value.files && typeof value.files === 'object' && !Array.isArray(value.files) ? value.files : {} };
+  } catch (_) { return { files: {} }; }
 }
 async function writeJsonAtomic(file, value) {
   const temporary = `${file}.tmp-${process.pid}-${Date.now()}`;
@@ -92,8 +97,11 @@ async function mapLimit(items, limit, fn) {
 }
 
 async function readState(root) {
-  try { return JSON.parse(await fsp.readFile(path.join(root, STATE_FILE), 'utf8')); }
-  catch (_) { return { version: null, updatedAt: null }; }
+  try {
+    const value = JSON.parse(await fsp.readFile(path.join(root, STATE_FILE), 'utf8'));
+    if (!value || typeof value !== 'object' || Array.isArray(value)) return { version: null, updatedAt: null };
+    return { version: typeof value.version === 'string' ? value.version : null, updatedAt: typeof value.updatedAt === 'string' ? value.updatedAt : null };
+  } catch (_) { return { version: null, updatedAt: null }; }
 }
 async function writeState(root, manifest) {
   const state = { version: manifest.version, minecraft: manifest.minecraft, forge: manifest.forge, updatedAt: new Date().toISOString() };
@@ -119,7 +127,12 @@ async function readOfficialFiles(root) {
     const files = Array.isArray(data) ? data : data?.files;
     return new Set((Array.isArray(files) ? files : [])
       .map((file) => String(file || '').replace(/\\/g, '/'))
-      .filter(Boolean));
+      .filter((file) => {
+        const parts = file.split('/');
+        const lower = file.toLowerCase();
+        return parts.length >= 2 && parts.every((part) => part && part !== '.' && part !== '..')
+          && (lower.startsWith('mods/') || lower.startsWith('iammusicplayerrenewed/'));
+      }));
   } catch (_) {
     return new Set();
   }
@@ -267,7 +280,7 @@ async function downloadFile(url, destination, expectedSha256, onChunk = () => {}
   const rawUrl=String(url);
   if(!rawUrl.startsWith('file://')) { let parsed; try{parsed=new URL(rawUrl);}catch(_){throw new Error('URL de descarga inválida');} const local=parsed.protocol==='http:'&&['127.0.0.1','localhost','::1'].includes(parsed.hostname); if(parsed.protocol!=='https:'&&!local) throw new Error('Descarga bloqueada: se requiere HTTPS'); }
   await fsp.mkdir(path.dirname(destination), { recursive: true });
-  const temp = `${destination}.part-${process.pid}-${Date.now()}`;
+  const temp = `${destination}.part-${process.pid}-${Date.now()}-${crypto.randomBytes(4).toString('hex')}`;
   if (String(url).startsWith('file://')) {
     const source = fileURLToPath(String(url));
     const stat = await fsp.stat(source);
@@ -281,7 +294,7 @@ async function downloadFile(url, destination, expectedSha256, onChunk = () => {}
     await fsp.rename(temp, destination);
     return;
   }
-  const response = await fetchWithRetry(url, { headers: { 'User-Agent': 'EternalCraftLauncher/0.70.10', Accept: '*/*' } }, 3, 120000);
+  const response = await fetchWithRetry(url, { headers: { 'User-Agent': `EternalCraftLauncher/${launcherVersion}`, Accept: '*/*' } }, 3, 120000);
   if (!response.body) throw new Error(`Respuesta vacía al descargar ${url}`);
   const total = Number(response.headers.get('content-length') || 0); let received = 0;
   const reader = response.body.getReader();
@@ -324,15 +337,23 @@ async function validCachedBlob(file, entry) {
 async function ensureCachedBlob(root, entry, onChunk = () => {}) {
   const cacheRoot = path.join(root, CACHE_DIR);
   await fsp.mkdir(cacheRoot, { recursive: true });
-  const blob = path.join(cacheRoot, String(entry.sha256).toLowerCase());
+  const hash=String(entry.sha256).toLowerCase();
+  const blob = path.join(cacheRoot, hash);
   if (await validCachedBlob(blob, entry)) return { path: blob, fromCache: true };
-  if (entry.empty && Number(entry.size || 0) === 0) {
-    await fsp.writeFile(blob, '');
-    onChunk(0, 0);
-    return { path: blob, fromCache: false };
-  }
-  await downloadFile(entry.url, blob, entry.sha256, onChunk);
-  return { path: blob, fromCache: false };
+  const active=blobJobs.get(`${path.resolve(root)}:${hash}`);
+  if(active){await active;return {path:blob,fromCache:false,shared:true};}
+  const key=`${path.resolve(root)}:${hash}`;
+  const job=(async()=>{
+    if (entry.empty && Number(entry.size || 0) === 0) {
+      await fsp.writeFile(blob, '');
+      onChunk(0, 0);
+      return;
+    }
+    await downloadFile(entry.url, blob, entry.sha256, onChunk);
+  })();
+  blobJobs.set(key,job);
+  try { await job; return { path: blob, fromCache: false }; }
+  finally { if(blobJobs.get(key)===job)blobJobs.delete(key); }
 }
 
 async function ensureForgeInstaller(root, manifest, onProgress = () => {}) {
@@ -551,4 +572,4 @@ async function clearCache(root) {
   return { clearedFiles:Number(before.files||0), clearedBytes:Number(before.bytes||0) };
 }
 
-module.exports = { checkInstallation, repairInstallation, ensureForgeInstaller, safeTarget, sha256File, readState, cacheStats, pruneCache, clearCache, readOfficialFiles, removalPlan, reconcileOfficialModMetadata, markPublishedOfficial };
+module.exports = { checkInstallation, repairInstallation, ensureForgeInstaller, safeTarget, sha256File, readState, cacheStats, pruneCache, clearCache, readOfficialFiles, removalPlan, reconcileOfficialModMetadata, markPublishedOfficial, ensureCachedBlob };

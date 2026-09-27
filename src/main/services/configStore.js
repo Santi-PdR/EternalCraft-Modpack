@@ -44,14 +44,21 @@ class ConfigStore {
   readUser() {
     this.recoverInterruptedWrite();
     if (!fs.existsSync(this.configPath)) return {};
-    try { return JSON.parse(fs.readFileSync(this.configPath, 'utf8')); }
-    catch (error) {
+    const quarantine = (error) => {
       try {
         const broken = path.join(this.userDataDir, `config.corrupt-${timestamp()}.json`);
         try { fs.renameSync(this.configPath, broken); }
         catch (_) { fs.copyFileSync(this.configPath, broken); try { fs.rmSync(this.configPath, { force:true }); } catch (_) {} }
         this.lastRecovery = { backupPath: broken, message: error.message || String(error), at: new Date().toISOString() };
       } catch (_) {}
+    };
+    try {
+      const value = JSON.parse(fs.readFileSync(this.configPath, 'utf8'));
+      if (value && typeof value === 'object' && !Array.isArray(value)) return value;
+      quarantine(new Error('La configuración guardada no contiene un objeto válido.'));
+      return {};
+    } catch (error) {
+      quarantine(error);
       return {};
     }
   }

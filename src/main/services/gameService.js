@@ -6,6 +6,21 @@ const { resolveJava17 } = require('./javaService');
 const { ensurePreset } = require('./gamePresetService');
 const { preferredGpuEnv } = require('./gpuService');
 
+function requireLaunchedChild(child, detail = '') {
+  if (!child || typeof child.once !== 'function') {
+    throw new Error(`Minecraft no pudo crear el proceso de Java. ${detail || 'Revisá Java, Forge y los archivos de la instancia.'}`);
+  }
+  return child;
+}
+
+function resolveMemory(minValue, maxValue) {
+  const minConfigured = Number.parseInt(minValue, 10);
+  const maxConfigured = Number.parseInt(maxValue, 10);
+  const min = Math.max(1024, Number.isFinite(minConfigured) ? minConfigured : 2048);
+  const max = Math.max(min, 2048, Number.isFinite(maxConfigured) ? maxConfigured : 6144);
+  return { min: `${min}M`, max: `${max}M` };
+}
+
 async function launchGame({ config, manifest, resourcesDir, managedJavaRoot = '', javaInfo = null, onLog = () => {}, onProgress = () => {}, onExit = () => {} }) {
   const root = config.pack.installDirectory;
   const username = String(config.minecraft.username || '').trim();
@@ -19,17 +34,19 @@ async function launchGame({ config, manifest, resourcesDir, managedJavaRoot = ''
   const forgeInstaller = await ensureForgeInstaller(root, manifest, onProgress);
 
   const launcher = new Client();
-  launcher.on('debug', (line) => onLog({ stream: 'debug', line: String(line) }));
+  let launchFailure = '';
+  launcher.on('debug', (line) => {
+    const message = String(line);
+    if (/Couldn't start Minecraft due to:|Failed to start due to/i.test(message)) launchFailure = message;
+    onLog({ stream: 'debug', line: message });
+  });
   launcher.on('data', (line) => onLog({ stream: 'game', line: String(line) }));
 
   const options = {
     authorization: config.minecraft.authorization || Authenticator.getAuth(username),
     root,
     version: { number: manifest.minecraft || config.minecraft.version || '1.20.1', type: 'release' },
-    memory: {
-      min: `${Math.max(1024, Number(config.minecraft.minMemoryMb || 2048))}M`,
-      max: `${Math.max(2048, Number(config.minecraft.maxMemoryMb || 6144))}M`
-    },
+    memory: resolveMemory(config.minecraft.minMemoryMb, config.minecraft.maxMemoryMb),
     window: {
       width: String(config.minecraft.width || 1280),
       height: String(config.minecraft.height || 720),
@@ -51,18 +68,23 @@ async function launchGame({ config, manifest, resourcesDir, managedJavaRoot = ''
       if (previousEnv[key] === undefined) delete process.env[key]; else process.env[key] = previousEnv[key];
     }
   }
-  if (child && typeof child.once === 'function') {
-    child.once('close', (code, signal) => {
-      onExit({
-        code: Number.isInteger(code) ? code : null,
-        signal: signal || null,
-        startedAt: new Date(startedAt).toISOString(),
-        endedAt: new Date().toISOString(),
-        durationMs: Math.max(0, Date.now() - startedAt)
-      });
+  requireLaunchedChild(child, launchFailure);
+  let exitReported = false;
+  const reportExit = (session) => {
+    if (exitReported) return;
+    exitReported = true;
+    onExit({
+      code: Number.isInteger(session.code) ? session.code : null,
+      signal: session.signal || null,
+      error: session.error || '',
+      startedAt: new Date(startedAt).toISOString(),
+      endedAt: new Date().toISOString(),
+      durationMs: Math.max(0, Date.now() - startedAt)
     });
-  }
+  };
+  child.once('error', (error) => reportExit({ error: `No se pudo iniciar Java: ${error?.message || error}` }));
+  child.once('close', (code, signal) => reportExit({ code, signal }));
   return { pid: child?.pid || null, root: path.resolve(root), startedAt: new Date(startedAt).toISOString() };
 }
 
-module.exports = { launchGame };
+module.exports = { launchGame, requireLaunchedChild, resolveMemory };

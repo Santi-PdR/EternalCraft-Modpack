@@ -12,7 +12,7 @@ const mockConfig = {
   onboarding:{completed:true},links:{}
 };
 const mockManifest = {
-  schema:2,version:'1.0.0',releaseName:'Siege Origin',minecraft:'1.20.1',forge:'47.4.10',minimumLauncher:'0.70.10',files:[],remove:[],
+  schema:2,version:'1.0.0',releaseName:'Siege Origin',minecraft:'1.20.1',forge:'47.4.10',minimumLauncher:'0.80.0',files:[],remove:[],
   releaseNotes:{title:'SIEGE DEV',summary:'Base del launcher renovada y sistema de actualización segura.',addedCount:2,changedCount:4,removedCount:0,highlights:[{type:'changed',path:'mods/siege-menu.jar'},{type:'added',path:'config/eternal-client.toml'}]}
 };
 
@@ -23,7 +23,7 @@ function merge(target, patch){
 }
 
 const previewApi = {
-  getState:async()=>({appVersion:'0.70.10',platform:'preview',packaged:false,config:mockConfig,manifest:mockManifest,manifestConfigured:true,manifestSource:'development',java:{found:true,major:17,version:'17.0.x',path:'java'},needsOnboarding:false,launcherUpdateConfigured:false,minimumLauncher:'0.70.10',launcherCompatible:true,developer:{configured:false,unlocked:false,developerAllowed:false},account:{authenticated:false,name:'',id:'',skins:[]},system:{recommendedRamGb:6,maxRamGb:11,totalMemoryBytes:16*1024**3,gpus:[{vendor:'NVIDIA',name:'NVIDIA GeForce GTX 1050'}],display:{width:1920,height:1080,workWidth:1920,workHeight:1040,scaleFactor:1,label:'Monitor principal'},disk:{available:true,freeBytes:180*1024**3,totalBytes:480*1024**3,requiredBytes:512*1024**2}}}),
+  getState:async()=>({appVersion:'0.80.0',platform:'preview',packaged:false,config:mockConfig,manifest:mockManifest,manifestConfigured:true,manifestSource:'development',java:{found:true,major:17,version:'17.0.x',path:'java'},needsOnboarding:false,launcherUpdateConfigured:false,minimumLauncher:'0.80.0',launcherCompatible:true,developer:{configured:false,unlocked:false,developerAllowed:false},account:{authenticated:false,name:'',id:'',skins:[]},system:{recommendedRamGb:6,maxRamGb:11,totalMemoryBytes:16*1024**3,gpus:[{vendor:'NVIDIA',name:'NVIDIA GeForce GTX 1050'}],display:{width:1920,height:1080,workWidth:1920,workHeight:1040,scaleFactor:1,label:'Monitor principal'},disk:{available:true,freeBytes:180*1024**3,totalBytes:480*1024**3,requiredBytes:512*1024**2}}}),
   completeOnboarding:async(p)=>{mockConfig.minecraft.username=p.username;mockConfig.onboarding.completed=true;return previewApi.getState()},
   pingServer:async()=>({online:true,latency:57,players:{online:12,max:40},version:'Forge 1.20.1',favicon:null}),
   checkPack:async()=>({configured:true,state:{version:'SIEGE-DEV',updatedAt:new Date().toISOString()},expectedVersion:'SIEGE-DEV',versionMatches:true,total:247,ok:247,missing:[],changed:[],remove:[],bytesRequired:0,healthy:true}),
@@ -64,6 +64,7 @@ let modFilter='all';
 let developerState={configured:false,unlocked:false};
 let testDiffState=null;
 let publishPreview=null;
+let publishPreviewInputs=null;
 let startupBackgroundApplied=false;
 let backgroundRotationTimer=null;
 let recoveryState=[];
@@ -728,10 +729,19 @@ async function resetDeveloperAccess(){
 async function chooseDeveloperSource(){try{const folder=await api.developerChooseSource();if(folder){$('developerSourcePath').textContent=folder;if(appState)appState.config.developer.sourceDirectory=folder;toast('Instancia maestra actualizada.','success')}}catch(err){toast(err.message||String(err),'error')}}
 async function chooseDeveloperTest(){try{const folder=await api.developerChooseTest();if(folder){$('developerTestPath').textContent=folder;if(appState)appState.config.developer.testDirectory=folder;toast('Instancia test-1 actualizada.','success')}}catch(err){toast(err.message||String(err),'error')}}
 async function syncDeveloperTest(){try{const r=await api.developerSyncTestMods();toast(`${r.copied?.length||0} mods personales sincronizados con test-1.`, 'success')}catch(err){toast(err.message||String(err),'error')}}
+function currentPublishInputs(){return{repo:$('developerRepo').value.trim(),source:$('developerSourcePath').textContent.trim(),version:$('developerVersion').value.trim(),notes:$('developerNotes')?.value.trim()||''}}
+function samePublishInputs(a,b){return Boolean(a&&b&&a.repo===b.repo&&a.source===b.source&&a.version===b.version&&a.notes===b.notes)}
+function renderDeveloperPreview(r,inputs){
+  publishPreview=r;publishPreviewInputs={...inputs};const card=$('developerPreviewCard');card.classList.remove('hidden');$('developerPreviewVersion').textContent=r.version||'—';$('developerPreviewName').textContent=r.releaseName||'—';$('developerPreviewAdded').textContent=String((r.added||[]).length);$('developerPreviewChanged').textContent=String((r.changed||[]).length);$('developerPreviewRemoved').textContent=String((r.removed||[]).length);
+  if($('developerPreviewPayload')){const payload=r.payload||{};$('developerPreviewPayload').textContent=payload.total?`${payload.total} archivos · ${payload.mods||0} mods${payload.personalModsExcluded?` · ${payload.personalModsExcluded} personales omitidos`:''}`:'No disponible';}
+  const pf=$('developerPreviewFiles');if(pf){const groups=[['+','Añadidos',r.added||[]],['↻','Cambiados',r.changed||[]],['−','Eliminados',r.removed||[]]];pf.innerHTML=groups.filter(g=>g[2].length).map(g=>`<div><b>${g[0]} ${g[1]}</b>${g[2].slice(0,8).map(x=>`<span>${escapeHtml(x)}</span>`).join('')}${g[2].length>8?`<small>+${g[2].length-8} más</small>`:''}</div>`).join('')||'<span>Sin cambios.</span>';}
+  renderDeveloperPreflight();
+}
 async function previewDeveloperPack(){
-  if(busy)return;const repo=$('developerRepo').value.trim();const source=$('developerSourcePath').textContent.trim();const version=$('developerVersion').value.trim();const notes=$('developerNotes')?.value.trim()||'';if(!repo.includes('/')){toast('Usá un repo como Santi-PdR/EternalCraft-Modpack.','error');return;}
+  if(busy)return;const inputs=currentPublishInputs();const{repo,source,version,notes}=inputs;if(!repo.includes('/')){toast('Usá un repo como Santi-PdR/EternalCraft-Modpack.','error');return;}
+  publishPreview=null;publishPreviewInputs=null;$('developerPreviewCard')?.classList.add('hidden');
   setBusy(true,'PREVISUALIZANDO');$('developerPublishLog').textContent='Comparando SIEGE con la versión publicada…\n';
-  try{const r=await api.developerPreviewPublish({repo,source,version,notes});publishPreview=r;const card=$('developerPreviewCard');card.classList.remove('hidden');$('developerPreviewVersion').textContent=r.version||'—';$('developerPreviewName').textContent=r.releaseName||'—';$('developerPreviewAdded').textContent=String((r.added||[]).length);$('developerPreviewChanged').textContent=String((r.changed||[]).length);$('developerPreviewRemoved').textContent=String((r.removed||[]).length);if($('developerPreviewPayload')){const payload=r.payload||{};$('developerPreviewPayload').textContent=payload.total?`${payload.total} archivos · ${payload.mods||0} mods${payload.personalModsExcluded?` · ${payload.personalModsExcluded} personales omitidos`:''}`:'No disponible';}const pf=$('developerPreviewFiles');if(pf){const groups=[['+','Añadidos',r.added||[]],['↻','Cambiados',r.changed||[]],['−','Eliminados',r.removed||[]]];pf.innerHTML=groups.filter(g=>g[2].length).map(g=>`<div><b>${g[0]} ${g[1]}</b>${g[2].slice(0,8).map(x=>`<span>${escapeHtml(x)}</span>`).join('')}${g[2].length>8?`<small>+${g[2].length-8} más</small>`:''}</div>`).join('')||'<span>Sin cambios.</span>';}renderDeveloperPreflight();toast('Preview listo. Revisá los cambios antes de publicar.','success');}
+  try{const r=await api.developerPreviewPublish({repo,source,version,notes});renderDeveloperPreview(r,inputs);toast('Preview listo. Revisá los cambios antes de publicar.','success');}
   catch(err){toast(err.message||String(err),'error');$('developerPublishLog').textContent+=`\nERROR: ${err.message||String(err)}`;}finally{setBusy(false)}
 }
 function renderTestDiff(result){
@@ -747,12 +757,18 @@ async function compareDeveloperTest(){try{const r=await api.developerCompareTest
 async function promoteTestMod(filename){if(!await askConfirm({title:'Promover mod a SIEGE',message:`${filename} se copiará desde test-1 a la instancia maestra. Todavía no se publicará.`,confirmText:'Promover'}))return;try{await api.developerPromoteTestMod(filename);toast(`${filename} copiado a SIEGE. Todavía no está publicado.`, 'success');await compareDeveloperTest();}catch(err){toast(err.message||String(err),'error')}}
 async function promoteSelectedTestMods(){const names=$$('.test-mod-check:checked').map(x=>x.dataset.testName).filter(Boolean);if(!names.length){toast('Seleccioná al menos un mod de test-1.','warn');return;}if(!await askConfirm({title:'Promover mods seleccionados',message:`Se copiarán ${names.length} mod(s) desde test-1 a SIEGE. Todavía no se publicarán.`,confirmText:'Promover seleccionados'}))return;try{for(const name of names)await api.developerPromoteTestMod(name);toast(`${names.length} mod(s) copiados a SIEGE. Todavía no están publicados.`,'success');await compareDeveloperTest();}catch(err){toast(err.message||String(err),'error')}}
 async function publishDeveloperPack(){
-  if(busy)return;const repo=$('developerRepo').value.trim();const source=$('developerSourcePath').textContent.trim();const version=$('developerVersion').value.trim();const notes=$('developerNotes')?.value.trim()||'';if(!repo.includes('/')){toast('Usá un repo como Santi-PdR/EternalCraft-Modpack.','error');return;}
-  if(!publishPreview){await previewDeveloperPack();if(!publishPreview)return;}
+  if(busy)return;let inputs=currentPublishInputs();let{repo,source,version,notes}=inputs;if(!repo.includes('/')){toast('Usá un repo como Santi-PdR/EternalCraft-Modpack.','error');return;}
+  if(!publishPreview){await previewDeveloperPack();if(!publishPreview)return;inputs=currentPublishInputs();({repo,source,version,notes}=inputs);}
+  if(!samePublishInputs(publishPreviewInputs,inputs)){
+    await previewDeveloperPack();
+    if(publishPreview)toast('Los datos de publicación cambiaron. Revisá el preview actualizado y volvé a publicar.','warn');
+    return;
+  }
   const label=`${publishPreview.version||'nueva versión'} — ${publishPreview.releaseName||'SIEGE Update'}`;const changes=(publishPreview.added||[]).length+(publishPreview.changed||[]).length+(publishPreview.removed||[]).length;
   if(!await askConfirm({title:'Publicar modpack',message:`Vas a publicar ${label} con ${changes} cambios. GitHub pasará a ser el canal estable para todos los jugadores.`,confirmText:'Publicar actualización'}))return;
+  if(!samePublishInputs(publishPreviewInputs,currentPublishInputs())){await previewDeveloperPack();if(publishPreview)toast('Los datos cambiaron durante la confirmación. Revisá el preview actualizado antes de publicar.','warn');return;}
   setBusy(true,'PUBLICANDO MODPACK');showOperation('PUBLICANDO MODPACK');$('developerPublishLog').textContent=`Publicando ${label}…\n`;$('operationPhase').textContent='SUBIENDO CAMBIOS A GITHUB';$('operationFile').textContent='La interfaz seguirá disponible en segundo plano.';
-  try{const result=await api.developerPublish({repo,source,version,notes,expectedFingerprint:publishPreview?.sourceFingerprint||''});publishPreview=null;$('developerPreviewCard')?.classList.add('hidden');if(result.state){fillBaseState(result.state)}toast('Modpack publicado en GitHub. Los launchers conectados lo recibirán al comprobar actualizaciones.','success');}
+  try{const result=await api.developerPublish({repo,source,version,notes,expectedFingerprint:publishPreview?.sourceFingerprint||''});if(result.sourceChanged){renderDeveloperPreview(result.preview,inputs);const message=result.message||'SIEGE cambió después de la previsualización.';$('developerPublishLog').textContent+=`\n${message}\nRevisá el resumen actualizado antes de volver a publicar.`;toast('SIEGE cambió durante la publicación. Revisá el preview actualizado y volvé a publicar.','warn');return;}publishPreview=null;publishPreviewInputs=null;$('developerPreviewCard')?.classList.add('hidden');if(result.state){fillBaseState(result.state)}toast('Modpack publicado en GitHub. Los launchers conectados lo recibirán al comprobar actualizaciones.','success');}
   catch(err){toast(err.message||String(err),'error');$('developerPublishLog').textContent+=`\nERROR: ${err.message||String(err)}`;}
   finally{hideOperation();setBusy(false)}
 }
@@ -767,7 +783,7 @@ function renderUpdateCenter(){
 
   if($('updatesModsTitle'))$('updatesModsTitle').textContent=modCount?`${modCount} actualización${modCount===1?'':'es'}`:'Al día';
   if($('updatesModsText'))$('updatesModsText').textContent='Los mods instalados se administran localmente; las versiones oficiales llegan con el modpack.';
-  if($('updatesLauncherTitle'))$('updatesLauncherTitle').textContent=launcherNeeds?'Nueva versión disponible':launcherUnverified?({checking:'Comprobando…',error:'No se pudo comprobar',unconfigured:'Canal no configurado'}[launcherStatus]||'Comprobación pendiente'):`v${appState?.appVersion||'0.70.10'}`;
+  if($('updatesLauncherTitle'))$('updatesLauncherTitle').textContent=launcherNeeds?'Nueva versión disponible':launcherUnverified?({checking:'Comprobando…',error:'No se pudo comprobar',unconfigured:'Canal no configurado'}[launcherStatus]||'Comprobación pendiente'):`v${appState?.appVersion||'0.80.0'}`;
   if($('updatesLauncherText'))$('updatesLauncherText').textContent=launcherNeeds?'Podés descargarla sin tocar el modpack.':launcherStatus==='current'?'Canal revisado · estás en la versión actual.':launcherStatus==='error'?'No se pudo consultar el canal del launcher. Probá de nuevo.':launcherStatus==='unconfigured'?'No hay un canal de actualizaciones configurado.':appState?.packaged?'Todavía no se verificó el canal del launcher.':'Modo desarrollo · updater desactivado.';
   const javaOk=Boolean(appState?.java?.found&&Number(appState?.java?.major)>=17);if($('updatesRuntimeTitle'))$('updatesRuntimeTitle').textContent=javaOk?`Java ${appState.java.version||17}`:'Java compatible pendiente';if($('updatesRuntimeText'))$('updatesRuntimeText').textContent=javaOk?(appState.java.managed?'Runtime administrado por Eternal Craft.':'Runtime detectado en el sistema.'):'Elegí un Java 17 o superior en tu sistema.';
   if($('updatesHeroMark'))$('updatesHeroMark').textContent=total?'!':launcherUnverified?'?':'✓';if($('updatesHero'))$('updatesHero').classList.toggle('has-updates',total>0||launcherUnverified);if($('updatesHeroTitle'))$('updatesHeroTitle').textContent=total?`${total} actualización${total===1?'':'es'} pendiente${total===1?'':'s'}`:launcherUnverified?'No se verificó el launcher':'Todo está actualizado';if($('updatesHeroText'))$('updatesHeroText').textContent=total?'Podés revisar cada componente o aplicar las actualizaciones disponibles.':launcherUnverified?($('updatesLauncherText')?.textContent||'Comprobá el canal del launcher.'):'Launcher y modpack verificados; los mods personales se administran localmente.';
@@ -1049,7 +1065,7 @@ function bind(){
     if(session?.test){toast(`test-1 finalizó${Number.isInteger(session.code)?` · código ${session.code}`:''}.`,session.code===0?'success':'warn');return;}
     if(session?.safeMode)toast('Inicio seguro finalizado: tus mods personales fueron restaurados.','success');
     try{const state=await api.getState();fillBaseState(state)}catch(_){if(appState){appState.config.launcher.lastSession=session;renderSession()}}
-    refreshHealth(false).catch(()=>{});refreshChangeHistory().catch(()=>{});refreshCrashGuard(false).catch(()=>{}); if(session && Number.isInteger(session.code) && session.code!==0){const streak=Number(appState?.config?.launcher?.crashStreak||0);$('sessionAlertTitle').textContent=`Minecraft se cerró con código ${session.code}`;$('sessionAlertText').textContent=streak>=2?'Se detectaron cierres inesperados repetidos. Probá Inicio Seguro para descartar mods personales.':'Abrí Soporte para revisar el diagnóstico y latest.log.';$('sessionAlertSafe')?.classList.toggle('hidden',streak<2);$('sessionAlert').classList.remove('hidden');toast('Minecraft se cerró de forma inesperada.','error');}
+    refreshHealth(false).catch(()=>{});refreshChangeHistory().catch(()=>{});refreshCrashGuard(false).catch(()=>{}); if(session?.error){const streak=Number(appState?.config?.launcher?.crashStreak||0);$('sessionAlertTitle').textContent='No se pudo iniciar Minecraft';$('sessionAlertText').textContent=session.error;$('sessionAlertSafe')?.classList.toggle('hidden',streak<2);$('sessionAlert').classList.remove('hidden');toast(session.error,'error');}else if(session && Number.isInteger(session.code) && session.code!==0){const streak=Number(appState?.config?.launcher?.crashStreak||0);$('sessionAlertTitle').textContent=`Minecraft se cerró con código ${session.code}`;$('sessionAlertText').textContent=streak>=2?'Se detectaron cierres inesperados repetidos. Probá Inicio Seguro para descartar mods personales.':'Abrí Soporte para revisar el diagnóstico y latest.log.';$('sessionAlertSafe')?.classList.toggle('hidden',streak<2);$('sessionAlert').classList.remove('hidden');toast('Minecraft se cerró de forma inesperada.','error');}
   });
 }
 async function completeOnboarding(){

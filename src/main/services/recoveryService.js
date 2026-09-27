@@ -5,7 +5,15 @@ const path = require('path');
 const SNAPSHOT_ROOT = path.join('.launcher', 'snapshots');
 const MAX_SNAPSHOTS = 6;
 
-function safeId(value='') { return String(value).replace(/[^A-Za-z0-9._-]/g, '_').slice(0, 80); }
+function safeId(value='') {
+  const id=String(value);
+  return /^[A-Za-z0-9][A-Za-z0-9._-]{0,79}$/.test(id) && id!=='.' && id!=='..' ? id : '';
+}
+function officialModPaths(manifest) {
+  return new Set([...(manifest?.files||[]).map(f=>String(f.path||'')),...(manifest?.remove||[]).map(String)]
+    .map(value=>value.replace(/\\/g,'/').toLowerCase())
+    .filter(value=>value.startsWith('mods/')));
+}
 async function exists(file){ try { await fsp.access(file); return true; } catch (_) { return false; } }
 async function readJson(file, fallback){ try { return JSON.parse(await fsp.readFile(file,'utf8')); } catch (_) { return fallback; } }
 
@@ -42,13 +50,13 @@ async function createSnapshot(root, manifest, label='Punto de restauración'){
   const id=safeId(`${now.toISOString().replace(/[:.]/g,'-')}-${Math.random().toString(36).slice(2,7)}`);
   const base=path.join(root,SNAPSHOT_ROOT,id);
   await fsp.mkdir(base,{recursive:true});
-  const official=new Set([...(manifest?.files||[]).map(f=>String(f.path||'').replace(/\\/g,'/')),...(manifest?.remove||[]).map(p=>String(p||'').replace(/\\/g,'/'))].filter(p=>p.startsWith('mods/')));
+  const official=officialModPaths(manifest);
   const userMods=[];
   const modsDir=path.join(root,'mods');
   for(const entry of await fsp.readdir(modsDir,{withFileTypes:true}).catch(()=>[])){
     if(!entry.isFile()||!/\.jar(?:\.disabled)?$/i.test(entry.name)) continue;
     const baseName=entry.name.replace(/\.disabled$/i,'');
-    if(official.has(`mods/${baseName}`)) continue;
+    if(official.has(`mods/${baseName}`.toLowerCase())) continue;
     await copyIfExists(path.join(modsDir,entry.name),path.join(base,'mods',entry.name));
     userMods.push(entry.name);
   }
@@ -65,13 +73,13 @@ async function restoreSnapshot(root, manifest, id){
   const safe=safeId(id); if(!safe) throw new Error('Snapshot inválido.');
   const base=path.join(root,SNAPSHOT_ROOT,safe);
   const meta=await readJson(path.join(base,'snapshot.json'),null); if(!meta) throw new Error('No encontré ese punto de restauración.');
-  const official=new Set([...(manifest?.files||[]).map(f=>String(f.path||'').replace(/\\/g,'/')),...(manifest?.remove||[]).map(p=>String(p||'').replace(/\\/g,'/'))].filter(p=>p.startsWith('mods/')));
+  const official=officialModPaths(manifest);
   const modsDir=path.join(root,'mods'); await fsp.mkdir(modsDir,{recursive:true});
   // Remove only user-added mods. Official pack files remain untouched.
   for(const entry of await fsp.readdir(modsDir,{withFileTypes:true}).catch(()=>[])){
     if(!entry.isFile()||!/\.jar(?:\.disabled)?$/i.test(entry.name)) continue;
     const baseName=entry.name.replace(/\.disabled$/i,'');
-    if(!official.has(`mods/${baseName}`)) await fsp.rm(path.join(modsDir,entry.name),{force:true});
+    if(!official.has(`mods/${baseName}`.toLowerCase())) await fsp.rm(path.join(modsDir,entry.name),{force:true});
   }
   const snapMods=path.join(base,'mods');
   if(await exists(snapMods)){

@@ -10,7 +10,14 @@ function normalizeModPath(value) { return String(value || '').replace(/\\/g, '/'
 function officialSet(manifest) {
   return new Set((manifest?.files || []).map(e => normalizeModPath(e.path)).filter(p => p.startsWith('mods/') && p.endsWith('.jar')));
 }
-async function readMeta(root) { try { return JSON.parse(await fsp.readFile(path.join(root, META), 'utf8')); } catch (_) { return { mods: {} }; } }
+async function readMeta(root) {
+  try {
+    const value = JSON.parse(await fsp.readFile(path.join(root, META), 'utf8'));
+    if (!value || typeof value !== 'object' || Array.isArray(value)) return { mods: {} };
+    const mods = value.mods && typeof value.mods === 'object' && !Array.isArray(value.mods) ? value.mods : {};
+    return { ...value, mods };
+  } catch (_) { return { mods: {} }; }
+}
 async function writeMeta(root, meta) { const file = path.join(root, META); await fsp.mkdir(path.dirname(file), { recursive: true }); await fsp.writeFile(file, JSON.stringify(meta, null, 2)); }
 
 

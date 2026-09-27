@@ -12,7 +12,7 @@ El workflow `Build / Release Eternal Craft Launcher` genera:
 - instalador NSIS `.exe`;
 - metadatos de actualización de electron-builder.
 
-Podés ejecutar el workflow manualmente o crear `launcher-v0.15.0` para publicar una Release.
+Podés ejecutar el workflow manualmente o crear un tag `launcher-v<VERSIÓN>` que coincida exactamente con `package.json` (por ejemplo, `launcher-v0.80.0`) para publicar una Release.
 
 ## Qué recibe un jugador
 

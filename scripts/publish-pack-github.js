@@ -135,31 +135,39 @@ async function main() {
     if (current === 1 || current === total || current % 25 === 0) console.log(`Preparando publicación: ${current}/${total} · ${file}`);
   };
   const includeUserMods = Boolean(args['include-user-mods']);
-  let result = await buildPack({ source, out, version: initialVersion, baseUrl: `https://github.com/${repo}/releases/download/pack-v${initialVersion}`, previousManifest: previous, notes: args.notes || '', includeUserMods, onProgress: reportBuildProgress });
+  const result = await buildPack({ source, out, version: initialVersion, baseUrl: `https://github.com/${repo}/releases/download/pack-v${initialVersion}`, previousManifest: previous, notes: args.notes || '', includeUserMods, onProgress: reportBuildProgress });
   const changeCount=(result.changes.added?.length||0)+(result.changes.changed?.length||0)+(result.changes.removed?.length||0);
   if(previous && changeCount===0) throw new Error('No hay cambios nuevos en la instancia SIEGE para publicar.');
   const version = requestedVersion || nextVersion(previous?.version || '', result.changes);
   const tag = `pack-v${version}`;
-  if (version !== initialVersion) {
-    await fsp.rm(out, { recursive: true, force: true });
-    result = await buildPack({ source, out, version, baseUrl: `https://github.com/${repo}/releases/download/${tag}`, previousManifest: previous, notes: args.notes || '', includeUserMods, onProgress: reportBuildProgress });
-  }
+  // The calculated release version depends only on the changes just scanned.
+  // Rebuilding here used to hash and copy every payload file a second time
+  // (and printed the same progress twice). URLs are assigned to the final tag
+  // below, so update the manifest metadata in place and keep the staged blobs.
+  result.manifest.version = version;
+  result.changes.version = version;
   result.manifest.releaseName = twoWordReleaseName(result.changes);
   result.manifest.releaseNotes.title = `${version} — ${result.manifest.releaseName}`;
   const sourceFingerprint=manifestFingerprint(result.manifest);
-  if(args['expected-fingerprint'] && String(args['expected-fingerprint'])!==sourceFingerprint) throw new Error('La instancia SIEGE cambió después del preview. Hacé una nueva previsualización antes de publicar.');
+  const preview = {
+    ok: true, preview: true, repo, branch, source,
+    previousVersion: previous?.version || null, version, releaseName: result.manifest.releaseName,
+    totalFiles: result.manifest.files.length,
+    added: result.changes.added || [], changed: result.changes.changed || [], removed: result.changes.removed || [],
+    unchanged: result.changes.unchanged || 0,
+    newBlobCount: result.changes.uniqueNewBlobs || 0, sourceFingerprint, payload: result.payload
+  };
+  if(args['expected-fingerprint'] && String(args['expected-fingerprint'])!==sourceFingerprint) {
+    // The source changed after the user reviewed the previous preview. Return
+    // the exact manifest just rebuilt so the UI can show the new changes
+    // without hashing every file a third time or publishing unreviewed data.
+    console.log(`PUBLISH_PREVIEW_REFRESH_JSON:${JSON.stringify(preview)}`);
+    throw new Error('La instancia SIEGE cambió después de la previsualización. Se actualizó el resumen; revisá los cambios antes de volver a publicar.');
+  }
   console.log(`Fuente verificada: ${result.source}`);
   console.log(`Payload verificado: ${result.payload.mods} mods + ${result.payload.iammusicplayerrenewed} archivos de iammusicplayerrenewed (${result.payload.total} total) · ${result.payload.personalModsExcluded} personales omitidos`);
 
   if (previewOnly) {
-    const preview = {
-      ok: true, preview: true, repo, branch, source,
-      previousVersion: previous?.version || null, version, releaseName: result.manifest.releaseName,
-      totalFiles: result.manifest.files.length,
-      added: result.changes.added || [], changed: result.changes.changed || [], removed: result.changes.removed || [],
-      unchanged: result.changes.unchanged || 0,
-      newBlobCount: result.changes.uniqueNewBlobs || 0, sourceFingerprint, payload: result.payload
-    };
     console.log(`PREVIEW_JSON:${JSON.stringify(preview)}`);
     await fsp.rm(out, { recursive: true, force: true }).catch(() => {});
     return;

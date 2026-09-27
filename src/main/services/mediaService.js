@@ -56,9 +56,21 @@ async function listMedia(directory) {
   return { configured: true, directory: root, items, total: items.length, images: items.filter((x) => x.type === 'image').length, videos: items.filter((x) => x.type === 'video').length };
 }
 
-function isAllowedFile(root, file) {
-  const absolute = path.resolve(String(file || ''));
-  return isInside(root, absolute) && Boolean(mediaType(absolute));
+async function isAllowedFile(root, file) {
+  const candidate = path.resolve(String(file || ''));
+  if (!isInside(root, candidate) || !mediaType(candidate)) return false;
+  try {
+    // Lexical containment alone accepts a symlink located inside the gallery
+    // that points to a file elsewhere on the machine. Validate canonical paths
+    // before the main process opens a renderer-selected file.
+    const [canonicalRoot, canonicalFile] = await Promise.all([
+      fsp.realpath(root),
+      fsp.realpath(candidate)
+    ]);
+    return isInside(canonicalRoot, canonicalFile) && Boolean(mediaType(canonicalFile));
+  } catch (_) {
+    return false;
+  }
 }
 
 module.exports = { listMedia, isAllowedFile };

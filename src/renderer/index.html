@@ -75,12 +75,12 @@
 
   <div id="whatsNewOverlay" class="whats-new-overlay hidden" role="dialog" aria-modal="true" aria-label="Novedades del launcher">
     <section class="whats-new-card">
-      <div class="whats-new-hero"><img src="assets/logo.svg" alt=""/><div><span class="eyebrow">ETERNAL CRAFT LAUNCHER</span><h2>v0.70.10</h2><p>Actualizaciones del launcher separadas de las versiones del modpack.</p></div></div>
+      <div class="whats-new-hero"><img src="assets/logo.svg" alt=""/><div><span class="eyebrow">ETERNAL CRAFT LAUNCHER</span><h2>v0.80.0</h2><p>Actualizaciones del launcher separadas de las versiones del modpack.</p></div></div>
       <div class="whats-new-grid">
-        <div><i>01</i><b>Mods oficiales</b><span>El manifiesto publicado determina qué mods pertenecen a SIEGE.</span></div>
-        <div><i>02</i><b>Metadatos antiguos</b><span>Etiquetas guardadas de proveedores anteriores ya no convierten un mod oficial en agregado.</span></div>
-        <div><i>03</i><b>Mods personales</b><span>Los mods fuera del manifiesto siguen siendo personales y conservan su administración local.</span></div>
-        <div><i>04</i><b>Prueba de regresión</b><span>Se valida la clasificación de un mod publicado junto a uno personal.</span></div>
+        <div><i>01</i><b>Publicación más rápida</b><span>El inventario de SIEGE se calcula una sola vez por intento.</span></div>
+        <div><i>02</i><b>Preview protegido</b><span>Si la instancia cambia, se actualiza el resumen y se detiene la subida para revisarlo.</span></div>
+        <div><i>03</i><b>Datos sincronizados</b><span>Repo, instancia, versión y notas deben coincidir con la previsualización.</span></div>
+        <div><i>04</i><b>Versión coherente</b><span>La build, los diagnósticos y las solicitudes usan la versión actual.</span></div>
       </div>
       <button id="whatsNewClose" class="primary wide">ENTENDIDO</button>
     </section>
@@ -101,7 +101,7 @@
         <b id="notificationsBadge" class="hidden">0</b>
       </button>
       <div id="globalStatus" class="global-status" title="Estado de conexión"><i></i><span id="globalStatusText">COMPROBANDO</span></div>
-      <div id="titleBuild" class="title-build">BUILD 0.70.10</div>
+      <div id="titleBuild" class="title-build">BUILD 0.80.0</div>
       <div class="window-controls">
         <button id="minimizeBtn" aria-label="Minimizar">—</button>
         <button id="maximizeBtn" aria-label="Maximizar">□</button>
@@ -399,7 +399,7 @@
         <div class="update-center-grid">
           <article class="panel update-product-card" data-update-kind="pack"><div class="update-product-icon">▦</div><div class="update-product-copy"><span>MODPACK OFICIAL</span><b id="updatesPackTitle">Comprobando…</b><small id="updatesPackText">—</small></div><button id="updatesPackBtn" class="ghost">ABRIR</button></article>
           <article class="panel update-product-card" data-update-kind="mods"><div class="update-product-icon">◇</div><div class="update-product-copy"><span>MODS PERSONALES</span><b id="updatesModsTitle">Comprobando…</b><small id="updatesModsText">—</small></div><button id="updatesModsBtn" class="ghost">ABRIR</button></article>
-          <article class="panel update-product-card" data-update-kind="launcher"><div class="update-product-icon">↻</div><div class="update-product-copy"><span>LAUNCHER</span><b id="updatesLauncherTitle">v0.70.10</b><small id="updatesLauncherText">Comprobando canal…</small></div><button id="updatesLauncherBtn" class="ghost">COMPROBAR</button></article>
+          <article class="panel update-product-card" data-update-kind="launcher"><div class="update-product-icon">↻</div><div class="update-product-copy"><span>LAUNCHER</span><b id="updatesLauncherTitle">v0.80.0</b><small id="updatesLauncherText">Comprobando canal…</small></div><button id="updatesLauncherBtn" class="ghost">COMPROBAR</button></article>
           <article class="panel update-product-card" data-update-kind="runtime"><div class="update-product-icon">J</div><div class="update-product-copy"><span>RUNTIME</span><b id="updatesRuntimeTitle">Java 17</b><small id="updatesRuntimeText">—</small></div><button id="updatesRuntimeBtn" class="ghost">AJUSTES</button></article>
         </div>
         <article class="panel update-policy-card">
@@ -648,7 +648,7 @@
     </main>
 
     <footer class="statusbar">
-      <span id="footerStatus">INICIANDO</span><i></i><span id="footerServer" class="hidden">LINK --</span><div></div><span id="footerBuild">ETERNAL CRAFT LAUNCHER // 0.70.10</span>
+      <span id="footerStatus">INICIANDO</span><i></i><span id="footerServer" class="hidden">LINK --</span><div></div><span id="footerBuild">ETERNAL CRAFT LAUNCHER // 0.80.0</span>
     </footer>
   </div>
 
