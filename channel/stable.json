@@ -2,22 +2,26 @@
   "schema": 2,
   "pack": "Eternal Craft",
   "channel": "stable",
-  "version": "1.0.6",
-  "releaseName": "Content Drop",
+  "version": "1.0.7",
+  "releaseName": "Steel Surge",
   "minecraft": "1.20.1",
   "forge": "47.4.10",
-  "minimumLauncher": "0.70.0",
-  "generatedAt": "2026-09-27T00:29:49.829Z",
+  "minimumLauncher": "0.80.0",
+  "generatedAt": "2026-09-27T06:51:52.162Z",
   "releaseNotes": {
-    "title": "1.0.6 — Content Drop",
-    "summary": "1 archivos nuevos · 0 actualizados · 0 eliminados",
+    "title": "1.0.7 — Steel Surge",
+    "summary": "1 archivos nuevos · 1 actualizados · 0 eliminados",
     "addedCount": 1,
-    "changedCount": 0,
+    "changedCount": 1,
     "removedCount": 0,
     "highlights": [
       {
         "type": "added",
-        "path": "mods/ketchup-1.0.0.jar"
+        "path": "mods/better-whips-forge-1.20.1-1.0.0-forge.1.20.1 (1).jar"
+      },
+      {
+        "type": "changed",
+        "path": "mods/siege-menu-20.0.0.jar"
       }
     ]
   },
@@ -121,6 +125,12 @@
       "size": 410510,
       "sha256": "61e1935f50444cb8592ca0f79ccb1dddbf722a1527c62db31795dbd80630ab77",
       "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.0/61e1935f50444cb8592ca0f79ccb1dddbf722a1527c62db31795dbd80630ab77"
+    },
+    {
+      "path": "mods/better-whips-forge-1.20.1-1.0.0-forge.1.20.1 (1).jar",
+      "size": 4046945,
+      "sha256": "14b2755ba1d7a28e1fc8234bbd38c22650f0da432f30e7e6ce154fdf65ecf65e",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.7/14b2755ba1d7a28e1fc8234bbd38c22650f0da432f30e7e6ce154fdf65ecf65e"
     },
     {
       "path": "mods/BetterClouds-1.1.jar",
@@ -664,9 +674,9 @@
     },
     {
       "path": "mods/siege-menu-20.0.0.jar",
-      "size": 102860530,
-      "sha256": "b82b7a5fcd2ebda7fa94f62ebc40c26990b42299d70e7615c9e0112380c8cc7d",
-      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.5/b82b7a5fcd2ebda7fa94f62ebc40c26990b42299d70e7615c9e0112380c8cc7d"
+      "size": 86275552,
+      "sha256": "1161091e25dc670130c62b5745a1a61e2a410273a8632434ff1119465436de1a",
+      "url": "https://github.com/Santi-PdR/EternalCraft-Modpack/releases/download/pack-v1.0.7/1161091e25dc670130c62b5745a1a61e2a410273a8632434ff1119465436de1a"
     },
     {
       "path": "mods/silent-lib-1.20.1-8.0.0.jar",
@@ -797,8 +807,8 @@
   ],
   "remove": [],
   "payload": {
-    "total": 128,
-    "mods": 125,
+    "total": 129,
+    "mods": 126,
     "iammusicplayerrenewed": 3,
     "personalModsExcluded": 0
   }
