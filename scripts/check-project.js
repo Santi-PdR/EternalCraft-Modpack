@@ -4,6 +4,7 @@ const fs = require('fs');
 const path = require('path');
 
 const root = process.cwd();
+const readText = file => fs.readFileSync(file, 'utf8').replace(/\r\n/g, '\n');
 function walk(dir, predicate) {
   const out = [];
   if (!fs.existsSync(dir)) return out;
@@ -30,15 +31,15 @@ for (const name of ['listMods','addMods','toggleMod','removeMod','toggleFavorite
 }
 const packService = require(path.join(root,'src','main','services','packService'));
 if (typeof packService.markPublishedOfficial !== 'function') throw new Error('packService no exporta markPublishedOfficial()');
-const packServiceSource = fs.readFileSync(path.join(root,'src','main','services','packService.js'),'utf8');
-const mainSource = fs.readFileSync(path.join(root,'src','main','main.js'),'utf8');
-const gameServiceSource = fs.readFileSync(path.join(root,'src','main','services','gameService.js'),'utf8');
-const publisherSource = fs.readFileSync(path.join(root,'scripts','publish-pack-github.js'),'utf8');
-const packBuilderSource = fs.readFileSync(path.join(root,'scripts','build-pack.js'),'utf8');
-const manifestServiceSource = fs.readFileSync(path.join(root,'src','main','services','manifestService.js'),'utf8');
-const serverPingSource = fs.readFileSync(path.join(root,'src','main','services','serverPing.js'),'utf8');
-const updateServiceSource = fs.readFileSync(path.join(root,'src','main','services','updateService.js'),'utf8');
-const developerServiceSource = fs.readFileSync(path.join(root,'src','main','services','developerService.js'),'utf8');
+const packServiceSource = readText(path.join(root,'src','main','services','packService.js'));
+const mainSource = readText(path.join(root,'src','main','main.js'));
+const gameServiceSource = readText(path.join(root,'src','main','services','gameService.js'));
+const publisherSource = readText(path.join(root,'scripts','publish-pack-github.js'));
+const packBuilderSource = readText(path.join(root,'scripts','build-pack.js'));
+const manifestServiceSource = readText(path.join(root,'src','main','services','manifestService.js'));
+const serverPingSource = readText(path.join(root,'src','main','services','serverPing.js'));
+const updateServiceSource = readText(path.join(root,'src','main','services','updateService.js'));
+const developerServiceSource = readText(path.join(root,'src','main','services','developerService.js'));
 if (!packBuilderSource.includes('ETERNAL_LAUNCHER_VERSION')) throw new Error('El constructor del pack no tiene fallback de versión para builds empaquetadas.');
 if (!publisherSource.includes("String(output || '').trim()")) throw new Error('El publicador debe normalizar la salida nula de gh antes de trim().');
 if (!publisherSource.includes("'--input', bodyFile")) throw new Error('El publicador debe enviar el manifest por archivo y no por argumentos de gh.');
@@ -72,8 +73,8 @@ if (!mainSource.includes("isQuitting = true;\n    try { installLauncherUpdate();
 const launchHandler = mainSource.match(/ipcMain\.handle\('game:launch',[\s\S]*?\n\s*ipcMain\.handle\('game:safe-launch'/)?.[0] || '';
 if (!launchHandler || /updatePack\(|checkInstallation\(/.test(launchHandler)) throw new Error('Jugar no debe comprobar, reparar ni actualizar el modpack.');
 if (/quickPlay\s*:/.test(gameServiceSource)) throw new Error('El inicio normal no debe conectar al servidor automáticamente.');
-const configStoreSource = fs.readFileSync(path.join(root,'src','main','services','configStore.js'),'utf8');
-const authServiceSource = fs.readFileSync(path.join(root,'src','main','services','authService.js'),'utf8');
+const configStoreSource = readText(path.join(root,'src','main','services','configStore.js'));
+const authServiceSource = readText(path.join(root,'src','main','services','authService.js'));
 if (!authServiceSource.includes('function isAuthFailure') || !authServiceSource.includes('error.reauthRequired = true')) throw new Error('La sesión Microsoft debe diferenciar tokens inválidos de fallos de red.');
 if (!authServiceSource.includes('const temporary = `${this.file}.tmp-${process.pid}-${Date.now()}-') || !authServiceSource.includes('fs.renameSync(temporary, this.file)')) throw new Error('La cuenta premium debe guardarse con reemplazo atómico y temporal único.');
 if (!mainSource.includes('else if (result.reauthRequired) store.save({ minecraft: { accountMode: \'offline\' } });')) throw new Error('El launcher debe salir del modo premium cuando Microsoft invalida la sesión.');
@@ -82,7 +83,7 @@ if (!configStoreSource.includes('Persist the migration immediately')) throw new 
 if (/--(?:raw-)?field['\"`][^\n]*(?:manifest|content|body)/i.test(publisherSource)) throw new Error('El publicador volvió a pasar contenido grande del manifest por argumentos de gh.');
 for (const match of mainSource.matchAll(/const\s*\{([^}]+)\}\s*=\s*require\('\.\/services\/([^']+)'\)/g)) {
   const names = match[1].split(',').map(value => value.trim()).filter(Boolean);
-  const serviceSource = fs.readFileSync(path.join(root,'src','main','services',`${match[2]}.js`),'utf8');
+  const serviceSource = readText(path.join(root,'src','main','services',`${match[2]}.js`));
   const exportBlocks = [...serviceSource.matchAll(/module\.exports\s*=\s*\{([\s\S]*?)\}/g)].map(item => item[1]).join('\n');
   for (const name of names) if (!new RegExp(`\\b${name.replace(/[.*+?^${}()|[\\]\\]/g, '\\$&')}\\b`).test(exportBlocks)) throw new Error(`${match[2]} no exporta ${name}()`);
 }
@@ -90,7 +91,7 @@ for (const match of mainSource.matchAll(/const\s*\{([^}]+)\}\s*=\s*require\('\.\
 // handler is particularly damaging here: the renderer can show a blank page
 // after one rejected invoke while the rest of the launcher still appears
 // healthy.
-const preloadSource = fs.readFileSync(path.join(root,'src','main','preload.js'),'utf8');
+const preloadSource = readText(path.join(root,'src','main','preload.js'));
 const mainChannels = new Set([...mainSource.matchAll(/ipcMain\.handle\(['"]([^'"]+)['"]/g)].map(m => m[1]));
 const preloadChannels = new Set([...preloadSource.matchAll(/ipcRenderer\.invoke\(['"]([^'"]+)['"]/g)].map(m => m[1]));
 for (const channel of preloadChannels) if (!mainChannels.has(channel)) throw new Error(`preload.js invoca un canal sin handler: ${channel}`);
@@ -99,7 +100,7 @@ if (manifest.minimumLauncher !== packageJson.version) throw new Error(`minimumLa
 if (packageJson.build?.appId !== 'uy.eternalcraft.launcher') throw new Error('appId del launcher cambió inesperadamente.');
 const runtimeFiles = [...walk(path.join(root, 'src'), f => /\.(js|html|css)$/.test(f)), path.join(root, 'resources', 'default-config.json')];
 for (const file of runtimeFiles) {
-  const source = fs.readFileSync(file, 'utf8').toLowerCase();
+  const source = readText(file).toLowerCase();
   if (/curseforge|modrinth/.test(source) && !/configstore|developerservice|changelog|diagnostic|provider/.test(path.basename(file).toLowerCase())) {
     throw new Error(`Integración de catálogo externo encontrada en runtime: ${path.relative(root, file)}`);
   }
@@ -108,7 +109,7 @@ if (!defaults.minecraft?.preferDedicatedGpu) throw new Error('La GPU dedicada de
 if (!defaults.minecraft?.useSystemResolution) throw new Error('La resolución del sistema debe venir activada por defecto.');
 for (const legacy of ['provider','category','environment','releaseChannel','curseforgeProxyUrl','autoCheckUpdates','autoUpdateUserMods']) if (Object.prototype.hasOwnProperty.call(defaults.mods || {}, legacy)) throw new Error(`La configuración conserva una clave retirada: ${legacy}`);
 
-const html = fs.readFileSync(path.join(root,'src','renderer','index.html'),'utf8');
+const html = readText(path.join(root,'src','renderer','index.html'));
 // A prematurely closed .content container makes every page after the first
 // one render below the viewport while the sidebar still appears healthy. Keep
 // a small structural check here so an extra closing div cannot regress the UI.
@@ -138,7 +139,7 @@ const ids = [...html.matchAll(/\bid=["']([^"']+)["']/g)].map(m=>m[1]);
 const duplicateIds = ids.filter((id,i)=>ids.indexOf(id)!==i);
 if (duplicateIds.length) throw new Error(`IDs HTML duplicados: ${[...new Set(duplicateIds)].join(', ')}`);
 
-const renderer = fs.readFileSync(path.join(root,'src','renderer','renderer.js'),'utf8');
+const renderer = readText(path.join(root,'src','renderer','renderer.js'));
 const playAction = renderer.match(/async function launch\(\)\s*\{[\s\S]*?\n\}/)?.[0] || '';
 if (!playAction.includes('askConfirm(') || playAction.includes('healthCheck(')) throw new Error('Jugar debe pedir confirmación sin ejecutar el diagnóstico completo.');
 if (!renderer.includes('s.hidden=!active') || !renderer.includes("s.setAttribute('aria-hidden',String(!active))")) throw new Error('La navegación debe controlar la visibilidad nativa de cada página.');
