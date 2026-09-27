@@ -55,6 +55,19 @@ stop_existing_launcher() {
   return 1
 }
 
+preflight_writable_directory() {
+  local directory="$1" probe
+  mkdir -p "$directory" || {
+    echo "ERROR: no se puede preparar el directorio $directory. No se modificó la instalación actual."
+    return 1
+  }
+  probe="$(mktemp "$directory/.eternal-craft-write-test.XXXXXX")" || {
+    echo "ERROR: el directorio $directory no permite escrituras. No se modificó la instalación actual."
+    return 1
+  }
+  rm -f "$probe"
+}
+
 printf '\n══════════════════════════════════════════════\n'
 printf '  ETERNAL CRAFT · INSTALAR LAUNCHER v%s\n' "$VERSION"
 printf '══════════════════════════════════════════════\n\n'
@@ -81,6 +94,10 @@ fi
 
 # A single-instance lock can route a fresh desktop launch to the old process.
 # Stop it only after the new build is ready, and before touching installed files.
+for target_dir in "$APP_HOME" "$(dirname "$WRAPPER")" "$(dirname "$DESKTOP")" "$ICON_DIR"; do
+  preflight_writable_directory "$target_dir"
+done
+
 stop_existing_launcher
 
 mkdir -p "$APP_HOME" "$(dirname "$DESKTOP")" "$ICON_DIR" "$HOME/.local/bin"

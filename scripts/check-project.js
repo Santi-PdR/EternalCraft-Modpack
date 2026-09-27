@@ -86,6 +86,8 @@ if (!authServiceSource.includes('const temporary = `${this.file}.tmp-${process.p
 const stopLauncherIndex = installerSource.indexOf('\nstop_existing_launcher\n');
 const replaceAppImageIndex = installerSource.indexOf('cp -f "$BUILT" "$APPIMAGE"');
 if (stopLauncherIndex < 0 || replaceAppImageIndex < 0 || stopLauncherIndex > replaceAppImageIndex || !installerSource.includes('kill -TERM') || !installerSource.includes('No se reemplazaron los archivos')) throw new Error('El instalador debe cerrar limpiamente el launcher anterior antes de reemplazar archivos.');
+const preflightIndex = installerSource.indexOf('preflight_writable_directory "$target_dir"');
+if (preflightIndex < 0 || preflightIndex > stopLauncherIndex || !installerSource.includes('mktemp "$directory/.eternal-craft-write-test.XXXXXX"')) throw new Error('El instalador debe comprobar escrituras reales en todas las rutas críticas antes de cerrar/reemplazar la instalación.');
 const installedWrapper = installerSource.slice(installerSource.indexOf('cat > "$WRAPPER"'), installerSource.indexOf('\nWRAPPER\n'));
 if (!installedWrapper.includes('if [[ -x "$APPIMAGE" ]]') || !installedWrapper.includes('--appimage-extract-and-run') || installedWrapper.indexOf('if [[ -x "$APPIMAGE" ]]') > installedWrapper.indexOf('if [[ -x "$APP_HOME/app/EternalCraftLauncher" ]]')) throw new Error('El wrapper debe priorizar el AppImage actualizable y dejar AppDir solo como recuperación.');
 if (!installedWrapper.includes('ETERNAL_DEVELOPER_BUILD=1') || !installedWrapper.includes('--developer-build')) throw new Error('El wrapper local debe conservar el acceso a herramientas de mantenimiento.');

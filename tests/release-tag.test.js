@@ -3,7 +3,7 @@ const assert = require('node:assert/strict');
 const { verifyLauncherReleaseTag } = require('../scripts/verify-launcher-release');
 
 test('accepts only a launcher tag matching the package version', () => {
-  assert.equal(verifyLauncherReleaseTag('launcher-v0.70.6', '0.70.6'), true);
-  assert.throws(() => verifyLauncherReleaseTag('launcher-v0.70.5', '0.70.6'), /launcher-v0\.70\.6/);
-  assert.throws(() => verifyLauncherReleaseTag('pack-v1.0.0', '0.70.6'), /launcher-v0\.70\.6/);
+  assert.equal(verifyLauncherReleaseTag('launcher-v0.70.7', '0.70.7'), true);
+  assert.throws(() => verifyLauncherReleaseTag('launcher-v0.70.5', '0.70.7'), /launcher-v0\.70\.7/);
+  assert.throws(() => verifyLauncherReleaseTag('pack-v1.0.0', '0.70.7'), /launcher-v0\.70\.7/);
 });
