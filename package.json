@@ -1,6 +1,6 @@
 {
   "name": "eternal-craft-launcher",
-  "version": "0.70.3",
+  "version": "0.70.4",
   "description": "Launcher oficial de Eternal Craft // SIEGE: experiencia premium, actualización segura, biblioteca de mods, Crash Guard y herramientas de desarrollo.",
   "main": "src/main/main.js",
   "author": "Eternal Craft",
@@ -21,6 +21,7 @@
     "start": "electron .",
     "preview": "python3 -m http.server 4173 -d src/renderer",
     "check": "node scripts/check-project.js",
+    "test": "node --test tests/*.test.js",
     "pack:build": "node scripts/build-pack.js",
     "pack:serve": "node scripts/serve-pack.js",
     "dev:pack": "node scripts/dev-pack.js",

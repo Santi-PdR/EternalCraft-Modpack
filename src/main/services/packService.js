@@ -184,6 +184,9 @@ async function removalPlan(root, manifest) {
   const userAdded = await readUserAddedPaths(root);
   const previousOfficialKeys = new Set([...previousOfficial].map((file) => file.toLowerCase()));
   const explicit = Array.isArray(manifest?.remove) ? manifest.remove : [];
+  const explicitKeys = new Set(explicit
+    .map((file) => String(file || '').replace(/\\/g, '/').toLowerCase())
+    .filter(Boolean));
   const staleOfficial = [...previousOfficial].filter((file) => !currentKeys.has(file.toLowerCase()));
   const candidates = [...new Set([...explicit, ...staleOfficial])]
     .map((file) => String(file || '').replace(/\\/g, '/'))
@@ -193,7 +196,10 @@ async function removalPlan(root, manifest) {
     // stale and still says `local`.
     .filter((file) => {
       const key = file.toLowerCase();
-      return file && !currentKeys.has(key) && (previousOfficialKeys.has(key) || !userAdded.has(key));
+      // A `remove` entry is published from the previous official manifest.
+      // It must also clean older installs that predate official-files.json,
+      // where stale `local` metadata would otherwise preserve the retired jar.
+      return file && !currentKeys.has(key) && (explicitKeys.has(key) || previousOfficialKeys.has(key) || !userAdded.has(key));
     });
   const paths = [];
   for (const file of candidates) {
@@ -275,7 +281,7 @@ async function downloadFile(url, destination, expectedSha256, onChunk = () => {}
     await fsp.rename(temp, destination);
     return;
   }
-  const response = await fetchWithRetry(url, { headers: { 'User-Agent': 'EternalCraftLauncher/0.70.3', Accept: '*/*' } }, 3, 120000);
+  const response = await fetchWithRetry(url, { headers: { 'User-Agent': 'EternalCraftLauncher/0.70.4', Accept: '*/*' } }, 3, 120000);
   if (!response.body) throw new Error(`Respuesta vacía al descargar ${url}`);
   const total = Number(response.headers.get('content-length') || 0); let received = 0;
   const reader = response.body.getReader();
