@@ -39,6 +39,7 @@ const packBuilderSource = readText(path.join(root,'scripts','build-pack.js'));
 const manifestServiceSource = readText(path.join(root,'src','main','services','manifestService.js'));
 const serverPingSource = readText(path.join(root,'src','main','services','serverPing.js'));
 const updateServiceSource = readText(path.join(root,'src','main','services','updateService.js'));
+const updateRuntimeSource = readText(path.join(root,'src','main','services','updateRuntime.js'));
 const releaseWorkflow = readText(path.join(root,'.github','workflows','build.yml'));
 const configStoreSource = readText(path.join(root,'src','main','services','configStore.js'));
 const authServiceSource = readText(path.join(root,'src','main','services','authService.js'));
@@ -57,6 +58,7 @@ if (!serverPingSource.includes("confidence: hasStatusPayload && !exarotonLobby ?
 if (!serverPingSource.includes('onlinePlayers <= maxPlayers')) throw new Error('El ping del servidor debe validar la coherencia de jugadores.');
 if (!serverPingSource.includes('incoming.length > 2 * 1024 * 1024')) throw new Error('El ping del servidor debe limitar respuestas excesivamente grandes.');
 if (!updateServiceSource.includes('if (availableInfo) emit({ type: \'available\'')) throw new Error('El updater debe conservar el reintento después de un fallo de descarga.');
+if (!updateRuntimeSource.includes('function appImageRuntimeMessage') || !updateServiceSource.includes("appImageRuntimeMessage({ packaged: app.isPackaged })") || !updateServiceSource.includes("emit({ type: 'error', message: runtimeMessage })")) throw new Error('El updater debe explicar cuándo se inició desde una copia extraída sin soporte para autoactualizarse.');
 if (!updateServiceSource.includes('if (downloadPromise) return { configured: true')) throw new Error('El updater debe evitar comprobaciones concurrentes durante una descarga.');
 if (!updateServiceSource.includes('if (checkPromise) await checkPromise')) throw new Error('El updater debe esperar la comprobación antes de descargar.');
 if (!updateServiceSource.includes("if (lastState.type !== 'downloaded') emit({ type: 'downloaded', info: availableInfo, files })")) throw new Error('El updater debe normalizar la finalización de downloadUpdate().');
