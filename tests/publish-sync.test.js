@@ -484,3 +484,82 @@ test('publish: an invalid version is rejected before touching the remote', async
   const releases = fs.existsSync(path.join(ctx.gh.stateDir, 'releases')) ? fs.readdirSync(path.join(ctx.gh.stateDir, 'releases')) : [];
   assert.deepEqual(releases, [], 'no debe crearse ninguna release');
 });
+
+test('publish: a case-colliding path set is refused instead of shipping a manifest the launcher rejects', async (t) => {
+  const ctx = await setup(t);
+  createSourceInstance(ctx.source, { 'Magic.jar': 'uno', 'magic.jar': 'dos' });
+  const { validateManifest } = require('../src/main/services/manifestService');
+  const before = readChannel(ctx.gh.stateDir);
+  const result = await publish(ctx);
+  assert.notEqual(result.code, 0, 'publicar un manifest inválido para el launcher debe fallar');
+  assert.match(result.output, /solo difieren en mayúsculas\/minúsculas/i);
+  assert.deepEqual(readChannel(ctx.gh.stateDir), before, 'el canal no debe cambiar');
+  if (before) assert.doesNotThrow(() => validateManifest(before));
+});
+
+test('sync: repairing an up-to-date installation is a true no-op', async (t) => {
+  const ctx = await setup(t);
+  const { seedRemote, startPackServer, sha256 } = require('./helpers/pack-testbed');
+  const a = Buffer.from('contenido A');
+  const b = Buffer.from('contenido B');
+  const tag = 'pack-v1.0.0';
+  const baseUrl = `https://github.com/${REPO}/releases/download/${tag}`;
+  const manifest = {
+    schema: 2, version: '1.0.0', minecraft: '1.20.1', forge: '47.4.10',
+    forgeInstaller: { url: 'https://maven.minecraftforge.net/forge-1.20.1-47.4.10-installer.jar', sha256: '' },
+    files: [
+      { path: 'mods/a.jar', size: a.length, sha256: sha256(a), url: `${baseUrl}/${sha256(a)}` },
+      { path: 'mods/b.jar', size: b.length, sha256: sha256(b), url: `${baseUrl}/${sha256(b)}` }
+    ],
+    remove: []
+  };
+  seedRemote(ctx.gh.stateDir, { manifest, blobs: { [sha256(a)]: a, [sha256(b)]: b }, tag });
+  const server = await startPackServer(ctx.gh.stateDir);
+  t.after(() => server.close());
+  const remote = clientManifest(manifest, server);
+  const install = path.join(ctx.base, 'install');
+
+  const first = await repairInstallation(install, remote);
+  assert.equal(first.downloaded, 2, 'la primera reparación descarga lo que falta');
+
+  // Publishing twice without changes is idempotent; the same must hold for the
+  // installation side: nothing to download, replace or delete.
+  const second = await repairInstallation(install, remote);
+  assert.equal(second.downloaded, 0, 'no debe volver a descargar nada');
+  assert.equal(second.repaired, 0, 'no debe reemplazar archivos que ya coinciden');
+  assert.equal(second.removed, 0, 'no debe borrar nada');
+  assert.equal(second.healthy, true);
+  const third = await checkInstallation(install, remote);
+  assert.equal(third.healthy, true);
+  assert.deepEqual(listFiles(install, 'mods').sort(), ['mods/a.jar', 'mods/b.jar']);
+});
+
+test('publish: the verified manifest stays in the work dir for the launcher metadata sync', async (t) => {
+  const ctx = await setup(t);
+  createSourceInstance(ctx.source, { 'a.jar': 'contenido' });
+  const result = await publish(ctx);
+  assert.equal(result.code, 0, result.output);
+  // main.js reads this file after a successful publication to promote the jars
+  // in the SIEGE instance and to prime its manifest cache; deleting it here
+  // silently skipped both.
+  const manifestPath = path.join(ctx.out, 'channel', 'stable.json');
+  assert.equal(fs.existsSync(manifestPath), true, 'el manifest verificado debe quedar disponible');
+  const manifest = JSON.parse(fs.readFileSync(manifestPath, 'utf8'));
+  const published = readChannel(ctx.gh.stateDir);
+  assert.equal(manifest.version, published.version);
+  assert.deepEqual(manifest.files.map((f) => f.path), published.files.map((f) => f.path));
+  assert.equal(fs.existsSync(path.join(ctx.out, 'blobs')), false, 'los blobs pesados se descartan igual');
+});
+
+test('publish: a failed publication leaves no manifest behind', async (t) => {
+  const ctx = await setup(t);
+  const { seedRemote } = require('./helpers/pack-testbed');
+  createSourceInstance(ctx.source, { 'a.jar': 'a' });
+  seedRemote(ctx.gh.stateDir, {
+    manifest: { schema: 2, version: '1.0.0', minecraft: '1.20.1', forge: '47.4.10', forgeInstaller: { url: 'https://maven.minecraftforge.net/forge-1.20.1-47.4.10-installer.jar', sha256: '' }, files: [], remove: [] },
+    blobs: {}, tag: 'pack-v1.0.0'
+  });
+  const result = await publish(ctx, [], { FAKE_GH_FAIL_UPLOAD: '1', FAKE_GH_FAIL_BLOBS: '1', FAKE_GH_FAIL_UPLOAD_TIMES: '99' });
+  assert.notEqual(result.code, 0, result.output);
+  assert.equal(fs.existsSync(path.join(ctx.out, 'channel', 'stable.json')), false, 'una publicación fallida no debe dejar un manifest que parezca verificado');
+});

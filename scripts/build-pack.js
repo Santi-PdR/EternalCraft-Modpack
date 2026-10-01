@@ -220,6 +220,44 @@ async function listPublishableFiles(source, { includeUserMods = false } = {}) {
  * that was used to build the manifest. It catches future regressions where a
  * filter, a staging step, or a hand-edited manifest drops a SIEGE file.
  */
+/**
+ * Refuse to publish a manifest the launcher would reject. The launcher refuses
+ * the whole channel when two installed paths only differ by case (Windows and
+ * macOS share one file) or when a size/URL cannot be consumed, so catching it
+ * here keeps a broken state out of the published channel instead of locking
+ * every player out of updates.
+ */
+function validateLauncherCompatibility(manifest) {
+  const MAX_FILE_SIZE = 8 * 1024 * 1024 * 1024;
+  const seen = new Map();
+  const collisions = [];
+  for (const file of manifest?.files || []) {
+    const key = String(file.path || '').toLowerCase();
+    if (seen.has(key)) collisions.push(`${seen.get(key)} ↔ ${file.path}`);
+    else seen.set(key, file.path);
+    const size = Number(file.size);
+    if (!Number.isSafeInteger(size) || size < 0 || size > MAX_FILE_SIZE) {
+      throw new Error(`El tamaño de ${file.path} (${file.size}) no es válido para el launcher.`);
+    }
+    if (!/^[a-f0-9]{64}$/i.test(String(file.sha256 || ''))) {
+      throw new Error(`El SHA-256 de ${file.path} no es válido para el launcher.`);
+    }
+    if (!file.empty && !String(file.url || '').trim()) {
+      throw new Error(`Falta la URL de descarga de ${file.path}; el launcher no podría instalarlo.`);
+    }
+  }
+  if (collisions.length) {
+    throw new Error(`SIEGE contiene rutas que solo difieren en mayúsculas/minúsculas: ${collisions.slice(0, 3).join(', ')}. El launcher rechazaría el manifest completo; renombrá o quitá uno de esos archivos.`);
+  }
+  const kept = new Set((manifest?.files || []).map((file) => String(file.path || '').toLowerCase()));
+  for (const value of manifest?.remove || []) {
+    if (kept.has(String(value || '').toLowerCase())) {
+      throw new Error(`El manifest conserva y retira el mismo archivo: ${value}.`);
+    }
+  }
+  return true;
+}
+
 async function validatePublishedPayload(source, manifest, { includeUserMods = false } = {}) {
   const { files: sourceFiles, excludedUserMods, ignored = [] } = await listPublishableFiles(source, { includeUserMods });
   const expected = new Map(sourceFiles.map((file) => [file.relative, publishedPathKind(file.relative)]));
@@ -431,6 +469,7 @@ async function buildPack(options = {}) {
     files: manifestFiles,
     remove
   };
+  validateLauncherCompatibility(manifest);
   const payload = await validatePublishedPayload(source, manifest, { includeUserMods });
   manifest.payload = payload;
   const changes = {
@@ -480,7 +519,7 @@ async function main() {
 
 if (require.main === module) main().catch((err) => { console.error(`ERROR: ${err.message}`); process.exit(1); });
 module.exports = {
-  launcherVersion, buildPack, parseArgs, resolveGameRoot, sha256File, walk, walkDetailed, isPublishedPath, isJunkEntry,
+  launcherVersion, buildPack, parseArgs, resolveGameRoot, validateLauncherCompatibility, sha256File, walk, walkDetailed, isPublishedPath, isJunkEntry,
   validatePublishedPayload, readLocalUserModPaths, listPublishableFiles, manifestFingerprint,
   payloadFingerprint, manifestSemanticEqual, collectReferencedAssets
 };

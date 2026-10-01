@@ -136,10 +136,6 @@ async function readPublishedChannel(repo, branch) {
   }
   return { exists: true, manifest };
 }
-async function getPrevious(repo, branch) {
-  return (await readPublishedChannel(repo, branch)).manifest;
-}
-
 /**
  * Blob SHA of the committed channel, required by the contents API to replace an
  * existing file. A failed lookup used to be swallowed, so the PUT went out
@@ -639,7 +635,12 @@ async function main() {
   if (changes.removed.length) console.log(`Los jugadores eliminarán ${changes.removed.length} archivo(s) retirado(s) al actualizar.`);
   else console.log('Los jugadores solo descargarán archivos nuevos, cambiados o faltantes.');
   console.log(`PUBLISH_JSON:${JSON.stringify(summary)}`);
-  clearStaging(out);
+  // Keep the manifest that was just verified: the launcher reads it after a
+  // successful publication to mark the promoted jars as official in the SIEGE
+  // instance and to prime its manifest cache while raw.githubusercontent
+  // propagates. Only the heavy `blobs/` staging is discarded, and a failed run
+  // still clears everything (see the handler at the end of this file).
+  clearStaging(out, { keepChannel: true });
 }
 
 function noopSummary({ repo, branch, version, result, preview, repaired = [], corrupted = [] }) {
