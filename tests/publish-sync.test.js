@@ -386,3 +386,66 @@ test('publish: a failing channel SHA lookup aborts before overwriting anything',
   const after = readChannel(ctx.gh.stateDir);
   assert.deepEqual(after, before, 'el canal publicado no debe cambiar si no se pudo leer su SHA');
 });
+
+test('publish: retirements accumulate so a skipped version still cleans up', async (t) => {
+  const ctx = await setup(t);
+  const { seedRemote } = require('./helpers/pack-testbed');
+  const summaryOf = (output) => JSON.parse(/PUBLISH_JSON:(\{.*\})/s.exec(output)[1]);
+  seedRemote(ctx.gh.stateDir, {
+    manifest: { schema: 2, version: '1.0.0', minecraft: '1.20.1', forge: '47.4.10', forgeInstaller: { url: 'https://maven.minecraftforge.net/forge-1.20.1-47.4.10-installer.jar', sha256: '' }, files: [], remove: [] },
+    blobs: {}, tag: 'pack-v1.0.0'
+  });
+  createSourceInstance(ctx.source, { 'a.jar': 'A', 'b.jar': 'B' });
+  let result = await publish(ctx);
+  assert.equal(result.code, 0, result.output);
+  assert.equal(readChannel(ctx.gh.stateDir).version, '1.0.1');
+
+  // 1.0.2 retires b.jar.
+  fs.rmSync(path.join(ctx.source, 'mods', 'b.jar'));
+  result = await publish(ctx);
+  assert.equal(result.code, 0, result.output);
+  let channel = readChannel(ctx.gh.stateDir);
+  assert.equal(channel.version, '1.0.2');
+  assert.deepEqual(channel.remove, ['mods/b.jar']);
+  assert.deepEqual(summaryOf(result.output).removed, ['mods/b.jar']);
+
+  // 1.0.3 adds a new mod. The retirement must survive in the published channel
+  // even though this publication removed nothing.
+  createSourceInstance(ctx.source, { 'c.jar': 'C' });
+  result = await publish(ctx);
+  assert.equal(result.code, 0, result.output);
+  channel = readChannel(ctx.gh.stateDir);
+  assert.equal(channel.version, '1.0.3');
+  assert.deepEqual(channel.remove, ['mods/b.jar'], 'la lista de retirados es acumulativa');
+  assert.deepEqual(summaryOf(result.output).removed, [], 'esta versión no retiró archivos');
+});
+
+test('publish/sync: a legacy install that skipped versions still deletes retired mods', async (t) => {
+  const ctx = await setup(t);
+  const { seedRemote, startPackServer, sha256 } = require('./helpers/pack-testbed');
+  const blob = (text) => Buffer.from(text);
+  const modA = blob('contenido A');
+  const modB = blob('contenido B');
+  const modC = blob('contenido C');
+  const tag = `pack-v1.0.0`;
+  const baseUrl = `https://github.com/${REPO}/releases/download/${tag}`;
+  const forgeInstaller = { url: 'https://maven.minecraftforge.net/forge-1.20.1-47.4.10-installer.jar', sha256: '' };
+  const entry = (name, data) => ({ path: `mods/${name}`, size: data.length, sha256: sha256(data), url: `${baseUrl}/${sha256(data)}` });
+  const v1 = { schema: 2, version: '1.0.0', minecraft: '1.20.1', forge: '47.4.10', forgeInstaller, files: [entry('a.jar', modA), entry('b.jar', modB)], remove: [] };
+  seedRemote(ctx.gh.stateDir, { manifest: v1, blobs: { [sha256(modA)]: modA, [sha256(modB)]: modB, [sha256(modC)]: modC }, tag });
+  const server = await startPackServer(ctx.gh.stateDir);
+  t.after(() => server.close());
+
+  const install = path.join(ctx.base, 'install');
+  await repairInstallation(install, clientManifest(v1, server));
+  assert.deepEqual(listFiles(install, 'mods').sort(), ['mods/a.jar', 'mods/b.jar']);
+
+  // b.jar was retired in 1.0.1, a version this player never installed, and the
+  // machine has no official inventory (launcher older than the feature). The
+  // cumulative `remove` of 1.0.2 is the only thing that can clean it up.
+  fs.rmSync(path.join(install, '.launcher', 'official-files.json'), { force: true });
+  const v3 = { schema: 2, version: '1.0.2', minecraft: '1.20.1', forge: '47.4.10', forgeInstaller, files: [entry('a.jar', modA), entry('c.jar', modC)], remove: ['mods/b.jar'] };
+  seedRemote(ctx.gh.stateDir, { manifest: v3, blobs: {}, tag });
+  await repairInstallation(install, clientManifest(v3, server));
+  assert.deepEqual(listFiles(install, 'mods').sort(), ['mods/a.jar', 'mods/c.jar'], 'los retirados acumulados deben desaparecer');
+});

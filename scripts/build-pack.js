@@ -373,7 +373,22 @@ async function buildPack(options = {}) {
   manifestFiles.sort((a, b) => a.path.localeCompare(b.path));
 
   const currentPaths = new Set(manifestFiles.map((f) => f.path));
-  const remove = (previous?.files || []).map((f) => f.path).filter((p) => !currentPaths.has(p)).sort();
+  const currentKeys = new Set([...currentPaths].map((p) => p.toLowerCase()));
+  const removedNow = (previous?.files || []).map((f) => f.path).filter((p) => !currentPaths.has(p)).sort();
+  // Retirement is cumulative. A player who skipped the version that introduced
+  // a removal would otherwise keep that jar forever: every manifest only
+  // compares against the immediately previous one, so the old `remove` entry
+  // disappeared from 1.0.9 long before that player updated from 1.0.0.
+  const retired = new Map();
+  for (const value of [...(previous?.remove || []), ...removedNow]) {
+    const clean = String(value || '').replace(/\\/g, '/');
+    if (!clean || currentKeys.has(clean.toLowerCase())) continue;
+    if (!retired.has(clean.toLowerCase())) retired.set(clean.toLowerCase(), clean);
+  }
+  const remove = [...retired.values()].sort();
+  const previousRemoveKeys = new Set((previous?.remove || []).map((value) => String(value || '').replace(/\\/g, '/').toLowerCase()).filter(Boolean));
+  const removeChanged = [...retired.keys()].some((key) => !previousRemoveKeys.has(key))
+    || [...previousRemoveKeys].some((key) => !currentKeys.has(key) && !retired.has(key));
   const prevByPath = new Map((previous?.files || []).map((f) => [f.path, f]));
   const added = [];
   const changed = [];
@@ -387,9 +402,9 @@ async function buildPack(options = {}) {
   // The published state only changes when a path appears, disappears or its
   // content changes. Metadata such as `generatedAt` must not turn an otherwise
   // identical republish into a new version.
-  const noop = added.length === 0 && changed.length === 0 && remove.length === 0;
+  const noop = added.length === 0 && changed.length === 0 && removedNow.length === 0 && !removeChanged;
 
-  const releaseName = twoWordReleaseName({ added, changed, removed: remove });
+  const releaseName = twoWordReleaseName({ added, changed, removed: removedNow });
   const manifest = {
     schema: 2,
     pack: 'Eternal Craft',
@@ -402,14 +417,14 @@ async function buildPack(options = {}) {
     generatedAt: new Date().toISOString(),
     releaseNotes: {
       title: `${version} — ${releaseName}`,
-      summary: notes || `${added.length} archivos nuevos · ${changed.length} actualizados · ${remove.length} eliminados`,
+      summary: notes || `${added.length} archivos nuevos · ${changed.length} actualizados · ${removedNow.length} eliminados`,
       addedCount: added.length,
       changedCount: changed.length,
-      removedCount: remove.length,
+      removedCount: removedNow.length,
       highlights: [
         ...added.slice(0, 4).map((p) => ({ type: 'added', path: p })),
         ...changed.slice(0, 6).map((p) => ({ type: 'changed', path: p })),
-        ...remove.slice(0, 4).map((p) => ({ type: 'removed', path: p }))
+        ...removedNow.slice(0, 4).map((p) => ({ type: 'removed', path: p }))
       ].slice(0, 10)
     },
     forgeInstaller: { url: FORGE_URL, sha256: '' },
@@ -426,7 +441,10 @@ async function buildPack(options = {}) {
     noop,
     added,
     changed,
-    removed: remove,
+    // Only the files retired by this publication; the manifest keeps the full
+    // cumulative list so older installs can catch up.
+    removed: removedNow,
+    retiredTotal: remove.length,
     unchanged: unchanged.length,
     payload
   };
