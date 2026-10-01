@@ -229,12 +229,27 @@ async function listPublishableFiles(source, { includeUserMods = false } = {}) {
  */
 function validateLauncherCompatibility(manifest) {
   const MAX_FILE_SIZE = 8 * 1024 * 1024 * 1024;
+  // Same limit enforced by src/main/services/manifestService.js: publishing a
+  // bigger manifest would make every launcher reject the whole channel.
+  const MAX_FILES = 12000;
+  const files = manifest?.files || [];
+  if (files.length > MAX_FILES) {
+    throw new Error(`El pack tiene ${files.length} archivos y el launcher acepta hasta ${MAX_FILES}; la publicación fue detenida.`);
+  }
   const seen = new Map();
   const collisions = [];
-  for (const file of manifest?.files || []) {
-    const key = String(file.path || '').toLowerCase();
+  for (const file of files) {
+    const path = String(file.path || '');
+    const key = path.toLowerCase();
     if (seen.has(key)) collisions.push(`${seen.get(key)} ↔ ${file.path}`);
     else seen.set(key, file.path);
+    // Mirror the launcher's path rules so a name that a Linux filesystem
+    // accepts (':', control characters, empty or relative segments) cannot
+    // invalidate the manifest for everybody.
+    const segments = path.split('/');
+    if (!path || path.startsWith('/') || /[\u0000-\u001f\u007f:]/.test(path) || segments.some((part) => !part || part === '.' || part === '..')) {
+      throw new Error(`La ruta ${JSON.stringify(path)} no es válida para el launcher; renombrá el archivo en SIEGE.`);
+    }
     const size = Number(file.size);
     if (!Number.isSafeInteger(size) || size < 0 || size > MAX_FILE_SIZE) {
       throw new Error(`El tamaño de ${file.path} (${file.size}) no es válido para el launcher.`);
@@ -242,8 +257,12 @@ function validateLauncherCompatibility(manifest) {
     if (!/^[a-f0-9]{64}$/i.test(String(file.sha256 || ''))) {
       throw new Error(`El SHA-256 de ${file.path} no es válido para el launcher.`);
     }
-    if (!file.empty && !String(file.url || '').trim()) {
+    const url = String(file.url || '').trim();
+    if (!file.empty && !url) {
       throw new Error(`Falta la URL de descarga de ${file.path}; el launcher no podría instalarlo.`);
+    }
+    if (!file.empty && !/^https:\/\//i.test(url)) {
+      throw new Error(`La URL de ${file.path} no es HTTPS; el launcher la rechazaría.`);
     }
   }
   if (collisions.length) {
