@@ -444,6 +444,9 @@ class DeveloperService {
           summary,
           noop: Boolean(summary?.noop && !(summary?.repaired || []).length),
           repaired: summary?.repaired || [],
+          // Blobs whose asset already existed but did not match the manifest:
+          // reported apart because they were replaced, not recovered.
+          corrupted: summary?.corrupted || [],
           manifestPath: path.join(this.publishWorkDir, 'channel', 'stable.json')
         };
       })

@@ -34,3 +34,10 @@ test('malformed or missing summaries do not crash the publisher result', () => {
   assert.equal(parsePublishSummary('Publicación completa sin resumen'), null);
   assert.equal(parsePublishSummary(''), null);
 });
+
+test('a damaged blob is reported apart from a missing one', () => {
+  const summary = { ok: true, noop: false, repaired: ['a'.repeat(64)], corrupted: ['b'.repeat(64)], version: '1.0.9' };
+  const parsed = parsePublishSummary(`GitHub tiene 1 blob(s) con contenido incorrecto\nCANAL REPARADO\nPUBLISH_JSON:${JSON.stringify(summary)}\n`);
+  assert.deepEqual(parsed.corrupted, ['b'.repeat(64)]);
+  assert.deepEqual(parsed.repaired, ['a'.repeat(64)]);
+});
