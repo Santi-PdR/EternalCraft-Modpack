@@ -563,3 +563,27 @@ test('publish: a failed publication leaves no manifest behind', async (t) => {
   assert.notEqual(result.code, 0, result.output);
   assert.equal(fs.existsSync(path.join(ctx.out, 'channel', 'stable.json')), false, 'una publicación fallida no debe dejar un manifest que parezca verificado');
 });
+
+test('publish: a channel carrying a live-like junk retirement stays a no-op', async (t) => {
+  const ctx = await setup(t);
+  const { seedRemote, sha256 } = require('./helpers/pack-testbed');
+  const blob = Buffer.from('contenido A');
+  const hash = sha256(blob);
+  createSourceInstance(ctx.source, { 'a.jar': blob.toString() });
+  // Mirrors the published 1.0.9 channel: identical payload plus a retirement
+  // left by an older publisher (`.fuse_hidden…`) that is not a publishable file.
+  const seeded = {
+    schema: 2, version: '1.0.1', minecraft: '1.20.1', forge: '47.4.10', minimumLauncher: '0.80.0',
+    // Canonical Forge URL, exactly as buildPack writes it (see FORGE_URL).
+    forgeInstaller: { url: 'https://maven.minecraftforge.net/net/minecraftforge/forge/1.20.1-47.4.10/forge-1.20.1-47.4.10-installer.jar', sha256: '' },
+    files: [{ path: 'mods/a.jar', size: blob.length, sha256: hash, url: `https://github.com/${REPO}/releases/download/pack-v1.0.0/${hash}` }],
+    remove: ['mods/.fuse_hidden000000d100000015']
+  };
+  seedRemote(ctx.gh.stateDir, { manifest: seeded, blobs: { [hash]: blob }, tag: 'pack-v1.0.0' });
+  const result = await publish(ctx);
+  assert.equal(result.code, 0, result.output);
+  assert.match(result.output, /NOOP_JSON:/, 'publicar el mismo contenido debe ser un no-op');
+  const channel = readChannel(ctx.gh.stateDir);
+  assert.equal(channel.version, '1.0.1', 'no debe crearse una versión nueva');
+  assert.deepEqual(channel.remove, ['mods/.fuse_hidden000000d100000015'], 'el retiro publicado se conserva');
+});
