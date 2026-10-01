@@ -737,6 +737,7 @@ function renderDeveloperPreview(r,inputs){
   if($('developerPreviewUnchanged'))$('developerPreviewUnchanged').textContent=String(r.unchanged||0);
   if($('developerPreviewIgnored'))$('developerPreviewIgnored').textContent=String(ignored);
   if($('developerPreviewState')){const noop=Boolean(r.noop);$('developerPreviewState').textContent=noop?'SIN CAMBIOS':'LISTO';$('developerPreviewState').className=noop?'preview-state-noop':'preview-state-ready';}
+  if($('developerPreviewLauncher'))$('developerPreviewLauncher').textContent=r.minimumLauncher?`v${r.minimumLauncher}`:'—';
   if($('developerPreviewPayload')){const payload=r.payload||{};$('developerPreviewPayload').textContent=payload.total?`${payload.total} archivos · ${payload.mods||0} mods${payload.personalModsExcluded?` · ${payload.personalModsExcluded} personales omitidos`:''}`:'No disponible';}
   const pf=$('developerPreviewFiles');if(pf){const groups=[['+','Añadidos',r.added||[]],['↻','Cambiados',r.changed||[]],['−','Eliminados',r.removed||[]]];pf.innerHTML=groups.filter(g=>g[2].length).map(g=>`<div><b>${g[0]} ${g[1]}</b>${g[2].slice(0,8).map(x=>`<span>${escapeHtml(x)}</span>`).join('')}${g[2].length>8?`<small>+${g[2].length-8} más</small>`:''}</div>`).join('')||'<span>Sin cambios.</span>';}
   if(ignored){const pf2=$('developerPreviewFiles');if(pf2&&!(r.added||[]).length&&!(r.changed||[]).length&&!(r.removed||[]).length)pf2.innerHTML=`<span>Sin cambios publicables. ${ignored} archivo(s) ignorado(s) por no formar parte del payload.</span>`;}
