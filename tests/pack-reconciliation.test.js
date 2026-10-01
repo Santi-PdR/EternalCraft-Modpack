@@ -84,3 +84,78 @@ test('parallel pack entries with identical content share one cached blob safely'
   assert.equal(first.path,second.path);
   assert.equal(await fs.readFile(first.path,'utf8'),payload.toString());
 });
+
+test('pack update retires files recorded in the historical inventory when the current one was lost', async (t) => {
+  const root = await createInstance(t);
+  // A previous repair recorded the file as official, then the inventory file was
+  // truncated/interrupted: only the historical list survived.
+  await fs.writeFile(path.join(root, '.launcher', 'official-files.json'), JSON.stringify({
+    version: '1.0.0',
+    files: ['mods/current.jar'],
+    known: ['mods/retired-long-ago.jar', 'mods/current.jar']
+  }));
+  await fs.writeFile(path.join(root, 'mods', 'retired-long-ago.jar'), 'old official payload');
+  await fs.writeFile(path.join(root, 'mods', 'current.jar'), 'still official');
+
+  const result = await repairInstallation(root, {
+    version: '1.0.4', minecraft: '1.20.1', forge: '47.4.10',
+    files: [{ path: 'mods/current.jar', size: 14, sha256: crypto.createHash('sha256').update('still official').digest('hex'), url: 'https://example.test/current' }],
+    remove: []
+  });
+
+  assert.equal(result.state.version, '1.0.4');
+  await assert.rejects(fs.access(path.join(root, 'mods', 'retired-long-ago.jar')), 'el archivo retirado debe eliminarse');
+  assert.equal(await fs.readFile(path.join(root, 'mods', 'current.jar'), 'utf8'), 'still official');
+});
+
+test('repair never deletes a personal mod that reuses a retired official filename', async (t) => {
+  const root = await createInstance(t);
+  await fs.writeFile(path.join(root, '.launcher', 'official-files.json'), JSON.stringify({
+    version: '1.0.0', files: [], known: ['mods/reused-name.jar']
+  }));
+  await fs.writeFile(path.join(root, '.launcher', 'user-mods.json'), JSON.stringify({ mods: { 'reused-name.jar': { provider: 'local' } } }));
+  const personal = path.join(root, 'mods', 'reused-name.jar');
+  await fs.writeFile(personal, 'my own build');
+
+  await repairInstallation(root, { version: '1.0.5', minecraft: '1.20.1', forge: '47.4.10', files: [], remove: [] });
+
+  assert.equal(await fs.readFile(personal, 'utf8'), 'my own build');
+});
+
+test('repair prunes directories emptied by a retired pack file', async (t) => {
+  const root = await createInstance(t);
+  const nested = path.join(root, 'iammusicplayerrenewed', 'lavaplayer_natives', 'win-x86-64');
+  await fs.mkdir(nested, { recursive: true });
+  await fs.writeFile(path.join(nested, 'connector.dll'), 'native');
+  await fs.writeFile(path.join(root, '.launcher', 'official-files.json'), JSON.stringify({
+    version: '1.0.0', files: ['iammusicplayerrenewed/lavaplayer_natives/win-x86-64/connector.dll']
+  }));
+
+  const result = await repairInstallation(root, { version: '1.0.6', minecraft: '1.20.1', forge: '47.4.10', files: [], remove: [] });
+
+  assert.equal(result.removed, 1);
+  await assert.rejects(fs.access(path.join(nested, 'connector.dll')));
+  await assert.rejects(fs.access(nested), 'la carpeta vacía no debe quedar huérfana');
+  await assert.rejects(fs.access(path.join(root, 'iammusicplayerrenewed', 'lavaplayer_natives')));
+  assert.equal(await fs.stat(path.join(root, 'iammusicplayerrenewed')).then((s) => s.isDirectory()), true);
+});
+
+test('repair keeps the historical inventory consistent with the published manifest', async (t) => {
+  const root = await createInstance(t);
+  const payload = Buffer.from('official jar');
+  const sha = crypto.createHash('sha256').update(payload).digest('hex');
+  await fs.writeFile(path.join(root, '.launcher', 'official-files.json'), JSON.stringify({
+    version: '1.0.0', files: ['mods/retired.jar'], known: ['mods/retired.jar']
+  }));
+  const source = path.join(root, 'source.jar');
+  await fs.writeFile(source, payload);
+  await repairInstallation(root, {
+    version: '1.0.7', minecraft: '1.20.1', forge: '47.4.10',
+    files: [{ path: 'mods/new.jar', size: payload.length, sha256: sha, url: pathToFileURL(source).href }],
+    remove: ['mods/retired.jar']
+  });
+  const inventory = JSON.parse(await fs.readFile(path.join(root, '.launcher', 'official-files.json'), 'utf8'));
+  assert.deepEqual(inventory.files, ['mods/new.jar']);
+  assert.equal(inventory.known.includes('mods/retired.jar'), true, 'la historia debe conservarse para futuras reparaciones');
+  assert.equal(inventory.known.includes('mods/new.jar'), true);
+});

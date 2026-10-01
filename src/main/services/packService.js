@@ -121,28 +121,63 @@ function normalizeModMetadataPath(name) {
   return `mods/${value}`.toLowerCase();
 }
 
-async function readOfficialFiles(root) {
+// Paths a pack may ever own. A file is only retired after the manifest stops
+// listing it, so this inventory must survive a lost or half-written metadata
+// file: `known` keeps every path that was ever distributed by the pack. Any
+// path a player added themselves is still recorded as personal (user-mods.json)
+// and never removed by the `known` list.
+const MAX_KNOWN_OFFICIAL_PATHS = 20000;
+
+function isManagedOfficialPath(file) {
+  const parts = String(file || '').split('/');
+  const lower = String(file || '').toLowerCase();
+  return parts.length >= 2 && parts.every((part) => part && part !== '.' && part !== '..')
+    && (lower.startsWith('mods/') || lower.startsWith('iammusicplayerrenewed/'));
+}
+function normalizeOfficialList(value) {
+  const list = Array.isArray(value) ? value : [];
+  const out = [];
+  const seen = new Set();
+  for (const entry of list) {
+    const file = String(entry || '').replace(/\\/g, '/');
+    if (!isManagedOfficialPath(file)) continue;
+    const key = file.toLowerCase();
+    if (seen.has(key)) continue;
+    seen.add(key);
+    out.push(file);
+  }
+  return out;
+}
+async function readOfficialInventory(root) {
   try {
     const data = JSON.parse(await fsp.readFile(path.join(root, OFFICIAL_FILES_FILE), 'utf8'));
     const files = Array.isArray(data) ? data : data?.files;
-    return new Set((Array.isArray(files) ? files : [])
-      .map((file) => String(file || '').replace(/\\/g, '/'))
-      .filter((file) => {
-        const parts = file.split('/');
-        const lower = file.toLowerCase();
-        return parts.length >= 2 && parts.every((part) => part && part !== '.' && part !== '..')
-          && (lower.startsWith('mods/') || lower.startsWith('iammusicplayerrenewed/'));
-      }));
+    return { current: new Set(normalizeOfficialList(files)), known: new Set(normalizeOfficialList(data?.known)) };
   } catch (_) {
-    return new Set();
+    return { current: new Set(), known: new Set() };
   }
+}
+async function readOfficialFiles(root) {
+  return (await readOfficialInventory(root)).current;
 }
 
 async function writeOfficialFiles(root, manifest) {
-  await writeJsonAtomic(path.join(root, OFFICIAL_FILES_FILE), {
+  const file = path.join(root, OFFICIAL_FILES_FILE);
+  const previous = await readOfficialInventory(root);
+  const current = normalizeOfficialList(manifestPaths(manifest));
+  const known = [];
+  const seen = new Set();
+  for (const entry of [...current, ...previous.current, ...previous.known]) {
+    const key = entry.toLowerCase();
+    if (seen.has(key)) continue;
+    seen.add(key);
+    known.push(entry);
+  }
+  await writeJsonAtomic(file, {
     version: String(manifest?.version || ''),
     updatedAt: new Date().toISOString(),
-    files: manifestPaths(manifest)
+    files: current,
+    known: known.slice(0, MAX_KNOWN_OFFICIAL_PATHS)
   });
 }
 
@@ -193,7 +228,8 @@ async function markPublishedOfficial(root, manifest) {
 async function removalPlan(root, manifest) {
   const current = new Set(manifestPaths(manifest));
   const currentKeys = new Set([...current].map((file) => file.toLowerCase()));
-  const previousOfficial = await readOfficialFiles(root);
+  const inventory = await readOfficialInventory(root);
+  const previousOfficial = inventory.current;
   const userAdded = await readUserAddedPaths(root);
   const previousOfficialKeys = new Set([...previousOfficial].map((file) => file.toLowerCase()));
   const explicit = Array.isArray(manifest?.remove) ? manifest.remove : [];
@@ -201,7 +237,14 @@ async function removalPlan(root, manifest) {
     .map((file) => String(file || '').replace(/\\/g, '/').toLowerCase())
     .filter(Boolean));
   const staleOfficial = [...previousOfficial].filter((file) => !currentKeys.has(file.toLowerCase()));
-  const candidates = [...new Set([...explicit, ...staleOfficial])]
+  // Files the pack distributed at some point but no longer ships. They are
+  // still retirable when the persisted inventory was lost or interrupted,
+  // except when the player registered that exact path as a personal mod.
+  const staleKnown = [...inventory.known].filter((file) => {
+    const key = file.toLowerCase();
+    return !currentKeys.has(key) && !previousOfficialKeys.has(key) && !userAdded.has(key);
+  });
+  const candidates = [...new Set([...explicit, ...staleOfficial, ...staleKnown])]
     .map((file) => String(file || '').replace(/\\/g, '/'))
     // Retire only files owned by the pack. A personal jar must survive even if
     // an old manifest accidentally listed the same path in `remove`; the
@@ -219,7 +262,38 @@ async function removalPlan(root, manifest) {
     if (await fsp.lstat(safeTarget(root, file)).catch(() => null)) paths.push(file);
     if (/\.jar$/i.test(file) && await fsp.lstat(safeTarget(root, `${file}.disabled`)).catch(() => null)) paths.push(`${file}.disabled`);
   }
-  return { paths, previousOfficial, userAdded };
+  return { paths, previousOfficial, userAdded, known: inventory.known };
+}
+
+/**
+ * Directories inside the managed roots that only existed to hold pack files
+ * disappear together with their last file (for example the native library
+ * folder of a platform the pack no longer ships). Empty folders left behind by
+ * a retired mod are the kind of orphan state a repair should clean up.
+ */
+async function pruneEmptyManagedDirectories(root, removedPaths = []) {
+  const roots = ['mods', 'iammusicplayerrenewed'];
+  const directories = new Set();
+  for (const relative of removedPaths) {
+    const parts = String(relative || '').replace(/\\/g, '/').split('/');
+    for (let i = 1; i < parts.length; i++) directories.add(parts.slice(0, i).join('/'));
+  }
+  const sorted = [...directories].sort((a, b) => b.split('/').length - a.split('/').length);
+  let removed = 0;
+  for (const relative of sorted) {
+    const normalized = relative.toLowerCase();
+    const insideManagedRoot = roots.some((base) => normalized === base || normalized.startsWith(`${base}/`));
+    if (!insideManagedRoot) continue;
+    if (roots.includes(normalized)) continue;
+    const target = safeTarget(root, relative);
+    try {
+      const entries = await fsp.readdir(target);
+      if (entries.length) continue;
+      await fsp.rm(target, { recursive: true, force: true });
+      removed++;
+    } catch (_) {}
+  }
+  return removed;
 }
 
 async function checkInstallation(root, manifest, onProgress = () => {}) {
@@ -493,6 +567,9 @@ async function repairInstallation(root, manifest, onProgress = () => {}, existin
       removed++;
       onProgress({ phase: 'removing', current: removed, total: removals.paths.length, file: relativePath });
     }
+    // Only after the files are really gone: remove the empty folders they left
+    // inside the managed roots so a retired mod cannot leave orphan structure.
+    await pruneEmptyManagedDirectories(root, removals.paths).catch(() => 0);
 
     const forgeInstaller = await ensureForgeInstaller(root, manifest, onProgress);
     const state = await writeState(root, manifest);
@@ -572,4 +649,4 @@ async function clearCache(root) {
   return { clearedFiles:Number(before.files||0), clearedBytes:Number(before.bytes||0) };
 }
 
-module.exports = { checkInstallation, repairInstallation, ensureForgeInstaller, safeTarget, sha256File, readState, cacheStats, pruneCache, clearCache, readOfficialFiles, removalPlan, reconcileOfficialModMetadata, markPublishedOfficial, ensureCachedBlob };
+module.exports = { checkInstallation, repairInstallation, ensureForgeInstaller, safeTarget, sha256File, readState, cacheStats, pruneCache, clearCache, readOfficialFiles, readOfficialInventory, removalPlan, pruneEmptyManagedDirectories, reconcileOfficialModMetadata, markPublishedOfficial, ensureCachedBlob };

@@ -126,6 +126,21 @@ function parseRefreshedPublishPreview(error) {
   catch (_) { return null; }
 }
 
+/**
+ * Machine-readable publication result printed by the publisher
+ * (`NOOP_JSON` when nothing changed, `PUBLISH_JSON` when the channel was
+ * updated or repaired). Keeps the launcher from guessing what happened.
+ */
+function parsePublishSummary(output) {
+  const lines = String(output || '').split(/\r?\n/).reverse();
+  for (const prefix of ['NOOP_JSON:', 'PUBLISH_JSON:']) {
+    const line = lines.find((entry) => entry.startsWith(prefix));
+    if (!line) continue;
+    try { return JSON.parse(line.slice(prefix.length)); } catch (_) { return null; }
+  }
+  return null;
+}
+
 function runPublisherProcess({ args, cwd, onLine = () => {}, timeoutMs, label, env = {} }) {
   return new Promise((resolve, reject) => {
     const child = spawn(process.execPath, args, {
@@ -421,7 +436,17 @@ class DeveloperService {
     const args = [script, '--repo', repo, '--source', normalizePathInput(source, path.join(os.homedir(), '.sklauncher', 'instances', 'siege')), '--out', this.publishWorkDir];
     if (version) args.push('--version', version); if (notes) args.push('--notes', notes); args.push('--include-user-mods'); if(expectedFingerprint) args.push('--expected-fingerprint', expectedFingerprint);
     return runPublisherProcess({ args, cwd: this.publishWorkDir, onLine, timeoutMs: 45 * 60 * 1000, label: 'La publicación', env: { ETERNAL_LAUNCHER_VERSION: this.launcherVersion } })
-      .then(({ output }) => ({ ok: true, output, manifestPath: path.join(this.publishWorkDir, 'channel', 'stable.json') }))
+      .then(({ output }) => {
+        const summary = parsePublishSummary(output);
+        return {
+          ok: true,
+          output,
+          summary,
+          noop: Boolean(summary?.noop && !(summary?.repaired || []).length),
+          repaired: summary?.repaired || [],
+          manifestPath: path.join(this.publishWorkDir, 'channel', 'stable.json')
+        };
+      })
       .catch((error) => {
         const preview = parseRefreshedPublishPreview(error);
         if (!preview) throw error;
@@ -431,4 +456,4 @@ class DeveloperService {
       });
   }
 }
-module.exports = { DeveloperService, terminatePublisherProcesses, parseRefreshedPublishPreview };
+module.exports = { DeveloperService, terminatePublisherProcesses, parseRefreshedPublishPreview, parsePublishSummary };
