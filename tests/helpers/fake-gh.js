@@ -26,6 +26,7 @@
  *   FAKE_GH_LOG=<file>                             -> append one JSON line per call
  *   FAKE_GH_NO_CONTENT=<path>                      -> GET contents returns no body
  *   FAKE_GH_FAIL_API_READ=1                        -> contents API fails with HTTP 500
+ *   FAKE_GH_FAIL_API_READ_AFTER=<n>                -> contents API fails after N successful reads
  *   FAKE_GH_CONTENT_LIMIT=<bytes>                  -> emulate GitHub's 1 MB truncation
  *   FAKE_GH_NO_DIGEST=1                            -> assets report size but no sha256 digest
  */
@@ -126,6 +127,13 @@ function commandApi() {
   if (method === 'GET' && process.env.FAKE_GH_FAIL_API_READ === '1') {
     // A repository that exists but whose contents API is failing: the
     // publisher must abort instead of rebuilding the pack from scratch.
+    process.stderr.write('gh: HTTP 500: Internal Server Error\n');
+    return 1;
+  }
+  if (method === 'GET' && Number(process.env.FAKE_GH_FAIL_API_READ_AFTER || 0) > 0
+    && bumpCounter('apiReads') > Number(process.env.FAKE_GH_FAIL_API_READ_AFTER)) {
+    // Fails only the reads that happen after N successful ones: used to break
+    // the channel SHA lookup that runs right before committing.
     process.stderr.write('gh: HTTP 500: Internal Server Error\n');
     return 1;
   }

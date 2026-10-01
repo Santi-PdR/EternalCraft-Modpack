@@ -368,3 +368,21 @@ test('publish: a same-size corrupted blob is detected through the remote digest'
   assert.match(result.output, /sha256 remoto distinto/, 'el publicador debe comparar el digest remoto');
   assert.equal(fs.readFileSync(path.join(ctx.gh.stateDir, 'releases', tag, 'assets', hash)).toString(), blob.toString());
 });
+
+test('publish: a failing channel SHA lookup aborts before overwriting anything', async (t) => {
+  const ctx = await setup(t);
+  const { seedRemote } = require('./helpers/pack-testbed');
+  createSourceInstance(ctx.source, { 'c.jar': 'contenido' });
+  // An already published channel: reading it is the first contents API call, so
+  // the SHA lookup right before committing is the second one.
+  seedRemote(ctx.gh.stateDir, {
+    manifest: { schema: 2, version: '1.0.0', minecraft: '1.20.1', forge: '47.4.10', forgeInstaller: { url: 'https://maven.minecraftforge.net/forge-1.20.1-47.4.10-installer.jar', sha256: '' }, files: [], remove: [] },
+    blobs: {}, tag: 'pack-v1.0.0'
+  });
+  const before = readChannel(ctx.gh.stateDir);
+  const result = await publish(ctx, [], { FAKE_GH_FAIL_API_READ_AFTER: '1' });
+  assert.notEqual(result.code, 0, 'la publicación debe fallar en vez de sobrescribir el canal');
+  assert.match(result.output, /SHA del canal/i);
+  const after = readChannel(ctx.gh.stateDir);
+  assert.deepEqual(after, before, 'el canal publicado no debe cambiar si no se pudo leer su SHA');
+});

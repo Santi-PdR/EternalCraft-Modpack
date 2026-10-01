@@ -139,12 +139,29 @@ async function readPublishedChannel(repo, branch) {
 async function getPrevious(repo, branch) {
   return (await readPublishedChannel(repo, branch)).manifest;
 }
-async function updateChannel(repo, branch, manifest) {
-  let sha = '';
+
+/**
+ * Blob SHA of the committed channel, required by the contents API to replace an
+ * existing file. A failed lookup used to be swallowed, so the PUT went out
+ * without `sha`, GitHub rejected it with 422 and the publisher blamed the
+ * channel after uploading every blob. A missing file is the only case without
+ * sha; any other read failure stops before touching the remote.
+ */
+async function existingChannelSha(repo, branch) {
+  const result = ghCaptured(['api', `repos/${repo}/contents/channel/stable.json?ref=${branch}`]);
+  if (!result.ok) {
+    if (isNotFound(result.stderr) || isNotFound(result.stdout)) return '';
+    throw new Error(`No pude leer el SHA del canal publicado (${String(result.stderr || '').trim() || 'error de GitHub'}). Publicación detenida para no sobrescribir el estado remoto.`);
+  }
   try {
-    const info = JSON.parse(gh(['api', `repos/${repo}/contents/channel/stable.json?ref=${branch}`]));
-    sha = info.sha || '';
-  } catch (_) {}
+    const info = JSON.parse(String(result.stdout || '{}'));
+    return String(info?.sha || '');
+  } catch (_) {
+    throw new Error('GitHub devolvió metadatos inválidos del canal publicado.');
+  }
+}
+async function updateChannel(repo, branch, manifest) {
+  const sha = await existingChannelSha(repo, branch);
   // Never pass the base64 manifest as a command-line argument. Large packs
   // can exceed the OS argv limit and fail with spawnSync E2BIG after all
   // blobs were uploaded. GitHub CLI accepts a JSON request body from a file.
