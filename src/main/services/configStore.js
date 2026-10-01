@@ -96,6 +96,18 @@ class ConfigStore {
       }
     }
     if (Object.prototype.hasOwnProperty.call(merged, 'visualProfiles')) { delete merged.visualProfiles; legacyRemoved = true; }
+    // Sessions belong to the account store (minecraft-account.json, mode 0600),
+    // never to the settings file. An older build could persist the launch
+    // authorization object here; it would be reused with an expired token and
+    // kept in plain text, so drop every credential-shaped key on load.
+    if (merged.minecraft && typeof merged.minecraft === 'object') {
+      for (const key of ['authorization', 'accessToken', 'refreshToken', 'clientToken', 'sessionToken', 'password', 'credentials']) {
+        if (Object.prototype.hasOwnProperty.call(merged.minecraft, key)) { delete merged.minecraft[key]; legacyRemoved = true; }
+      }
+    }
+    for (const key of ['account', 'session', 'credentials']) {
+      if (Object.prototype.hasOwnProperty.call(merged, key)) { delete merged[key]; legacyRemoved = true; }
+    }
     if (!merged.pack.installDirectory) merged.pack.installDirectory = defaultInstallDirectory(this.userDataDir);
     // Persist the migration immediately so removed provider credentials and
     // visual profiles do not remain on disk after a read-only startup.

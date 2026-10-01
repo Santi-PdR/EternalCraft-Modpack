@@ -43,3 +43,19 @@ test('quarantines syntactically valid but invalid root config shapes instead of 
     assert.equal((await fs.readdir(userDataDir)).some((name) => name.startsWith('config.corrupt-')), true);
   }
 });
+
+test('never keeps session credentials from an older config file on disk', async (t) => {
+  const { store, userDataDir } = await createStore(t, {
+    configSchemaVersion: 1,
+    minecraft: { username: 'Jugador', authorization: { access_token: 'secret-token' }, refreshToken: 'secret-refresh', maxMemoryMb: 6144 },
+    account: { refreshToken: 'legacy-secret' }
+  });
+  const config = store.load();
+  assert.equal(config.minecraft.authorization, undefined);
+  assert.equal(config.minecraft.refreshToken, undefined);
+  assert.equal(config.minecraft.username, 'Jugador', 'el resto de los ajustes sobrevive');
+  assert.equal(config.minecraft.maxMemoryMb, 6144);
+  assert.equal(config.account, undefined);
+  const onDisk = await fs.readFile(path.join(userDataDir, 'config.json'), 'utf8');
+  assert.equal(/secret-token|secret-refresh|legacy-secret/.test(onDisk), false, 'no debe quedar ningún token en el archivo');
+});
