@@ -15,12 +15,22 @@ function twoWordReleaseName(changes = {}) {
   if (changed.length > added.length + removed.length) return 'Pack Refresh';
   return 'Siege Update';
 }
+function parseVersion(value) {
+  // Accept a plain x.y.z, but also recover the numeric core from a value a
+  // maintainer typed by hand ("v1.0.5", "1.0.5-beta") or from an already
+  // poisoned published manifest. Returning 1.0.0 for those would silently jump
+  // the whole pack back to the first release line.
+  const match = /^\D*(\d+)(?:\.(\d+))?(?:\.(\d+))?/.exec(String(value || '').trim());
+  if (!match) return null;
+  return [Number(match[1] || 0), Number(match[2] || 0), Number(match[3] || 0)];
+}
 function nextVersion(previous, changes = {}) {
-  if (!previous || !/^\d+\.\d+\.\d+$/.test(String(previous))) return '1.0.0';
-  let [major,minor,patch] = String(previous).split('.').map(Number);
+  const parsed = parseVersion(previous);
+  if (!parsed) return '1.0.0';
+  let [major,minor,patch] = parsed;
   const modAddRemove = [...(changes.added||[]),...(changes.removed||[])].filter(p=>String(p).startsWith('mods/')).length;
   if (modAddRemove >= 8) { minor += 1; patch = 0; }
   else patch += 1;
   return `${major}.${minor}.${patch}`;
 }
-module.exports = { twoWordReleaseName, nextVersion };
+module.exports = { twoWordReleaseName, nextVersion, parseVersion };

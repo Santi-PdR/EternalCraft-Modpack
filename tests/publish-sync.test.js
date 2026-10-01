@@ -305,7 +305,7 @@ test('publish: the pack never requires an unreleased launcher build', async (t) 
   seedRemote(ctx.gh.stateDir, { manifest, blobs: {}, tag: 'launcher-v0.80.0' });
   const result = await publish(ctx, [], { ETERNAL_LAUNCHER_VERSION: '0.99.0' });
   assert.equal(result.code, 0, result.output);
-  assert.match(result.output, /no existe esa release del launcher/i);
+  assert.match(result.output, /todavía no existe la release/i);
   const channel = readChannel(ctx.gh.stateDir);
   assert.equal(channel.minimumLauncher, '0.80.0', 'el requisito debe quedar en la última release pública del launcher');
 });
@@ -448,4 +448,39 @@ test('publish/sync: a legacy install that skipped versions still deletes retired
   seedRemote(ctx.gh.stateDir, { manifest: v3, blobs: {}, tag });
   await repairInstallation(install, clientManifest(v3, server));
   assert.deepEqual(listFiles(install, 'mods').sort(), ['mods/a.jar', 'mods/c.jar'], 'los retirados acumulados deben desaparecer');
+});
+
+test('publish: the requirement never exceeds what the update feed can deliver', async (t) => {
+  const ctx = await setup(t);
+  const { seedRemote } = require('./helpers/pack-testbed');
+  createSourceInstance(ctx.source, { 'a.jar': 'a' });
+  const manifest = {
+    schema: 2, version: '0.0.1', minecraft: '1.20.1', forge: '47.4.10',
+    forgeInstaller: { url: 'https://maven.minecraftforge.net/forge-1.20.1-47.4.10-installer.jar', sha256: '' },
+    files: [], remove: []
+  };
+  // The versioned release exists, but the updater feed never received its
+  // binaries (a CI step can fail after the release is created).
+  seedRemote(ctx.gh.stateDir, { manifest, blobs: {}, tag: 'launcher-v0.99.0' });
+  seedRemote(ctx.gh.stateDir, {
+    manifest,
+    blobs: { 'Eternal-Craft-Launcher-0.80.0-linux-x86_64.AppImage': Buffer.from('launcher') },
+    tag: 'launcher-latest'
+  });
+  const result = await publish(ctx, [], { ETERNAL_LAUNCHER_VERSION: '0.99.0' });
+  assert.equal(result.code, 0, result.output);
+  assert.match(result.output, /feed launcher-latest solo ofrece 0\.80\.0/i);
+  assert.equal(readChannel(ctx.gh.stateDir).minimumLauncher, '0.80.0');
+});
+
+test('publish: an invalid version is rejected before touching the remote', async (t) => {
+  const ctx = await setup(t);
+  createSourceInstance(ctx.source, { 'a.jar': 'a' });
+  const before = readChannel(ctx.gh.stateDir);
+  const result = await publish(ctx, ['--version', 'v1.0.5']);
+  assert.notEqual(result.code, 0, 'la publicación debe fallar');
+  assert.match(result.output, /no es válida/i);
+  assert.deepEqual(readChannel(ctx.gh.stateDir), before, 'el canal no debe cambiar');
+  const releases = fs.existsSync(path.join(ctx.gh.stateDir, 'releases')) ? fs.readdirSync(path.join(ctx.gh.stateDir, 'releases')) : [];
+  assert.deepEqual(releases, [], 'no debe crearse ninguna release');
 });

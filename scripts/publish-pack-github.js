@@ -305,15 +305,53 @@ function releasedLauncherVersions(repo) {
       .sort(compareVersions);
   } catch (_) { return null; }
 }
-function resolveMinimumLauncher(repo, publisherVersion) {
-  const value = String(publisherVersion || '').trim();
-  if (!/^\d+\.\d+\.\d+$/.test(value)) return { value, clamped: false, released: '' };
+/**
+ * Versions players can actually download: the updater feed (`launcher-latest`)
+ * is what `electron-updater` reads, and the CI uploads the binaries there after
+ * creating the versioned release. If that second step fails, a versioned
+ * release can exist while nobody is able to install it — the same dead end as
+ * requiring an unreleased build. Asset names carry the version, so no download
+ * is needed to check it.
+ */
+function launcherFeedVersions(repo) {
+  const result = ghCaptured(['release', 'view', 'launcher-latest', '--repo', repo, '--json', 'assets']);
+  if (!result.ok) return { known: false, newest: '' };
+  try {
+    const assets = JSON.parse(result.stdout || '{}').assets || [];
+    const versions = [];
+    for (const asset of assets) {
+      const match = /^Eternal-Craft-Launcher-(\d+\.\d+\.\d+)-/.exec(String(asset?.name || ''));
+      if (match) versions.push(match[1]);
+    }
+    versions.sort(compareVersions);
+    return { known: true, newest: versions[versions.length - 1] || '' };
+  } catch (_) { return { known: false, newest: '' }; }
+}
+
+function resolveMinimumLauncher(repo, publisherVersion, previousRequirement = '') {
+  const requested = String(publisherVersion || '').trim();
+  if (!/^\d+\.\d+\.\d+$/.test(requested)) return { value: requested, clamped: false, released: '', notes: [] };
+  let value = requested;
+  const notes = [];
   const released = releasedLauncherVersions(repo);
-  if (!released) return { value, clamped: false, released: '', unchecked: true };
-  if (!released.length) return { value, clamped: false, released: '' };
-  const newest = released[released.length - 1];
-  if (compareVersions(value, newest) > 0) return { value: newest, clamped: true, released: newest, requested: value };
-  return { value, clamped: false, released: newest };
+  if (released === null) notes.push('no pude comprobar las releases del launcher');
+  else if (released.length) {
+    const newest = released[released.length - 1];
+    if (compareVersions(value, newest) > 0) { value = newest; notes.push(`todavía no existe la release ${requested}`); }
+  }
+  const feed = launcherFeedVersions(repo);
+  if (!feed.known) notes.push('no pude comprobar el feed launcher-latest');
+  else if (feed.newest) {
+    if (compareVersions(value, feed.newest) > 0) { value = feed.newest; notes.push(`el feed launcher-latest solo ofrece ${feed.newest}`); }
+  } else {
+    // The feed exists but does not publish any launcher build. Never raise the
+    // requirement above what is already published and installable.
+    const floor = String(previousRequirement || '').trim();
+    if (/^\d+\.\d+\.\d+$/.test(floor) && compareVersions(value, floor) > 0) {
+      value = floor; notes.push('el feed launcher-latest no publica binarios; se mantiene el requisito publicado');
+    }
+  }
+  return { value, clamped: value !== requested, released: value, requested, notes };
 }
 
 async function ensureRelease(tag, repo, { notesFile = '', title = '' } = {}) {
@@ -395,6 +433,21 @@ async function main() {
   else console.log('No hay canal publicado todavía: se creará la primera versión.');
 
   const requestedVersion = String(args.version || '').trim();
+  // The version names the release tag and the published manifest. A value the
+  // launcher cannot compare (a "v" prefix, a suffix, a two-part number) would
+  // leave the channel with an unusable version and poison the automatic
+  // numbering of the next publication.
+  if (requestedVersion && !/^\d+\.\d+\.\d+$/.test(requestedVersion)) {
+    throw new Error(`La versión "${requestedVersion}" no es válida. Usá el formato 1.0.0 (tres números separados por puntos) o dejá el campo vacío para que se calcule automáticamente.`);
+  }
+  if (requestedVersion && previous?.version) {
+    const steps = (value) => String(value).split('.').map((part) => Number(part) || 0);
+    const [aM, am, ap] = steps(requestedVersion); const [bM, bm, bp] = steps(previous.version);
+    const lower = aM < bM || (aM === bM && (am < bm || (am === bm && ap < bp)));
+    const same = aM === bM && am === bm && ap === bp;
+    if (lower) console.log(`Aviso: la versión ${requestedVersion} es anterior a la publicada ${previous.version}. El canal va a retroceder de versión.`);
+    else if (same) console.log(`Aviso: vas a volver a publicar la versión ${requestedVersion} con contenido nuevo.`);
+  }
   const source = args.source || path.join(os.homedir(), '.sklauncher', 'instances', 'siege');
   const out = path.resolve(args.out || path.join(process.cwd(), 'pack-dist-publish'));
   // Keep the working directory alive (the launcher spawns this process with
@@ -408,12 +461,12 @@ async function main() {
     if (current === 1 || current === total || current % 25 === 0) console.log(`Preparando publicación: ${current}/${total} · ${file}`);
   };
   const includeUserMods = Boolean(args['include-user-mods']);
-  const launcherPolicy = resolveMinimumLauncher(repo, launcherVersion);
+  const launcherPolicy = resolveMinimumLauncher(repo, launcherVersion, previous?.minimumLauncher);
   if (launcherPolicy.clamped) {
-    console.log(`Aviso: este build de mantenimiento es ${launcherPolicy.requested} y todavía no existe esa release del launcher.`);
-    console.log(`El canal va a requerir ${launcherPolicy.value} (última release publicada) para que los jugadores puedan instalar el pack.`);
-  } else if (launcherPolicy.unchecked) {
-    console.log('Aviso: no pude comprobar las releases del launcher; se mantiene el requisito actual.');
+    console.log('Aviso: este build todavía no está publicado para los jugadores.');
+    console.log(`El canal va a requerir ${launcherPolicy.value} (${launcherPolicy.notes.join('; ')}) para que el pack siga siendo instalable.`);
+  } else if (launcherPolicy.notes.length) {
+    console.log(`Aviso: ${launcherPolicy.notes.join('; ')}; se mantiene el requisito ${launcherPolicy.value}.`);
   }
   const result = await buildPack({ source, out, version: initialVersion, minimumLauncher: launcherPolicy.value, baseUrl: `https://github.com/${repo}/releases/download/pack-v${initialVersion}`, previousManifest: previous, notes: args.notes || '', includeUserMods, onProgress: reportBuildProgress });
   const changes = result.changes;
