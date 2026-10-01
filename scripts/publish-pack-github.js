@@ -20,7 +20,8 @@ const fsp = require('fs/promises');
 const path = require('path');
 const os = require('os');
 const {
-  buildPack, parseArgs, manifestFingerprint, payloadFingerprint, manifestSemanticEqual, collectReferencedAssets
+  launcherVersion, buildPack, parseArgs, manifestFingerprint, payloadFingerprint,
+  manifestSemanticEqual, collectReferencedAssets
 } = require('./build-pack');
 const { twoWordReleaseName, nextVersion } = require('./release-name');
 
@@ -222,6 +223,45 @@ function compareReleaseTags(a, b) {
   return String(a).localeCompare(String(b));
 }
 
+function compareVersions(a, b) {
+  const parts = (value) => String(value || '').replace(/^v/i, '').split(/[.-]/).map((piece) => Number.parseInt(piece, 10) || 0);
+  const left = parts(a); const right = parts(b);
+  for (let i = 0; i < Math.max(left.length, right.length); i++) {
+    const diff = (left[i] || 0) - (right[i] || 0);
+    if (diff !== 0) return diff;
+  }
+  return 0;
+}
+
+/**
+ * The pack cannot require a launcher build that does not exist: publishing from
+ * an unreleased maintenance build used to leave `minimumLauncher` ahead of the
+ * newest public release, which locked every player out with “actualizá el
+ * launcher primero” and nothing to update to.
+ */
+function releasedLauncherVersions(repo) {
+  const result = ghCaptured(['release', 'list', '--repo', repo, '--limit', '100', '--json', 'tagName']);
+  if (!result.ok) return null;
+  try {
+    const list = JSON.parse(result.stdout || '[]');
+    return list
+      .map((entry) => String(entry?.tagName || ''))
+      .filter((tag) => /^launcher-v\d+\.\d+\.\d+$/.test(tag))
+      .map((tag) => tag.replace(/^launcher-v/, ''))
+      .sort(compareVersions);
+  } catch (_) { return null; }
+}
+function resolveMinimumLauncher(repo, publisherVersion) {
+  const value = String(publisherVersion || '').trim();
+  if (!/^\d+\.\d+\.\d+$/.test(value)) return { value, clamped: false, released: '' };
+  const released = releasedLauncherVersions(repo);
+  if (!released) return { value, clamped: false, released: '', unchecked: true };
+  if (!released.length) return { value, clamped: false, released: '' };
+  const newest = released[released.length - 1];
+  if (compareVersions(value, newest) > 0) return { value: newest, clamped: true, released: newest, requested: value };
+  return { value, clamped: false, released: newest };
+}
+
 async function ensureRelease(tag, repo, { notesFile = '', title = '' } = {}) {
   const view = ghCaptured(['release', 'view', tag, '--repo', repo]);
   if (view.ok) return false;
@@ -314,7 +354,14 @@ async function main() {
     if (current === 1 || current === total || current % 25 === 0) console.log(`Preparando publicación: ${current}/${total} · ${file}`);
   };
   const includeUserMods = Boolean(args['include-user-mods']);
-  const result = await buildPack({ source, out, version: initialVersion, baseUrl: `https://github.com/${repo}/releases/download/pack-v${initialVersion}`, previousManifest: previous, notes: args.notes || '', includeUserMods, onProgress: reportBuildProgress });
+  const launcherPolicy = resolveMinimumLauncher(repo, launcherVersion);
+  if (launcherPolicy.clamped) {
+    console.log(`Aviso: este build de mantenimiento es ${launcherPolicy.requested} y todavía no existe esa release del launcher.`);
+    console.log(`El canal va a requerir ${launcherPolicy.value} (última release publicada) para que los jugadores puedan instalar el pack.`);
+  } else if (launcherPolicy.unchecked) {
+    console.log('Aviso: no pude comprobar las releases del launcher; se mantiene el requisito actual.');
+  }
+  const result = await buildPack({ source, out, version: initialVersion, minimumLauncher: launcherPolicy.value, baseUrl: `https://github.com/${repo}/releases/download/pack-v${initialVersion}`, previousManifest: previous, notes: args.notes || '', includeUserMods, onProgress: reportBuildProgress });
   const changes = result.changes;
   const changeCount = (changes.added?.length || 0) + (changes.changed?.length || 0) + (changes.removed?.length || 0);
   // A publish that only repeats the current state must not create a new
@@ -347,6 +394,7 @@ async function main() {
   const sourceFingerprint = payloadFingerprint(result.manifest);
   const preview = {
     ok: true, preview: true, repo, branch, source, noop,
+    minimumLauncher: result.manifest.minimumLauncher,
     previousVersion: previous?.version || null, version, releaseName: result.manifest.releaseName,
     totalFiles: result.manifest.files.length,
     added: changes.added || [], changed: changes.changed || [], removed: changes.removed || [],
@@ -481,6 +529,7 @@ function noopSummary({ repo, branch, version, result, preview, repaired = [] }) 
     noop: repaired.length === 0 && result.changes.noop,
     repaired,
     repo, branch, version,
+    minimumLauncher: result.manifest.minimumLauncher,
     releaseName: result.manifest.releaseName,
     totalFiles: result.manifest.files.length,
     added: result.changes.added || [],

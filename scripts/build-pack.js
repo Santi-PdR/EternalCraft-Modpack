@@ -282,6 +282,7 @@ function manifestSemanticEqual(a, b) {
   if (String(a.minecraft ?? '') !== String(b.minecraft ?? '')) return false;
   if (String(a.forge ?? '') !== String(b.forge ?? '')) return false;
   if (String(a.forgeInstaller?.url || '') !== String(b.forgeInstaller?.url || '')) return false;
+  if (String(a.minimumLauncher ?? '') !== String(b.minimumLauncher ?? '')) return false;
   if (manifestFingerprint(a) !== manifestFingerprint(b)) return false;
   const removals = (manifest) => JSON.stringify([...(manifest.remove || [])].map(String).sort());
   return removals(a) === removals(b);
@@ -323,6 +324,7 @@ async function buildPack(options = {}) {
 
   const out = path.resolve(options.out || path.join(process.cwd(), 'pack-dist'));
   const version = String(options.version || '1.0.0');
+  const minimumLauncher = String(options.minimumLauncher || launcherVersion).trim() || launcherVersion;
   const baseUrl = cleanBaseUrl(options.baseUrl || 'http://127.0.0.1:4174');
   const previous = options.previousManifest || (options.previous ? await readJsonMaybe(options.previous) : null);
   const notes = await resolveNotes(options.notes);
@@ -396,7 +398,7 @@ async function buildPack(options = {}) {
     releaseName,
     minecraft: '1.20.1',
     forge: '47.4.10',
-    minimumLauncher: launcherVersion,
+    minimumLauncher,
     generatedAt: new Date().toISOString(),
     releaseNotes: {
       title: `${version} — ${releaseName}`,
@@ -460,7 +462,7 @@ async function main() {
 
 if (require.main === module) main().catch((err) => { console.error(`ERROR: ${err.message}`); process.exit(1); });
 module.exports = {
-  buildPack, parseArgs, resolveGameRoot, sha256File, walk, walkDetailed, isPublishedPath, isJunkEntry,
+  launcherVersion, buildPack, parseArgs, resolveGameRoot, sha256File, walk, walkDetailed, isPublishedPath, isJunkEntry,
   validatePublishedPayload, readLocalUserModPaths, listPublishableFiles, manifestFingerprint,
   payloadFingerprint, manifestSemanticEqual, collectReferencedAssets
 };

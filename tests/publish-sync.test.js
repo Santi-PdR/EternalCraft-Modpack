@@ -290,3 +290,36 @@ test('publish: large manifests survive GitHub content truncation', async (t) => 
   assert.equal(repeat.code, 0, repeat.output);
   assert.equal(repeat.output.includes('SIN CAMBIOS'), true);
 });
+
+test('publish: the pack never requires an unreleased launcher build', async (t) => {
+  const ctx = await setup(t);
+  const { seedRemote } = require('./helpers/pack-testbed');
+  createSourceInstance(ctx.source, { 'a.jar': 'a' });
+  // The newest public launcher release is 0.80.0, but the maintenance build
+  // publishing this pack is 0.99.0.
+  const manifest = {
+    schema: 2, version: '0.0.1', minecraft: '1.20.1', forge: '47.4.10',
+    forgeInstaller: { url: 'https://maven.minecraftforge.net/forge-1.20.1-47.4.10-installer.jar', sha256: '' },
+    files: [], remove: []
+  };
+  seedRemote(ctx.gh.stateDir, { manifest, blobs: {}, tag: 'launcher-v0.80.0' });
+  const result = await publish(ctx, [], { ETERNAL_LAUNCHER_VERSION: '0.99.0' });
+  assert.equal(result.code, 0, result.output);
+  assert.match(result.output, /no existe esa release del launcher/i);
+  const channel = readChannel(ctx.gh.stateDir);
+  assert.equal(channel.minimumLauncher, '0.80.0', 'el requisito debe quedar en la última release pública del launcher');
+});
+
+test('publish: a newer released launcher is accepted as the requirement', async (t) => {
+  const ctx = await setup(t);
+  const { seedRemote } = require('./helpers/pack-testbed');
+  createSourceInstance(ctx.source, { 'a.jar': 'a' });
+  seedRemote(ctx.gh.stateDir, {
+    manifest: { schema: 2, version: '0.0.1', files: [], remove: [], forgeInstaller: { url: 'https://maven.minecraftforge.net/forge-1.20.1-47.4.10-installer.jar', sha256: '' } },
+    blobs: {}, tag: 'launcher-v0.99.0'
+  });
+  const result = await publish(ctx, [], { ETERNAL_LAUNCHER_VERSION: '0.99.0' });
+  assert.equal(result.code, 0, result.output);
+  assert.equal(readChannel(ctx.gh.stateDir).minimumLauncher, '0.99.0');
+  assert.equal(/no existe esa release del launcher/i.test(result.output), false);
+});

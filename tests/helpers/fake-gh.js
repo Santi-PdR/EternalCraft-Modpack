@@ -169,6 +169,15 @@ function commandApi() {
 function commandRelease() {
   const sub = argv[1];
   const tag = argv[2];
+  if (sub === 'list') {
+    const limit = Number(argValue('--limit') || 30);
+    const tags = fs.existsSync(releasesRoot)
+      ? fs.readdirSync(releasesRoot).filter((name) => fs.existsSync(path.join(releaseDir(name), 'release.json')))
+      : [];
+    const rows = tags.slice(0, limit).map((name) => ({ tagName: name }));
+    out(hasFlag('--json') ? JSON.stringify(rows) : rows.map((row) => row.tagName).join('\n'));
+    return 0;
+  }
   if (sub === 'view') {
     const exists = fs.existsSync(releaseDir(tag));
     if (!exists) { process.stderr.write('gh: release not found (HTTP 404)\n'); return 1; }

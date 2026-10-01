@@ -104,6 +104,7 @@ function seedRemote(stateDir, { manifest, blobs = {}, tag }) {
   const releaseTag = tag || (manifest.files[0]?.url || '').split('/releases/download/')[1]?.split('/')[0] || `pack-v${manifest.version}`;
   const assetsDir = path.join(stateDir, 'releases', releaseTag, 'assets');
   fs.mkdirSync(assetsDir, { recursive: true });
+  fs.writeFileSync(path.join(stateDir, 'releases', releaseTag, 'release.json'), JSON.stringify({ tag: releaseTag, latest: false }));
   for (const [sha, content] of Object.entries(blobs)) fs.writeFileSync(path.join(assetsDir, sha), content);
   return { tag: releaseTag, assetsDir };
 }

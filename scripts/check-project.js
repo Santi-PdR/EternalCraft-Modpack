@@ -113,6 +113,31 @@ const preloadChannels = new Set([...preloadSource.matchAll(/ipcRenderer\.invoke\
 for (const channel of preloadChannels) if (!mainChannels.has(channel)) throw new Error(`preload.js invoca un canal sin handler: ${channel}`);
 for (const channel of mainChannels) if (!preloadChannels.has(channel)) throw new Error(`main.js registra un handler sin puente preload: ${channel}`);
 if (manifest.minimumLauncher !== packageJson.version) throw new Error(`minimumLauncher ${manifest.minimumLauncher} no coincide con launcher ${packageJson.version}`);
+
+// channel/stable.json is the published state that raw.githubusercontent serves
+// to every player. A manifest that nobody can consume (requiring a launcher
+// version that does not exist) or a corrupted payload must never ship.
+const channel = JSON.parse(readText(path.join(root,'channel','stable.json')));
+function versionParts(value){ return String(value||'0').replace(/^v/i,'').split(/[.-]/).slice(0,3).map(v=>Number(v)||0); }
+function versionAtLeast(current, required){ const a=versionParts(current), b=versionParts(required); for(let i=0;i<3;i++){ if((a[i]||0)>(b[i]||0)) return true; if((a[i]||0)<(b[i]||0)) return false; } return true; }
+if (!channel.version) throw new Error('channel/stable.json no declara versión.');
+if (!Array.isArray(channel.files)) throw new Error('channel/stable.json no contiene la lista de archivos.');
+if (!versionAtLeast(packageJson.version, channel.minimumLauncher || '0.0.0')) {
+  throw new Error(`channel/stable.json exige launcher ${channel.minimumLauncher} y este repositorio compila ${packageJson.version}: los jugadores quedarían bloqueados.`);
+}
+const channelPaths = new Set();
+for (const entry of channel.files) {
+  const file = String(entry?.path || '');
+  if (!file.startsWith('mods/') && !file.startsWith('iammusicplayerrenewed/')) throw new Error(`channel/stable.json publica una ruta fuera del payload: ${file || '(vacía)'}`);
+  if (!/^[a-f0-9]{64}$/i.test(String(entry?.sha256 || ''))) throw new Error(`channel/stable.json tiene un SHA-256 inválido: ${file}`);
+  if (!entry?.empty && !String(entry?.url || '').startsWith('https://')) throw new Error(`channel/stable.json tiene una URL inválida: ${file}`);
+  const key = file.toLowerCase();
+  if (channelPaths.has(key)) throw new Error(`channel/stable.json contiene la ruta duplicada ${file}`);
+  channelPaths.add(key);
+}
+for (const retired of channel.remove || []) {
+  if (channelPaths.has(String(retired).toLowerCase())) throw new Error(`channel/stable.json conserva y retira el mismo archivo: ${retired}`);
+}
 if (packageJson.build?.appId !== 'uy.eternalcraft.launcher') throw new Error('appId del launcher cambió inesperadamente.');
 const runtimeFiles = [...walk(path.join(root, 'src'), f => /\.(js|html|css)$/.test(f)), path.join(root, 'resources', 'default-config.json')];
 for (const file of runtimeFiles) {
