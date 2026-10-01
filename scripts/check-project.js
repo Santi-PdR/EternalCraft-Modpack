@@ -75,6 +75,11 @@ if (!developerServiceSource.includes('if (child.exitCode === null) { try { child
 if (!mainSource.includes('runtimeCacheGeneration')) throw new Error('Las cachés de runtime deben descartar respuestas iniciadas antes de una invalidación.');
 if (!mainSource.includes('function withDeadline(') || !mainSource.includes('const [java, system, developer] = await Promise.all')) throw new Error('El estado inicial debe tolerar comprobaciones lentas sin bloquear el renderer.');
 if (!mainSource.includes('PRIMED_MANIFEST_TTL_MS') || !mainSource.includes('primeManifestCache(store.load(), publishedManifest')) throw new Error('La publicación debe usar el manifiesto verificado mientras GitHub propaga stable.json.');
+// The launcher reads channel/stable.json from the publisher work dir after a
+// successful run to promote the jars in SIEGE and to prime its cache. If every
+// successful path deletes it, both silently stop happening.
+if ((publisherSource.match(/clearStaging\(out, \{ keepChannel: true \}\)/g) || []).length < 2) throw new Error('Toda publicación exitosa debe conservar el manifest verificado para la sincronización de metadatos del launcher.');
+if (!publisherSource.includes('if (failedOut) clearStaging(failedOut);')) throw new Error('Una publicación fallida debe limpiar su staging para no dejar un manifest que parezca verificado.');
 if (!mainSource.includes('rendererLoadAttempts < 3')) throw new Error('La carga del renderer debe reintentar fallos iniciales sin entrar en un bucle infinito.');
 if (!mainSource.includes("isQuitting = true;\n    try { installLauncherUpdate();")) throw new Error('La instalación de actualizaciones debe omitir el cierre a la bandeja.');
 const launchHandler = mainSource.match(/ipcMain\.handle\('game:launch',[\s\S]*?\n\s*ipcMain\.handle\('game:safe-launch'/)?.[0] || '';
