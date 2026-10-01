@@ -88,12 +88,22 @@ async function uploadAssetBatch(tag, repo, files, completed, total) {
 async function existingReleaseAssetNames(repo, tag, cache = null) {
   if (cache?.has(tag)) return cache.get(tag);
   const result = ghCaptured(['release', 'view', tag, '--repo', repo, '--json', 'assets']);
-  let names = new Set();
+  let names = new Map();
   if (result.ok) {
     try {
       const data = JSON.parse(result.stdout || '{}');
-      names = new Set((data.assets || []).map((asset) => String(asset.name || '')).filter(Boolean));
-    } catch (_) { names = new Set(); }
+      // The name alone is not proof of a valid blob: a resumed or interrupted
+      // upload can leave an asset with the right name and a truncated body.
+      // Keep size and digest so the published state can be verified for real.
+      for (const asset of data.assets || []) {
+        const name = String(asset?.name || '');
+        if (!name) continue;
+        names.set(name, {
+          size: Number.isFinite(Number(asset?.size)) ? Number(asset.size) : null,
+          digest: String(asset?.digest || '')
+        });
+      }
+    } catch (_) { names = new Map(); }
   } else if (!isNotFound(result.stderr)) {
     // A transient API failure must not be read as “the assets are missing”:
     // that would re-upload gigabytes and hide a real outage.
@@ -179,12 +189,31 @@ async function verifyPublishedChannel(repo, branch, expectedManifest) {
  *   unchecked    releases that could not be inspected (transient API failure
  *                or too many tags); never treated as “missing”
  */
+/**
+ * Compare an asset already present in a release with the manifest entry that
+ * references it. GitHub exposes the size of every asset and, for assets
+ * uploaded recently, the SHA-256 digest; either mismatch means the published
+ * pack would hand players a broken download.
+ */
+function assetIntegrityProblem(assetInfo, expected) {
+  if (!assetInfo || !expected) return '';
+  const expectedSize = Number(expected.size);
+  const actualSize = Number(assetInfo.size);
+  if (Number.isFinite(actualSize) && Number.isFinite(expectedSize) && expectedSize > 0 && actualSize !== expectedSize) {
+    return `tamaño ${actualSize} ≠ ${expectedSize}`;
+  }
+  const digest = /^sha256:([a-f0-9]{64})$/i.exec(String(assetInfo.digest || '').trim());
+  if (digest && digest[1].toLowerCase() !== String(expected.sha256).toLowerCase()) return 'sha256 remoto distinto';
+  return '';
+}
+
 async function verifyReferencedAssets(repo, manifest, cache, { tags = null } = {}) {
   const { groups, foreign, mismatched } = collectReferencedAssets(repo, manifest);
   const byHash = new Map((manifest?.files || []).filter((file) => !file.empty).map((file) => [String(file.sha256).toLowerCase(), file]));
   const missing = new Map();
   const unverifiable = [];
   const unchecked = [];
+  const corrupted = [];
   const entries = [...groups.entries()].sort((a, b) => compareReleaseTags(b[0], a[0]));
   let checked = 0;
   for (const [tag, assets] of entries) {
@@ -199,9 +228,17 @@ async function verifyReferencedAssets(repo, manifest, cache, { tags = null } = {
       throw error;
     }
     for (const asset of assets) {
-      if (names.has(asset)) continue;
       const key = asset.toLowerCase();
-      if (!missing.has(key)) missing.set(key, { sha256: key, tag, asset });
+      const info = names.get(asset) || names.get(key);
+      if (!info) {
+        if (!missing.has(key)) missing.set(key, { sha256: key, tag, asset });
+        continue;
+      }
+      const problem = assetIntegrityProblem(info, byHash.get(key));
+      if (problem) {
+        corrupted.push({ tag, asset, path: byHash.get(key)?.path || '', reason: problem });
+        if (!missing.has(key)) missing.set(key, { sha256: key, tag, asset, reason: problem });
+      }
     }
   }
   for (const item of [...foreign, ...mismatched]) {
@@ -211,7 +248,7 @@ async function verifyReferencedAssets(repo, manifest, cache, { tags = null } = {
     unverifiable.push({ sha256: key, path: file.path, reason: item.reason || 'URL no verificable' });
     if (!missing.has(key)) missing.set(key, { sha256: key, tag: null, asset: key });
   }
-  return { missing: [...missing.values()], unchecked, unverifiable };
+  return { missing: [...missing.values()], unchecked, unverifiable, corrupted };
 }
 function compareReleaseTags(a, b) {
   const parts = (value) => String(value).replace(/^pack-v/i, '').split('.').map((piece) => Number.parseInt(piece, 10) || 0);
@@ -435,6 +472,10 @@ async function main() {
   if (verification.unverifiable.length) {
     console.log(`Re-subiendo ${verification.unverifiable.length} archivo(s) cuya URL no era verificable (${verification.unverifiable.slice(0, 3).map((item) => item.path).join(', ')}).`);
   }
+  const corruptedBlobs = new Set((verification.corrupted || []).map((item) => String(item.asset).toLowerCase()));
+  if (corruptedBlobs.size) {
+    console.log(`GitHub tiene ${corruptedBlobs.size} blob(s) con contenido incorrecto; se vuelven a subir (${verification.corrupted.slice(0, 3).map((item) => `${item.asset.slice(0, 12)}… (${item.reason})`).join(', ')}${verification.corrupted.length > 3 ? '…' : ''}).`);
+  }
 
   if (noop) {
     const sameChannel = previous && manifestSemanticEqual(previous, result.manifest);
@@ -464,7 +505,10 @@ async function main() {
 
   // 3. Upload everything that is not already an asset of this tag.
   const releaseAssets = await existingReleaseAssetNames(repo, tag, assetCache);
-  const pending = [...uploadQueue].filter((sha) => !releaseAssets.has(sha));
+  // A damaged asset must be replaced even though its name already exists;
+  // `gh release upload --clobber` overwrites it atomically enough for GitHub
+  // to recompute size and digest.
+  const pending = [...uploadQueue].filter((sha) => !releaseAssets.has(sha) || corruptedBlobs.has(String(sha).toLowerCase()));
   const alreadyUploaded = uploadQueue.size - pending.length;
   if (!noop || pending.length) {
     const notes = path.join(out, 'release-notes.md');
@@ -495,8 +539,9 @@ async function main() {
 
   // 4. Verify the whole referenced set again before touching the channel.
   const afterUpload = await verifyReferencedAssets(repo, result.manifest, assetCache, { tags: null });
-  if (afterUpload.missing.length) {
-    throw new Error(`GitHub no confirmó ${afterUpload.missing.length} blob(s) referenciado(s): ${afterUpload.missing.slice(0, 3).map((item) => item.asset).join(', ')}. El canal no se modificó.`);
+  if (afterUpload.missing.length || afterUpload.corrupted.length) {
+    const problems = [...afterUpload.missing, ...afterUpload.corrupted];
+    throw new Error(`GitHub no confirmó ${problems.length} blob(s) referenciado(s): ${problems.slice(0, 3).map((item) => item.asset).join(', ')}. El canal no se modificó.`);
   }
 
   // 5. Commit the channel, then verify the committed state.
@@ -509,7 +554,11 @@ async function main() {
   const localChannel = await syncLocalChannel(resolveLocalChannelDir(repo), result.manifest).catch(() => '');
   if (localChannel) console.log(`Copia local del canal actualizada: ${localChannel}`);
 
-  const summary = noopSummary({ repo, branch, version, result, preview, repaired: uploadQueue.size ? [...uploadQueue] : [] });
+  const summary = noopSummary({
+    repo, branch, version, result, preview,
+    repaired: uploadQueue.size ? [...uploadQueue] : [],
+    corrupted: (verification.corrupted || []).map((item) => item.asset)
+  });
   console.log('');
   console.log(noop ? 'CANAL REPARADO' : 'PUBLICACIÓN COMPLETA');
   console.log(`Manifest estable: https://raw.githubusercontent.com/${repo}/${branch}/channel/stable.json`);
@@ -523,11 +572,12 @@ async function main() {
   clearStaging(out);
 }
 
-function noopSummary({ repo, branch, version, result, preview, repaired = [] }) {
+function noopSummary({ repo, branch, version, result, preview, repaired = [], corrupted = [] }) {
   return {
     ok: true,
     noop: repaired.length === 0 && result.changes.noop,
     repaired,
+    corrupted,
     repo, branch, version,
     minimumLauncher: result.manifest.minimumLauncher,
     releaseName: result.manifest.releaseName,

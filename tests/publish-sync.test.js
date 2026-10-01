@@ -323,3 +323,48 @@ test('publish: a newer released launcher is accepted as the requirement', async 
   assert.equal(readChannel(ctx.gh.stateDir).minimumLauncher, '0.99.0');
   assert.equal(/no existe esa release del launcher/i.test(result.output), false);
 });
+
+test('publish: a truncated blob already present in the release is replaced', async (t) => {
+  const ctx = await setup(t);
+  const { seedRemote, sha256 } = require('./helpers/pack-testbed');
+  createSourceInstance(ctx.source, { 'a.jar': 'contenido real del mod' });
+  const firstName = 'a.jar';
+  const blob = fs.readFileSync(path.join(ctx.source, 'mods', firstName));
+  const hash = sha256(blob);
+  // First publication: correct channel and correct asset.
+  let result = await publish(ctx);
+  assert.equal(result.code, 0, result.output);
+  const publishedVersion = readChannel(ctx.gh.stateDir).version;
+
+  // Simulate an interrupted upload: the asset keeps the SHA-256 name but holds
+  // a truncated body, exactly the state that used to pass the old "the asset
+  // exists" check and hand players a broken download.
+  const tag = `pack-v${publishedVersion}`;
+  fs.writeFileSync(path.join(ctx.gh.stateDir, 'releases', tag, 'assets', hash), blob.subarray(0, 5));
+
+  result = await publish(ctx);
+  assert.equal(result.code, 0, result.output);
+  assert.match(result.output, /contenido incorrecto/i, 'el publicador debe detectar el blob dañado');
+  const repairedBlob = fs.readFileSync(path.join(ctx.gh.stateDir, 'releases', tag, 'assets', hash));
+  assert.equal(repairedBlob.toString(), blob.toString(), 'el asset dañado debe quedar reemplazado por el contenido real');
+  assert.equal(readChannel(ctx.gh.stateDir).version, publishedVersion, 'reparar un blob no debe crear una versión nueva');
+  const summary = JSON.parse(/PUBLISH_JSON:(\{.*\})/s.exec(result.output)[1]);
+  assert.deepEqual(summary.corrupted, [hash], 'el resumen debe informar qué blob estaba dañado');
+});
+
+test('publish: a same-size corrupted blob is detected through the remote digest', async (t) => {
+  const ctx = await setup(t);
+  const { sha256 } = require('./helpers/pack-testbed');
+  createSourceInstance(ctx.source, { 'b.jar': 'AAAA contenido bueno AAAA' });
+  const blob = fs.readFileSync(path.join(ctx.source, 'mods', 'b.jar'));
+  const hash = sha256(blob);
+  let result = await publish(ctx);
+  assert.equal(result.code, 0, result.output);
+  const tag = `pack-v${readChannel(ctx.gh.stateDir).version}`;
+  // Same length, different bytes: only the SHA-256 digest can reveal it.
+  fs.writeFileSync(path.join(ctx.gh.stateDir, 'releases', tag, 'assets', hash), 'BBBB contenido malo  BBBB');
+  result = await publish(ctx);
+  assert.equal(result.code, 0, result.output);
+  assert.match(result.output, /sha256 remoto distinto/, 'el publicador debe comparar el digest remoto');
+  assert.equal(fs.readFileSync(path.join(ctx.gh.stateDir, 'releases', tag, 'assets', hash)).toString(), blob.toString());
+});

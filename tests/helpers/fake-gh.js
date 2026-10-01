@@ -27,6 +27,7 @@
  *   FAKE_GH_NO_CONTENT=<path>                      -> GET contents returns no body
  *   FAKE_GH_FAIL_API_READ=1                        -> contents API fails with HTTP 500
  *   FAKE_GH_CONTENT_LIMIT=<bytes>                  -> emulate GitHub's 1 MB truncation
+ *   FAKE_GH_NO_DIGEST=1                            -> assets report size but no sha256 digest
  */
 const fs = require('fs');
 const path = require('path');
@@ -183,7 +184,20 @@ function commandRelease() {
     if (!exists) { process.stderr.write('gh: release not found (HTTP 404)\n'); return 1; }
     if (hasFlag('--json')) {
       const wantAssets = String(argValue('--json') || '').includes('assets');
-      out(JSON.stringify(wantAssets ? { assets: releaseAssets(tag).map((name) => ({ name, size: fs.statSync(path.join(releaseDir(tag), 'assets', name)).size })) } : { name: tag }));
+      if (wantAssets) {
+        const assets = releaseAssets(tag).map((name) => {
+          const file = path.join(releaseDir(tag), 'assets', name);
+          const size = fs.statSync(file).size;
+          // Real GitHub returns a sha256 digest for recently uploaded assets and
+          // null for older ones. FAKE_GH_NO_DIGEST emulates the legacy shape so
+          // the size-only verification path stays covered.
+          const digest = process.env.FAKE_GH_NO_DIGEST === '1'
+            ? null
+            : `sha256:${require('crypto').createHash('sha256').update(fs.readFileSync(file)).digest('hex')}`;
+          return { name, size, digest };
+        });
+        out(JSON.stringify({ assets }));
+      } else out(JSON.stringify({ name: tag }));
     } else out(tag);
     return 0;
   }
