@@ -306,6 +306,9 @@ test('publish: the pack never requires an unreleased launcher build', async (t) 
   const result = await publish(ctx, [], { ETERNAL_LAUNCHER_VERSION: '0.99.0' });
   assert.equal(result.code, 0, result.output);
   assert.match(result.output, /todavía no existe la release/i);
+  // gh < 2.32 rejects `release list --json` (the fake does too): the clamp has
+  // to come from the REST endpoint, so this warning must never appear.
+  assert.equal(/no pude comprobar las releases del launcher/i.test(result.output), false, 'el listado de releases debe funcionar sin `gh release list --json`');
   const channel = readChannel(ctx.gh.stateDir);
   assert.equal(channel.minimumLauncher, '0.80.0', 'el requisito debe quedar en la última release pública del launcher');
 });

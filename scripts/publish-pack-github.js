@@ -290,12 +290,17 @@ function compareVersions(a, b) {
  * launcher primero” and nothing to update to.
  */
 function releasedLauncherVersions(repo) {
-  const result = ghCaptured(['release', 'list', '--repo', repo, '--limit', '100', '--json', 'tagName']);
+  // `gh release list --json` only exists in recent gh builds, and a developer
+  // running the publisher from the launcher may have an older CLI: the clamp
+  // used to disappear silently whenever that flag was unknown. The REST
+  // endpoint through `gh api` works with every supported gh version, follows
+  // pagination and returns the same tags.
+  const result = ghCaptured(['api', '--paginate', `repos/${repo}/releases?per_page=100`, '--jq', '.[] | select(.draft == false) | .tag_name']);
   if (!result.ok) return null;
   try {
-    const list = JSON.parse(result.stdout || '[]');
-    return list
-      .map((entry) => String(entry?.tagName || ''))
+    return String(result.stdout || '')
+      .split('\n')
+      .map((line) => line.trim())
       .filter((tag) => /^launcher-v\d+\.\d+\.\d+$/.test(tag))
       .map((tag) => tag.replace(/^launcher-v/, ''))
       .sort(compareVersions);

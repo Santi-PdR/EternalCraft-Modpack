@@ -15,6 +15,8 @@
  *   gh repo create REPO --public ...
  *   gh api [-H 'Accept: application/vnd.github.raw+json'] repos/REPO/contents/PATH[?ref=BRANCH]
  *   gh api --method PUT repos/REPO/contents/PATH --input BODY
+ *   gh api --paginate repos/REPO/releases?per_page=N [--jq EXPR]
+ *   gh release list --repo REPO --limit N          (text only, like gh < 2.32)
  *   gh release view TAG --repo REPO [--json assets]
  *   gh release create TAG --repo REPO [--latest=false] [--title T] [--notes-file F]
  *   gh release upload TAG --repo REPO --clobber FILE[#LABEL] ...
@@ -68,6 +70,11 @@ function bumpCounter(key, amount = 1) {
 }
 function repoFile(relative) { return path.join(repoRoot, relative); }
 function releaseDir(tag) { return path.join(releasesRoot, tag); }
+function listReleaseTags() {
+  try {
+    return fs.readdirSync(releasesRoot).filter((name) => fs.existsSync(path.join(releaseDir(name), 'release.json'))).sort();
+  } catch (_) { return []; }
+}
 function releaseAssets(tag) {
   try {
     return fs.readdirSync(path.join(releaseDir(tag), 'assets')).filter((name) => {
@@ -80,6 +87,24 @@ function argValue(flag) {
   return index >= 0 ? argv[index + 1] : undefined;
 }
 function hasFlag(flag) { return argv.includes(flag); }
+
+function commandApiReleases(endpoint, jq) {
+  const match = /^repos\/([^/]+\/[^/]+)\/releases(?:\?(.*))?$/.exec(String(endpoint || ''));
+  if (!match) return null;
+  const limit = Number(new URLSearchParams(match[2] || '').get('per_page') || 30);
+  const releases = listReleaseTags().slice(0, limit).map((tag) => ({
+    tag_name: tag,
+    draft: Boolean(readJson(path.join(releaseDir(tag), 'release.json'), {})?.draft),
+    prerelease: Boolean(readJson(path.join(releaseDir(tag), 'release.json'), {})?.prerelease)
+  }));
+  const expr = String(jq || '');
+  if (/select\(\s*\.draft\s*==\s*false\s*\)/.test(expr)) {
+    for (const release of releases) if (!release.draft && !release.prerelease) out(release.tag_name);
+    return 0;
+  }
+  out(JSON.stringify(releases.map((release) => ({ tag_name: release.tag_name }))));
+  return 0;
+}
 
 function parseApiPath(value) {
   // repos/OWNER/REPO/contents/PATH?ref=BRANCH
@@ -121,6 +146,8 @@ function commandApi() {
   const method = String(argValue('--method') || argValue('-X') || 'GET').toUpperCase();
   const noContent = String(process.env.FAKE_GH_NO_CONTENT || '');
   if (endpoint === 'user') return commandApiUser();
+  const releasesResult = commandApiReleases(endpoint, argValue('--jq'));
+  if (releasesResult !== null) return releasesResult;
   const target = parseApiPath(endpoint);
   if (!target) fail(`fake-gh: unsupported api endpoint ${endpoint}`);
   const file = repoFile(target.path);
@@ -179,12 +206,13 @@ function commandRelease() {
   const sub = argv[1];
   const tag = argv[2];
   if (sub === 'list') {
+    // Real `gh release list` only grew a --json flag in gh 2.32: older CLI
+    // builds (still common) print an error and exit 1, which is exactly what
+    // this stand-in does so the publisher cannot depend on that flag.
+    if (hasFlag('--json')) { process.stderr.write('unknown flag: --json\n'); return 1; }
     const limit = Number(argValue('--limit') || 30);
-    const tags = fs.existsSync(releasesRoot)
-      ? fs.readdirSync(releasesRoot).filter((name) => fs.existsSync(path.join(releaseDir(name), 'release.json')))
-      : [];
-    const rows = tags.slice(0, limit).map((name) => ({ tagName: name }));
-    out(hasFlag('--json') ? JSON.stringify(rows) : rows.map((row) => row.tagName).join('\n'));
+    const tags = listReleaseTags().slice(0, limit);
+    out(tags.join('\n'));
     return 0;
   }
   if (sub === 'view') {
@@ -211,7 +239,7 @@ function commandRelease() {
   }
   if (sub === 'create') {
     mkdir(path.join(releaseDir(tag), 'assets'));
-    writeJson(path.join(releaseDir(tag), 'release.json'), { tag, latest: !hasFlag('--latest=false'), title: argValue('--title') || '' });
+    writeJson(path.join(releaseDir(tag), 'release.json'), { tag, latest: !hasFlag('--latest=false'), title: argValue('--title') || '', draft: false, prerelease: hasFlag('--prerelease') });
     out(`✓ Created release ${tag}`);
     return 0;
   }
