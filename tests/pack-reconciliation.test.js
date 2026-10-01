@@ -159,3 +159,29 @@ test('repair keeps the historical inventory consistent with the published manife
   assert.equal(inventory.known.includes('mods/retired.jar'), true, 'la historia debe conservarse para futuras reparaciones');
   assert.equal(inventory.known.includes('mods/new.jar'), true);
 });
+
+test('repair records the expected version when only the state file is missing', async (t) => {
+  const { checkInstallation } = require('../src/main/services/packService');
+  const root = await fs.mkdtemp(path.join(os.tmpdir(), 'ecl-pack-state-'));
+  t.after(() => fs.rm(root, { recursive: true, force: true }));
+  const content = Buffer.from('contenido oficial');
+  const manifest = {
+    schema: 2, version: '2.0.0', minecraft: '1.20.1', forge: '47.4.10',
+    files: [{ path: 'mods/oficial.jar', size: content.length, sha256: crypto.createHash('sha256').update(content).digest('hex'), url: 'file:///dev/null' }],
+    remove: []
+  };
+  await fs.mkdir(path.join(root, 'mods'), { recursive: true });
+  await fs.writeFile(path.join(root, 'mods', 'oficial.jar'), content);
+  await fs.writeFile(path.join(root, '.eternal-pack.json'), JSON.stringify({ version: null, updatedAt: null }));
+
+  const before = await checkInstallation(root, manifest);
+  assert.equal(before.healthy, false, 'sin versión registrada la instalación no está sana');
+  assert.equal(before.missing.length + before.changed.length + before.remove.length, 0, 'no hay archivos que descargar ni borrar');
+
+  await repairInstallation(root, manifest, () => {}, before);
+  const state = JSON.parse(await fs.readFile(path.join(root, '.eternal-pack.json'), 'utf8'));
+  assert.equal(state.version, '2.0.0', 'reparar debe registrar la versión esperada');
+  const after = await checkInstallation(root, manifest);
+  assert.equal(after.healthy, true);
+  assert.equal(after.missing.length, 0);
+});

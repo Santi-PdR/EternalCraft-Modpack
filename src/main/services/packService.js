@@ -502,15 +502,20 @@ async function repairInstallation(root, manifest, onProgress = () => {}, existin
   const priorState = check.state || { version: null, updatedAt: null };
   const targets = [...check.missing, ...check.changed];
   await ensureFreeSpace(root, check.bytesRequired);
-  if (targets.length === 0 && removals.paths.length === 0 && check.versionMatches) {
-    // Migrate existing installations that predate the official inventory.
-    // This records the current pack without reclassifying or deleting any
-    // local files, so future updates can remove only retired official files.
+  if (targets.length === 0 && removals.paths.length === 0) {
+    // Nothing to download, replace or delete: the only possible difference is
+    // bookkeeping. A missing/incomplete `.eternal-pack.json` (a player removed
+    // it, an interrupted first migration, a launcher that predates the file)
+    // used to force a full staging transaction that had no work to do and
+    // could fail on its own. Record the expected state instead.
     if (!(await fsp.stat(path.join(root, OFFICIAL_FILES_FILE)).catch(() => null))) {
       await writeOfficialFiles(root, manifest);
     }
     await reconcileOfficialModMetadata(root, manifest);
-    return { ...check, repaired: 0, removed: 0, cacheHits: 0, downloaded: 0 };
+    const state = check.versionMatches ? priorState : await writeState(root, manifest);
+    const after = check.versionMatches ? check : await checkInstallation(root, manifest, onProgress);
+    if (!after.healthy) throw new Error('La verificación final falló. Se restauró la instalación anterior.');
+    return { ...after, state, repaired: 0, removed: 0, cacheHits: 0, downloaded: 0 };
   }
 
   const stagingRoot = path.join(root, STAGING_DIR, `tx-${Date.now()}-${process.pid}`);
