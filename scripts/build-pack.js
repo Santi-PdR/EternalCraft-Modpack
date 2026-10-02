@@ -44,6 +44,34 @@ const SKIP_FILES = new Set([
   '.env.local', '.env.production', 'credentials.json', 'secrets.json',
   'client_token.json', 'launcher_accounts.json'
 ]);
+// Filesystem debris must never become part of the published pack. A deleted
+// but still-open mod shows up as `.fuse_hidden…`, a partially written download
+// as `mod-1.2.jar.part`, a disabled mod as `mod.jar.disabled` and editors leave
+// `~`, `.bak` or `.swp` copies behind. Publishing any of them makes the pack
+// look like it still ships a mod the developer already removed.
+const JUNK_FILE_PATTERNS = [
+  /^(?:\.fuse_hidden|\.goutputstream-|\.nfs)/i,
+  /^(?:thumbs\.db|ehthumbs\.db|desktop\.ini|\.ds_store)$/i,
+  /(?:^|[._-])(?:secret|token|credential|password|private)[^/]*$/i
+];
+const JUNK_SUFFIX_PATTERN = /(?:~|\.(?:bak|backup|old|orig|save|tmp|temp|part|partial|download|crdownload|swp|swo|lock|disabled))$/i;
+const JUNK_FILE_TYPES = /\.(?:pem|key|p12|pfx|jks|keystore|log|dmp)$/i;
+
+/**
+ * True when an entry inside the published tree is filesystem debris that must
+ * not be distributed. Hidden entries are rejected on purpose: the pack payload
+ * only contains regular mod files and the iammusicplayerrenewed assets.
+ */
+function isJunkEntry(name, isDirectory = false) {
+  const value = String(name || '');
+  if (!value || value === '.' || value === '..') return true;
+  if (value.startsWith('.')) return true;
+  if (JUNK_FILE_PATTERNS.some((pattern) => pattern.test(value))) return true;
+  if (isDirectory) return false;
+  if (JUNK_SUFFIX_PATTERN.test(value)) return true;
+  if (JUNK_FILE_TYPES.test(value)) return true;
+  return false;
+}
 
 function parseArgs(argv) {
   const args = {};
@@ -83,12 +111,19 @@ function shouldSkip(relative, entry) {
   const normalized = relative.replace(/\\/g, '/');
   const parts = normalized.split('/');
   if (parts.some((part) => SKIP_DIRS.has(part))) return true;
+  if (isJunkEntry(entry.name, entry.isDirectory())) return true;
   if (!entry.isDirectory() && SKIP_FILES.has(entry.name)) return true;
-  if (!entry.isDirectory() && /(?:^|[._-])(secret|token|credential|password|private)[^/]*$/i.test(entry.name)) return true;
-  if (!entry.isDirectory() && /\.(pem|key|p12|pfx|jks|keystore)$/i.test(entry.name)) return true;
-  if (!entry.isDirectory() && /\.(log|lock|tmp|part)$/i.test(entry.name)) return true;
-  if (entry.name.startsWith('.nfs')) return true;
   return false;
+}
+
+/** Reason why an entry is excluded, used by the publish preview. */
+function skipReason(relative, entry) {
+  const normalized = relative.replace(/\\/g, '/');
+  const parts = normalized.split('/');
+  if (parts.slice(0, -1).some((part) => SKIP_DIRS.has(part))) return 'directorio excluido';
+  if (isJunkEntry(entry.name, entry.isDirectory())) return 'archivo temporal o basura';
+  if (!entry.isDirectory() && SKIP_FILES.has(entry.name)) return 'archivo personal o de estado';
+  return '';
 }
 
 function isPublishedPath(relative) {
@@ -104,19 +139,34 @@ function publishedPathKind(relative) {
   return null;
 }
 
-async function walk(root, dir = root, prefix = '') {
+async function walkDetailed(root, dir = root, prefix = '', ignored = []) {
   let entries = [];
-  try { entries = await fsp.readdir(dir, { withFileTypes: true }); } catch (_) { return []; }
+  try { entries = await fsp.readdir(dir, { withFileTypes: true }); } catch (_) { return { files: [], ignored }; }
   const out = [];
   for (const entry of entries) {
     const relative = prefix ? `${prefix}/${entry.name}` : entry.name;
-    if (shouldSkip(relative, entry)) continue;
+    const normalized = relative.replace(/\\/g, '/');
+    if (shouldSkip(relative, entry)) {
+      // Only report exclusions inside the payload boundary: those are the ones
+      // that could silently change what the pack distributes.
+      if (isPublishedPath(normalized)) ignored.push({ path: normalized, reason: skipReason(relative, entry) });
+      continue;
+    }
     const full = path.join(dir, entry.name);
-    if (entry.isSymbolicLink()) continue;
-    if (entry.isDirectory()) out.push(...await walk(root, full, relative));
-    else if (entry.isFile()) out.push({ relative: relative.replace(/\\/g, '/'), full });
+    if (entry.isSymbolicLink()) {
+      if (isPublishedPath(normalized)) ignored.push({ path: normalized, reason: 'enlace simbólico' });
+      continue;
+    }
+    if (entry.isDirectory()) {
+      const nested = await walkDetailed(root, full, relative, ignored);
+      out.push(...nested.files);
+    } else if (entry.isFile()) out.push({ relative: normalized, full });
   }
-  return out;
+  return { files: out, ignored };
+}
+
+async function walk(root, dir = root, prefix = '') {
+  return (await walkDetailed(root, dir, prefix)).files;
 }
 
 function cleanBaseUrl(url) {
@@ -152,9 +202,16 @@ async function readLocalUserModPaths(source) {
 
 async function listPublishableFiles(source, { includeUserMods = false } = {}) {
   const localUserMods = await readLocalUserModPaths(source);
-  const files = (await walk(source)).filter((file) => isPublishedPath(file.relative));
-  const publishable = includeUserMods ? files : files.filter((file) => !localUserMods.has(file.relative.toLowerCase()));
-  return { files: publishable, excludedUserMods: files.length - publishable.length };
+  const { files, ignored } = await walkDetailed(source);
+  const publishable = files.filter((file) => isPublishedPath(file.relative));
+  const selected = includeUserMods ? publishable : publishable.filter((file) => !localUserMods.has(file.relative.toLowerCase()));
+  // A retired path that no longer exists cannot be distributed, so reporting
+  // exclusions lets the developer confirm that deleted files really left the
+  // payload instead of trusting a silent filter.
+  const ignoredInPayload = ignored
+    .filter((entry) => entry.path !== 'mods' && entry.path !== 'iammusicplayerrenewed')
+    .sort((a, b) => a.path.localeCompare(b.path));
+  return { files: selected, excludedUserMods: publishable.length - selected.length, ignored: ignoredInPayload };
 }
 
 /**
@@ -163,8 +220,65 @@ async function listPublishableFiles(source, { includeUserMods = false } = {}) {
  * that was used to build the manifest. It catches future regressions where a
  * filter, a staging step, or a hand-edited manifest drops a SIEGE file.
  */
+/**
+ * Refuse to publish a manifest the launcher would reject. The launcher refuses
+ * the whole channel when two installed paths only differ by case (Windows and
+ * macOS share one file) or when a size/URL cannot be consumed, so catching it
+ * here keeps a broken state out of the published channel instead of locking
+ * every player out of updates.
+ */
+function validateLauncherCompatibility(manifest) {
+  const MAX_FILE_SIZE = 8 * 1024 * 1024 * 1024;
+  // Same limit enforced by src/main/services/manifestService.js: publishing a
+  // bigger manifest would make every launcher reject the whole channel.
+  const MAX_FILES = 12000;
+  const files = manifest?.files || [];
+  if (files.length > MAX_FILES) {
+    throw new Error(`El pack tiene ${files.length} archivos y el launcher acepta hasta ${MAX_FILES}; la publicación fue detenida.`);
+  }
+  const seen = new Map();
+  const collisions = [];
+  for (const file of files) {
+    const path = String(file.path || '');
+    const key = path.toLowerCase();
+    if (seen.has(key)) collisions.push(`${seen.get(key)} ↔ ${file.path}`);
+    else seen.set(key, file.path);
+    // Mirror the launcher's path rules so a name that a Linux filesystem
+    // accepts (':', control characters, empty or relative segments) cannot
+    // invalidate the manifest for everybody.
+    const segments = path.split('/');
+    if (!path || path.startsWith('/') || /[\u0000-\u001f\u007f:]/.test(path) || segments.some((part) => !part || part === '.' || part === '..')) {
+      throw new Error(`La ruta ${JSON.stringify(path)} no es válida para el launcher; renombrá el archivo en SIEGE.`);
+    }
+    const size = Number(file.size);
+    if (!Number.isSafeInteger(size) || size < 0 || size > MAX_FILE_SIZE) {
+      throw new Error(`El tamaño de ${file.path} (${file.size}) no es válido para el launcher.`);
+    }
+    if (!/^[a-f0-9]{64}$/i.test(String(file.sha256 || ''))) {
+      throw new Error(`El SHA-256 de ${file.path} no es válido para el launcher.`);
+    }
+    const url = String(file.url || '').trim();
+    if (!file.empty && !url) {
+      throw new Error(`Falta la URL de descarga de ${file.path}; el launcher no podría instalarlo.`);
+    }
+    if (!file.empty && !/^https:\/\//i.test(url)) {
+      throw new Error(`La URL de ${file.path} no es HTTPS; el launcher la rechazaría.`);
+    }
+  }
+  if (collisions.length) {
+    throw new Error(`SIEGE contiene rutas que solo difieren en mayúsculas/minúsculas: ${collisions.slice(0, 3).join(', ')}. El launcher rechazaría el manifest completo; renombrá o quitá uno de esos archivos.`);
+  }
+  const kept = new Set((manifest?.files || []).map((file) => String(file.path || '').toLowerCase()));
+  for (const value of manifest?.remove || []) {
+    if (kept.has(String(value || '').toLowerCase())) {
+      throw new Error(`El manifest conserva y retira el mismo archivo: ${value}.`);
+    }
+  }
+  return true;
+}
+
 async function validatePublishedPayload(source, manifest, { includeUserMods = false } = {}) {
-  const { files: sourceFiles, excludedUserMods } = await listPublishableFiles(source, { includeUserMods });
+  const { files: sourceFiles, excludedUserMods, ignored = [] } = await listPublishableFiles(source, { includeUserMods });
   const expected = new Map(sourceFiles.map((file) => [file.relative, publishedPathKind(file.relative)]));
   const manifestPaths = (manifest?.files || []).map((file) => String(file.path || '').replace(/\\/g, '/'));
   const duplicatePaths = [...new Set(manifestPaths.filter((file, index) => manifestPaths.indexOf(file) !== index))];
@@ -179,9 +293,85 @@ async function validatePublishedPayload(source, manifest, { includeUserMods = fa
     ].filter(Boolean).join(' · ');
     throw new Error(`El manifest no coincide con el payload de SIEGE (${details}). La publicación fue detenida.`);
   }
-  const payload = { total: expected.size, mods: [...expected.values()].filter((kind) => kind === 'mods').length, iammusicplayerrenewed: [...expected.values()].filter((kind) => kind === 'iammusicplayerrenewed').length, personalModsExcluded: excludedUserMods };
+  const payload = {
+    total: expected.size,
+    mods: [...expected.values()].filter((kind) => kind === 'mods').length,
+    iammusicplayerrenewed: [...expected.values()].filter((kind) => kind === 'iammusicplayerrenewed').length,
+    personalModsExcluded: excludedUserMods,
+    ignored: ignored.slice(0, 50)
+  };
   if (!payload.mods) throw new Error(`La instancia ${source} no contiene mods publicables.`);
   return payload;
+}
+
+/**
+ * Content identity of a published manifest. Only the data that decides what a
+ * launcher installs participates: version, payload, referenced URLs and the
+ * retired-path list. Timestamps and release notes are metadata and must never
+ * make two otherwise identical states look different.
+ */
+function manifestFingerprint(manifest) {
+  const rows = (manifest?.files || [])
+    .map((file) => `${file.path}\u0000${file.sha256}\u0000${file.size}\u0000${file.url || ''}`)
+    .sort()
+    .join('\n');
+  return crypto.createHash('sha256').update(rows).digest('hex');
+}
+
+/**
+ * Identity of the *source* payload (paths, hashes, sizes and retired paths).
+ * Used to detect that SIEGE changed between the preview and the publish; it
+ * deliberately ignores download URLs, which the publisher may rewrite when it
+ * has to re-upload a blob to a newer release.
+ */
+function payloadFingerprint(manifest) {
+  const rows = (manifest?.files || [])
+    .map((file) => `${file.path}\u0000${file.sha256}\u0000${file.size}`)
+    .sort()
+    .join('\n');
+  const removals = [...(manifest?.remove || [])].map(String).sort().join('\n');
+  return crypto.createHash('sha256').update(`${rows}\u0001${removals}`).digest('hex');
+}
+
+function manifestSemanticEqual(a, b) {
+  if (!a || !b) return false;
+  if (String(a.version ?? '') !== String(b.version ?? '')) return false;
+  if (String(a.minecraft ?? '') !== String(b.minecraft ?? '')) return false;
+  if (String(a.forge ?? '') !== String(b.forge ?? '')) return false;
+  if (String(a.forgeInstaller?.url || '') !== String(b.forgeInstaller?.url || '')) return false;
+  if (String(a.minimumLauncher ?? '') !== String(b.minimumLauncher ?? '')) return false;
+  if (manifestFingerprint(a) !== manifestFingerprint(b)) return false;
+  const removals = (manifest) => JSON.stringify([...(manifest.remove || [])].map(String).sort());
+  return removals(a) === removals(b);
+}
+
+function escapeRegExp(value) { return String(value).replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); }
+
+/**
+ * Group the release assets a manifest depends on, so the publisher can verify
+ * that every URL it is about to publish actually resolves to an uploaded blob.
+ */
+function collectReferencedAssets(repo, manifest) {
+  const pattern = new RegExp(`^https://github\\.com/${escapeRegExp(repo)}/releases/download/([^/]+)/(.+)$`, 'i');
+  const groups = new Map();
+  const foreign = [];
+  const mismatched = [];
+  for (const file of manifest?.files || []) {
+    if (file.empty) continue;
+    const value = String(file.url || '');
+    if (!value) { mismatched.push({ path: file.path, reason: 'sin URL' }); continue; }
+    const match = pattern.exec(value);
+    if (!match) { foreign.push({ path: file.path, url: value }); continue; }
+    const tag = match[1];
+    const asset = decodeURIComponent(match[2]);
+    if (asset.toLowerCase() !== String(file.sha256 || '').toLowerCase()) {
+      mismatched.push({ path: file.path, reason: `el asset ${asset} no coincide con el SHA-256 del archivo` });
+      continue;
+    }
+    if (!groups.has(tag)) groups.set(tag, new Set());
+    groups.get(tag).add(asset);
+  }
+  return { groups, foreign, mismatched };
 }
 
 async function buildPack(options = {}) {
@@ -191,6 +381,7 @@ async function buildPack(options = {}) {
 
   const out = path.resolve(options.out || path.join(process.cwd(), 'pack-dist'));
   const version = String(options.version || '1.0.0');
+  const minimumLauncher = String(options.minimumLauncher || launcherVersion).trim() || launcherVersion;
   const baseUrl = cleanBaseUrl(options.baseUrl || 'http://127.0.0.1:4174');
   const previous = options.previousManifest || (options.previous ? await readJsonMaybe(options.previous) : null);
   const notes = await resolveNotes(options.notes);
@@ -215,6 +406,10 @@ async function buildPack(options = {}) {
 
   const manifestFiles = [];
   const uniqueNew = new Set();
+  // sha256 -> local path of the exact content. The publisher needs it to
+  // re-upload a blob whose release asset disappeared, without copying the whole
+  // payload again.
+  const blobSources = new Map();
   let done = 0;
   for (const file of files) {
     const stat = await fsp.stat(file.full);
@@ -227,6 +422,7 @@ async function buildPack(options = {}) {
       await fsp.copyFile(file.full, blobPath);
       uniqueNew.add(sha256);
     }
+    if (!empty) blobSources.set(sha256, file.full);
     manifestFiles.push({ path: file.relative, size: stat.size, sha256, url, ...(empty ? { empty: true } : {}) });
     done++;
     if (options.onProgress) options.onProgress({ current: done, total: files.length, file: file.relative, bytes: stat.size, sha256 });
@@ -234,7 +430,22 @@ async function buildPack(options = {}) {
   manifestFiles.sort((a, b) => a.path.localeCompare(b.path));
 
   const currentPaths = new Set(manifestFiles.map((f) => f.path));
-  const remove = (previous?.files || []).map((f) => f.path).filter((p) => !currentPaths.has(p)).sort();
+  const currentKeys = new Set([...currentPaths].map((p) => p.toLowerCase()));
+  const removedNow = (previous?.files || []).map((f) => f.path).filter((p) => !currentPaths.has(p)).sort();
+  // Retirement is cumulative. A player who skipped the version that introduced
+  // a removal would otherwise keep that jar forever: every manifest only
+  // compares against the immediately previous one, so the old `remove` entry
+  // disappeared from 1.0.9 long before that player updated from 1.0.0.
+  const retired = new Map();
+  for (const value of [...(previous?.remove || []), ...removedNow]) {
+    const clean = String(value || '').replace(/\\/g, '/');
+    if (!clean || currentKeys.has(clean.toLowerCase())) continue;
+    if (!retired.has(clean.toLowerCase())) retired.set(clean.toLowerCase(), clean);
+  }
+  const remove = [...retired.values()].sort();
+  const previousRemoveKeys = new Set((previous?.remove || []).map((value) => String(value || '').replace(/\\/g, '/').toLowerCase()).filter(Boolean));
+  const removeChanged = [...retired.keys()].some((key) => !previousRemoveKeys.has(key))
+    || [...previousRemoveKeys].some((key) => !currentKeys.has(key) && !retired.has(key));
   const prevByPath = new Map((previous?.files || []).map((f) => [f.path, f]));
   const added = [];
   const changed = [];
@@ -245,8 +456,12 @@ async function buildPack(options = {}) {
     else if (old.sha256 !== file.sha256) changed.push(file.path);
     else unchanged.push(file.path);
   }
+  // The published state only changes when a path appears, disappears or its
+  // content changes. Metadata such as `generatedAt` must not turn an otherwise
+  // identical republish into a new version.
+  const noop = added.length === 0 && changed.length === 0 && removedNow.length === 0 && !removeChanged;
 
-  const releaseName = twoWordReleaseName({ added, changed, removed: remove });
+  const releaseName = twoWordReleaseName({ added, changed, removed: removedNow });
   const manifest = {
     schema: 2,
     pack: 'Eternal Craft',
@@ -255,24 +470,25 @@ async function buildPack(options = {}) {
     releaseName,
     minecraft: '1.20.1',
     forge: '47.4.10',
-    minimumLauncher: launcherVersion,
+    minimumLauncher,
     generatedAt: new Date().toISOString(),
     releaseNotes: {
       title: `${version} — ${releaseName}`,
-      summary: notes || `${added.length} archivos nuevos · ${changed.length} actualizados · ${remove.length} eliminados`,
+      summary: notes || `${added.length} archivos nuevos · ${changed.length} actualizados · ${removedNow.length} eliminados`,
       addedCount: added.length,
       changedCount: changed.length,
-      removedCount: remove.length,
+      removedCount: removedNow.length,
       highlights: [
         ...added.slice(0, 4).map((p) => ({ type: 'added', path: p })),
         ...changed.slice(0, 6).map((p) => ({ type: 'changed', path: p })),
-        ...remove.slice(0, 4).map((p) => ({ type: 'removed', path: p }))
+        ...removedNow.slice(0, 4).map((p) => ({ type: 'removed', path: p }))
       ].slice(0, 10)
     },
     forgeInstaller: { url: FORGE_URL, sha256: '' },
     files: manifestFiles,
     remove
   };
+  validateLauncherCompatibility(manifest);
   const payload = await validatePublishedPayload(source, manifest, { includeUserMods });
   manifest.payload = payload;
   const changes = {
@@ -280,16 +496,20 @@ async function buildPack(options = {}) {
     generatedAt: manifest.generatedAt,
     sourceFiles: manifestFiles.length,
     uniqueNewBlobs: uniqueNew.size,
+    noop,
     added,
     changed,
-    removed: remove,
+    // Only the files retired by this publication; the manifest keeps the full
+    // cumulative list so older installs can catch up.
+    removed: removedNow,
+    retiredTotal: remove.length,
     unchanged: unchanged.length,
     payload
   };
 
   await fsp.writeFile(path.join(channelDir, 'stable.json'), JSON.stringify(manifest, null, 2));
   await fsp.writeFile(path.join(out, 'changes.json'), JSON.stringify(changes, null, 2));
-  return { source, out, manifest, changes, payload, uniqueNew: [...uniqueNew] };
+  return { source, out, manifest, changes, payload, uniqueNew: [...uniqueNew], blobSources };
 }
 
 async function main() {
@@ -317,4 +537,8 @@ async function main() {
 }
 
 if (require.main === module) main().catch((err) => { console.error(`ERROR: ${err.message}`); process.exit(1); });
-module.exports = { buildPack, parseArgs, resolveGameRoot, sha256File, walk, isPublishedPath, validatePublishedPayload, readLocalUserModPaths, listPublishableFiles };
+module.exports = {
+  launcherVersion, buildPack, parseArgs, resolveGameRoot, validateLauncherCompatibility, sha256File, walk, walkDetailed, isPublishedPath, isJunkEntry,
+  validatePublishedPayload, readLocalUserModPaths, listPublishableFiles, manifestFingerprint,
+  payloadFingerprint, manifestSemanticEqual, collectReferencedAssets
+};

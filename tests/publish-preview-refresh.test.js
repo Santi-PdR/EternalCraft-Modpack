@@ -12,3 +12,32 @@ test('ordinary or malformed publisher errors are not mistaken for a refreshed pr
   assert.equal(parseRefreshedPublishPreview({ output: 'HTTP 400: Bad Content' }), null);
   assert.equal(parseRefreshedPublishPreview({ output: 'PUBLISH_PREVIEW_REFRESH_JSON:{bad json}' }), null);
 });
+
+const { parsePublishSummary } = require('../src/main/services/developerService');
+
+test('a no-op publish result is reported as idempotent instead of as an error', () => {
+  const summary = { ok: true, noop: true, repaired: [], version: '1.0.9', added: [], changed: [], removed: [] };
+  const parsed = parsePublishSummary(`Preparando publicación…\nSIN CAMBIOS\nNOOP_JSON:${JSON.stringify(summary)}\n`);
+  assert.equal(parsed.noop, true);
+  assert.equal(parsed.version, '1.0.9');
+});
+
+test('a repair keeps noop=false and lists the recovered blobs', () => {
+  const summary = { ok: true, noop: false, repaired: ['a'.repeat(64)], version: '1.0.9' };
+  const parsed = parsePublishSummary(`CANAL REPARADO\nPUBLISH_JSON:${JSON.stringify(summary)}\n`);
+  assert.equal(parsed.noop, false);
+  assert.deepEqual(parsed.repaired, ['a'.repeat(64)]);
+});
+
+test('malformed or missing summaries do not crash the publisher result', () => {
+  assert.equal(parsePublishSummary('PUBLISH_JSON:{bad json}'), null);
+  assert.equal(parsePublishSummary('Publicación completa sin resumen'), null);
+  assert.equal(parsePublishSummary(''), null);
+});
+
+test('a damaged blob is reported apart from a missing one', () => {
+  const summary = { ok: true, noop: false, repaired: ['a'.repeat(64)], corrupted: ['b'.repeat(64)], version: '1.0.9' };
+  const parsed = parsePublishSummary(`GitHub tiene 1 blob(s) con contenido incorrecto\nCANAL REPARADO\nPUBLISH_JSON:${JSON.stringify(summary)}\n`);
+  assert.deepEqual(parsed.corrupted, ['b'.repeat(64)]);
+  assert.deepEqual(parsed.repaired, ['a'.repeat(64)]);
+});

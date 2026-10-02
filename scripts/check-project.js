@@ -75,6 +75,11 @@ if (!developerServiceSource.includes('if (child.exitCode === null) { try { child
 if (!mainSource.includes('runtimeCacheGeneration')) throw new Error('Las cachés de runtime deben descartar respuestas iniciadas antes de una invalidación.');
 if (!mainSource.includes('function withDeadline(') || !mainSource.includes('const [java, system, developer] = await Promise.all')) throw new Error('El estado inicial debe tolerar comprobaciones lentas sin bloquear el renderer.');
 if (!mainSource.includes('PRIMED_MANIFEST_TTL_MS') || !mainSource.includes('primeManifestCache(store.load(), publishedManifest')) throw new Error('La publicación debe usar el manifiesto verificado mientras GitHub propaga stable.json.');
+// The launcher reads channel/stable.json from the publisher work dir after a
+// successful run to promote the jars in SIEGE and to prime its cache. If every
+// successful path deletes it, both silently stop happening.
+if ((publisherSource.match(/clearStaging\(out, \{ keepChannel: true \}\)/g) || []).length < 2) throw new Error('Toda publicación exitosa debe conservar el manifest verificado para la sincronización de metadatos del launcher.');
+if (!publisherSource.includes('if (failedOut) clearStaging(failedOut);')) throw new Error('Una publicación fallida debe limpiar su staging para no dejar un manifest que parezca verificado.');
 if (!mainSource.includes('rendererLoadAttempts < 3')) throw new Error('La carga del renderer debe reintentar fallos iniciales sin entrar en un bucle infinito.');
 if (!mainSource.includes("isQuitting = true;\n    try { installLauncherUpdate();")) throw new Error('La instalación de actualizaciones debe omitir el cierre a la bandeja.');
 const launchHandler = mainSource.match(/ipcMain\.handle\('game:launch',[\s\S]*?\n\s*ipcMain\.handle\('game:safe-launch'/)?.[0] || '';
@@ -113,6 +118,31 @@ const preloadChannels = new Set([...preloadSource.matchAll(/ipcRenderer\.invoke\
 for (const channel of preloadChannels) if (!mainChannels.has(channel)) throw new Error(`preload.js invoca un canal sin handler: ${channel}`);
 for (const channel of mainChannels) if (!preloadChannels.has(channel)) throw new Error(`main.js registra un handler sin puente preload: ${channel}`);
 if (manifest.minimumLauncher !== packageJson.version) throw new Error(`minimumLauncher ${manifest.minimumLauncher} no coincide con launcher ${packageJson.version}`);
+
+// channel/stable.json is the published state that raw.githubusercontent serves
+// to every player. A manifest that nobody can consume (requiring a launcher
+// version that does not exist) or a corrupted payload must never ship.
+const channel = JSON.parse(readText(path.join(root,'channel','stable.json')));
+function versionParts(value){ return String(value||'0').replace(/^v/i,'').split(/[.-]/).slice(0,3).map(v=>Number(v)||0); }
+function versionAtLeast(current, required){ const a=versionParts(current), b=versionParts(required); for(let i=0;i<3;i++){ if((a[i]||0)>(b[i]||0)) return true; if((a[i]||0)<(b[i]||0)) return false; } return true; }
+if (!channel.version) throw new Error('channel/stable.json no declara versión.');
+if (!Array.isArray(channel.files)) throw new Error('channel/stable.json no contiene la lista de archivos.');
+if (!versionAtLeast(packageJson.version, channel.minimumLauncher || '0.0.0')) {
+  throw new Error(`channel/stable.json exige launcher ${channel.minimumLauncher} y este repositorio compila ${packageJson.version}: los jugadores quedarían bloqueados.`);
+}
+const channelPaths = new Set();
+for (const entry of channel.files) {
+  const file = String(entry?.path || '');
+  if (!file.startsWith('mods/') && !file.startsWith('iammusicplayerrenewed/')) throw new Error(`channel/stable.json publica una ruta fuera del payload: ${file || '(vacía)'}`);
+  if (!/^[a-f0-9]{64}$/i.test(String(entry?.sha256 || ''))) throw new Error(`channel/stable.json tiene un SHA-256 inválido: ${file}`);
+  if (!entry?.empty && !String(entry?.url || '').startsWith('https://')) throw new Error(`channel/stable.json tiene una URL inválida: ${file}`);
+  const key = file.toLowerCase();
+  if (channelPaths.has(key)) throw new Error(`channel/stable.json contiene la ruta duplicada ${file}`);
+  channelPaths.add(key);
+}
+for (const retired of channel.remove || []) {
+  if (channelPaths.has(String(retired).toLowerCase())) throw new Error(`channel/stable.json conserva y retira el mismo archivo: ${retired}`);
+}
 if (packageJson.build?.appId !== 'uy.eternalcraft.launcher') throw new Error('appId del launcher cambió inesperadamente.');
 const runtimeFiles = [...walk(path.join(root, 'src'), f => /\.(js|html|css)$/.test(f)), path.join(root, 'resources', 'default-config.json')];
 for (const file of runtimeFiles) {

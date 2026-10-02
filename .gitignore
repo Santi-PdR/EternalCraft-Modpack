@@ -2,6 +2,7 @@ node_modules/
 dist/
 release-files/
 pack-dist/
+pack-dist-publish/
 coverage/
 .cache/
 *.log

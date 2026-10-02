@@ -21,6 +21,39 @@ Si la verificación final falla, restaura lo anterior.
 
 La caché está limitada y se limpia automáticamente sin eliminar hashes usados por la versión actual.
 
+El inventario oficial (`.launcher/official-files.json`) guarda los archivos que
+el pack distribuye hoy y todos los que distribuyó alguna vez. Eso permite
+eliminar un mod retirado aunque el jugador haya saltado la versión que lo
+retiró, sin tocar nunca los mods que agregó por su cuenta. Los directorios
+vacíos que deja un retiro dentro de `mods/` y `iammusicplayerrenewed/` se podan
+después de aplicar los cambios.
+
+## Publicación determinista
+
+El publicador compara SIEGE con el canal publicado y solo escribe después de
+verificar. Garantías que ahora cubren las pruebas de integración:
+
+- **Idempotencia**: publicar dos veces sin cambios no sube blobs, no crea una
+  versión nueva y no toca el canal. Si el estado publicado quedó incompleto
+  (blob faltante o dañado), lo repara sin cambiar la versión.
+- **Blobs verificados de verdad**: cada asset se comprueba por tamaño y por el
+  digest SHA-256 que informa GitHub. Un asset truncado por una subida
+  interrumpida se detecta y se vuelve a subir aunque su nombre ya exista.
+- **Sin canal a medias**: si no se puede leer el canal o el SHA del archivo
+  remoto, la publicación se detiene antes de sobrescribir nada. El manifest
+  solo se escribe cuando todos sus blobs ya están confirmados.
+- **Retiros acumulativos**: `remove` conserva todo lo retirado por versiones
+  anteriores, así que un jugador que salta versiones igual elimina los mods
+  que ya no forman parte del pack.
+- **Requisito de launcher real**: `minimumLauncher` se acota a la última
+  release `launcher-v…` existente. Un build de mantenimiento no puede publicar
+  un requisito que ningún launcher puede cumplir.
+- **Preview fiel**: la tarjeta de Modo desarrollador muestra la próxima
+  versión, el estado (LISTO / SIN CAMBIOS), los archivos añadidos, cambiados y
+  eliminados de esta publicación, los ignorados por no ser payload y el
+  launcher requerido. Publicar exige revisar el preview y detecta si SIEGE o
+  los datos cambiaron en el medio.
+
 ## Fuente maestra
 
 La ruta de desarrollo por defecto es:
