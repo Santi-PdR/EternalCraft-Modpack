@@ -67,6 +67,9 @@
         "to": "scripts"
       }
     ],
+    "toolsets": {
+      "appimage": "1.0.3"
+    },
     "linux": {
       "target": [
         "AppImage"

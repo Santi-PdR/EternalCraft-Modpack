@@ -38,6 +38,10 @@ const packageBuild = require('../package.json').build;
   assert.equal(developerConfig.publish, null);
 
   const root = path.join(__dirname, '..');
+  assert.equal(packageBuild.toolsets?.appimage, '1.0.3', 'Fedora AppImages should use the static runtime toolset');
+  const buildScript = fs.readFileSync(path.join(root, 'scripts/build-launcher.js'), 'utf8');
+  assert.match(buildScript, /--use-system-ca/);
+  assert.doesNotMatch(buildScript, /NODE_TLS_REJECT_UNAUTHORIZED|rejectUnauthorized\s*:\s*false/);
   const publicPreload = fs.readFileSync(path.join(root, 'src/main/preloadBridge.js'), 'utf8');
   const publicMain = fs.readFileSync(path.join(root, 'src/main/main.js'), 'utf8');
   const publicEntry = fs.readFileSync(path.join(root, 'src/main/publicMain.js'), 'utf8');

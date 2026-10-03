@@ -31,7 +31,16 @@ try {
   else if (platform === 'win') builderArgs.push('--win', 'nsis', 'portable');
   else builderArgs.push('--mac');
 
-  const result = spawnSync(process.execPath, builderArgs, { cwd:root, stdio:'inherit' });
+  const env = { ...process.env };
+  // electron-builder downloads its signed binaries over HTTPS. Node's bundled
+  // CA list can differ from the OS trust store (for example, when the system
+  // has an additional trusted root); use the native trust store without
+  // weakening certificate verification.
+  if (process.allowedNodeEnvironmentFlags?.has('--use-system-ca')) {
+    const nodeOptions = String(env.NODE_OPTIONS || '').trim();
+    if (!/(^|\s)--use-system-ca(?:\s|$)/.test(nodeOptions)) env.NODE_OPTIONS = [nodeOptions, '--use-system-ca'].filter(Boolean).join(' ');
+  }
+  const result = spawnSync(process.execPath, builderArgs, { cwd:root, stdio:'inherit', env });
   if (result.error) throw result.error;
   if (result.status !== 0) process.exitCode = result.status || 1;
   else console.log(`Build ${variant} (${platform}) completada.`);
