@@ -1,14 +1,21 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-export ETERNAL_DEVELOPER_BUILD=1
-BASE="/home/Santipdr/.local/opt/eternal-craft-launcher"
+BASE="${HOME}/.local/opt/eternal-craft-launcher-developer"
+APPIMAGE="$BASE/Eternal-Craft-Launcher-Developer.AppImage"
 
-# Fedora installations without /dev/fuse run the extracted Electron binary.
-# Calling AppRun here can exit early when APPIMAGE is not set; the binary is
-# already self-contained inside the extracted AppDir and is the reliable path.
-if [[ -x "$BASE/app/EternalCraftLauncher" ]]; then
-  exec "$BASE/app/EternalCraftLauncher" --developer-build "$@"
+# Fedora installations without /dev/fuse use the extracted Developer AppDir.
+# The build entrypoint, not a caller-controlled flag, selects this private variant.
+if [[ -x "$BASE/app/EternalCraftLauncherDeveloper" ]]; then
+  exec "$BASE/app/EternalCraftLauncherDeveloper" "$@"
 fi
 
-exec "$BASE/Eternal-Craft-Launcher.AppImage" --appimage-extract-and-run --developer-build "$@"
+if [[ -x "$APPIMAGE" ]]; then
+  if [[ -r /dev/fuse && -w /dev/fuse ]]; then
+    exec "$APPIMAGE" "$@"
+  fi
+  exec "$APPIMAGE" --appimage-extract-and-run "$@"
+fi
+
+echo "No se encontró la build privada Developer en $APPIMAGE ni en $BASE/app." >&2
+exit 1

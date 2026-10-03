@@ -77,6 +77,12 @@ class ConfigStore {
     // /releases/latest endpoint can select a pack-v release, which has no
     // electron-updater metadata and strands older launcher builds.
     let legacyRemoved = migrationRequired;
+    // Closing the window now quits unless Minecraft is still running; forget
+    // the obsolete close-to-tray preference on existing profiles as well.
+    if (merged.launcher && Object.prototype.hasOwnProperty.call(merged.launcher, 'closeToTray')) {
+      delete merged.launcher.closeToTray;
+      legacyRemoved = true;
+    }
     const configuredFeed = String(merged.launcher?.updateFeedUrl || '').trim();
     if (/\/releases\/latest\/download\/?$/i.test(configuredFeed)) {
       merged.launcher = { ...(merged.launcher || {}), updateFeedUrl: configuredFeed.replace(/\/releases\/latest\/download\/?$/i, '/releases/download/launcher-latest/') };

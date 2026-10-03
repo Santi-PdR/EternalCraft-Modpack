@@ -73,8 +73,12 @@ if (!developerServiceSource.includes('const temporary = `${this.file}.tmp-${proc
 if (!developerServiceSource.includes("child.kill('SIGKILL')")) throw new Error('El cierre del launcher debe forzar procesos de publicación que no respondan.');
 if (!developerServiceSource.includes('if (child.exitCode === null) { try { child.kill(\'SIGKILL\')')) throw new Error('Los errores del publicador deben forzar el proceso aunque child.killed ya sea true.');
 if (!mainSource.includes('runtimeCacheGeneration')) throw new Error('Las cachés de runtime deben descartar respuestas iniciadas antes de una invalidación.');
-if (!mainSource.includes('function withDeadline(') || !mainSource.includes('const [java, system, developer] = await Promise.all')) throw new Error('El estado inicial debe tolerar comprobaciones lentas sin bloquear el renderer.');
-if (!mainSource.includes('PRIMED_MANIFEST_TTL_MS') || !mainSource.includes('primeManifestCache(store.load(), publishedManifest')) throw new Error('La publicación debe usar el manifiesto verificado mientras GitHub propaga stable.json.');
+const statePayloadSource = mainSource.match(/async function statePayload\(\)\s*\{[\s\S]*?(?=\n\/\/ The first state request)/)?.[0] || '';
+if (!statePayloadSource.includes('Promise.all([') || !statePayloadSource.includes('currentManifest(config, { quick: true })')) throw new Error('El estado inicial debe cargar en paralelo el manifest rápido, Java, perfil del sistema y estado local del pack.');
+const rendererForStartup = readText(path.join(root,'src','renderer','renderer.js'));
+const initSource = rendererForStartup.match(/async function init\(\)\s*\{[\s\S]*?\n\}/)?.[0] || '';
+if (!initSource.includes('bind();setPage(\'home\')') || initSource.indexOf('bootScreen') > initSource.indexOf('const state=await api.getState()')) throw new Error('El shell debe mostrarse antes de esperar el estado inicial.');
+if (!mainSource.includes('PRIMED_MANIFEST_TTL_MS') || !readText(path.join(root,'src','main','developer','developerIpc.js')).includes('primeManifestCache(store.load(), publishedManifest')) throw new Error('La publicación Developer debe usar el manifiesto verificado mientras GitHub propaga stable.json.');
 // The launcher reads channel/stable.json from the publisher work dir after a
 // successful run to promote the jars in SIEGE and to prime its cache. If every
 // successful path deletes it, both silently stop happening.
@@ -82,8 +86,11 @@ if ((publisherSource.match(/clearStaging\(out, \{ keepChannel: true \}\)/g) || [
 if (!publisherSource.includes('if (failedOut) clearStaging(failedOut);')) throw new Error('Una publicación fallida debe limpiar su staging para no dejar un manifest que parezca verificado.');
 if (!mainSource.includes('rendererLoadAttempts < 3')) throw new Error('La carga del renderer debe reintentar fallos iniciales sin entrar en un bucle infinito.');
 if (!mainSource.includes("isQuitting = true;\n    try { installLauncherUpdate();")) throw new Error('La instalación de actualizaciones debe omitir el cierre a la bandeja.');
-const launchHandler = mainSource.match(/ipcMain\.handle\('game:launch',[\s\S]*?\n\s*ipcMain\.handle\('game:safe-launch'/)?.[0] || '';
-if (!launchHandler || /updatePack\(|checkInstallation\(/.test(launchHandler)) throw new Error('Jugar no debe comprobar, reparar ni actualizar el modpack.');
+const playCheckHandler = mainSource.match(/ipcMain\.handle\('game:play-check',[\s\S]*?\n\s*ipcMain\.handle\('game:launch'/)?.[0] || '';
+const launchHandler = mainSource.match(/ipcMain\.handle\('game:launch',[\s\S]*?\n\s*ipcMain\.handle\('game:update-launch'/)?.[0] || '';
+if (!playCheckHandler.includes('checkInstallationShared')) throw new Error('Play debe comprobar la integridad con hashes verificados antes de ofrecer actualizar o continuar.');
+if (!launchHandler || /updatePack\(|repairInstallation\(/.test(launchHandler)) throw new Error('Jugar sin actualizar no debe modificar ni forzar una sincronización del modpack.');
+if (!rendererForStartup.includes("confirmText:'Actualizar y jugar'") || !rendererForStartup.includes("cancelText:'Jugar sin actualizar'")) throw new Error('La decisión de Play debe ofrecer actualizar y jugar o continuar sin actualizar.');
 if (/quickPlay\s*:/.test(gameServiceSource)) throw new Error('El inicio normal no debe conectar al servidor automáticamente.');
 if (defaults.launcher?.hideOnGameStart !== true) throw new Error('El launcher debe ocultarse al abrir Minecraft de forma predeterminada.');
 if (!configStoreSource.includes('merged.configSchemaVersion = 1') || !configStoreSource.includes('hideOnGameStart: true')) throw new Error('Las configuraciones existentes deben migrarse una sola vez al ocultar el launcher al iniciar Minecraft.');
@@ -96,10 +103,10 @@ if (stopLauncherIndex < 0 || replaceAppImageIndex < 0 || stopLauncherIndex > rep
 const preflightIndex = installerSource.indexOf('preflight_writable_directory "$target_dir"');
 if (preflightIndex < 0 || preflightIndex > stopLauncherIndex || !installerSource.includes('mktemp "$directory/.eternal-craft-write-test.XXXXXX"')) throw new Error('El instalador debe comprobar escrituras reales en todas las rutas críticas antes de cerrar/reemplazar la instalación.');
 const installedWrapper = installerSource.slice(installerSource.indexOf('cat > "$WRAPPER"'), installerSource.indexOf('\nWRAPPER\n'));
-if (!installedWrapper.includes('if [[ -x "$APPIMAGE" ]]') || !installedWrapper.includes('--appimage-extract-and-run') || installedWrapper.indexOf('if [[ -x "$APPIMAGE" ]]') > installedWrapper.indexOf('if [[ -x "$APP_HOME/app/EternalCraftLauncher" ]]')) throw new Error('El wrapper debe priorizar el AppImage actualizable y dejar AppDir solo como recuperación.');
-if (!installedWrapper.includes('ETERNAL_DEVELOPER_BUILD=1') || !installedWrapper.includes('--developer-build')) throw new Error('El wrapper local debe conservar el acceso a herramientas de mantenimiento.');
+if (!installedWrapper.includes('if [[ -x "$APPIMAGE" ]]') || !installedWrapper.includes('--appimage-extract-and-run') || installedWrapper.indexOf('if [[ -x "$APPIMAGE" ]]') > installedWrapper.indexOf('if [[ -x "$APP_HOME/app/EternalCraftLauncherDeveloper" ]]')) throw new Error('El wrapper privado debe priorizar el AppImage actualizable y dejar el AppDir Developer solo como recuperación.');
+if (!installerSource.includes('npm run dist:developer:linux') || !installerSource.includes('APP_ID="uy.eternalcraft.launcher.developer"') || !installerSource.includes('Eternal Craft Launcher Developer')) throw new Error('El instalador local debe distribuir exclusivamente la variante privada Developer.');
 if (!mainSource.includes('else if (result.reauthRequired) store.save({ minecraft: { accountMode: \'offline\' } });')) throw new Error('El launcher debe salir del modo premium cuando Microsoft invalida la sesión.');
-if (!mainSource.includes("if (err?.reauthRequired) {\n        store.save({ minecraft: { accountMode: 'offline' } });")) throw new Error('El inicio del juego debe convertir una sesión premium vencida en una acción recuperable.');
+if (!mainSource.includes("if (err?.reauthRequired) {") || !mainSource.includes("store.save({ minecraft: { accountMode: 'offline' } });")) throw new Error('El inicio del juego debe convertir una sesión premium vencida en una acción recuperable.');
 if (!configStoreSource.includes('Persist the migration immediately')) throw new Error('La limpieza de configuración heredada debe persistirse al migrar.');
 if (/--(?:raw-)?field['\"`][^\n]*(?:manifest|content|body)/i.test(publisherSource)) throw new Error('El publicador volvió a pasar contenido grande del manifest por argumentos de gh.');
 for (const match of mainSource.matchAll(/const\s*\{([^}]+)\}\s*=\s*require\('\.\/services\/([^']+)'\)/g)) {
@@ -108,15 +115,34 @@ for (const match of mainSource.matchAll(/const\s*\{([^}]+)\}\s*=\s*require\('\.\
   const exportBlocks = [...serviceSource.matchAll(/module\.exports\s*=\s*\{([\s\S]*?)\}/g)].map(item => item[1]).join('\n');
   for (const name of names) if (!new RegExp(`\\b${name.replace(/[.*+?^${}()|[\\]\\]/g, '\\$&')}\\b`).test(exportBlocks)) throw new Error(`${match[2]} no exporta ${name}()`);
 }
-// Keep the preload bridge and main-process IPC contract in sync. A missing
-// handler is particularly damaging here: the renderer can show a blank page
-// after one rejected invoke while the rest of the launcher still appears
-// healthy.
-const preloadSource = readText(path.join(root,'src','main','preload.js'));
-const mainChannels = new Set([...mainSource.matchAll(/ipcMain\.handle\(['"]([^'"]+)['"]/g)].map(m => m[1]));
-const preloadChannels = new Set([...preloadSource.matchAll(/ipcRenderer\.invoke\(['"]([^'"]+)['"]/g)].map(m => m[1]));
-for (const channel of preloadChannels) if (!mainChannels.has(channel)) throw new Error(`preload.js invoca un canal sin handler: ${channel}`);
-for (const channel of mainChannels) if (!preloadChannels.has(channel)) throw new Error(`main.js registra un handler sin puente preload: ${channel}`);
+// Keep the split Public/Developer preload bridges and IPC handlers in sync.
+// Developer channels must never leak into the Public bridge or main runtime.
+const publicPreloadEntry = readText(path.join(root,'src','main','preload.js'));
+const developerPreloadEntry = readText(path.join(root,'src','main','preload.developer.js'));
+const publicBridgeSource = readText(path.join(root,'src','main','preloadBridge.js'));
+const developerBridgeSource = readText(path.join(root,'src','main','developer','developerBridge.js'));
+const developerIpcSource = readText(path.join(root,'src','main','developer','developerIpc.js'));
+const channelList = (source, pattern) => [...source.matchAll(pattern)].map(m => m[1]);
+const publicInvokes = channelList(publicBridgeSource,/ipcRenderer\.invoke\(['"]([^'"]+)['"]/g);
+const publicHandlers = channelList(mainSource,/ipcMain\.handle\(['"]([^'"]+)['"]/g);
+const developerInvokes = channelList(developerBridgeSource,/ipcRenderer\.invoke\(['"]([^'"]+)['"]/g);
+const developerHandlers = channelList(developerIpcSource,/ipcMain\.handle\(['"]([^'"]+)['"]/g);
+const duplicates = channels => channels.filter((channel,index) => channels.indexOf(channel)!==index);
+if (duplicates(publicInvokes).length || duplicates(publicHandlers).length) throw new Error('El contrato IPC público contiene canales duplicados.');
+for (const channel of publicInvokes) if (!publicHandlers.includes(channel)) throw new Error(`El puente Public invoca un canal sin handler: ${channel}`);
+for (const channel of publicHandlers) if (!publicInvokes.includes(channel)) throw new Error(`main.js registra un handler sin puente Public: ${channel}`);
+if (duplicates(developerInvokes).length || duplicates(developerHandlers).length) throw new Error('El contrato IPC privado contiene canales duplicados.');
+for (const channel of developerInvokes) if (!developerHandlers.includes(channel)) throw new Error(`El puente Developer invoca un canal sin handler: ${channel}`);
+for (const channel of developerHandlers) if (!developerInvokes.includes(channel)) throw new Error(`El IPC privado registra un handler sin puente: ${channel}`);
+if (developerHandlers.some(channel => !channel.startsWith('developer:'))) throw new Error('Los handlers privados deben usar el namespace developer:.');
+if (/developerBridge|ipcRenderer\.invoke\(['"]developer:|ipcMain\.handle\(['"]developer:|emit\(['"]developer:/.test(publicPreloadEntry + publicBridgeSource + mainSource)) throw new Error('El build Public expone canales Developer en su entrypoint, preload o runtime.');
+if (!developerPreloadEntry.includes('createDeveloperBridge') || !readText(path.join(root,'src','main','developerMain.js')).includes('createDeveloperIntegration')) throw new Error('La build Developer debe usar su entrypoint e integración IPC privados.');
+const publicSubscriptions = channelList(publicBridgeSource,/listener\(['"]([^'"]+)['"]/g);
+const developerSubscriptions = channelList(developerBridgeSource,/listener\(['"]([^'"]+)['"]/g);
+const commonEmitters = channelList(mainSource,/emit\(['"]([^'"]+)['"]/g);
+const developerEmitters = channelList(developerIpcSource,/emit\(['"]([^'"]+)['"]/g);
+for (const channel of publicSubscriptions) if (!commonEmitters.includes(channel)) throw new Error(`El puente Public escucha ${channel} sin emisor.`);
+for (const channel of developerSubscriptions) if (!commonEmitters.includes(channel) && !developerEmitters.includes(channel)) throw new Error(`El puente Developer escucha ${channel} sin emisor.`);
 if (manifest.minimumLauncher !== packageJson.version) throw new Error(`minimumLauncher ${manifest.minimumLauncher} no coincide con launcher ${packageJson.version}`);
 
 // channel/stable.json is the published state that raw.githubusercontent serves
@@ -196,7 +222,7 @@ const renderer = readText(path.join(root,'src','renderer','renderer.js'));
 const modListRenderSource = renderer.match(/function renderMods\([\s\S]*?\n\}\nfunction handleModsListClick/)?.[0] || '';
 if (!renderer.includes("$('modsList')?.addEventListener('click',handleModsListClick)") || !renderer.includes('function handleModsListClick(event)') || /addEventListener\('click'/.test(modListRenderSource)) throw new Error('La biblioteca de mods debe usar delegación de eventos para evitar listeners por fila en cada búsqueda.');
 const playAction = renderer.match(/async function launch\(\)\s*\{[\s\S]*?\n\}/)?.[0] || '';
-if (!playAction.includes('askConfirm(') || playAction.includes('healthCheck(')) throw new Error('Jugar debe pedir confirmación sin ejecutar el diagnóstico completo.');
+if (!playAction.includes('api.checkPlayUpdate()') || !playAction.includes('appDialog(') || playAction.includes('api.healthCheck(')) throw new Error('Jugar debe comprobar el pack con feedback inmediato y no ejecutar el diagnóstico completo.');
 if (!renderer.includes('s.hidden=!active') || !renderer.includes("s.setAttribute('aria-hidden',String(!active))")) throw new Error('La navegación debe controlar la visibilidad nativa de cada página.');
 if (!renderer.includes('const retry=banner.querySelector(\'button\')') || !renderer.includes('if(title) title.textContent')) throw new Error('El banner de errores del renderer debe tolerar un DOM parcial.');
 for (const ref of [...renderer.matchAll(/\$\(['"]([^'"]+)['"]\)/g)].map(m=>m[1])) {

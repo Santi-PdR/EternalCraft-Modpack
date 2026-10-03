@@ -97,14 +97,29 @@ async function mapLimit(items, limit, fn) {
 }
 
 async function readState(root) {
+  const empty = { version: null, minecraft: null, forge: null, forgeInstaller: null, minimumLauncher: null, updatedAt: null };
   try {
     const value = JSON.parse(await fsp.readFile(path.join(root, STATE_FILE), 'utf8'));
-    if (!value || typeof value !== 'object' || Array.isArray(value)) return { version: null, updatedAt: null };
-    return { version: typeof value.version === 'string' ? value.version : null, updatedAt: typeof value.updatedAt === 'string' ? value.updatedAt : null };
-  } catch (_) { return { version: null, updatedAt: null }; }
+    if (!value || typeof value !== 'object' || Array.isArray(value)) return empty;
+    return {
+      version: typeof value.version === 'string' ? value.version : null,
+      minecraft: typeof value.minecraft === 'string' ? value.minecraft : null,
+      forge: typeof value.forge === 'string' ? value.forge : null,
+      forgeInstaller: value.forgeInstaller && typeof value.forgeInstaller === 'object' ? value.forgeInstaller : null,
+      minimumLauncher: typeof value.minimumLauncher === 'string' ? value.minimumLauncher : null,
+      updatedAt: typeof value.updatedAt === 'string' ? value.updatedAt : null
+    };
+  } catch (_) { return empty; }
 }
 async function writeState(root, manifest) {
-  const state = { version: manifest.version, minecraft: manifest.minecraft, forge: manifest.forge, updatedAt: new Date().toISOString() };
+  const state = {
+    version: manifest.version,
+    minecraft: manifest.minecraft,
+    forge: manifest.forge,
+    forgeInstaller: manifest.forgeInstaller || null,
+    minimumLauncher: manifest.minimumLauncher || null,
+    updatedAt: new Date().toISOString()
+  };
   await writeJsonAtomic(path.join(root, STATE_FILE), state);
   return state;
 }

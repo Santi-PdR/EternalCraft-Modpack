@@ -59,7 +59,6 @@
     "uiScale": "normal",
     "startPage": "home",
     "notifications": true,
-    "closeToTray": true,
     "startWithSystem": false,
     "startMinimized": false,
     "nativeNotifications": true,

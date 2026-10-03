@@ -21,7 +21,7 @@ function resolveMemory(minValue, maxValue) {
   return { min: `${min}M`, max: `${max}M` };
 }
 
-async function launchGame({ config, manifest, resourcesDir, managedJavaRoot = '', javaInfo = null, onLog = () => {}, onProgress = () => {}, onExit = () => {} }) {
+async function launchGame({ config, manifest, resourcesDir, managedJavaRoot = '', javaInfo = null, onLog = () => {}, onProgress = () => {}, onChild = () => {}, onExit = () => {} }) {
   const root = config.pack.installDirectory;
   const username = String(config.minecraft.username || '').trim();
   if (!/^[A-Za-z0-9_]{3,16}$/.test(username)) throw new Error('Configurá un nick válido antes de jugar.');
@@ -84,6 +84,7 @@ async function launchGame({ config, manifest, resourcesDir, managedJavaRoot = ''
   };
   child.once('error', (error) => reportExit({ error: `No se pudo iniciar Java: ${error?.message || error}` }));
   child.once('close', (code, signal) => reportExit({ code, signal }));
+  onChild(child);
   return { pid: child?.pid || null, root: path.resolve(root), startedAt: new Date(startedAt).toISOString() };
 }
 

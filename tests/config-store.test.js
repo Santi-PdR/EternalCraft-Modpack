@@ -34,6 +34,14 @@ test('keeps an explicitly configured custom launcher feed', async (t) => {
   assert.equal(store.load().launcher.updateFeedUrl, customFeed);
 });
 
+test('removes the obsolete close-to-tray preference and persists the quit policy', async (t) => {
+  const { store, userDataDir } = await createStore(t, { configSchemaVersion: 1, launcher: { closeToTray: true, hideOnGameStart: true } });
+  const config = store.load();
+  assert.equal(config.launcher.closeToTray, undefined);
+  const persisted = JSON.parse(await fs.readFile(path.join(userDataDir, 'config.json'), 'utf8'));
+  assert.equal(persisted.launcher.closeToTray, undefined);
+});
+
 test('quarantines syntactically valid but invalid root config shapes instead of crashing startup', async (t) => {
   for (const invalid of [null, [], 'settings']) {
     const { store, userDataDir } = await createStore(t, invalid);

@@ -1,12 +1,15 @@
 const { autoUpdater } = require('electron-updater');
 const { app } = require('electron');
+const { CancellationToken } = require('builder-util-runtime');
 const { appImageRuntimeMessage } = require('./updateRuntime');
+const { normalizeLauncherUpdateState, reduceLauncherUpdateState } = require('./launcherUpdateState');
 
 let configuredUrl = '';
 let wired = false;
 let checkPromise = null;
 let downloadPromise = null;
-let lastState = { type: 'idle', info: null, progress: null, error: '' };
+let downloadCancellation = null;
+let lastState = normalizeLauncherUpdateState({ type: 'idle' }, app.getVersion());
 let availableInfo = null;
 let eventSink = () => {};
 
@@ -16,13 +19,19 @@ function normalizeBaseUrl(url) {
   return value.endsWith('/') ? value : `${value}/`;
 }
 function emit(payload) {
-  lastState = { ...lastState, ...payload };
-  try { eventSink(payload); } catch (_) {}
+  lastState = reduceLauncherUpdateState(lastState, payload, app.getVersion());
+  try { eventSink({ ...lastState }); } catch (_) {}
 }
 function configureLauncherUpdates({ feedUrl, onEvent = () => {} }) {
   const normalized = normalizeBaseUrl(feedUrl);
-  if (!normalized) return { configured: false, state: lastState };
   eventSink = onEvent;
+  if (!normalized) {
+    if (downloadCancellation && !downloadCancellation.cancelled) downloadCancellation.cancel();
+    configuredUrl = '';
+    availableInfo = null;
+    lastState = normalizeLauncherUpdateState({ type: 'unconfigured' }, app.getVersion());
+    return { configured: false, state: { ...lastState } };
+  }
   if (!wired) {
     wired = true;
     autoUpdater.autoDownload = false;
@@ -31,18 +40,19 @@ function configureLauncherUpdates({ feedUrl, onEvent = () => {} }) {
     autoUpdater.allowPrerelease = false;
     autoUpdater.on('checking-for-update', () => emit({ type: 'checking' }));
     autoUpdater.on('update-available', (info) => { availableInfo = info || null; emit({ type: 'available', info, error: '' }); });
-    autoUpdater.on('update-not-available', (info) => { availableInfo = null; emit({ type: 'none', info, error: '' }); });
+    autoUpdater.on('update-not-available', (info) => { availableInfo = null; emit({ type: 'current', info, error: '' }); });
     autoUpdater.on('download-progress', (progress) => emit({ type: 'progress', progress }));
     autoUpdater.on('update-downloaded', (info) => emit({ type: 'downloaded', info }));
     autoUpdater.on('error', (error) => emit({ type: 'error', message: error?.message || String(error) }));
   }
   if (configuredUrl !== normalized) {
+    if (downloadCancellation && !downloadCancellation.cancelled) downloadCancellation.cancel();
     configuredUrl = normalized;
     availableInfo = null;
-    lastState = { type: 'idle', info: null, progress: null, error: '' };
+    lastState = normalizeLauncherUpdateState({ type: 'idle' }, app.getVersion());
     autoUpdater.setFeedURL({ provider: 'generic', url: normalized });
   }
-  return { configured: true, url: normalized, state: lastState };
+  return { configured: true, url: normalized, state: { ...lastState } };
 }
 
 async function checkLauncherUpdate(config, onEvent) {
@@ -84,7 +94,10 @@ async function downloadLauncherUpdate(config, onEvent) {
     throw new Error('Primero comprobá si hay una actualización disponible.');
   }
   if (downloadPromise) return downloadPromise;
-  downloadPromise = autoUpdater.downloadUpdate()
+  const downloadUrl = configuredUrl;
+  const cancellation = new CancellationToken();
+  downloadCancellation = cancellation;
+  downloadPromise = autoUpdater.downloadUpdate(cancellation)
     .then((files) => {
       // electron-updater versions differ on whether the promise resolves
       // before or after `update-downloaded`. Normalize the state so the
@@ -94,6 +107,10 @@ async function downloadLauncherUpdate(config, onEvent) {
     })
     .catch((error) => {
       const message = error?.message || String(error);
+      if (cancellation.cancelled) {
+        if (configuredUrl === downloadUrl && availableInfo) emit({ type: 'available', info: availableInfo, error: '' });
+        return { downloaded: false, cancelled: true, state: lastState };
+      }
       // Keep the retry path usable after a transient download failure. The
       // updater already knows which release was offered, so returning to the
       // available state lets the user press DESCARGAR again instead of being
@@ -102,8 +119,20 @@ async function downloadLauncherUpdate(config, onEvent) {
       else emit({ type: 'error', message });
       throw error;
     })
-    .finally(() => { downloadPromise = null; });
+    .finally(() => {
+      downloadPromise = null;
+      if (downloadCancellation === cancellation) downloadCancellation = null;
+    });
   return downloadPromise;
+}
+
+async function cancelLauncherUpdate() {
+  if (!downloadPromise || !downloadCancellation) return { cancelled:false, state:getLauncherUpdateState() };
+  const cancellation = downloadCancellation;
+  const pending = downloadPromise;
+  if (!cancellation.cancelled) cancellation.cancel();
+  try { await pending; } catch (_) {}
+  return { cancelled:true, state:getLauncherUpdateState() };
 }
 
 function installLauncherUpdate() {
@@ -113,4 +142,6 @@ function installLauncherUpdate() {
   return true;
 }
 
-module.exports = { configureLauncherUpdates, checkLauncherUpdate, downloadLauncherUpdate, installLauncherUpdate };
+function getLauncherUpdateState() { return { ...normalizeLauncherUpdateState(lastState, app.getVersion()) }; }
+
+module.exports = { configureLauncherUpdates, checkLauncherUpdate, downloadLauncherUpdate, cancelLauncherUpdate, installLauncherUpdate, getLauncherUpdateState };

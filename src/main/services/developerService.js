@@ -208,10 +208,11 @@ function runPublisherProcess({ args, cwd, onLine = () => {}, timeoutMs, label, e
 }
 
 class DeveloperService {
-  constructor(userDataDir, scriptRoot, launcherVersion = '') {
+  constructor(userDataDir, scriptRoot, launcherVersion = '', { variant = 'public' } = {}) {
     this.file = path.join(userDataDir, 'developer-secrets.json');
     this.scriptRoot = scriptRoot;
     this.launcherVersion = String(launcherVersion || process.env.npm_package_version || '');
+    this.variant = variant === 'developer' ? 'developer' : 'public';
     this.publishWorkDir = path.join(userDataDir, 'pack-dist-publish');
     this.unlocked = false;
     // `gh auth status` and `gh api user` are synchronous CLI calls. The
@@ -232,13 +233,11 @@ class DeveloperService {
       return false;
     }
   }
-  // The public Windows/Linux artifacts never pass this flag. The local Fedora
-  // wrapper sets both the environment marker and the explicit argument so the
-  // private maintenance build remains available even when Electron is launched
-  // through a desktop entry/AppImage wrapper.
+  // The build entrypoint supplies this immutable variant. Runtime environment
+  // variables and command-line flags are deliberately not authorization: a
+  // public package never imports this service or registers its IPC handlers.
   isMaintenanceBuild() {
-    if (process.platform !== 'linux') return false;
-    return process.env.ETERNAL_DEVELOPER_BUILD === '1' || process.argv.includes('--developer-build');
+    return this.variant === 'developer';
   }
   load() { try { const value = JSON.parse(fs.readFileSync(this.file, 'utf8')); if (value && Object.prototype.hasOwnProperty.call(value, 'curseforgeApiKey')) { delete value.curseforgeApiKey; try { this.save(value); } catch (_) {} } return value || {}; } catch (_) { return {}; } }
   save(data) {

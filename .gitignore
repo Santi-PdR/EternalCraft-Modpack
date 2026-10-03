@@ -1,4 +1,5 @@
 node_modules/
+build/preload/
 dist/
 release-files/
 pack-dist/

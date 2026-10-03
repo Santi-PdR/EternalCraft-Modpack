@@ -29,7 +29,7 @@ if (build.status !== 0) process.exit(build.status || 1);
 
 const server = spawn(process.execPath, [path.join(__dirname, 'serve-pack.js')], { stdio: 'inherit' });
 const electronBin = require('electron');
-const app = spawn(electronBin, ['.'], {
+const app = spawn(electronBin, [path.join(__dirname, '..', 'src', 'main', 'developerMain.js')], {
   cwd: path.join(__dirname, '..'), stdio: 'inherit',
   env: { ...process.env, ETERNAL_PACK_MANIFEST: 'http://127.0.0.1:4174/channel/stable.json' }
 });

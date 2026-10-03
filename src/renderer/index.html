@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Eternal Craft Launcher</title>
   <link rel="stylesheet" href="styles.css" />
+  <link rel="stylesheet" href="ux-polish.css" />
 </head>
 <body>
   <div id="background" class="background scene-frontline"></div>
@@ -152,7 +153,7 @@
 
         <div id="launcherUpdateBanner" class="launcher-update-banner hidden">
           <div><span class="eyebrow">LAUNCHER UPDATE</span><b id="launcherUpdateBannerTitle">Nueva versión disponible</b><small id="launcherUpdateBannerText">Podés actualizar sin volver a descargar el modpack.</small></div>
-          <button id="launcherUpdateBtn" class="primary">DESCARGAR</button>
+          <div class="launcher-update-actions"><button id="launcherUpdateBtn" class="primary">DESCARGAR</button><button id="launcherUpdateCancelBtn" class="ghost hidden">CANCELAR</button><button id="launcherUpdateDismissBtn" class="icon-button" type="button" aria-label="Ocultar aviso de actualización" title="Ocultar aviso">×</button></div>
         </div>
 
         <div id="healthRibbon" class="health-ribbon">
@@ -399,7 +400,7 @@
         <div class="update-center-grid">
           <article class="panel update-product-card" data-update-kind="pack"><div class="update-product-icon">▦</div><div class="update-product-copy"><span>MODPACK OFICIAL</span><b id="updatesPackTitle">Comprobando…</b><small id="updatesPackText">—</small></div><button id="updatesPackBtn" class="ghost">ABRIR</button></article>
           <article class="panel update-product-card" data-update-kind="mods"><div class="update-product-icon">◇</div><div class="update-product-copy"><span>MODS PERSONALES</span><b id="updatesModsTitle">Comprobando…</b><small id="updatesModsText">—</small></div><button id="updatesModsBtn" class="ghost">ABRIR</button></article>
-          <article class="panel update-product-card" data-update-kind="launcher"><div class="update-product-icon">↻</div><div class="update-product-copy"><span>LAUNCHER</span><b id="updatesLauncherTitle">v0.80.0</b><small id="updatesLauncherText">Comprobando canal…</small></div><button id="updatesLauncherBtn" class="ghost">COMPROBAR</button></article>
+          <article class="panel update-product-card" data-update-kind="launcher"><div class="update-product-icon">↻</div><div class="update-product-copy"><span>LAUNCHER</span><b id="updatesLauncherTitle">v0.80.0</b><small id="updatesLauncherText">Comprobando canal…</small></div><div class="update-product-actions"><button id="updatesLauncherBtn" class="ghost">COMPROBAR</button><button id="updatesLauncherCancelBtn" class="ghost hidden">CANCELAR</button></div></article>
           <article class="panel update-product-card" data-update-kind="runtime"><div class="update-product-icon">J</div><div class="update-product-copy"><span>RUNTIME</span><b id="updatesRuntimeTitle">Java 17</b><small id="updatesRuntimeText">—</small></div><button id="updatesRuntimeBtn" class="ghost">AJUSTES</button></article>
         </div>
         <article class="panel update-policy-card">
@@ -502,7 +503,7 @@
           <button class="settings-tab" data-settings-tab="desktop">Aplicación</button>
           <button class="settings-tab" data-settings-tab="appearance">Apariencia</button>
           <button class="settings-tab" data-settings-tab="maintenance">Mantenimiento</button><button class="settings-tab" data-settings-tab="about">Información</button>
-          <button id="settingsDeveloperTab" class="settings-tab" data-settings-tab="developer">Developer</button>
+          <button id="settingsDeveloperTab" class="settings-tab hidden" data-settings-tab="developer">Developer</button>
         </div>
 
         <div class="settings-layout">
@@ -547,7 +548,7 @@
           <article class="panel settings-section wide-section system-integration-section" data-settings-group="desktop">
             <div class="panel-head"><span>APLICACIÓN Y SISTEMA</span><b>DESKTOP</b></div>
             <div class="settings-body system-integration-grid">
-              <label class="switch-row"><span><b>Cerrar a la bandeja</b><small>La X oculta el launcher en vez de cerrarlo. Podés salir desde el icono de Eternal Craft.</small></span><input id="closeToTrayToggle" type="checkbox"/><i></i></label>
+              <div class="desktop-behavior-note"><b>Cierre de la ventana</b><span>La X cierra el launcher. Si Minecraft está abierto, el launcher queda en segundo plano hasta que termina la sesión.</span></div>
               <label class="switch-row"><span><b>Iniciar con el sistema</b><small>Abre Eternal Craft Launcher al iniciar sesión en Windows o Fedora.</small></span><input id="startWithSystemToggle" type="checkbox"/><i></i></label>
               <label class="switch-row"><span><b>Iniciar minimizado</b><small>Si inicia con el sistema, queda en segundo plano hasta que lo necesites.</small></span><input id="startMinimizedToggle" type="checkbox"/><i></i></label>
               <label class="switch-row"><span><b>Notificaciones del sistema</b><small>Avisa cuando termina una reparación o hay una actualización del launcher.</small></span><input id="nativeNotificationsToggle" type="checkbox"/><i></i></label>
@@ -582,6 +583,11 @@
           <article class="panel settings-section wide-section maintenance-section" data-settings-group="maintenance">
             <div class="panel-head"><span>MANTENIMIENTO</span><b>LOCAL</b></div>
             <div class="settings-body maintenance-body">
+              <div class="maintenance-update-card">
+                <div class="maintenance-update-mark">↻</div>
+                <div class="maintenance-update-copy"><span class="eyebrow">ETERNAL CRAFT LAUNCHER</span><b id="maintenanceLauncherUpdateTitle">Estado del launcher</b><small id="maintenanceLauncherUpdateText">La comprobación automática se realiza en segundo plano.</small></div>
+                <div class="maintenance-update-actions"><button id="maintenanceLauncherUpdateBtn" class="ghost">COMPROBAR</button><button id="maintenanceLauncherCancelBtn" class="ghost hidden">CANCELAR</button></div>
+              </div>
               <div class="storage-overview">
                 <div><span>MODS</span><b id="storageMods">—</b></div><div><span>CONFIG</span><b id="storageConfig">—</b></div><div><span>CACHÉ</span><b id="storageCacheDetail">—</b></div><div><span>BACKUPS</span><b id="storageRecovery">—</b></div><div><span>LOGS</span><b id="storageLogs">—</b></div>
               </div>
@@ -619,7 +625,7 @@
             </div>
           </article>
 
-          <article id="developerSection" class="panel settings-section wide-section developer-section" data-settings-group="developer">
+          <article id="developerSection" class="panel settings-section wide-section developer-section hidden" data-settings-group="developer">
             <div class="panel-head"><span>MODO DESARROLLADOR</span><b id="developerStateBadge">BLOQUEADO</b></div>
             <div class="settings-body developer-body">
               <div id="developerLocked" class="developer-gate">

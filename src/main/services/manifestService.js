@@ -3,12 +3,12 @@ const path = require('path');
 const { fileURLToPath } = require('url');
 const launcherVersion = require('../../../package.json').version;
 
-async function fetchJson(url, timeoutMs = 12000) {
+async function fetchJson(url, timeoutMs = 12000, attempts = 3) {
   const value = String(url || '').trim();
   if (value.startsWith('file://')) return JSON.parse(fs.readFileSync(fileURLToPath(value), 'utf8'));
   if (path.isAbsolute(value)) return JSON.parse(fs.readFileSync(value, 'utf8'));
   let lastError;
-  for (let attempt = 1; attempt <= 3; attempt++) {
+  for (let attempt = 1; attempt <= attempts; attempt++) {
     const controller = new AbortController();
     const timer = setTimeout(() => controller.abort(), timeoutMs);
     try {
@@ -30,7 +30,7 @@ async function fetchJson(url, timeoutMs = 12000) {
         || error?.name === 'TypeError'
         || /fetch failed|network|socket|connect/i.test(String(error?.message || ''));
       if (!lastError?.retryable && error?.name !== 'AbortError' && !transientNetworkError) throw lastError;
-      if (attempt < 3) await new Promise((resolve) => setTimeout(resolve, 250 * 2 ** (attempt - 1)));
+      if (attempt < attempts) await new Promise((resolve) => setTimeout(resolve, 250 * 2 ** (attempt - 1)));
     } finally {
       clearTimeout(timer);
     }
@@ -133,4 +133,41 @@ async function getManifest(config, localManifestPath, cachePath = '') {
   }
 }
 
-module.exports = { getManifest, fetchJson, validateManifest };
+// Startup and Play need a bounded metadata lookup: a slow/offline channel must
+// not hold the first window behind the full retry policy used by repairs.
+// Integrity-sensitive operations continue to use getManifest() and its retries.
+async function getManifestQuick(config, localManifestPath, cachePath = '', timeoutMs = 1800) {
+  const envUrl = String(process.env.ETERNAL_PACK_MANIFEST || '').trim();
+  const url = envUrl || String(config.pack?.manifestUrl || '').trim();
+  if (!url) {
+    return { manifest: JSON.parse(fs.readFileSync(localManifestPath, 'utf8')), source: 'local-example', configured: false, stale: false };
+  }
+  let error = null;
+  try {
+    const manifest = validateManifest(await fetchJson(url, timeoutMs, 1));
+    if (!envUrl && /^https?:\/\//i.test(url)) writeCache(cachePath, manifest, url);
+    return { manifest, source: url, configured: true, stale: false };
+  } catch (err) {
+    error = err;
+  }
+  const cached = !envUrl ? readCache(cachePath) : null;
+  if (cached) {
+    return {
+      manifest: cached.manifest,
+      source: 'cache',
+      configured: true,
+      stale: true,
+      cachedAt: cached.cachedAt || '',
+      error: error?.message || String(error || 'No se pudo consultar el canal.')
+    };
+  }
+  return {
+    manifest: JSON.parse(fs.readFileSync(localManifestPath, 'utf8')),
+    source: 'local-example',
+    configured: false,
+    stale: false,
+    error: error?.message || String(error || 'No se pudo consultar el canal.')
+  };
+}
+
+module.exports = { getManifest, getManifestQuick, fetchJson, validateManifest };

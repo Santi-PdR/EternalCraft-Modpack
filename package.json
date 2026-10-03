@@ -2,7 +2,7 @@
   "name": "eternal-craft-launcher",
   "version": "0.80.0",
   "description": "Launcher oficial de Eternal Craft // SIEGE: experiencia premium, actualización segura, biblioteca de mods, Crash Guard y herramientas de desarrollo.",
-  "main": "src/main/main.js",
+  "main": "src/main/publicMain.js",
   "author": "Eternal Craft",
   "license": "UNLICENSED",
   "private": true,
@@ -18,7 +18,8 @@
     "node": ">=22"
   },
   "scripts": {
-    "start": "electron .",
+    "start": "node scripts/bundle-preloads.js && electron .",
+    "start:developer": "node scripts/bundle-preloads.js && electron src/main/developerMain.js",
     "preview": "python3 -m http.server 4173 -d src/renderer",
     "check": "node scripts/check-project.js",
     "test": "node --test tests/*.test.js",
@@ -26,9 +27,10 @@
     "pack:serve": "node scripts/serve-pack.js",
     "dev:pack": "node scripts/dev-pack.js",
     "pack:publish:github": "node scripts/publish-pack-github.js",
-    "dist": "electron-builder --publish never",
-    "dist:linux": "electron-builder --linux AppImage --publish never",
-    "dist:win": "electron-builder --win nsis portable --publish never",
+    "dist": "node scripts/build-launcher.js --variant public",
+    "dist:linux": "node scripts/build-launcher.js --variant public --linux",
+    "dist:win": "node scripts/build-launcher.js --variant public --win",
+    "dist:developer:linux": "node scripts/build-launcher.js --variant developer --linux",
     "distribution:configure": "node scripts/configure-distribution.js",
     "visuals:sync": "node scripts/sync-siege-visuals.js",
     "visuals:fetch": "node scripts/fetch-siege-visuals-github.js"
